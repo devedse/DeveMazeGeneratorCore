@@ -1,17 +1,29 @@
 version: 1.0.{build}
+os: Visual Studio 2015
 skip_tags: true
 configuration: Release
+
 before_build:
-- cmd: nuget restore
-build:
-  verbosity: minimal
+  - ps: .\Scripts\show-dotnet-info.ps1
+  - ps: .\Scripts\set-version.ps1
+  - cmd: dotnet --info
+  - cmd: dotnet restore
+
+build_script:
+  - cmd: dotnet build -c Release src\DeveMazeGenerator\
+
 after_build:
-- cmd: Scripts\GoRepack.cmd
+  - cmd: dotnet pack -c Release src\DeveMazeGenerator\
+  - cmd: Scripts\GoRepack.cmd
+
+test: off
+
 artifacts:
 - path: Scripts\DeveMazeGeneratorCore.7z
   name: droppackage7z
 - path: Scripts\DeveMazeGeneratorCore.zip
   name: droppackagezip
+
 deploy:
 - provider: GitHub
   auth_token:
