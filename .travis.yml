@@ -115,7 +115,7 @@ install:
   - dotnet restore
 
   # Build projects
-  - dotnet build -c $CONFIGURATION -f netcoreapp1.0 ./src/DeveMazeGenerator
+  - dotnet build -c $CONFIGURATION ./src/DeveMazeGenerator
 
 notifications:
   email: false
