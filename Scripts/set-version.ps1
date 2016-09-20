@@ -14,7 +14,7 @@ $ScriptDir = Split-Path -Path $PSScriptFilePath -Parent
 $SolutionRoot = Split-Path -Path $ScriptDir -Parent
 
  $ProjectJsonPath = Join-Path -Path $SolutionRoot -ChildPath "src\DeveMazeGenerator\project.json"
- $re = [regex]"(?<=`"version`":\s`")[.\w-]*(?=`",)"
+ $re = [regex]"(?<=`"version`":\s`")[.\w-\*]*(?=`",)"
  
  Write-Host "ProjectJson Path: $ProjectJsonPath"
  Write-Host "Writing version: $ReleaseVersionNumber$PreReleaseName"
