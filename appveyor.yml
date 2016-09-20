@@ -3,6 +3,12 @@ os: Visual Studio 2015
 skip_tags: true
 configuration: Release
 
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+
 before_build:
   - cmd: dotnet --info
   - cmd: dotnet restore
