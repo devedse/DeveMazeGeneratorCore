@@ -10,6 +10,7 @@ assembly_info:
   assembly_file_version: '{version}'
 
 before_build:
+  - ps: .\scripts\set-version.ps1
   - cmd: dotnet --info
   - cmd: dotnet restore
 
