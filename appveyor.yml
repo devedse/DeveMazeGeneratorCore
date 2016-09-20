@@ -4,8 +4,6 @@ skip_tags: true
 configuration: Release
 
 before_build:
-  - ps: .\Scripts\show-dotnet-info.ps1
-  - ps: .\Scripts\set-version.ps1
   - cmd: dotnet --info
   - cmd: dotnet restore
 
