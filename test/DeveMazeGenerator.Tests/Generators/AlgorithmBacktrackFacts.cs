@@ -1,6 +1,7 @@
 ﻿using DeveMazeGenerator.Generators;
 using DeveMazeGenerator.InnerMaps;
 using System;
+using System.Diagnostics;
 using Xunit;
 
 namespace DeveMazeGenerator.Tests.Generators
@@ -28,6 +29,9 @@ namespace DeveMazeGenerator.Tests.Generators
                 generator.Generate(innerMap, mazeAction);
 
                 //Assert
+                Debug.WriteLine("Taken steps: " + current);
+                Debug.WriteLine("Total steps: " + total);
+
                 Assert.NotEqual(0, total);
                 Assert.Equal(total, current);
             }
