@@ -1,0 +1,3 @@
+[submodule "ImageProcessor"]
+	path = ImageProcessor
+	url = https://github.com/JimBobSquarePants/ImageProcessor
