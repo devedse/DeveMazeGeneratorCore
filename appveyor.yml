@@ -18,7 +18,7 @@ before_build:
   - cmd: dotnet restore
 
 build_script:
-  - cmd: dotnet build -c Release src\DeveMazeGenerator\
+  - cmd: dotnet build -c Release **\project.json
 
 test_script:
   - cmd: dotnet test -c release test\DeveMazeGenerator.Tests\

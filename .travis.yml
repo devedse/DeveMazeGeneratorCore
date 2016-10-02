@@ -115,7 +115,7 @@ install:
   - dotnet restore
 
   # Build projects
-  - dotnet build -c $CONFIGURATION ./src/DeveMazeGenerator
+  - dotnet build -c $CONFIGURATION **/project.json
 
 script:
   # Run tests
