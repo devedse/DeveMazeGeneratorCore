@@ -5,7 +5,10 @@
   "dependencies": {
     "DeveMazeGenerator": "1.0.0-*",
     "dotnet-test-xunit": "1.0.0-rc2-192208-24",
-    "Microsoft.NETCore.App": "1.0.1",
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.1"
+    },
     "System.Runtime.Serialization.Primitives": "4.1.1",
     "xunit": "2.1.0"
   },
