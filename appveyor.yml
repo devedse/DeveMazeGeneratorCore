@@ -27,8 +27,6 @@ after_test:
   - cmd: dotnet pack -c Release src\DeveMazeGenerator\
   - cmd: Scripts\GoRepack.cmd
 
-test: off
-
 artifacts:
 - path: Scripts\DeveMazeGeneratorCore.7z
   name: droppackage7z
