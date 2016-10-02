@@ -17,7 +17,10 @@ before_build:
 build_script:
   - cmd: dotnet build -c Release src\DeveMazeGenerator\
 
-after_build:
+test_script:
+  - cmd: dotnet test -c release test\DeveMazeGenerator.Tests\
+  
+after_test:
   - cmd: dotnet pack -c Release src\DeveMazeGenerator\
   - cmd: Scripts\GoRepack.cmd
 

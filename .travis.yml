@@ -117,5 +117,9 @@ install:
   # Build projects
   - dotnet build -c $CONFIGURATION ./src/DeveMazeGenerator
 
+script:
+  # Run tests
+  - dotnet test -c $CONFIGURATION ./test/DeveMazeGenerator.Tests
+
 notifications:
   email: false
