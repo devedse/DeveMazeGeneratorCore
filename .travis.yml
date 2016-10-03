@@ -112,7 +112,8 @@ install:
   - node -e "jsonPath='./src/DeveMazeGenerator/project.json';data=require(jsonPath);fs=require('fs');delete data.frameworks.net451;fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2))"
 
   # Restore dependencies
-  - dotnet restore
+  - dotnet restore src
+  - dotnet restore test
 
   # Build projects
   - dotnet build -c $CONFIGURATION  ./src/**/project.json
