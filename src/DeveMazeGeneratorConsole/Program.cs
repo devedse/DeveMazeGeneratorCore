@@ -11,6 +11,35 @@ namespace DeveMazeGeneratorConsole
     {
         public static void Main(string[] args)
         {
+            Test2();
+
+            Console.ReadKey();
+        }
+
+        public static void Test2()
+        {
+            int totSize = 16;
+
+            var alg = new AlgorithmDivisionDynamic(totSize, totSize, 1337);
+
+            var partTot = alg.GenerateMapPart(0, 0, totSize, totSize);
+            SaveMaze("parttot.png", partTot);
+
+            int b = 8;
+
+            var part1 = alg.GenerateMapPart(0, 0, b, b);
+            var part2 = alg.GenerateMapPart(b, 0, b, b);
+            var part3 = alg.GenerateMapPart(0, b, b, b);
+            var part4 = alg.GenerateMapPart(b, b, b, b);
+
+            SaveMaze("part1.png", part1);
+            SaveMaze("part2.png", part2);
+            SaveMaze("part3.png", part3);
+            SaveMaze("part4.png", part4);
+        }
+
+        public static void Test1()
+        {
             var map = new BitArreintjeFastInnerMap(16384, 16384);
             var alg = new AlgorithmBacktrack();
 
@@ -20,19 +49,22 @@ namespace DeveMazeGeneratorConsole
             alg.Generate(map, null);
             var elapsed = w.Elapsed;
 
-
+            SaveMaze("output.png", map);
 
             Console.WriteLine($"Done in: {elapsed}");
 
-            using (var fs = new FileStream("output.png", FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-            {
-                MazeToImage(map, fs);
-            }
+           
             //Console.WriteLine(map.GenerateMapAsString());
 
             Console.WriteLine("Written file");
+        }
 
-            Console.ReadKey();
+        public static void SaveMaze(string fileName, InnerMap maze)
+        {
+            using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+            {
+                MazeToImage(maze, fs);
+            }
         }
 
         public static void MazeToImage(InnerMap map, Stream stream)
