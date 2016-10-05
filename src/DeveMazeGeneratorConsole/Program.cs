@@ -18,24 +18,47 @@ namespace DeveMazeGeneratorConsole
 
         public static void Test2()
         {
-            int totSize = 32;
+            int totSize = 1024;
+
+            Console.WriteLine($"Tot size: {totSize}");
 
             var alg = new AlgorithmDivisionDynamic(totSize, totSize, 1337);
 
-            var partTot = alg.GenerateMapPart(0, 0, totSize, totSize);
-            SaveMaze("parttot.png", partTot);
+            //var partTot = alg.GenerateMapPart(0, 0, totSize, totSize);
+            //SaveMaze("parttot.png", partTot);
 
-            int b = totSize / 2;
+            int b = 256;
 
-            var part1 = alg.GenerateMapPart(0, 0, b, b);
-            var part2 = alg.GenerateMapPart(b, 0, b, b);
-            var part3 = alg.GenerateMapPart(0, b, b, b);
-            var part4 = alg.GenerateMapPart(b, b, b, b);
+            var dir = Directory.CreateDirectory("Images");
+            var w = new Stopwatch();
+
+            var dinges = totSize / b;
+            if (totSize % b != 0)
+            {
+                dinges += 1;
+            }
+            for (int y = 0; y < dinges; y++)
+            {
+                for (int x = 0; x < dinges; x++)
+                {
+                    w.Restart();
+                    var part = alg.GenerateMapPart(x * b, y * b, b, b);
+                    w.Stop();
+                    SaveMaze(Path.Combine("Images", $"{x}_{y}.png"), part);
+                    Console.WriteLine($"{x}_{y}.png : {w.Elapsed}");
+                }
+            }
+
+
+            var part1 = alg.GenerateMapPart(768, 0, b, b);
+            //var part2 = alg.GenerateMapPart(b, 0, b, b);
+            //var part3 = alg.GenerateMapPart(0, b, b, b);
+            //var part4 = alg.GenerateMapPart(b, b, b, b);
 
             SaveMaze("part1.png", part1);
-            SaveMaze("part2.png", part2);
-            SaveMaze("part3.png", part3);
-            SaveMaze("part4.png", part4);
+            //SaveMaze("part2.png", part2);
+            //SaveMaze("part3.png", part3);
+            //SaveMaze("part4.png", part4);
         }
 
         public static void Test1()
