@@ -77,7 +77,7 @@ namespace DeveMazeGenerator.Generators
                 }
             }
 
-            
+
             var visibleRectangle = new Rectangle(xStart, yStart, widthPart, heightPart, 0);
 
             var rectangles = new Stack<Rectangle>();
@@ -118,18 +118,13 @@ namespace DeveMazeGenerator.Generators
                             }
                         }
 
-                        horizontalSplit = true;
-
                         if (horizontalSplit)
                         {
                             int splitnumber = 2 + random.Next((curRect.Height - 2) / 2) * 2;
-                            int opening = 1 + random.Next((curRect.Width) / 2) * 2;
-
-                            //Console.WriteLine(splitnumber + "   ----    " + opening);
+                            int opening = 1 + random.Next((curRect.Width) / 2) * 2 + curRect.X;
 
                             Rectangle rect1 = new Rectangle(curRect.X, curRect.Y, curRect.Width, splitnumber + 1, random.Next());
                             Rectangle rect2 = new Rectangle(curRect.X, curRect.Y + splitnumber, curRect.Width, curRect.Height - splitnumber, random.Next());
-
 
 
                             int xStartDraw = Math.Max(0, curRect.X - xStart);
@@ -149,35 +144,34 @@ namespace DeveMazeGenerator.Generators
                             }
 
 
-                            //for (int i = curRect.X; i < curRect.X + curRect.Width; i++)
-                            //{
-                            //    if (i - curRect.X != opening)
-                            //    {
-                            //        map[i, curRect.Y + splitnumber] = false;
-                            //        //form.drawPixel(i, curRect.Y + splitnumber, Brushes.Black);
-                            //    }
-                            //}
-
                             rectangles.Push(rect1);
                             rectangles.Push(rect2);
                         }
                         else
                         {
                             int splitnumber = 2 + random.Next((curRect.Width - 2) / 2) * 2;
-                            int opening = 1 + random.Next((curRect.Height) / 2) * 2;
-
-                            //Console.WriteLine(splitnumber + "   ----    " + opening);
+                            int opening = 1 + random.Next((curRect.Height) / 2) * 2 + curRect.Y;
 
                             Rectangle rect1 = new Rectangle(curRect.X, curRect.Y, splitnumber + 1, curRect.Height, random.Next());
                             Rectangle rect2 = new Rectangle(curRect.X + splitnumber, curRect.Y, curRect.Width - splitnumber, curRect.Height, random.Next());
 
-                            //for (int i = curRect.Y; i < curRect.Y + curRect.Height; i++)
-                            //{
-                            //    if (i - curRect.Y != opening)
-                            //    {
-                            //        map[curRect.X + splitnumber, i] = false;
-                            //    }
-                            //}
+
+                            var yStartDraw = Math.Max(0, curRect.Y - yStart);
+                            int yEndDraw = Math.Min(heightPart, curRect.Y - yStart + curRect.Height);
+
+                            int xPos = curRect.X + splitnumber - xStart;
+
+                            if (xPos >= 0 && xPos < widthPart - 1)
+                            {
+                                for (int i = yStartDraw; i < yEndDraw; i++)
+                                {
+                                    if (i != opening - yStart)
+                                    {
+                                        map[xPos, i] = false;
+                                    }
+                                }
+                            }
+
 
                             rectangles.Push(rect1);
                             rectangles.Push(rect2);

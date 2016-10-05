@@ -18,14 +18,14 @@ namespace DeveMazeGeneratorConsole
 
         public static void Test2()
         {
-            int totSize = 16;
+            int totSize = 32;
 
             var alg = new AlgorithmDivisionDynamic(totSize, totSize, 1337);
 
             var partTot = alg.GenerateMapPart(0, 0, totSize, totSize);
             SaveMaze("parttot.png", partTot);
 
-            int b = 8;
+            int b = totSize / 2;
 
             var part1 = alg.GenerateMapPart(0, 0, b, b);
             var part2 = alg.GenerateMapPart(b, 0, b, b);
@@ -53,7 +53,7 @@ namespace DeveMazeGeneratorConsole
 
             Console.WriteLine($"Done in: {elapsed}");
 
-           
+
             //Console.WriteLine(map.GenerateMapAsString());
 
             Console.WriteLine("Written file");
