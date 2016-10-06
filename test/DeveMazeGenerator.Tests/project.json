@@ -9,6 +9,7 @@
       "type": "platform",
       "version": "1.0.1"
     },
+    "System.Diagnostics.TraceSource": "4.0.0",
     "System.Runtime.Serialization.Primitives": "4.1.1",
     "xunit": "2.1.0"
   },

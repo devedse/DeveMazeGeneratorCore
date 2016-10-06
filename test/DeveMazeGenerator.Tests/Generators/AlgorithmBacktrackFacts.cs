@@ -29,8 +29,8 @@ namespace DeveMazeGenerator.Tests.Generators
                 generator.Generate(innerMap, mazeAction);
 
                 //Assert
-                Debug.WriteLine("Taken steps: " + current);
-                Debug.WriteLine("Total steps: " + total);
+                Trace.WriteLine("Taken steps: " + current);
+                Trace.WriteLine("Total steps: " + total);
 
                 Assert.NotEqual(0, total);
                 Assert.Equal(total, current);
