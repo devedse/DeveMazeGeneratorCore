@@ -1,4 +1,5 @@
 ﻿using DeveMazeGenerator.Generators;
+using DeveMazeGenerator.Generators.Helpers;
 using DeveMazeGenerator.InnerMaps;
 using ImageProcessorCore;
 using System;
@@ -11,18 +12,43 @@ namespace DeveMazeGeneratorConsole
     {
         public static void Main(string[] args)
         {
-            Test2();
+            Test1();
 
             Console.ReadKey();
         }
 
         public static void Test2()
         {
+            var netRandom = new NetRandom(1337);
+            var a0 = netRandom.Next();
+            var b0 = netRandom.Next();
+
+            netRandom.Reinitialise(100);
+            var a1 = netRandom.Next();
+            var b1 = netRandom.Next();
+
+            var netRandomNew = new NetRandom(100);
+            var a2 = netRandomNew.Next();
+            var b2 = netRandomNew.Next();
+
+
+
             int totSize = 1024;
 
             Console.WriteLine($"Tot size: {totSize}");
 
             var alg = new AlgorithmDivisionDynamic(totSize, totSize, 1337);
+
+
+            for (int y = 0; y < 8; y++)
+            {
+                var ww = Stopwatch.StartNew();
+                for (int i = 0; i < 100; i++)
+                {
+                    var a = alg.GenerateMapPart(0, 0, 256, 256);
+                }
+                Console.WriteLine(ww.Elapsed);
+            }
 
             //var partTot = alg.GenerateMapPart(0, 0, totSize, totSize);
             //SaveMaze("parttot.png", partTot);
@@ -63,18 +89,20 @@ namespace DeveMazeGeneratorConsole
 
         public static void Test1()
         {
-            var map = new BitArreintjeFastInnerMap(16384, 16384);
             var alg = new AlgorithmBacktrack();
 
-
+            int size = 16384;
 
             var w = Stopwatch.StartNew();
-            alg.Generate(map, null);
-            var elapsed = w.Elapsed;
+            var map = alg.Generate<BitArreintjeFastInnerMap, XorShiftRandom>(size, size, null);
 
+            Console.WriteLine($"Generated maze in {w.Elapsed}");
+            Console.WriteLine("Saving maze...");
+
+            w.Restart();
             SaveMaze("output.png", map);
 
-            Console.WriteLine($"Done in: {elapsed}");
+            Console.WriteLine($"Saved maze in: {w.Elapsed}");
 
 
             //Console.WriteLine(map.GenerateMapAsString());

@@ -2,33 +2,12 @@
 using DeveMazeGenerator.InnerMaps;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace DeveMazeGenerator.Generators
 {
     public class AlgorithmBacktrack : Algorithm
     {
-        public void Generate(InnerMap map, Action<int, int, long, long> pixelChangedCallback)
-        {
-            //if (pixelChangedCallback == null)
-            //{
-            //    pixelChangedCallback = (x, y, z, u) => { };
-            //}
-
-            GoGenerate(map, new FastRandom(), pixelChangedCallback);
-        }
-
-        public void Generate(InnerMap map, int seed, Action<int, int, long, long> pixelChangedCallback)
-        {
-            //if (pixelChangedCallback == null)
-            //{
-            //    pixelChangedCallback = (x, y, z, u) => { };
-            //}
-
-            GoGenerate(map, new FastRandom(seed), pixelChangedCallback);
-        }
-
-        private void GoGenerate(InnerMap map, FastRandom r, Action<int, int, long, long> pixelChangedCallback)
+        public override void GoGenerate(InnerMap map, IRandom random, Action<int, int, long, long> pixelChangedCallback)
         {
             long totSteps = (map.Width - 1L) / 2L * ((map.Height - 1L) / 2L);
             long currentStep = 1;
@@ -81,7 +60,7 @@ namespace DeveMazeGenerator.Generators
 
                 if (targetCount > 0)
                 {
-                    var target = targets[r.Next(targetCount)];
+                    var target = targets[random.Next(targetCount)];
                     stackje.Push(target);
                     map[target.X, target.Y] = true;
 

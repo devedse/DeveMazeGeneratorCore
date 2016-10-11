@@ -1,4 +1,5 @@
 ﻿using DeveMazeGenerator.Generators;
+using DeveMazeGenerator.Generators.Helpers;
 using DeveMazeGenerator.InnerMaps;
 using ImageProcessorCore;
 using Microsoft.AspNetCore.Mvc;
@@ -24,10 +25,9 @@ namespace DeveMazeGeneratorWeb.Controllers
         [HttpGet("{width}/{height}", Name = "GenerateMaze")]
         public FileStreamResult GenerateMaze(int width, int height)
         {
-            var map = new BitArreintjeFastInnerMap(width, height);
             var alg = new AlgorithmBacktrack();
 
-            alg.Generate(map, null);
+            var map = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(width, height, null);
 
             var memoryStream = new MemoryStream();
             MazeToImage(map, memoryStream);

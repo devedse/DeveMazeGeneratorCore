@@ -3,6 +3,11 @@ using System.Text;
 
 namespace DeveMazeGenerator.InnerMaps
 {
+    /// <summary>
+    /// Info about mazes:
+    /// 0 = False = Wall = Black
+    /// 1 = True = Empty = White
+    /// </summary>
     public abstract class InnerMap
     {
         public int Width { get; set; }
@@ -12,6 +17,22 @@ namespace DeveMazeGenerator.InnerMaps
         {
             Width = width;
             Height = height;
+        }
+
+        /// <summary>
+        /// Fills the map cell by cell.
+        /// This method is really slow and should be overidden where possible
+        /// </summary>
+        /// <param name="state">false = 0 = Wall, true = 1 = Empty</param>
+        public virtual void FillMap(bool state)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    this[x, y] = state;
+                }
+            }
         }
 
         //virtual can be overidden
@@ -36,12 +57,6 @@ namespace DeveMazeGenerator.InnerMaps
             }
             return stringBuilder.ToString();
         }
-
-        /// <summary>
-        /// Info about mazes:
-        /// 0 = False = Wall = Black
-        /// 1 = True = Empty = White
-        /// </summary>
 
         //abstract must be overidden
         public abstract Boolean this[int x, int y] { get; set; }

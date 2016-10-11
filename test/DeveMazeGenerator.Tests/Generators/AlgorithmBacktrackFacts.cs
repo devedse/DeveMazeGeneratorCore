@@ -1,4 +1,5 @@
 ﻿using DeveMazeGenerator.Generators;
+using DeveMazeGenerator.Generators.Helpers;
 using DeveMazeGenerator.InnerMaps;
 using System;
 using System.Diagnostics;
@@ -15,7 +16,6 @@ namespace DeveMazeGenerator.Tests.Generators
             {
                 //Arrange
                 var generator = new AlgorithmBacktrack();
-                var innerMap = new BitArreintjeFastInnerMap(128, 128);
 
                 long current = 0;
                 long total = 0;
@@ -26,7 +26,7 @@ namespace DeveMazeGenerator.Tests.Generators
                 });
 
                 //Act
-                generator.Generate(innerMap, mazeAction);
+                var map = generator.Generate<BitArreintjeFastInnerMap, NetRandom>(128, 128, mazeAction);
 
                 //Assert
                 Trace.WriteLine("Taken steps: " + current);
@@ -34,6 +34,8 @@ namespace DeveMazeGenerator.Tests.Generators
 
                 Assert.NotEqual(0, total);
                 Assert.Equal(total, current);
+                Assert.False(map[0, 0]);
+                Assert.True(map[1, 1]);
             }
         }
     }

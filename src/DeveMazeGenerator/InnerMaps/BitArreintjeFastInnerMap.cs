@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using DeveMazeGenerator.InnerMaps.InnerStuff;
+using System.Runtime.CompilerServices;
 
 namespace DeveMazeGenerator.InnerMaps
 {
@@ -13,6 +14,14 @@ namespace DeveMazeGenerator.InnerMaps
             for (int i = 0; i < width; i++)
             {
                 innerData[i] = new BitArreintjeFastInnerMapArray(height);
+            }
+        }
+
+        public override void FillMap(bool state)
+        {
+            for (int i = 0; i < innerData.Length; i++)
+            {
+                innerData[i].FillMap(state);
             }
         }
 

@@ -1,6 +1,7 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 
-namespace DeveMazeGenerator.InnerMaps
+namespace DeveMazeGenerator.InnerMaps.InnerStuff
 {
     public class BitArreintjeFastInnerMapArray
     {
@@ -10,6 +11,26 @@ namespace DeveMazeGenerator.InnerMaps
         public BitArreintjeFastInnerMapArray(int height)
         {
             innerData = new int[height / 32 + 1];
+        }
+
+        public void FillMap(bool state)
+        {
+            if (state)
+            {
+                for (int i = 0; i < innerData.Length; i++)
+                {
+                    //-1 is all 1's
+                    innerData[i] = -1;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < innerData.Length; i++)
+                {
+                    //0 is all 0's
+                    innerData[i] = 0;
+                }
+            }
         }
 
         public bool this[int y]
