@@ -25,9 +25,9 @@ namespace DeveMazeGeneratorWeb.Controllers
         [HttpGet("{width}/{height}", Name = "GenerateMaze")]
         public FileStreamResult GenerateMaze(int width, int height)
         {
-            var alg = new AlgorithmBacktrack();
+            var alg = new AlgorithmDivisionDynamic();
 
-            var map = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(width, height, null);
+            var map = alg.Generate<UndefinedInnerMap, NetRandom>(width, height, null);
 
             var memoryStream = new MemoryStream();
             MazeToImage(map, memoryStream);

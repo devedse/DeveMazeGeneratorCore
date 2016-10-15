@@ -5,21 +5,22 @@ using System.Collections.Generic;
 
 namespace DeveMazeGenerator.Generators
 {
-    public class AlgorithmDivisionDynamic : Algorithm
+    public class AlgorithmDivisionDynamicOldTestingThing
     {
-        public override InnerMap GoGenerate(InnerMap map, IRandom random, Action<int, int, long, long> pixelChangedCallback)
-        {
-            int seed = random.Next();
-            Func<int, int, int, int, InnerMap> generateAction = (x, y, width, height) => GenerateMapPart(x, y, map.Width, map.Height, width, height, random, seed);
-            Action<InnerMap> storeAction = (x) => { };
+        private int width;
+        private int height;
+        private int seed;
 
-            var totalMap = new CachedInnerMap(map.Width, map.Height, 20, Math.Min(Math.Min(map.Width, map.Height), 64), generateAction, storeAction);
-            return totalMap;
+        public AlgorithmDivisionDynamicOldTestingThing(int width, int height, int seed)
+        {
+            this.width = width;
+            this.height = height;
+            this.seed = seed;
         }
 
-        public InnerMap GenerateMapPart(int xStart, int yStart, int width, int height, int widthPart, int heightPart, IRandom random, int seed)
+        public InnerMap GenerateMapPart(int xStart, int yStart, int widthPart, int heightPart)
         {
-            InnerMap map = new BitArreintjeFastInnerMap(widthPart, heightPart) { StartX = xStart, StartY = yStart };
+            InnerMap map = new BitArreintjeFastInnerMap(widthPart, heightPart);
 
             //If the maze is out of screen
             var theRightEdge = Math.Max(((xStart + widthPart) - width), 0);
@@ -81,9 +82,11 @@ namespace DeveMazeGenerator.Generators
 
             var rectangles = new Stack<Rectangle>();
 
+            var random = new NetRandom(seed);
 
-            var startRect = new Rectangle(0, 0, MakeUneven(width), MakeUneven(height), seed);
+            var startRect = new Rectangle(0, 0, MakeUneven(width), MakeUneven(height), random.Next());
             rectangles.Push(startRect);
+
 
             while (rectangles.Count > 0)
             {

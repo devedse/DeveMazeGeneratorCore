@@ -12,9 +12,33 @@ namespace DeveMazeGeneratorConsole
     {
         public static void Main(string[] args)
         {
-            Test1();
+            Test3();
 
             Console.ReadKey();
+        }
+
+        public static void Test3()
+        {
+            int size = 128;
+
+            var alg = new AlgorithmDivisionDynamic();
+            var maze = alg.Generate<UndefinedInnerMap, NetRandom>(size, size, 1337, null);
+
+            SaveMaze(Path.Combine($"dinges.png"), maze);
+
+
+            var otherThing = new AlgorithmDivisionDynamicOldTestingThing(size, size, 1337);
+
+            int b = size / 2;
+            var part1 = otherThing.GenerateMapPart(0, 0, b, b);
+            var part2 = otherThing.GenerateMapPart(b, 0, b, b);
+            var part3 = otherThing.GenerateMapPart(0, b, b, b);
+            var part4 = otherThing.GenerateMapPart(b, b, b, b);
+
+            SaveMaze("part1.png", part1);
+            SaveMaze("part2.png", part2);
+            SaveMaze("part3.png", part3);
+            SaveMaze("part4.png", part4);
         }
 
         public static void Test2()
@@ -33,11 +57,11 @@ namespace DeveMazeGeneratorConsole
 
 
 
-            int totSize = 1024;
+            int totSize = 128;
 
             Console.WriteLine($"Tot size: {totSize}");
 
-            var alg = new AlgorithmDivisionDynamic(totSize, totSize, 1337);
+            var alg = new AlgorithmDivisionDynamicOldTestingThing(totSize, totSize, 1337);
 
 
             for (int y = 0; y < 8; y++)
@@ -76,7 +100,7 @@ namespace DeveMazeGeneratorConsole
             }
 
 
-            var part1 = alg.GenerateMapPart(768, 0, b, b);
+            var part1 = alg.GenerateMapPart(0, 0, b, b);
             //var part2 = alg.GenerateMapPart(b, 0, b, b);
             //var part3 = alg.GenerateMapPart(0, b, b, b);
             //var part4 = alg.GenerateMapPart(b, b, b, b);

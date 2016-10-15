@@ -7,7 +7,7 @@ namespace DeveMazeGenerator.Generators
 {
     public class AlgorithmBacktrack : Algorithm
     {
-        public override void GoGenerate(InnerMap map, IRandom random, Action<int, int, long, long> pixelChangedCallback)
+        public override InnerMap GoGenerate(InnerMap map, IRandom random, Action<int, int, long, long> pixelChangedCallback)
         {
             long totSteps = (map.Width - 1L) / 2L * ((map.Height - 1L) / 2L);
             long currentStep = 1;
@@ -103,6 +103,8 @@ namespace DeveMazeGenerator.Generators
                     stackje.Pop();
                 }
             }
+
+            return map;
         }
     }
 }

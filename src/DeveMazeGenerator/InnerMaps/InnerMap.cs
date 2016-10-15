@@ -10,8 +10,11 @@ namespace DeveMazeGenerator.InnerMaps
     /// </summary>
     public abstract class InnerMap
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+
+        public int StartX { get;  set; }
+        public int StartY { get; set; }
 
         public InnerMap(int width, int height)
         {
