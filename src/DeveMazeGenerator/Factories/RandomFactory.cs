@@ -2,9 +2,16 @@
 
 namespace DeveMazeGenerator.Factories
 {
-    public static class RandomFactory
+    public class RandomFactory<T> : IRandomFactory where T : IRandom
     {
-        public static IRandom Create<T>(int seed) where T : IRandom
+        private readonly int seed;
+
+        public RandomFactory(int seed)
+        {
+            this.seed = seed;
+        }
+
+        public IRandom Create()
         {
             var typeSwitcher = new TypeSwitch<IRandom>()
                 .Case(() => new NetRandom(seed))

@@ -30,14 +30,14 @@ namespace DeveMazeGenerator.Generators
                 pixelChangedCallback = (x, y, z, u) => { };
             }
 
-            var random = RandomFactory.Create<R>(seed);
-            var map = InnerMapFactory.Create<M>(width, height);
+            var innerMapFactory = new InnerMapFactory<M>(width, height);
+            var randomFactory = new RandomFactory<R>(seed);
 
-            var generatedMap = GoGenerate(map, random, pixelChangedCallback);
+            var generatedMap = GoGenerate(innerMapFactory, randomFactory, pixelChangedCallback);
 
             return generatedMap;
         }
 
-        public abstract InnerMap GoGenerate(InnerMap map, IRandom random, Action<int, int, long, long> pixelChangedCallback);
+        public abstract InnerMap GoGenerate<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback) where M : InnerMap;
     }
 }

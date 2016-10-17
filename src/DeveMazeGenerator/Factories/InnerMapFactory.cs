@@ -2,9 +2,18 @@
 
 namespace DeveMazeGenerator.Factories
 {
-    public class InnerMapFactory
+    public class InnerMapFactory<T> : IInnerMapFactory<T> where T : InnerMap
     {
-        public static T Create<T>(int width, int height) where T : InnerMap
+        private readonly int width;
+        private readonly int height;
+
+        public InnerMapFactory(int width, int height)
+        {
+            this.width = width;
+            this.height = height;
+        }
+
+        public T Create()
         {
             var typeSwitcher = new TypeSwitch<InnerMap>()
                 .Case(() => new BitArreintjeFastInnerMap(width, height))

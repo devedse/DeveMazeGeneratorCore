@@ -2,12 +2,21 @@
 using DeveMazeGenerator.InnerMaps;
 using System;
 using System.Collections.Generic;
+using DeveMazeGenerator.Factories;
 
 namespace DeveMazeGenerator.Generators
 {
     public class AlgorithmBacktrack : Algorithm
     {
-        public override InnerMap GoGenerate(InnerMap map, IRandom random, Action<int, int, long, long> pixelChangedCallback)
+        public override InnerMap GoGenerate<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
+        {
+            var innerMap = mapFactory.Create();
+            var random = randomFactory.Create();
+
+            return GoGenerateInternal(innerMap, random, pixelChangedCallback);
+        }
+
+        public InnerMap GoGenerateInternal(InnerMap map, IRandom random, Action<int, int, long, long> pixelChangedCallback)
         {
             long totSteps = (map.Width - 1L) / 2L * ((map.Height - 1L) / 2L);
             long currentStep = 1;
@@ -21,8 +30,7 @@ namespace DeveMazeGenerator.Generators
             stackje.Push(new MazePoint(x, y));
             map[x, y] = true;
 
-            if (pixelChangedCallback != null)
-                pixelChangedCallback.Invoke(x, y, currentStep, totSteps);
+            pixelChangedCallback.Invoke(x, y, currentStep, totSteps);
 
             MazePoint[] targets = new MazePoint[4];
 
@@ -69,34 +77,26 @@ namespace DeveMazeGenerator.Generators
                     if (target.X < x)
                     {
                         map[x - 1, y] = true;
-
-                        if (pixelChangedCallback != null)
-                            pixelChangedCallback.Invoke(x - 1, y, currentStep, totSteps);
+                        pixelChangedCallback.Invoke(x - 1, y, currentStep, totSteps);
                     }
                     else if (target.X > x)
                     {
                         map[x + 1, y] = true;
-
-                        if (pixelChangedCallback != null)
-                            pixelChangedCallback.Invoke(x + 1, y, currentStep, totSteps);
+                        pixelChangedCallback.Invoke(x + 1, y, currentStep, totSteps);
                     }
                     else if (target.Y < y)
                     {
                         map[x, y - 1] = true;
-
-                        if (pixelChangedCallback != null)
-                            pixelChangedCallback.Invoke(x, y - 1, currentStep, totSteps);
+                        pixelChangedCallback.Invoke(x, y - 1, currentStep, totSteps);
                     }
                     else if (target.Y > y)
                     {
                         map[x, y + 1] = true;
 
-                        if (pixelChangedCallback != null)
-                            pixelChangedCallback.Invoke(x, y + 1, currentStep, totSteps);
+                        pixelChangedCallback.Invoke(x, y + 1, currentStep, totSteps);
                     }
 
-                    if (pixelChangedCallback != null)
-                        pixelChangedCallback.Invoke(target.X, target.Y, currentStep, totSteps);
+                    pixelChangedCallback.Invoke(target.X, target.Y, currentStep, totSteps);
                 }
                 else
                 {

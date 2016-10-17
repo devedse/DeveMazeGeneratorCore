@@ -2,23 +2,29 @@
 using DeveMazeGenerator.InnerMaps;
 using System;
 using System.Collections.Generic;
+using DeveMazeGenerator.Factories;
 
 namespace DeveMazeGenerator.Generators
 {
     public class AlgorithmDivisionDynamic : Algorithm
     {
-        public override InnerMap GoGenerate(InnerMap map, IRandom random, Action<int, int, long, long> pixelChangedCallback)
+        private const int tileSize = 64;
+
+        public override InnerMap GoGenerate<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
         {
-            int seed = random.Next();
-            Func<int, int, int, int, InnerMap> generateAction = (x, y, width, height) => GenerateMapPart(x, y, map.Width, map.Height, width, height, random, seed);
+            var innerMap = mapFactory.Create();
+
+            Func<int, int, int, int, InnerMap> generateAction = (x, y, widthPart, heightPart) => GenerateMapPart(x, y, innerMap.Width, innerMap.Height, widthPart, heightPart, randomFactory);
             Action<InnerMap> storeAction = (x) => { };
 
-            var totalMap = new CachedInnerMap(map.Width, map.Height, 20, Math.Min(Math.Min(map.Width, map.Height), 64), generateAction, storeAction);
+            var totalMap = new CachedInnerMap(innerMap.Width, innerMap.Height, 20, Math.Min(Math.Min(innerMap.Width, innerMap.Height), tileSize), generateAction, storeAction);
             return totalMap;
         }
 
-        public InnerMap GenerateMapPart(int xStart, int yStart, int width, int height, int widthPart, int heightPart, IRandom random, int seed)
+        public InnerMap GenerateMapPart(int xStart, int yStart, int width, int height, int widthPart, int heightPart, IRandomFactory randomFactory)
         {
+            var random = randomFactory.Create();
+
             InnerMap map = new BitArreintjeFastInnerMap(widthPart, heightPart) { StartX = xStart, StartY = yStart };
 
             //If the maze is out of screen
@@ -82,7 +88,7 @@ namespace DeveMazeGenerator.Generators
             var rectangles = new Stack<Rectangle>();
 
 
-            var startRect = new Rectangle(0, 0, MakeUneven(width), MakeUneven(height), seed);
+            var startRect = new Rectangle(0, 0, MakeUneven(width), MakeUneven(height), random.Next());
             rectangles.Push(startRect);
 
             while (rectangles.Count > 0)
