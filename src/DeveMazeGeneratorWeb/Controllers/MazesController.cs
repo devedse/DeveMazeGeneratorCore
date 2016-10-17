@@ -1,5 +1,6 @@
 ﻿using DeveMazeGenerator.Generators;
 using DeveMazeGenerator.Generators.Helpers;
+using DeveMazeGenerator.Helpers;
 using DeveMazeGenerator.InnerMaps;
 using ImageProcessorCore;
 using Microsoft.AspNetCore.Mvc;
@@ -30,34 +31,8 @@ namespace DeveMazeGeneratorWeb.Controllers
             var map = alg.Generate<UndefinedInnerMap, NetRandom>(width, height, null);
 
             var memoryStream = new MemoryStream();
-            MazeToImage(map, memoryStream);
+            MazeImager.MazeToImage(map, memoryStream);
             return new FileStreamResult(memoryStream, new MediaTypeHeaderValue("image/png"));
-        }
-
-        public static void MazeToImage(InnerMap map, Stream stream)
-        {
-            var image = new Image(map.Width - 1, map.Height - 1);
-            using (var pixels = image.Lock())
-            {
-                for (int y = 0; y < map.Height - 1; y++)
-                {
-                    for (int x = 0; x < map.Width - 1; x++)
-                    {
-                        var wall = map[x, y];
-
-                        if (!wall)
-                        {
-                            pixels[x, y] = Color.Black;
-                        }
-                        else
-                        {
-                            pixels[x, y] = Color.White;
-                        }
-                    }
-                }
-            }
-
-            image.SaveAsPng(stream);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using DeveMazeGenerator.Generators;
 using DeveMazeGenerator.Generators.Helpers;
+using DeveMazeGenerator.Helpers;
 using DeveMazeGenerator.InnerMaps;
 using ImageProcessorCore;
 using System;
@@ -12,9 +13,24 @@ namespace DeveMazeGeneratorConsole
     {
         public static void Main(string[] args)
         {
-            Test3();
+            Test4();
 
             Console.ReadKey();
+        }
+
+        public static void Test4()
+        {
+            int size = 16384;
+
+            var alg = new AlgorithmBacktrack();
+            var w = Stopwatch.StartNew();
+            var maze = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(size, size, 1337, null);
+            Console.WriteLine($"Generation time: {w.Elapsed}");
+
+            w.Restart();
+            var result = MazeVerifier.IsPerfectMaze(maze);
+            Console.WriteLine($"Perfect maze verification time: {w.Elapsed}");
+            Console.WriteLine($"Is our maze perfect?: {result}");
         }
 
         public static void Test3()
@@ -24,7 +40,7 @@ namespace DeveMazeGeneratorConsole
             var alg = new AlgorithmDivisionDynamic();
             var maze = alg.Generate<UndefinedInnerMap, NetRandom>(size, size, 1337, null);
 
-            SaveMaze(Path.Combine($"dinges.png"), maze);
+            MazeImager.SaveMaze(Path.Combine($"dinges.png"), maze);
 
 
             var otherThing = new AlgorithmDivisionDynamicOldTestingThing(size, size, 1337);
@@ -35,10 +51,10 @@ namespace DeveMazeGeneratorConsole
             var part3 = otherThing.GenerateMapPart(0, b, b, b);
             var part4 = otherThing.GenerateMapPart(b, b, b, b);
 
-            SaveMaze("part1.png", part1);
-            SaveMaze("part2.png", part2);
-            SaveMaze("part3.png", part3);
-            SaveMaze("part4.png", part4);
+            MazeImager.SaveMaze("part1.png", part1);
+            MazeImager.SaveMaze("part2.png", part2);
+            MazeImager.SaveMaze("part3.png", part3);
+            MazeImager.SaveMaze("part4.png", part4);
         }
 
         public static void Test2()
@@ -94,7 +110,7 @@ namespace DeveMazeGeneratorConsole
                     w.Restart();
                     var part = alg.GenerateMapPart(x * b, y * b, b, b);
                     w.Stop();
-                    SaveMaze(Path.Combine("Images", $"{x}_{y}.png"), part);
+                    MazeImager.SaveMaze(Path.Combine("Images", $"{x}_{y}.png"), part);
                     Console.WriteLine($"{x}_{y}.png : {w.Elapsed}");
                 }
             }
@@ -105,7 +121,7 @@ namespace DeveMazeGeneratorConsole
             //var part3 = alg.GenerateMapPart(0, b, b, b);
             //var part4 = alg.GenerateMapPart(b, b, b, b);
 
-            SaveMaze("part1.png", part1);
+            MazeImager.SaveMaze("part1.png", part1);
             //SaveMaze("part2.png", part2);
             //SaveMaze("part3.png", part3);
             //SaveMaze("part4.png", part4);
@@ -124,7 +140,7 @@ namespace DeveMazeGeneratorConsole
             Console.WriteLine("Saving maze...");
 
             w.Restart();
-            SaveMaze("output.png", map);
+            MazeImager.SaveMaze("output.png", map);
 
             Console.WriteLine($"Saved maze in: {w.Elapsed}");
 
@@ -132,40 +148,6 @@ namespace DeveMazeGeneratorConsole
             //Console.WriteLine(map.GenerateMapAsString());
 
             Console.WriteLine("Written file");
-        }
-
-        public static void SaveMaze(string fileName, InnerMap maze)
-        {
-            using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-            {
-                MazeToImage(maze, fs);
-            }
-        }
-
-        public static void MazeToImage(InnerMap map, Stream stream)
-        {
-            var image = new Image(map.Width, map.Height);
-            using (var pixels = image.Lock())
-            {
-                for (int y = 0; y < map.Height; y++)
-                {
-                    for (int x = 0; x < map.Width; x++)
-                    {
-                        var wall = map[x, y];
-
-                        if (!wall)
-                        {
-                            pixels[x, y] = Color.Black;
-                        }
-                        else
-                        {
-                            pixels[x, y] = Color.White;
-                        }
-                    }
-                }
-            }
-
-            image.SaveAsPng(stream);
         }
     }
 }

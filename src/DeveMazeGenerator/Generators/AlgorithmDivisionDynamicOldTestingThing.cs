@@ -1,4 +1,5 @@
 ﻿using DeveMazeGenerator.Generators.Helpers;
+using DeveMazeGenerator.Helpers;
 using DeveMazeGenerator.InnerMaps;
 using System;
 using System.Collections.Generic;
@@ -52,7 +53,7 @@ namespace DeveMazeGenerator.Generators
                     map[widthPart - 1 - theRightEdge, y] = false;
                 }
 
-                if (NumberIsEven(width))
+                if (UnevenHelper.NumberIsEven(width))
                 {
                     for (int y = 0; y < heightPart - theBottomEdge; y++)
                     {
@@ -68,7 +69,7 @@ namespace DeveMazeGenerator.Generators
                     map[x, heightPart - 1 - theBottomEdge] = false;
                 }
 
-                if (NumberIsEven(height))
+                if (UnevenHelper.NumberIsEven(height))
                 {
                     for (int x = 0; x < widthPart - theRightEdge; x++)
                     {
@@ -84,7 +85,7 @@ namespace DeveMazeGenerator.Generators
 
             var random = new NetRandom(seed);
 
-            var startRect = new Rectangle(0, 0, MakeUneven(width), MakeUneven(height), random.Next());
+            var startRect = new Rectangle(0, 0, UnevenHelper.MakeUneven(width), UnevenHelper.MakeUneven(height), random.Next());
             rectangles.Push(startRect);
 
 
@@ -195,20 +196,6 @@ namespace DeveMazeGenerator.Generators
         private bool IsValidRect(Rectangle visibleRectangle, Rectangle curRect)
         {
             return curRect.Width > 3 && curRect.Height > 3 && visibleRectangle.IntersectsWith(curRect);
-        }
-
-        private bool NumberIsEven(int number)
-        {
-            return number % 2 == 0;
-        }
-
-        private int MakeUneven(int number)
-        {
-            if (NumberIsEven(number))
-            {
-                return number - 1;
-            }
-            return number;
         }
     }
 }

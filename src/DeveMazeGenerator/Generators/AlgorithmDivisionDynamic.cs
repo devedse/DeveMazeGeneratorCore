@@ -3,11 +3,13 @@ using DeveMazeGenerator.InnerMaps;
 using System;
 using System.Collections.Generic;
 using DeveMazeGenerator.Factories;
+using DeveMazeGenerator.Helpers;
 
 namespace DeveMazeGenerator.Generators
 {
     public class AlgorithmDivisionDynamic : Algorithm
     {
+        private const int tilesCached = 20;
         private const int tileSize = 64;
 
         public override InnerMap GoGenerate<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
@@ -17,7 +19,7 @@ namespace DeveMazeGenerator.Generators
             Func<int, int, int, int, InnerMap> generateAction = (x, y, widthPart, heightPart) => GenerateMapPart(x, y, innerMap.Width, innerMap.Height, widthPart, heightPart, randomFactory);
             Action<InnerMap> storeAction = (x) => { };
 
-            var totalMap = new CachedInnerMap(innerMap.Width, innerMap.Height, 20, Math.Min(Math.Min(innerMap.Width, innerMap.Height), tileSize), generateAction, storeAction);
+            var totalMap = new CachedInnerMap(innerMap.Width, innerMap.Height, tilesCached, Math.Min(Math.Min(innerMap.Width, innerMap.Height), tileSize), generateAction, storeAction);
             return totalMap;
         }
 
@@ -57,7 +59,7 @@ namespace DeveMazeGenerator.Generators
                     map[widthPart - 1 - theRightEdge, y] = false;
                 }
 
-                if (NumberIsEven(width))
+                if (UnevenHelper.NumberIsEven(width))
                 {
                     for (int y = 0; y < heightPart - theBottomEdge; y++)
                     {
@@ -73,7 +75,7 @@ namespace DeveMazeGenerator.Generators
                     map[x, heightPart - 1 - theBottomEdge] = false;
                 }
 
-                if (NumberIsEven(height))
+                if (UnevenHelper.NumberIsEven(height))
                 {
                     for (int x = 0; x < widthPart - theRightEdge; x++)
                     {
@@ -88,7 +90,7 @@ namespace DeveMazeGenerator.Generators
             var rectangles = new Stack<Rectangle>();
 
 
-            var startRect = new Rectangle(0, 0, MakeUneven(width), MakeUneven(height), random.Next());
+            var startRect = new Rectangle(0, 0, UnevenHelper.MakeUneven(width), UnevenHelper.MakeUneven(height), random.Next());
             rectangles.Push(startRect);
 
             while (rectangles.Count > 0)
@@ -198,20 +200,6 @@ namespace DeveMazeGenerator.Generators
         private bool IsValidRect(Rectangle visibleRectangle, Rectangle curRect)
         {
             return curRect.Width > 3 && curRect.Height > 3 && visibleRectangle.IntersectsWith(curRect);
-        }
-
-        private bool NumberIsEven(int number)
-        {
-            return number % 2 == 0;
-        }
-
-        private int MakeUneven(int number)
-        {
-            if (NumberIsEven(number))
-            {
-                return number - 1;
-            }
-            return number;
         }
     }
 }

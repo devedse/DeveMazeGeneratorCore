@@ -13,6 +13,14 @@ namespace DeveMazeGenerator.InnerMaps.InnerStuff
             innerData = new int[height / 32 + 1];
         }
 
+        public BitArreintjeFastInnerMapArray Clone()
+        {
+            var cloned = new BitArreintjeFastInnerMapArray(0);
+            cloned.innerData = new int[innerData.Length];
+            Array.Copy(innerData, cloned.innerData, innerData.Length);
+            return cloned;
+        }
+
         public void FillMap(bool state)
         {
             if (state)

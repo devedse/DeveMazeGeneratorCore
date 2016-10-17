@@ -1,4 +1,5 @@
 ﻿using DeveMazeGenerator.InnerMaps.InnerStuff;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace DeveMazeGenerator.InnerMaps
@@ -23,6 +24,16 @@ namespace DeveMazeGenerator.InnerMaps
             {
                 innerData[i].FillMap(state);
             }
+        }
+
+        public override InnerMap Clone()
+        {
+            var innerMapTarget = new BitArreintjeFastInnerMap(Width, Height);
+            for (int i = 0; i < innerData.Length; i++)
+            {
+                innerMapTarget.innerData[i] = innerData[i].Clone();
+            }
+            return innerMapTarget;
         }
 
         public override bool this[int x, int y]

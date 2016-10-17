@@ -1,5 +1,6 @@
 ﻿using DeveMazeGenerator.Generators;
 using DeveMazeGenerator.Generators.Helpers;
+using DeveMazeGenerator.Helpers;
 using DeveMazeGenerator.InnerMaps;
 using System;
 using System.Diagnostics;
@@ -36,6 +37,26 @@ namespace DeveMazeGenerator.Tests.Generators
                 Assert.Equal(total, current);
                 Assert.False(map[0, 0]);
                 Assert.True(map[1, 1]);
+            }
+
+            [Fact]
+            public void GeneratesAPerfectMaze()
+            {
+                //Arrange
+                var generator = new AlgorithmBacktrack();
+
+                long current = 0;
+                long total = 0;
+                var mazeAction = new Action<int, int, long, long>((x, y, cur, tot) =>
+                {
+                    current = cur;
+                    total = tot;
+                });
+
+                //Act
+                var map = generator.Generate<BitArreintjeFastInnerMap, NetRandom>(128, 128, mazeAction);
+
+                Assert.True(MazeVerifier.IsPerfectMaze(map));
             }
         }
     }
