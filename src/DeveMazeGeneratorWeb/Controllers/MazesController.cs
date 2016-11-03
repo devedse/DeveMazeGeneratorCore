@@ -2,14 +2,13 @@
 using DeveMazeGenerator.Generators.Helpers;
 using DeveMazeGenerator.Helpers;
 using DeveMazeGenerator.InnerMaps;
-using ImageProcessorCore;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DeveMazeGeneratorWeb.Controllers
 {

@@ -2,7 +2,6 @@
 using DeveMazeGenerator.Generators.Helpers;
 using DeveMazeGenerator.Helpers;
 using DeveMazeGenerator.InnerMaps;
-using ImageProcessorCore;
 using System;
 using System.Diagnostics;
 using System.IO;

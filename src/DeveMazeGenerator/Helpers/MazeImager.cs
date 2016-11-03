@@ -1,5 +1,5 @@
 ﻿using DeveMazeGenerator.InnerMaps;
-using ImageProcessorCore;
+using ImageSharp;
 using System.IO;
 
 namespace DeveMazeGenerator.Helpers
