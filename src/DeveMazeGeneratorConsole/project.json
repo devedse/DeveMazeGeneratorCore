@@ -5,7 +5,7 @@
   },
 
   "dependencies": {
-    "DeveMazeGenerator": "1.0.0-*",
+    "DeveMazeGenerator": "*",
     "Microsoft.NETCore.App": {
       "type": "platform",
       "version": "1.0.1"
