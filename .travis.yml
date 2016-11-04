@@ -114,7 +114,7 @@ install:
   # Restore dependencies
   - dotnet restore src
   - dotnet restore test
-  - dotnet restore ImageProcessor/src
+  - dotnet restore ImageSharp/src
 
   # Build projects
   - dotnet build -c $CONFIGURATION  ./src/**/project.json
