@@ -1,6 +1,7 @@
 ﻿using DeveMazeGenerator.Generators;
 using DeveMazeGenerator.Generators.Helpers;
 using DeveMazeGenerator.Helpers;
+using DeveMazeGenerator.Imageification;
 using DeveMazeGenerator.InnerMaps;
 using System;
 using System.Diagnostics;
@@ -39,7 +40,7 @@ namespace DeveMazeGeneratorConsole
             var alg = new AlgorithmDivisionDynamic();
             var maze = alg.Generate<UndefinedInnerMap, NetRandom>(size, size, 1337, null);
 
-            MazeImager.SaveMaze(Path.Combine($"dinges.png"), maze);
+            WithoutPath.SaveMaze(Path.Combine($"dinges.png"), maze);
 
 
             var otherThing = new AlgorithmDivisionDynamicOldTestingThing(size, size, 1337);
@@ -50,10 +51,10 @@ namespace DeveMazeGeneratorConsole
             var part3 = otherThing.GenerateMapPart(0, b, b, b);
             var part4 = otherThing.GenerateMapPart(b, b, b, b);
 
-            MazeImager.SaveMaze("part1.png", part1);
-            MazeImager.SaveMaze("part2.png", part2);
-            MazeImager.SaveMaze("part3.png", part3);
-            MazeImager.SaveMaze("part4.png", part4);
+            WithoutPath.SaveMaze("part1.png", part1);
+            WithoutPath.SaveMaze("part2.png", part2);
+            WithoutPath.SaveMaze("part3.png", part3);
+            WithoutPath.SaveMaze("part4.png", part4);
         }
 
         public static void Test2()
@@ -109,7 +110,7 @@ namespace DeveMazeGeneratorConsole
                     w.Restart();
                     var part = alg.GenerateMapPart(x * b, y * b, b, b);
                     w.Stop();
-                    MazeImager.SaveMaze(Path.Combine("Images", $"{x}_{y}.png"), part);
+                    WithoutPath.SaveMaze(Path.Combine("Images", $"{x}_{y}.png"), part);
                     Console.WriteLine($"{x}_{y}.png : {w.Elapsed}");
                 }
             }
@@ -120,7 +121,7 @@ namespace DeveMazeGeneratorConsole
             //var part3 = alg.GenerateMapPart(0, b, b, b);
             //var part4 = alg.GenerateMapPart(b, b, b, b);
 
-            MazeImager.SaveMaze("part1.png", part1);
+            WithoutPath.SaveMaze("part1.png", part1);
             //SaveMaze("part2.png", part2);
             //SaveMaze("part3.png", part3);
             //SaveMaze("part4.png", part4);
@@ -139,7 +140,7 @@ namespace DeveMazeGeneratorConsole
             Console.WriteLine("Saving maze...");
 
             w.Restart();
-            MazeImager.SaveMaze("output.png", map);
+            WithoutPath.SaveMaze("output.png", map);
 
             Console.WriteLine($"Saved maze in: {w.Elapsed}");
 

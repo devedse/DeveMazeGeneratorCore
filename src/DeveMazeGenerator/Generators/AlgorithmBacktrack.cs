@@ -3,6 +3,7 @@ using DeveMazeGenerator.InnerMaps;
 using System;
 using System.Collections.Generic;
 using DeveMazeGenerator.Factories;
+using DeveMazeGenerator.Structures;
 
 namespace DeveMazeGenerator.Generators
 {
@@ -16,7 +17,7 @@ namespace DeveMazeGenerator.Generators
             return GoGenerateInternal(innerMap, random, pixelChangedCallback);
         }
 
-        public InnerMap GoGenerateInternal(InnerMap map, IRandom random, Action<int, int, long, long> pixelChangedCallback)
+        private InnerMap GoGenerateInternal(InnerMap map, IRandom random, Action<int, int, long, long> pixelChangedCallback)
         {
             long totSteps = (map.Width - 1L) / 2L * ((map.Height - 1L) / 2L);
             long currentStep = 1;

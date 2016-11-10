@@ -1,5 +1,6 @@
 ﻿using DeveMazeGenerator.Generators;
 using DeveMazeGenerator.InnerMaps;
+using DeveMazeGenerator.Structures;
 using System.Collections.Generic;
 
 namespace DeveMazeGenerator.Helpers

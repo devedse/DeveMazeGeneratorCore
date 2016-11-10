@@ -1,4 +1,4 @@
-﻿namespace DeveMazeGenerator.Generators
+﻿namespace DeveMazeGenerator.Structures
 {
     /// <summary>
     /// Contains a position.
@@ -16,7 +16,7 @@
 
         public override string ToString()
         {
-            return "MazePoint, X: " + X + ", Y: " + Y;
+            return $"MazePointPos(X: {X} Y: {Y})";
         }
     }
 }

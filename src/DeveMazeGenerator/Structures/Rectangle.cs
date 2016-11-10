@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DeveMazeGenerator.Generators
+namespace DeveMazeGenerator.Structures
 {
     public class Rectangle
     {
@@ -31,7 +31,7 @@ namespace DeveMazeGenerator.Generators
 
         public override string ToString()
         {
-            return $"X: {X} Y: {Y} Width: {Width} Height: {Height} Seed: {Seed}";
+            return $"Rectangle(X: {X} Y: {Y} Width: {Width} Height: {Height})";
         }
     }
 }

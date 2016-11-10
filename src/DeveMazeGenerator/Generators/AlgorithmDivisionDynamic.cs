@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using DeveMazeGenerator.Factories;
 using DeveMazeGenerator.Helpers;
+using DeveMazeGenerator.Structures;
 
 namespace DeveMazeGenerator.Generators
 {
@@ -102,7 +103,6 @@ namespace DeveMazeGenerator.Generators
                 random.Reinitialise(curRect.Seed);
 
                 bool horizontalSplit = true;
-                //form.drawRectangle(curRect.X, curRect.Y, curRect.Width, curRect.Height, Brushes.Pink);
 
                 if (curRect.Width > curRect.Height)
                 {
@@ -127,7 +127,6 @@ namespace DeveMazeGenerator.Generators
 
                     Rectangle rect1 = new Rectangle(curRect.X, curRect.Y, curRect.Width, splitnumber + 1, random.Next());
                     Rectangle rect2 = new Rectangle(curRect.X, curRect.Y + splitnumber, curRect.Width, curRect.Height - splitnumber, random.Next());
-
 
                     int xStartDraw = Math.Max(0, curRect.X - xStart);
                     int xEndDraw = Math.Min(widthPart, curRect.X - xStart + curRect.Width);
@@ -162,7 +161,6 @@ namespace DeveMazeGenerator.Generators
                     Rectangle rect1 = new Rectangle(curRect.X, curRect.Y, splitnumber + 1, curRect.Height, random.Next());
                     Rectangle rect2 = new Rectangle(curRect.X + splitnumber, curRect.Y, curRect.Width - splitnumber, curRect.Height, random.Next());
 
-
                     var yStartDraw = Math.Max(0, curRect.Y - yStart);
                     int yEndDraw = Math.Min(heightPart, curRect.Y - yStart + curRect.Height);
 
@@ -178,8 +176,7 @@ namespace DeveMazeGenerator.Generators
                             }
                         }
                     }
-
-
+                    
                     if (IsValidRect(visibleRectangle, rect1))
                     {
                         rectangles.Push(rect1);
@@ -189,9 +186,6 @@ namespace DeveMazeGenerator.Generators
                         rectangles.Push(rect2);
                     }
                 }
-
-
-
             }
 
             return map;

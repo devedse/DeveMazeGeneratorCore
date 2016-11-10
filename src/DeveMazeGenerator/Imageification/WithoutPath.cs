@@ -2,9 +2,9 @@
 using ImageSharp;
 using System.IO;
 
-namespace DeveMazeGenerator.Helpers
+namespace DeveMazeGenerator.Imageification
 {
-    public class MazeImager
+    public class WithoutPath
     {
         public static void MazeToImage(InnerMap map, Stream stream)
         {
