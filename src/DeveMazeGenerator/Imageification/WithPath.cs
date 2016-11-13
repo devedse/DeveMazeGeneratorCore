@@ -6,9 +6,9 @@ using System.IO;
 
 namespace DeveMazeGenerator.Imageification
 {
-    public class WithPath
+    public static class WithPath
     {
-        private void SaveMazeAsImageDeluxePng(InnerMap map, List<MazePointPos> pathPosjes, Stream stream)
+        public static void SaveMazeAsImageDeluxePng(InnerMap map, List<MazePointPos> pathPosjes, Stream stream)
         {
             pathPosjes.Sort((first, second) =>
             {

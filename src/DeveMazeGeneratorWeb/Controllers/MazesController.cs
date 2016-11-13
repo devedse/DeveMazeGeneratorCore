@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using DeveMazeGenerator.Imageification;
+using DeveMazeGenerator.PathFinders;
 
 namespace DeveMazeGeneratorWeb.Controllers
 {
@@ -19,7 +20,7 @@ namespace DeveMazeGeneratorWeb.Controllers
             return new string[] { "value1", "value2" };
         }
 
-        [HttpGet("{width}/{height}", Name = "GenerateMaze")]
+        [HttpGet("Maze/{width}/{height}", Name = "GenerateMaze")]
         public FileStreamResult GenerateMaze(int width, int height)
         {
             var alg = new AlgorithmDivisionDynamic();
@@ -28,6 +29,20 @@ namespace DeveMazeGeneratorWeb.Controllers
 
             var memoryStream = new MemoryStream();
             WithoutPath.MazeToImage(map, memoryStream);
+            return new FileStreamResult(memoryStream, new MediaTypeHeaderValue("image/png"));
+        }
+
+        [HttpGet("MazePath/{width}/{height}", Name = "GenerateMazeWithPath")]
+        public FileStreamResult GenerateMazeWithPath(int width, int height)
+        {
+            var alg = new AlgorithmDivisionDynamic();
+
+            var map = alg.Generate<UndefinedInnerMap, NetRandom>(width, height, null);
+
+            var path = PathFinderDepthFirstSmartWithPos.GoFind(map, null);
+
+            var memoryStream = new MemoryStream();
+            WithPath.SaveMazeAsImageDeluxePng(map, path, memoryStream);
             return new FileStreamResult(memoryStream, new MediaTypeHeaderValue("image/png"));
         }
     }
