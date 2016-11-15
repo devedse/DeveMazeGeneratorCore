@@ -1,7 +1,10 @@
 ﻿using DeveMazeGenerator.InnerMaps;
 using DeveMazeGenerator.Structures;
 using ImageSharp;
+using ImageSharp.Formats;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace DeveMazeGenerator.Imageification
@@ -22,6 +25,7 @@ namespace DeveMazeGenerator.Imageification
 
             int curpos = 0;
 
+            var w = Stopwatch.StartNew();
             var image = new Image(map.Width - 1, map.Height - 1);
             using (var pixels = image.Lock())
             {
@@ -62,7 +66,14 @@ namespace DeveMazeGenerator.Imageification
                     //lineSavingProgress(y, this.Height - 2);
                 }
             }
-            image.SaveAsPng(stream);
+            var timeForFirstImageSavePart = w.Elapsed;
+            w.Restart();
+
+            image.Save(stream, new PngEncoder() { CompressionLevel = 9 });
+            //image.SaveAsPng(stream);
+            var timeForSaveAsPng = w.Elapsed;
+
+            Console.WriteLine($"First image conversion time: {timeForFirstImageSavePart}, Time for saving as PNG: {timeForSaveAsPng}");
         }
     }
 }
