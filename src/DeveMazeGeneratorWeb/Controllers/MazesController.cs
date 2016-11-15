@@ -7,6 +7,8 @@ using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using DeveMazeGenerator.Imageification;
 using DeveMazeGenerator.PathFinders;
+using System.Diagnostics;
+using System;
 
 namespace DeveMazeGeneratorWeb.Controllers
 {
@@ -35,14 +37,22 @@ namespace DeveMazeGeneratorWeb.Controllers
         [HttpGet("MazePath/{width}/{height}", Name = "GenerateMazeWithPath")]
         public FileStreamResult GenerateMazeWithPath(int width, int height)
         {
-            var alg = new AlgorithmDivisionDynamic();
+            var alg = new AlgorithmBacktrack();
 
-            var map = alg.Generate<UndefinedInnerMap, NetRandom>(width, height, null);
+            var w = Stopwatch.StartNew();
+            var map = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(width, height, null);
+            var mazeGenerationTime = w.Elapsed;
 
+            w.Restart();
             var path = PathFinderDepthFirstSmartWithPos.GoFind(map, null);
+            var pathGenerationTime = w.Elapsed;
 
+            w.Restart();
             var memoryStream = new MemoryStream();
             WithPath.SaveMazeAsImageDeluxePng(map, path, memoryStream);
+            var toImageTime = w.Elapsed;
+
+            Console.WriteLine($"Maze generation time: {mazeGenerationTime}, Path find time: {pathGenerationTime}, To image time: {toImageTime}");
             return new FileStreamResult(memoryStream, new MediaTypeHeaderValue("image/png"));
         }
     }
