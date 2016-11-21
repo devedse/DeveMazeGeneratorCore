@@ -55,5 +55,27 @@ namespace DeveMazeGeneratorWeb.Controllers
             Console.WriteLine($"Maze generation time: {mazeGenerationTime}, Path find time: {pathGenerationTime}, To image time: {toImageTime}");
             return new FileStreamResult(memoryStream, new MediaTypeHeaderValue("image/png"));
         }
+
+        [HttpGet("MazePathSeed/{seed}/{width}/{height}", Name = "GenerateMazeWithPathSeed")]
+        public FileStreamResult GenerateMazeWithPathSeed(int seed, int width, int height)
+        {
+            var alg = new AlgorithmBacktrack();
+
+            var w = Stopwatch.StartNew();
+            var map = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(width, height, seed, null);
+            var mazeGenerationTime = w.Elapsed;
+
+            w.Restart();
+            var path = PathFinderDepthFirstSmartWithPos.GoFind(map, null);
+            var pathGenerationTime = w.Elapsed;
+
+            w.Restart();
+            var memoryStream = new MemoryStream();
+            WithPath.SaveMazeAsImageDeluxePng(map, path, memoryStream);
+            var toImageTime = w.Elapsed;
+
+            Console.WriteLine($"Maze generation time: {mazeGenerationTime}, Path find time: {pathGenerationTime}, To image time: {toImageTime}");
+            return new FileStreamResult(memoryStream, new MediaTypeHeaderValue("image/png"));
+        }
     }
 }
