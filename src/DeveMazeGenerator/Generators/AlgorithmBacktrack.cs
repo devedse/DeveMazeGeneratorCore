@@ -19,6 +19,11 @@ namespace DeveMazeGenerator.Generators
 
         private InnerMap GoGenerateInternal(InnerMap map, IRandom random, Action<int, int, long, long> pixelChangedCallback)
         {
+            if (pixelChangedCallback == null)
+            {
+                pixelChangedCallback = (vvv, yyy, zzz, www) => { };
+            }
+
             long totSteps = (map.Width - 1L) / 2L * ((map.Height - 1L) / 2L);
             long currentStep = 1;
 

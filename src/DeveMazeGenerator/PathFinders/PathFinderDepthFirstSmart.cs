@@ -27,7 +27,7 @@ namespace DeveMazeGenerator.PathFinders
         /// <param name="map">The maze.InnerMap</param>
         /// <param name="callBack">The callback that can be used to see what the pathfinder is doing (or null), the boolean true = a new path find thingy or false when it determined that path is not correct</param>
         /// <returns>The shortest path in a list of points</returns>
-        public static List<MazePoint> GoFind(MazePoint start, MazePoint end, InnerMap map, Action<int, int, Boolean> callBack)
+        public static List<MazePoint> GoFind(MazePoint start, MazePoint end, InnerMap map, Action<int, int, bool> callBack)
         {
             if (callBack == null)
             {
