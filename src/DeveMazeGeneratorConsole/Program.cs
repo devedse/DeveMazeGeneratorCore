@@ -15,9 +15,29 @@ namespace DeveMazeGeneratorConsole
     {
         public static void Main(string[] args)
         {
-            Test5();
+            Test6();
 
             Console.ReadKey();
+        }
+
+        public static void Test6()
+        {
+            int size = 4096;
+
+            var alg = new AlgorithmKruskal();
+            var w = Stopwatch.StartNew();
+            var maze = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(size, size, 1337, null);
+            Console.WriteLine($"Generation time: {w.Elapsed}");
+
+            w.Restart();
+            var result = MazeVerifier.IsPerfectMaze(maze);
+            Console.WriteLine($"Perfect maze verification time: {w.Elapsed}");
+            Console.WriteLine($"Is our maze perfect?: {result}");
+
+            using (var fs = new FileStream("KruskalMaze.png", FileMode.Create))
+            {
+                WithoutPath.MazeToImage(maze, fs);
+            }
         }
 
         public static void Test5()
