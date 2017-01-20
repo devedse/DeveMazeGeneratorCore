@@ -1,5 +1,6 @@
 ﻿using DeveMazeGenerator.InnerMaps;
 using ImageSharp;
+using ImageSharp.Formats;
 using System.IO;
 
 namespace DeveMazeGenerator.Imageification
@@ -29,7 +30,7 @@ namespace DeveMazeGenerator.Imageification
                 }
             }
 
-            image.SaveAsPng(stream);
+            image.Save(stream, new PngEncoder());
         }
 
         public static void SaveMaze(string fileName, InnerMap maze)
