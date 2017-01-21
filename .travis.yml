@@ -30,7 +30,7 @@ matrix:
 before_install:
   # Install OpenSSL
   - if test "$TRAVIS_OS_NAME" == "osx"; then
-      brew upddate;
+      brew update;
       ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/
       ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/
       brew install openssl;
