@@ -30,7 +30,7 @@ matrix:
 before_install:
   # Install OpenSSL
   - if test "$TRAVIS_OS_NAME" == "osx"; then
-      brew install openssl;
+      brew install openssl --force;
       brew link --force openssl;
       export DOTNET_SDK_URL="https://go.microsoft.com/fwlink/?LinkID=827533";
     else
