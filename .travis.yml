@@ -20,6 +20,8 @@ matrix:
       dist: trusty
       sudo: required
       env: CONFIGURATION=Release
+      services:
+        - docker
     - os: osx
       osx_image: xcode8.2 # macOS 10.11
       env: CONFIGURATION=Debug
@@ -126,5 +128,12 @@ script:
   # Run tests
   - dotnet test -c $CONFIGURATION ./test/DeveMazeGenerator.Tests
 
+  
+deploy:
+  
+  
+  
+  
+  
 notifications:
   email: false
