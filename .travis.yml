@@ -128,10 +128,5 @@ script:
   # Run tests
   - dotnet test -c $CONFIGURATION ./test/DeveMazeGenerator.Tests
 
-deploy:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      dotnet publish -c $CONFIGURATION;
-    fi
-
 notifications:
   email: false
