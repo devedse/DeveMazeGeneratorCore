@@ -130,12 +130,9 @@ script:
 
   
 deploy:
-  - if test "$TRAVIS_OS_NAME" == "linux" then
-      dotnet publish -c Release src/DeveMazeGeneratorWeb;
-      cp src/DeveMazeGeneratorWeb scripts/Docker/DeveMazeGeneratorCoreWebPublish;
-      cd scripts/Docker/DeveMazeGeneratorCoreWebPublish;
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      dotnet publish -c $CONFIGURATION;
     fi
-  
   
   
   
