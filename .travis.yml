@@ -124,7 +124,7 @@ install:
   # Build projects
   - dotnet build -c $CONFIGURATION  ./src/**/project.json
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      dotnet publish -c $CONFIGURATION;
+      dotnet publish -c $CONFIGURATION ./src/DeveMazeGeneratorWeb/project.json;
     fi
 script:
   # Run tests
