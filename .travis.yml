@@ -125,6 +125,8 @@ install:
   - dotnet build -c $CONFIGURATION  ./src/**/project.json
   - if [[ "$TRAVIS_OS_NAME" == "linux" && "$CONFIGURATION" == "Release" ]]; then
       dotnet publish -c $CONFIGURATION ./src/DeveMazeGeneratorWeb/project.json;
+      cp src/DeveMazeGeneratorWeb scripts/Docker/DeveMazeGeneratorCoreWebPublish;
+      cd scripts/Docker/DeveMazeGeneratorCoreWebPublish;
     fi
 script:
   # Run tests
