@@ -130,7 +130,6 @@ install:
       mkdir DeveMazeGeneratorCoreWebPublish;
       copy ../../src/DeveMazeGeneratorWeb/bin/Release/netcoreapp1.0/publish ./DeveMazeGeneratorCoreWebPublish;
       cd DeveMazeGeneratorCoreWebPublish;
-      copy ../../../
       cd ..;
       cd ..;
       cd ..;
