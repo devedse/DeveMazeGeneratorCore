@@ -132,6 +132,7 @@ install:
       docker build -t devedse/devemazegeneratorcore .;
       cd ..;
       cd ..;
+      dir;
     fi
 script:
   # Run tests
