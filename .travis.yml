@@ -131,7 +131,8 @@ install:
       docker build -t devedse/devemazegeneratorcore .;
       cd ..;
       cd ..;
-      dir;
+      docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+      docker push devedse/devemazegeneratorcore:latest;
     fi
 script:
   # Run tests
