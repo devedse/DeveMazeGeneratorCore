@@ -129,8 +129,7 @@ install:
       cd Docker;
       mkdir DeveMazeGeneratorCoreWebPublish;
       copy ../../src/DeveMazeGeneratorWeb/bin/Release/netcoreapp1.0/publish ./DeveMazeGeneratorCoreWebPublish;
-      cd DeveMazeGeneratorCoreWebPublish;
-      cd ..;
+      docker build -t devedse/devemazegeneratorcore .;
       cd ..;
       cd ..;
     fi
