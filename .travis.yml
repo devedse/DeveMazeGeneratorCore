@@ -126,9 +126,9 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" && "$CONFIGURATION" == "Release" ]]; then
       dotnet publish -c $CONFIGURATION ./src/DeveMazeGeneratorWeb/project.json;
       mkdir ./Scripts/Docker/DeveMazeGeneratorCoreWebPublish;
+      copy ./src/DeveMazeGeneratorWeb/bin/Release/netcoreapp1.0/publish ./Scripts/Docker/DeveMazeGeneratorCoreWebPublish;
       cd Scripts;
       cd Docker;
-      copy ../../src/DeveMazeGeneratorWeb/bin/Release/netcoreapp1.0/publish ./DeveMazeGeneratorCoreWebPublish;
       docker build -t devedse/devemazegeneratorcore .;
       cd ..;
       cd ..;
