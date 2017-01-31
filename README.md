@@ -20,9 +20,13 @@ https://hub.docker.com/r/devedse/devemazegeneratorcore/
 
 Azure will then pick up the docker image and automatically deploy it using the Web App On Linux (preview) to:
 http://devemazegeneratorcoredocker.azurewebsites.net/api/mazes/MazePath/512/512
+Generated maze from docker deployment:
+![Docker deployment down :(](http://devemazegeneratorcoredocker.azurewebsites.net/api/mazes/MazePath/32/32 "Docker deployment")
 
 Azure will also do a seperate deployment/build when a push to git has occured:
 http://devemazegeneratorcoreweb.azurewebsites.net/api/mazes/MazePath/512/512
+Generated maze from web deployment:
+![Docker deployment down :(](http://devemazegeneratorcoreweb.azurewebsites.net/api/mazes/MazePath/32/32 "Docker deployment")
 
 ### AppVeyor:
 
