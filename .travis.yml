@@ -15,19 +15,19 @@ matrix:
     - os: linux
       dist: trusty # Ubuntu 14.04
       sudo: required
-      env: CONFIGURATION=Debug
-    - os: linux
-      dist: trusty
-      sudo: required
       env: CONFIGURATION=Release
       services:
         - docker
-    - os: osx
-      osx_image: xcode8.2 # macOS 10.11
+    - os: linux
+      dist: trusty
+      sudo: required
       env: CONFIGURATION=Debug
     - os: osx
-      osx_image: xcode8.2
+      osx_image: xcode8.2 # macOS 10.11
       env: CONFIGURATION=Release
+    - os: osx
+      osx_image: xcode8.2
+      env: CONFIGURATION=Debug
 
 before_install:
   # Install OpenSSL
