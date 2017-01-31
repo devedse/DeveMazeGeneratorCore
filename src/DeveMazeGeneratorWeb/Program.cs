@@ -1,6 +1,9 @@
 ﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace DeveMazeGeneratorWeb
 {
@@ -8,8 +11,13 @@ namespace DeveMazeGeneratorWeb
     {
         public static void Main(string[] args)
         {
+            var config = new ConfigurationBuilder()
+                .AddCommandLine(args)
+                .Build();
+
             var host = new WebHostBuilder()
-                .UseUrls("http://*:80")
+                .UseConfiguration(config)
+                //.UseUrls("http://*:5000")
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()

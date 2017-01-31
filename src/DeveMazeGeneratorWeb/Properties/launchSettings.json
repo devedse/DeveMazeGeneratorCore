@@ -19,7 +19,7 @@
     "DeveMazeGeneratorWeb": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "http://localhost:80/api/mazes/MazePath/512/512",
+      "launchUrl": "http://localhost:5000/api/mazes/MazePath/512/512",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
