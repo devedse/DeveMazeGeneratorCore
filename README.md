@@ -11,7 +11,7 @@ This is the new version of my maze generator, now made with .NET Core.
 
 | Azure Web Deployment | Azure Docker Deployment |
 |:--------------------:|:-----------------------:|
-| ![Azure web deployment down :(](http://devemazegeneratorcoreweb.azurewebsites.net/api/mazes/MazePath/64/64 "Azure web deployment") | ![Docker deployment down :(](http://devemazegeneratorcoredocker.azurewebsites.net/api/mazes/MazePath/64/64 "Docker deployment") |
+| ![Azure web deployment down :(](http://devemazegeneratorcoreweb.azurewebsites.net/api/mazes/MazePath/192/64 "Azure web deployment") | ![Docker deployment down :(](http://devemazegeneratorcoredocker.azurewebsites.net/api/mazes/MazePath/192/64 "Docker deployment") |
 
 ## Build and Deployment details
 
