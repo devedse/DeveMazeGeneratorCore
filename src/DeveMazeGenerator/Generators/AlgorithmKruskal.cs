@@ -23,9 +23,7 @@ namespace DeveMazeGenerator.Generators
             long totSteps = (((long)innerMap.Width - 1L) / 2L) * (((long)innerMap.Height - 1L) / 2L) * 2;
             long currentStep = 1;
 
-
             KruskalCell[][] theMap;
-
 
             //Prepare
             theMap = new KruskalCell[innerMap.Width][];
@@ -147,6 +145,5 @@ namespace DeveMazeGenerator.Generators
             }
             return false;
         }
-
     }
 }
