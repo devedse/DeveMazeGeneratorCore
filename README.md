@@ -1,17 +1,19 @@
 # DeveMazeGeneratorCore
 This is the new version of my maze generator, now made with .NET Core.
 
-## Releases and deployment
+## Build status
 
-This Github repository is being build automatically by Travis and AppVeyor:
+| Travis (Linux/Osx build) | AppVeyor (Windows build) |
+| ------------------------ |:------------------------:|
+| [![Build Status](https://travis-ci.org/devedse/DeveMazeGeneratorCore.svg?branch=master)](https://travis-ci.org/devedse/DeveMazeGeneratorCore) | [![Build status](https://ci.appveyor.com/api/projects/status/ainctv2tnoxg2t86?svg=true)](https://ci.appveyor.com/project/devedse/devemazegeneratorcore) |
 
-(They will both run dotnet build and test)
+## Deployment status
 
-Travis build:
-[![Build Status](https://travis-ci.org/devedse/DeveMazeGeneratorCore.svg?branch=master)](https://travis-ci.org/devedse/DeveMazeGeneratorCore)
+| Azure Web Deployment | Azure Docker Deployment |
+|:--------------------:|:-----------------------:|
+| ![Azure web deployment down :(](http://devemazegeneratorcoreweb.azurewebsites.net/api/mazes/MazePath/32/32 "Azure web deployment") | ![Docker deployment down :(](http://devemazegeneratorcoredocker.azurewebsites.net/api/mazes/MazePath/32/32 "Docker deployment") |
 
-AppVeyor build:
-[![Build status](https://ci.appveyor.com/api/projects/status/ainctv2tnoxg2t86?svg=true)](https://ci.appveyor.com/project/devedse/devemazegeneratorcore)
+## Build and Deployment details
 
 ### Travis
 
@@ -20,13 +22,9 @@ https://hub.docker.com/r/devedse/devemazegeneratorcore/
 
 Azure will then pick up the docker image and automatically deploy it using the Web App On Linux (preview) to:
 http://devemazegeneratorcoredocker.azurewebsites.net/api/mazes/MazePath/512/512
-Generated maze from docker deployment:
-![Docker deployment down :(](http://devemazegeneratorcoredocker.azurewebsites.net/api/mazes/MazePath/32/32 "Docker deployment")
 
 Azure will also do a seperate deployment/build when a push to git has occured:
 http://devemazegeneratorcoreweb.azurewebsites.net/api/mazes/MazePath/512/512
-Generated maze from web deployment:
-![Docker deployment down :(](http://devemazegeneratorcoreweb.azurewebsites.net/api/mazes/MazePath/32/32 "Docker deployment")
 
 ### AppVeyor:
 
