@@ -22,6 +22,7 @@ namespace DeveMazeGeneratorWeb.Controllers
             return new string[] { "value1", "value2" };
         }
 
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         [HttpGet("Maze/{width}/{height}", Name = "GenerateMaze")]
         public FileStreamResult GenerateMaze(int width, int height)
         {
@@ -34,6 +35,7 @@ namespace DeveMazeGeneratorWeb.Controllers
             return new FileStreamResult(memoryStream, new MediaTypeHeaderValue("image/png"));
         }
 
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         [HttpGet("MazePath/{width}/{height}", Name = "GenerateMazeWithPath")]
         public FileStreamResult GenerateMazeWithPath(int width, int height)
         {
@@ -56,6 +58,7 @@ namespace DeveMazeGeneratorWeb.Controllers
             return new FileStreamResult(memoryStream, new MediaTypeHeaderValue("image/png"));
         }
 
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         [HttpGet("MazePathSeed/{seed}/{width}/{height}", Name = "GenerateMazeWithPathSeed")]
         public FileStreamResult GenerateMazeWithPathSeed(int seed, int width, int height)
         {
