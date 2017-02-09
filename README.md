@@ -9,6 +9,8 @@ This is the new version of my maze generator, now made with .NET Core.
 
 ## Deployment status
 
+(If an image of a Maze is shown below, the deployment is working)
+
 | Azure Web Deployment | Azure Docker Deployment |
 |:--------------------:|:-----------------------:|
 | [![Azure web deployment down :(](http://devemazegeneratorcoreweb.azurewebsites.net/api/mazes/MazePath/192/64)](http://devemazegeneratorcoreweb.azurewebsites.net/api/mazes/MazePath/192/64) | [![Docker deployment down :(](http://devemazegeneratorcoredocker.azurewebsites.net/api/mazes/MazePath/192/64)](http://devemazegeneratorcoredocker.azurewebsites.net/api/mazes/MazePath/192/64) |
