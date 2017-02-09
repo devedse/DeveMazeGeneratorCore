@@ -1,3 +1,3 @@
 FROM microsoft/dotnet:latest
-ADD DeveMazeGeneratorCoreWebPublish /home/DeveMazeGeneratorCoreWebPublish
-CMD ["dotnet", "/home/DeveMazeGeneratorCoreWebPublish/DeveMazeGeneratorWeb.dll", "--server.urls=http://*:80"]
+ADD DeveMazeGeneratorCoreWebPublish /usr/local/bin/DeveMazeGeneratorCoreWebPublish
+CMD ["dotnet", "/usr/local/bin/DeveMazeGeneratorCoreWebPublish/DeveMazeGeneratorWeb.dll", "--server.urls=http://*:80"]
