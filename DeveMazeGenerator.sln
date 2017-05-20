@@ -1,26 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DCB113F5-E985-4E48-9C78-9624DF7470D6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B46C8705-1C1D-463D-8431-2F91DEC220A2}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "DeveMazeGeneratorConsole", "src\DeveMazeGeneratorConsole\DeveMazeGeneratorConsole.xproj", "{0DC50FAF-2CF0-4630-B97E-150234794188}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorConsole", "src\DeveMazeGeneratorConsole\DeveMazeGeneratorConsole.csproj", "{0DC50FAF-2CF0-4630-B97E-150234794188}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "DeveMazeGenerator", "src\DeveMazeGenerator\DeveMazeGenerator.xproj", "{EB564EBD-4C2D-4D61-BCDE-5576EFA85210}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGenerator", "src\DeveMazeGenerator\DeveMazeGenerator.csproj", "{EB564EBD-4C2D-4D61-BCDE-5576EFA85210}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "DeveMazeGenerator.Tests", "test\DeveMazeGenerator.Tests\DeveMazeGenerator.Tests.xproj", "{5E23F786-A289-44A1-A9BA-1F84E0A5C281}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGenerator.Tests", "test\DeveMazeGenerator.Tests\DeveMazeGenerator.Tests.csproj", "{5E23F786-A289-44A1-A9BA-1F84E0A5C281}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "DeveMazeGeneratorWeb", "src\DeveMazeGeneratorWeb\DeveMazeGeneratorWeb.xproj", "{FAF7B152-7B12-45F0-B75E-DF20575266DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorWeb", "src\DeveMazeGeneratorWeb\DeveMazeGeneratorWeb.csproj", "{FAF7B152-7B12-45F0-B75E-DF20575266DB}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ImageSharp", "ImageSharp\src\ImageSharp\ImageSharp.xproj", "{2AA31A1F-142C-43F4-8687-09ABCA4B3A26}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ImageSharp.Formats.Png", "ImageSharp\src\ImageSharp.Formats.Png\ImageSharp.Formats.Png.xproj", "{556ABDCF-ED93-4327-BE98-F6815F78B9B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageSharp", "ImageSharp\src\ImageSharp\ImageSharp.csproj", "{718A787A-3E9D-4911-A29E-F45EA33D1AE5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,14 +39,10 @@ Global
 		{FAF7B152-7B12-45F0-B75E-DF20575266DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAF7B152-7B12-45F0-B75E-DF20575266DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAF7B152-7B12-45F0-B75E-DF20575266DB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2AA31A1F-142C-43F4-8687-09ABCA4B3A26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2AA31A1F-142C-43F4-8687-09ABCA4B3A26}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2AA31A1F-142C-43F4-8687-09ABCA4B3A26}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2AA31A1F-142C-43F4-8687-09ABCA4B3A26}.Release|Any CPU.Build.0 = Release|Any CPU
-		{556ABDCF-ED93-4327-BE98-F6815F78B9B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{556ABDCF-ED93-4327-BE98-F6815F78B9B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{556ABDCF-ED93-4327-BE98-F6815F78B9B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{556ABDCF-ED93-4327-BE98-F6815F78B9B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{718A787A-3E9D-4911-A29E-F45EA33D1AE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{718A787A-3E9D-4911-A29E-F45EA33D1AE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{718A787A-3E9D-4911-A29E-F45EA33D1AE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{718A787A-3E9D-4911-A29E-F45EA33D1AE5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,7 +51,6 @@ Global
 		{0DC50FAF-2CF0-4630-B97E-150234794188} = {DCB113F5-E985-4E48-9C78-9624DF7470D6}
 		{EB564EBD-4C2D-4D61-BCDE-5576EFA85210} = {DCB113F5-E985-4E48-9C78-9624DF7470D6}
 		{FAF7B152-7B12-45F0-B75E-DF20575266DB} = {DCB113F5-E985-4E48-9C78-9624DF7470D6}
-		{2AA31A1F-142C-43F4-8687-09ABCA4B3A26} = {DCB113F5-E985-4E48-9C78-9624DF7470D6}
-		{556ABDCF-ED93-4327-BE98-F6815F78B9B8} = {DCB113F5-E985-4E48-9C78-9624DF7470D6}
+		{718A787A-3E9D-4911-A29E-F45EA33D1AE5} = {DCB113F5-E985-4E48-9C78-9624DF7470D6}
 	EndGlobalSection
 EndGlobal

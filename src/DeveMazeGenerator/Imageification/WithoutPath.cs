@@ -1,6 +1,7 @@
 ﻿using DeveMazeGenerator.InnerMaps;
 using ImageSharp;
 using ImageSharp.Formats;
+using ImageSharp.PixelFormats;
 using System.IO;
 
 namespace DeveMazeGenerator.Imageification
@@ -9,7 +10,11 @@ namespace DeveMazeGenerator.Imageification
     {
         public static void MazeToImage(InnerMap map, Stream stream)
         {
-            var image = new Image(map.Width - 1, map.Height - 1);
+            var image = new Image<Argb32>(map.Width - 1, map.Height - 1);
+
+            var blackPixel = NamedColors<Argb32>.Black;
+            var whitePixel = NamedColors<Argb32>.White;
+
             using (var pixels = image.Lock())
             {
                 for (int y = 0; y < map.Height - 1; y++)
@@ -20,11 +25,11 @@ namespace DeveMazeGenerator.Imageification
 
                         if (!wall)
                         {
-                            pixels[x, y] = Color.Black;
+                            pixels[x, y] = blackPixel;
                         }
                         else
                         {
-                            pixels[x, y] = Color.White;
+                            pixels[x, y] = whitePixel;
                         }
                     }
                 }
