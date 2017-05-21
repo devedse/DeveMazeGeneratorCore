@@ -1,5 +1,5 @@
 language: csharp
-solution: DeveMazeGenerator.sln
+solution: .\DeveMazeGenerator.sln
 
 branches:
   only:
