@@ -1,8 +1,3 @@
-$env:APPVEYOR_PULL_REQUEST_NUMBER = ''
-$env:APPVEYOR_BUILD_VERSION = '1.0.145'
-$env:APPVEYOR_REPO_BRANCH = 'CI'
-
-
 $ReleaseVersionNumber = $env:APPVEYOR_BUILD_VERSION
 $PreReleaseName = ''
 
