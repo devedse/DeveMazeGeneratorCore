@@ -24,18 +24,22 @@ namespace DeveMazeGeneratorWeb.Controllers
 
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         [HttpGet("Maze/{width}/{height}", Name = "GenerateMaze")]
-        public FileStreamResult GenerateMaze(int width, int height)
+        public ActionResult GenerateMaze(int width, int height)
         {
             var alg = new AlgorithmDivisionDynamic();
 
             var map = alg.Generate<UndefinedInnerMap, NetRandom>(width, height, null);
 
-            var memoryStream = new MemoryStream();
-            WithoutPath.MazeToImage(map, memoryStream);
-            return new FileStreamResult(memoryStream, new MediaTypeHeaderValue("image/png"));
+            using (var memoryStream = new MemoryStream())
+            {
+                WithoutPath.MazeToImage(map, memoryStream);
+
+                var data = memoryStream.ToArray();
+                return File(data, "image/png");
+            }
         }
 
-        //[ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         [HttpGet("MazePath/{width}/{height}", Name = "GenerateMazeWithPath")]
         public ActionResult GenerateMazeWithPath(int width, int height)
         {
@@ -50,23 +54,21 @@ namespace DeveMazeGeneratorWeb.Controllers
             var pathGenerationTime = w.Elapsed;
 
             w.Restart();
-            var memoryStream = new MemoryStream();
-            WithPath.SaveMazeAsImageDeluxePng(map, path, memoryStream);
-            var toImageTime = w.Elapsed;
+            using (var memoryStream = new MemoryStream())
+            {
+                WithPath.SaveMazeAsImageDeluxePng(map, path, memoryStream);
+                var toImageTime = w.Elapsed;
 
-            //using (var fs = new FileStream("hoi.png", FileMode.Create, FileAccess.ReadWrite))
-            //{
-            //    fs.Write(memoryStream.ToArray(), 0, memoryStream.ToArray().Length);
-            //}
+                Console.WriteLine($"Maze generation time: {mazeGenerationTime}, Path find time: {pathGenerationTime}, To image time: {toImageTime}");
 
-            Console.WriteLine($"Maze generation time: {mazeGenerationTime}, Path find time: {pathGenerationTime}, To image time: {toImageTime}");
-            //return new FileStreamResult(memoryStream, new MediaTypeHeaderValue("image/png"));
-            return File(memoryStream, "image/png");
+                var data = memoryStream.ToArray();
+                return File(data, "image/png");
+            }
         }
 
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         [HttpGet("MazePathSeed/{seed}/{width}/{height}", Name = "GenerateMazeWithPathSeed")]
-        public FileStreamResult GenerateMazeWithPathSeed(int seed, int width, int height)
+        public ActionResult GenerateMazeWithPathSeed(int seed, int width, int height)
         {
             var alg = new AlgorithmBacktrack();
 
@@ -79,12 +81,16 @@ namespace DeveMazeGeneratorWeb.Controllers
             var pathGenerationTime = w.Elapsed;
 
             w.Restart();
-            var memoryStream = new MemoryStream();
-            WithPath.SaveMazeAsImageDeluxePng(map, path, memoryStream);
-            var toImageTime = w.Elapsed;
+            using (var memoryStream = new MemoryStream())
+            {
+                WithPath.SaveMazeAsImageDeluxePng(map, path, memoryStream);
+                var toImageTime = w.Elapsed;
 
-            Console.WriteLine($"Maze generation time: {mazeGenerationTime}, Path find time: {pathGenerationTime}, To image time: {toImageTime}");
-            return new FileStreamResult(memoryStream, new MediaTypeHeaderValue("image/png"));
+                Console.WriteLine($"Maze generation time: {mazeGenerationTime}, Path find time: {pathGenerationTime}, To image time: {toImageTime}");
+
+                var data = memoryStream.ToArray();
+                return File(data, "image/png");
+            }
         }
     }
 }
