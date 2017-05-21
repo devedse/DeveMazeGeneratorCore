@@ -1,7 +1,4 @@
 language: csharp
-mono: none
-dotnet: 1.1.2
-
 solution: DeveMazeGenerator.sln
 
 branches:
@@ -10,20 +7,28 @@ branches:
 
 matrix:
   include:
-    - os: linux
+    - dotnet: 1.1.2
+      mono: none
+      os: linux
       dist: trusty # Ubuntu 14.04
       sudo: required
       env: CONFIGURATION=Release
       services:
         - docker
-    - os: linux
+    - dotnet: 1.1.2
+      mono: none
+      os: linux
       dist: trusty
       sudo: required
       env: CONFIGURATION=Debug
-    - os: osx
+    - dotnet: 1.1.2
+      mono: none
+      os: osx
       osx_image: xcode8.2 # macOS 10.11
       env: CONFIGURATION=Release
-    - os: osx
+    - dotnet: 1.1.2
+      mono: none
+      os: osx
       osx_image: xcode8.2
       env: CONFIGURATION=Debug
 
