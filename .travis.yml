@@ -7,7 +7,7 @@ branches:
 
 matrix:
   include:
-    - dotnet: 1.0.1
+    - dotnet: 1.0.4
       mono: none
       os: linux
       dist: trusty # Ubuntu 14.04
@@ -15,18 +15,18 @@ matrix:
       env: CONFIGURATION=Release
       services:
         - docker
-    - dotnet: 1.0.1
+    - dotnet: 1.0.4
       mono: none
       os: linux
       dist: trusty
       sudo: required
       env: CONFIGURATION=Debug
-    - dotnet: 1.0.1
+    - dotnet: 1.0.4
       mono: none
       os: osx
       osx_image: xcode8.2 # macOS 10.11
       env: CONFIGURATION=Release
-    - dotnet: 1.0.1
+    - dotnet: 1.0.4
       mono: none
       os: osx
       osx_image: xcode8.2
