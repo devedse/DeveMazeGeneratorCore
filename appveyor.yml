@@ -21,7 +21,7 @@ build_script:
   - cmd: dotnet build -c Release
 
 test_script:
-  - cmd: dotnet test -c release test\DeveMazeGenerator.Tests\
+  - cmd: dotnet test -c release test\DeveMazeGenerator.Tests\DeveMazeGenerator.Tests.csproj
   
 after_test:
   - cmd: dotnet pack -c Release src\DeveMazeGenerator\
