@@ -13,8 +13,9 @@ $PSScriptFilePath = (Get-Item $MyInvocation.MyCommand.Path).FullName
 $ScriptDir = Split-Path -Path $PSScriptFilePath -Parent
 $SolutionRoot = Split-Path -Path $ScriptDir -Parent
 
- $ProjectJsonPath = Join-Path -Path $SolutionRoot -ChildPath "src\DeveMazeGenerator\project.json"
- $re = [regex]"(?<=`"version`":\s`")[.\w-\*]*(?=`",)"
+ $ProjectJsonPath = Join-Path -Path $SolutionRoot -ChildPath "src\DeveMazeGenerator\Properties\AssemblyInfo.cs"
+ #$re = [regex]"(?<=`"version`":\s`")[.\w-\*]*(?=`",)"
+ $re = [regex]"\[assembly: AssemblyVersion\(`"(1.0.0.0)`"\)]"
  
  Write-Host "ProjectJson Path: $ProjectJsonPath"
  Write-Host "Writing version: $ReleaseVersionNumber$PreReleaseName"
