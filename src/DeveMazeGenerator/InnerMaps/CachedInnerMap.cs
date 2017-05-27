@@ -30,10 +30,7 @@ namespace DeveMazeGenerator.InnerMaps
 
         private bool GetPathData(int x, int y)
         {
-            if (x < currentMapPart.StartX || x >= currentMapPart.StartX + GridSize || y < currentMapPart.StartY || y >= currentMapPart.StartY + GridSize)
-            {
-                LoadNewMapPart(x / GridSize, y / GridSize);
-            }
+            EnsureMapPartLoaded(x, y);
 
             int ything = y % GridSize;
             int xthing = x % GridSize;
@@ -45,10 +42,7 @@ namespace DeveMazeGenerator.InnerMaps
         {
             get
             {
-                if (x < currentMapPart.StartX || x >= currentMapPart.StartX + GridSize || y < currentMapPart.StartY || y >= currentMapPart.StartY + GridSize)
-                {
-                    LoadNewMapPart(x / GridSize, y / GridSize);
-                }
+                EnsureMapPartLoaded(x, y);
 
                 int ything = y % GridSize;
                 int xthing = x % GridSize;
@@ -57,10 +51,7 @@ namespace DeveMazeGenerator.InnerMaps
             }
             set
             {
-                if (x < currentMapPart.StartX || x > currentMapPart.StartX + GridSize || y < currentMapPart.StartY || y > currentMapPart.StartY)
-                {
-                    LoadNewMapPart(x / GridSize, y / GridSize);
-                }
+                EnsureMapPartLoaded(x, y);
 
                 int ything = y % GridSize;
                 int xthing = x % GridSize;
@@ -69,6 +60,13 @@ namespace DeveMazeGenerator.InnerMaps
             }
         }
 
+        private void EnsureMapPartLoaded(int x, int y)
+        {
+            if (x < currentMapPart.StartX || x >= currentMapPart.StartX + GridSize || y < currentMapPart.StartY || y >= currentMapPart.StartY + GridSize)
+            {
+                LoadNewMapPart(x / GridSize, y / GridSize);
+            }
+        }
 
         public void LoadNewMapPart(int x, int y)
         {

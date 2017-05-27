@@ -129,21 +129,24 @@ namespace DeveMazeGenerator.Generators
                     int splitnumber = 2 + random.Next((curRect.Height - 2) / 2) * 2;
                     int opening = 1 + random.Next((curRect.Width) / 2) * 2 + curRect.X;
 
-                    var splitPos = new MazePointClassLinkedList(splitnumber, opening);
+                    var splitPos = new MazePointClassLinkedList(opening, curRect.Y + splitnumber);
 
                     var rect1 = new RectangleWithPath(curRect.X, curRect.Y, curRect.Width, splitnumber + 1, random.Next());
                     var rect2 = new RectangleWithPath(curRect.X, curRect.Y + splitnumber, curRect.Width, curRect.Height - splitnumber, random.Next());
 
                     if (curRect.PathPassesThroughThis)
                     {
-                        var pathPassesThroughOpening = AreNumberOnTheSidesOfThisValue(splitnumber, curRect.MazePointLeft.Y, curRect.MazePointRight.Y);
+                        var pathPassesThroughOpening = AreNumberOnTheSidesOfThisValue(splitPos.Y, curRect.MazePointLeft.Y, curRect.MazePointRight.Y);
                         DetermineRectanglePathPassingThrough(curRect, rect1, splitPos);
                         DetermineRectanglePathPassingThrough(curRect, rect2, splitPos);
 
                         if (pathPassesThroughOpening)
                         {
                             splitPos.InsertMeInBetweenTheseTwo(curRect.MazePointLeft, curRect.MazePointRight);
-                            pathMap[splitPos.X, splitPos.Y] = true;
+                            if (visibleRectangle.IntersectsWith(splitPos))
+                            {
+                                pathMap[splitPos.X - visibleRectangle.X, splitPos.Y - visibleRectangle.Y] = true;
+                            }
                         }
                     }
 
@@ -177,21 +180,24 @@ namespace DeveMazeGenerator.Generators
                     int splitnumber = 2 + random.Next((curRect.Width - 2) / 2) * 2;
                     int opening = 1 + random.Next((curRect.Height) / 2) * 2 + curRect.Y;
 
-                    var splitPos = new MazePointClassLinkedList(splitnumber, opening);
+                    var splitPos = new MazePointClassLinkedList(curRect.X + splitnumber, opening);
 
                     var rect1 = new RectangleWithPath(curRect.X, curRect.Y, splitnumber + 1, curRect.Height, random.Next());
                     var rect2 = new RectangleWithPath(curRect.X + splitnumber, curRect.Y, curRect.Width - splitnumber, curRect.Height, random.Next());
 
                     if (curRect.PathPassesThroughThis)
                     {
-                        var pathPassesThroughOpening = AreNumberOnTheSidesOfThisValue(splitnumber, curRect.MazePointLeft.Y, curRect.MazePointRight.Y);
+                        var pathPassesThroughOpening = AreNumberOnTheSidesOfThisValue(splitPos.X, curRect.MazePointLeft.X, curRect.MazePointRight.X);
                         DetermineRectanglePathPassingThrough(curRect, rect1, splitPos);
                         DetermineRectanglePathPassingThrough(curRect, rect2, splitPos);
 
                         if (pathPassesThroughOpening)
                         {
                             splitPos.InsertMeInBetweenTheseTwo(curRect.MazePointLeft, curRect.MazePointRight);
-                            pathMap[splitPos.X, splitPos.Y] = true;
+                            if (visibleRectangle.IntersectsWith(splitPos))
+                            {
+                                pathMap[splitPos.X - visibleRectangle.X, splitPos.Y - visibleRectangle.Y] = true;
+                            }
                         }
                     }
 
@@ -221,10 +227,10 @@ namespace DeveMazeGenerator.Generators
                     }
                 }
 
-                using (var fs = new FileStream("DivisionDynamicWithPath.png", FileMode.Create))
-                {
-                    WithPath.SaveMazeAsImageDeluxePng(map, pathMap, fs);
-                }
+                //using (var fs = new FileStream("DivisionDynamicWithPath2.png", FileMode.Create))
+                //{
+                //    WithPath.SaveMazeAsImageDeluxePng(map, pathMap, fs);
+                //}
             }
 
             map.PathData = pathMap;
