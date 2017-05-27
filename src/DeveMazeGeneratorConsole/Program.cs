@@ -15,9 +15,33 @@ namespace DeveMazeGeneratorConsole
     {
         public static void Main(string[] args)
         {
-            Test6();
+            while (true)
+            {
+                Test7();
 
-            Console.ReadKey();
+                Console.ReadKey();
+            }
+        }
+
+        public static void Test7()
+        {
+            int size = 16;
+
+            var alg = new AlgorithmDivisionDynamicWithPath();
+            var maze = alg.GenerateWithPath<BitArreintjeFastInnerMap, NetRandom>(size, size, 1337, null);
+
+            using (var fs = new FileStream("DivisionDynamicWithPath.png", FileMode.Create))
+            {
+                WithPath.SaveMazeAsImageDeluxePng(maze.Maze, maze.PathMap, fs);
+            }
+
+            //var alg = new AlgorithmDivisionDynamic();
+            //var maze = alg.Generate<UndefinedInnerMap, NetRandom>(size, size, null);
+
+            //using (var fs = new FileStream("DivisionDynamicWithPath.png", FileMode.Create))
+            //{
+            //    WithoutPath.MazeToImage(maze, fs);
+            //}
         }
 
         public static void Test6()

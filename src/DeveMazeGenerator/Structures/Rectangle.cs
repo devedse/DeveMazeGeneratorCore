@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DeveMazeGenerator.Structures
+﻿namespace DeveMazeGenerator.Structures
 {
     public class Rectangle
     {
@@ -27,6 +24,28 @@ namespace DeveMazeGenerator.Structures
             (this.X < (rect.X + rect.Width)) &&
             (rect.Y < this.Y + this.Height) &&
             (this.Y < rect.Y + rect.Height);
+        }
+
+        public bool IntersectsWith(MazePoint point)
+        {
+            if (point.X >= X && point.Y >= Y && point.X < X + Width && point.Y < Y + Height)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool IntersectsWith(MazePointClass point)
+        {
+            if (point == null)
+            {
+                return false;
+            }
+            if (point.X >= X && point.Y >= Y && point.X < X + Width && point.Y < Y + Height)
+            {
+                return true;
+            }
+            return false;
         }
 
         public override string ToString()

@@ -13,12 +13,12 @@ namespace DeveMazeGenerator.InnerMaps
         {
             get
             {
-                throw new NotImplementedException();
+                return false;
             }
 
             set
             {
-                throw new NotImplementedException();
+                
             }
         }
     }

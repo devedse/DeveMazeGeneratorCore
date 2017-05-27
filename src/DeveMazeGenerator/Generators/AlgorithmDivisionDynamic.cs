@@ -124,8 +124,8 @@ namespace DeveMazeGenerator.Generators
                     int splitnumber = 2 + random.Next((curRect.Height - 2) / 2) * 2;
                     int opening = 1 + random.Next((curRect.Width) / 2) * 2 + curRect.X;
 
-                    Rectangle rect1 = new Rectangle(curRect.X, curRect.Y, curRect.Width, splitnumber + 1, random.Next());
-                    Rectangle rect2 = new Rectangle(curRect.X, curRect.Y + splitnumber, curRect.Width, curRect.Height - splitnumber, random.Next());
+                    var rect1 = new Rectangle(curRect.X, curRect.Y, curRect.Width, splitnumber + 1, random.Next());
+                    var rect2 = new Rectangle(curRect.X, curRect.Y + splitnumber, curRect.Width, curRect.Height - splitnumber, random.Next());
 
                     int xStartDraw = Math.Max(0, curRect.X - xStart);
                     int xEndDraw = Math.Min(widthPart, curRect.X - xStart + curRect.Width);
@@ -157,8 +157,8 @@ namespace DeveMazeGenerator.Generators
                     int splitnumber = 2 + random.Next((curRect.Width - 2) / 2) * 2;
                     int opening = 1 + random.Next((curRect.Height) / 2) * 2 + curRect.Y;
 
-                    Rectangle rect1 = new Rectangle(curRect.X, curRect.Y, splitnumber + 1, curRect.Height, random.Next());
-                    Rectangle rect2 = new Rectangle(curRect.X + splitnumber, curRect.Y, curRect.Width - splitnumber, curRect.Height, random.Next());
+                    var rect1 = new Rectangle(curRect.X, curRect.Y, splitnumber + 1, curRect.Height, random.Next());
+                    var rect2 = new Rectangle(curRect.X + splitnumber, curRect.Y, curRect.Width - splitnumber, curRect.Height, random.Next());
 
                     var yStartDraw = Math.Max(0, curRect.Y - yStart);
                     int yEndDraw = Math.Min(heightPart, curRect.Y - yStart + curRect.Height);
