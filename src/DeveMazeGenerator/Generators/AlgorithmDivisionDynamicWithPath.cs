@@ -28,6 +28,9 @@ namespace DeveMazeGenerator.Generators
 
         public InnerMap GenerateMapPartWithPath(int xStart, int yStart, int width, int height, int widthPart, int heightPart, IRandomFactory randomFactory)
         {
+            var visibleRectangle = new Rectangle(xStart, yStart, widthPart, heightPart, 0);
+            //Console.WriteLine($"Generating rectangle: {visibleRectangle}");
+
             var random = randomFactory.Create();
 
             InnerMap map = new BitArreintjeFastInnerMap(widthPart, heightPart) { StartX = xStart, StartY = yStart };
@@ -88,9 +91,6 @@ namespace DeveMazeGenerator.Generators
                     }
                 }
             }
-
-
-            var visibleRectangle = new Rectangle(xStart, yStart, widthPart, heightPart, 0);
 
             var rectangles = new Stack<RectangleWithPath>();
 

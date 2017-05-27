@@ -25,7 +25,7 @@ namespace DeveMazeGeneratorConsole
 
         public static void Test7()
         {
-            int size = 128;
+            int size = 1024;
 
             var alg = new AlgorithmDivisionDynamicWithPath();
             var maze = alg.GenerateWithPath<BitArreintjeFastInnerMap, NetRandom>(size, size, null);
