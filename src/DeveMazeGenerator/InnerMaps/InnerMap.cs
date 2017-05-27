@@ -10,6 +10,11 @@ namespace DeveMazeGenerator.InnerMaps
     /// </summary>
     public abstract class InnerMap
     {
+        /// <summary>
+        /// This data can be used by some algorithms to also generate path data
+        /// </summary>
+        public InnerMap PathData { get; set; }
+
         public int Width { get; private set; }
         public int Height { get; private set; }
 

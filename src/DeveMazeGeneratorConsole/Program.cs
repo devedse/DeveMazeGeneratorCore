@@ -32,7 +32,7 @@ namespace DeveMazeGeneratorConsole
 
             using (var fs = new FileStream("DivisionDynamicWithPath.png", FileMode.Create))
             {
-                WithPath.SaveMazeAsImageDeluxePng(maze.Maze, maze.PathMap, fs);
+                WithPath.SaveMazeAsImageDeluxePng(maze, maze.PathData, fs);
             }
 
             //var alg = new AlgorithmDivisionDynamic();

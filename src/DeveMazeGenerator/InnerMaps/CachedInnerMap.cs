@@ -21,6 +21,24 @@ namespace DeveMazeGenerator.InnerMaps
 
             this.GeneratePartAction = generatePartAction;
             this.SavePartAction = savePartAction;
+
+            PathData = new ForwardingInnerMap(width, height, (x, y) =>
+            {
+                return GetPathData(x, y);
+            });
+        }
+
+        private bool GetPathData(int x, int y)
+        {
+            if (x < currentMapPart.StartX || x >= currentMapPart.StartX + GridSize || y < currentMapPart.StartY || y >= currentMapPart.StartY + GridSize)
+            {
+                LoadNewMapPart(x / GridSize, y / GridSize);
+            }
+
+            int ything = y % GridSize;
+            int xthing = x % GridSize;
+
+            return currentMapPart.PathData[xthing, ything];
         }
 
         public override bool this[int x, int y]

@@ -15,18 +15,18 @@ namespace DeveMazeGenerator.Generators
         private const int tilesCached = 20;
         private const int tileSize = 64;
 
-        public override (InnerMap Maze, InnerMap PathMap) GoGenerateWithPath<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
+        public override InnerMap GoGenerateWithPath<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
         {
             var innerMap = mapFactory.Create();
 
-            Func<int, int, int, int, InnerMap> generateAction = (x, y, widthPart, heightPart) => GenerateMapPartWithPath(x, y, innerMap.Width, innerMap.Height, widthPart, heightPart, randomFactory).Maze;
+            Func<int, int, int, int, InnerMap> generateAction = (x, y, widthPart, heightPart) => GenerateMapPartWithPath(x, y, innerMap.Width, innerMap.Height, widthPart, heightPart, randomFactory);
             Action<InnerMap> storeAction = (x) => { };
 
             var totalMap = new CachedInnerMap(innerMap.Width, innerMap.Height, tilesCached, Math.Min(Math.Min(innerMap.Width, innerMap.Height), tileSize), generateAction, storeAction);
-            return (totalMap, null);
+            return totalMap;
         }
 
-        public (InnerMap Maze, InnerMap PathMap) GenerateMapPartWithPath(int xStart, int yStart, int width, int height, int widthPart, int heightPart, IRandomFactory randomFactory)
+        public InnerMap GenerateMapPartWithPath(int xStart, int yStart, int width, int height, int widthPart, int heightPart, IRandomFactory randomFactory)
         {
             var random = randomFactory.Create();
 
@@ -227,7 +227,8 @@ namespace DeveMazeGenerator.Generators
                 }
             }
 
-            return (map, pathMap);
+            map.PathData = pathMap;
+            return map;
         }
 
         //public override (InnerMap Maze, InnerMap PathMap) GoGenerateWithPath2<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
