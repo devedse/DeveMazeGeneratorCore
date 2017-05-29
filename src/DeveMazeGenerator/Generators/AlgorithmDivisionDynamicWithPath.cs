@@ -263,33 +263,47 @@ namespace DeveMazeGenerator.Generators
 
         private static void FillInPathForRectangleY(Rectangle visibleRectangle, BitArreintjeFastInnerMap pathMap, MazePointClassLinkedList mazePointToWriteFor, MazePointClassLinkedList splitPos, RectangleWithPath rect1)
         {
-            var startYWriting = mazePointToWriteFor.Y - visibleRectangle.Y;
-            var endWritingY = splitPos.Y - visibleRectangle.Y;
-
-            var lowest = Math.Min(startYWriting, endWritingY);
-            var highest = Math.Max(startYWriting, endWritingY);
-
             var theX = rect1.X + 1 - visibleRectangle.X;
 
-            for (int i = lowest; i <= highest; i++)
+            if (theX >= 0 && theX < visibleRectangle.Width)
             {
-                pathMap[theX, i] = true;
+                var startYWriting = mazePointToWriteFor.Y - visibleRectangle.Y;
+                var endWritingY = splitPos.Y - visibleRectangle.Y;
+
+                var lowest = Math.Min(startYWriting, endWritingY);
+                var highest = Math.Max(startYWriting, endWritingY);
+
+                lowest = Math.Max(lowest, 0);
+                highest = Math.Min(highest, visibleRectangle.Height - 1);
+
+
+                for (int i = lowest; i <= highest; i++)
+                {
+                    pathMap[theX, i] = true;
+                }
             }
         }
 
         private static void FillInPathForRectangleX(Rectangle visibleRectangle, BitArreintjeFastInnerMap pathMap, MazePointClassLinkedList mazePointToWriteFor, MazePointClassLinkedList splitPos, RectangleWithPath rect1)
         {
-            var startXWriting = mazePointToWriteFor.X - visibleRectangle.X;
-            var endWritingX = splitPos.X - visibleRectangle.X;
-
-            var lowest = Math.Min(startXWriting, endWritingX);
-            var highest = Math.Max(startXWriting, endWritingX);
-
             var theY = rect1.Y + 1 - visibleRectangle.Y;
 
-            for (int i = lowest; i <= highest; i++)
+            if (theY >= 0 && theY < visibleRectangle.Height)
             {
-                pathMap[i, theY] = true;
+                var startXWriting = mazePointToWriteFor.X - visibleRectangle.X;
+                var endWritingX = splitPos.X - visibleRectangle.X;
+
+                var lowest = Math.Min(startXWriting, endWritingX);
+                var highest = Math.Max(startXWriting, endWritingX);
+
+                lowest = Math.Max(lowest, 0);
+                highest = Math.Min(highest, visibleRectangle.Width - 1);
+
+
+                for (int i = lowest; i <= highest; i++)
+                {
+                    pathMap[i, theY] = true;
+                }
             }
         }
 
