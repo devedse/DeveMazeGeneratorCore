@@ -148,6 +148,18 @@ namespace DeveMazeGenerator.Generators
                                 pathMap[splitPos.X - visibleRectangle.X, splitPos.Y - visibleRectangle.Y] = true;
                             }
                         }
+
+                        //DrawRedStuff
+                        if (rect1.PathPassesThroughThis && rect1.Height == 3)
+                        {
+                            FillInPathForRectangleX(visibleRectangle, pathMap, rect1.MazePointLeft, rect1.MazePointRight, rect1);
+                        }
+
+                        if (rect2.PathPassesThroughThis && rect2.Height == 3)
+                        {
+                            //FillInPathForRectangle(visibleRectangle, pathMap, curRect.MazePointRight.Previous, curRect.MazePointRight, rect2);
+                            FillInPathForRectangleX(visibleRectangle, pathMap, rect2.MazePointLeft, rect2.MazePointRight, rect2);
+                        }
                     }
 
                     int xStartDraw = Math.Max(0, curRect.X - xStart);
@@ -199,6 +211,18 @@ namespace DeveMazeGenerator.Generators
                                 pathMap[splitPos.X - visibleRectangle.X, splitPos.Y - visibleRectangle.Y] = true;
                             }
                         }
+
+                        //DrawRedStuff
+                        if (rect1.PathPassesThroughThis && rect1.Width == 3)
+                        {
+                            FillInPathForRectangleY(visibleRectangle, pathMap, rect1.MazePointLeft, rect1.MazePointRight, rect1);
+                        }
+
+                        if (rect2.PathPassesThroughThis && rect2.Width == 3)
+                        {
+                            //FillInPathForRectangle(visibleRectangle, pathMap, curRect.MazePointRight.Previous, curRect.MazePointRight, rect2);
+                            FillInPathForRectangleY(visibleRectangle, pathMap, rect2.MazePointLeft, rect2.MazePointRight, rect2);
+                        }
                     }
 
                     var yStartDraw = Math.Max(0, curRect.Y - yStart);
@@ -237,212 +261,37 @@ namespace DeveMazeGenerator.Generators
             return map;
         }
 
-        //public override (InnerMap Maze, InnerMap PathMap) GoGenerateWithPath2<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
-        //{
-        //    var map = mapFactory.Create();
-        //    var random = randomFactory.Create();
+        private static void FillInPathForRectangleY(Rectangle visibleRectangle, BitArreintjeFastInnerMap pathMap, MazePointClassLinkedList mazePointToWriteFor, MazePointClassLinkedList splitPos, RectangleWithPath rect1)
+        {
+            var startYWriting = mazePointToWriteFor.Y - visibleRectangle.Y;
+            var endWritingY = splitPos.Y - visibleRectangle.Y;
 
-        //    var pathMap = mapFactory.Create();
+            var lowest = Math.Min(startYWriting, endWritingY);
+            var highest = Math.Max(startYWriting, endWritingY);
 
-        //    map.FillMap(true);
+            var theX = rect1.X + 1 - visibleRectangle.X;
 
-        //    var startPoint = new MazePointClassLinkedList(1, 1);
-        //    var curRect = new RectangleWithPath(0, 0, UnevenHelper.MakeUneven(map.Width), UnevenHelper.MakeUneven(map.Height), random.Next(), startPoint, new MazePointClassLinkedList(map.Width - 3, map.Height - 3), true);
+            for (int i = lowest; i <= highest; i++)
+            {
+                pathMap[theX, i] = true;
+            }
+        }
 
-        //    var rectangles = new Stack<RectangleWithPath>();
-        //    rectangles.Push(curRect);
+        private static void FillInPathForRectangleX(Rectangle visibleRectangle, BitArreintjeFastInnerMap pathMap, MazePointClassLinkedList mazePointToWriteFor, MazePointClassLinkedList splitPos, RectangleWithPath rect1)
+        {
+            var startXWriting = mazePointToWriteFor.X - visibleRectangle.X;
+            var endWritingX = splitPos.X - visibleRectangle.X;
 
-        //    int xStart = 0;
-        //    int widthPart = map.Width - 1;
-        //    int yStart = 0;
-        //    int heightPart = map.Height - 1;
+            var lowest = Math.Min(startXWriting, endWritingX);
+            var highest = Math.Max(startXWriting, endWritingX);
 
-        //    //If the maze is out of screen
-        //    var theRightEdge = Math.Max(((xStart + widthPart) - map.Width), 0);
-        //    var theBottomEdge = Math.Max(((yStart + heightPart) - map.Height), 0);
-        //    //Add walls
-        //    if (xStart == 0)
-        //    {
-        //        for (int y = 0; y < heightPart - theBottomEdge; y++)
-        //        {
-        //            map[0, y] = false;
-        //        }
-        //    }
+            var theY = rect1.Y + 1 - visibleRectangle.Y;
 
-        //    if (yStart == 0)
-        //    {
-        //        for (int x = 0; x < widthPart - theRightEdge; x++)
-        //        {
-        //            map[x, 0] = false;
-        //        }
-        //    }
-
-        //    if (xStart + widthPart >= map.Width)
-        //    {
-        //        for (int y = 0; y < heightPart - theBottomEdge; y++)
-        //        {
-        //            map[widthPart - 1 - theRightEdge, y] = false;
-        //        }
-
-        //        if (UnevenHelper.NumberIsEven(map.Width))
-        //        {
-        //            for (int y = 0; y < heightPart - theBottomEdge; y++)
-        //            {
-        //                map[widthPart - 2 - theRightEdge, y] = false;
-        //            }
-        //        }
-        //    }
-
-        //    if (yStart + heightPart >= map.Height)
-        //    {
-        //        for (int x = 0; x < widthPart - theRightEdge; x++)
-        //        {
-        //            map[x, heightPart - 1 - theBottomEdge] = false;
-        //        }
-
-        //        if (UnevenHelper.NumberIsEven(map.Height))
-        //        {
-        //            for (int x = 0; x < widthPart - theRightEdge; x++)
-        //            {
-        //                map[x, heightPart - 2 - theBottomEdge] = false;
-        //            }
-        //        }
-        //    }
-
-        //    while (rectangles.Count > 0)
-        //    {
-        //        curRect = rectangles.Pop();
-
-        //        bool horizontalSplit = true;
-
-        //        if (curRect.Width > curRect.Height)
-        //        {
-        //            horizontalSplit = false;
-        //        }
-        //        else if (curRect.Width < curRect.Height)
-        //        {
-        //            horizontalSplit = true;
-        //        }
-        //        else
-        //        {
-        //            if (random.Next(2) == 0)
-        //            {
-        //                horizontalSplit = false;
-        //            }
-        //        }
-
-
-
-
-        //        if (horizontalSplit)
-        //        {
-        //            int splitnumber = 2 + random.Next((curRect.Height - 2) / 2) * 2;
-        //            int opening = 1 + random.Next((curRect.Width) / 2) * 2 + curRect.X;
-
-        //            var splitPos = new MazePointClassLinkedList(splitnumber, opening);
-
-        //            var rect1 = new RectangleWithPath(curRect.X, curRect.Y, curRect.Width, splitnumber + 1, random.Next());
-        //            var rect2 = new RectangleWithPath(curRect.X, curRect.Y + splitnumber, curRect.Width, curRect.Height - splitnumber, random.Next());
-
-        //            if (curRect.PathPassesThroughThis)
-        //            {
-        //                var pathPassesThroughOpening = AreNumberOnTheSidesOfThisValue(splitnumber, curRect.MazePointLeft.Y, curRect.MazePointRight.Y);
-        //                DetermineRectanglePathPassingThrough(curRect, rect1, splitPos);
-        //                DetermineRectanglePathPassingThrough(curRect, rect2, splitPos);
-
-        //                if (pathPassesThroughOpening)
-        //                {
-        //                    splitPos.InsertMeInBetweenTheseTwo(curRect.MazePointLeft, curRect.MazePointRight);
-        //                    pathMap[splitPos.X, splitPos.Y] = true;
-        //                }
-        //            }
-
-        //            int xStartDraw = Math.Max(0, curRect.X - xStart);
-        //            int xEndDraw = Math.Min(widthPart, curRect.X - xStart + curRect.Width);
-
-        //            int yPos = curRect.Y + splitnumber - yStart;
-
-        //            if (yPos >= 0 && yPos < heightPart - 1)
-        //            {
-        //                for (int i = xStartDraw; i < xEndDraw; i++)
-        //                {
-        //                    if (i != opening - xStart)
-        //                    {
-        //                        map[i, yPos] = false;
-        //                    }
-        //                }
-        //            }
-
-        //            //if (IsValidRect(visibleRectangle, rect1))
-        //            //{
-        //            rectangles.Push(rect1);
-        //            //}
-        //            //if (IsValidRect(visibleRectangle, rect2))
-        //            //{
-        //            rectangles.Push(rect2);
-        //            //}
-        //        }
-        //        else
-        //        {
-        //            int splitnumber = 2 + random.Next((curRect.Width - 2) / 2) * 2;
-        //            int opening = 1 + random.Next((curRect.Height) / 2) * 2 + curRect.Y;
-
-        //            var splitPos = new MazePointClassLinkedList(splitnumber, opening);
-
-        //            var rect1 = new RectangleWithPath(curRect.X, curRect.Y, splitnumber + 1, curRect.Height, random.Next());
-        //            var rect2 = new RectangleWithPath(curRect.X + splitnumber, curRect.Y, curRect.Width - splitnumber, curRect.Height, random.Next());
-
-        //            if (curRect.PathPassesThroughThis)
-        //            {
-        //                var pathPassesThroughOpening = AreNumberOnTheSidesOfThisValue(splitnumber, curRect.MazePointLeft.X, curRect.MazePointRight.X);
-        //                DetermineRectanglePathPassingThrough(curRect, rect1, splitPos);
-        //                DetermineRectanglePathPassingThrough(curRect, rect2, splitPos);
-
-        //                if (pathPassesThroughOpening)
-        //                {
-        //                    splitPos.InsertMeInBetweenTheseTwo(curRect.MazePointLeft, curRect.MazePointRight);
-        //                    pathMap[splitPos.X, splitPos.Y] = true;
-        //                }
-        //            }
-
-        //            var yStartDraw = Math.Max(0, curRect.Y - yStart);
-        //            int yEndDraw = Math.Min(heightPart, curRect.Y - yStart + curRect.Height);
-
-        //            int xPos = curRect.X + splitnumber - xStart;
-
-        //            if (xPos >= 0 && xPos < widthPart - 1)
-        //            {
-        //                for (int i = yStartDraw; i < yEndDraw; i++)
-        //                {
-        //                    if (i != opening - yStart)
-        //                    {
-        //                        map[xPos, i] = false;
-        //                    }
-        //                }
-        //            }
-
-        //            //if (IsValidRect(visibleRectangle, rect1))
-        //            //{
-        //            rectangles.Push(rect1);
-        //            //}
-        //            //if (IsValidRect(visibleRectangle, rect2))
-        //            //{
-        //            rectangles.Push(rect2);
-        //            //}
-        //        }
-
-        //        Console.WriteLine(map.ToString());
-
-        //        using (var fs = new FileStream("DivisionDynamicWithPath.png", FileMode.Create))
-        //        {
-        //            WithPath.SaveMazeAsImageDeluxePng(map, pathMap, fs);
-        //        }
-
-        //    }
-
-
-        //    return (map, pathMap);
-        //}
+            for (int i = lowest; i <= highest; i++)
+            {
+                pathMap[i, theY] = true;
+            }
+        }
 
         private static void DetermineRectanglePathPassingThrough(RectangleWithPath curRect, RectangleWithPath newRect, MazePointClassLinkedList opening)
         {
