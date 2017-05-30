@@ -100,9 +100,9 @@ namespace DeveMazeGeneratorWeb.Controllers
             var alg = new AlgorithmDivisionDynamicWithPath();
 
             var w = Stopwatch.StartNew();
-            var map = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(width, height, seed, null);
+            var map = alg.Generate<UndefinedInnerMap, NetRandom>(width, height, seed, null);
             var mazeGenerationTime = w.Elapsed;
-            
+
             w.Restart();
             using (var memoryStream = new MemoryStream())
             {

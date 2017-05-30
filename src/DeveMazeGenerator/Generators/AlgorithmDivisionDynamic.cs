@@ -14,6 +14,11 @@ namespace DeveMazeGenerator.Generators
 
         public override InnerMap GoGenerate<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
         {
+            if (typeof(M) != typeof(UndefinedInnerMap))
+            {
+                throw new InvalidOperationException("Please provide the map type 'UndefinedInnerMap' to this algorithm, else it will take memory that is not required.");
+            }
+
             var innerMap = mapFactory.Create();
 
             Func<int, int, int, int, InnerMap> generateAction = (x, y, widthPart, heightPart) => GenerateMapPart(x, y, innerMap.Width, innerMap.Height, widthPart, heightPart, randomFactory);
