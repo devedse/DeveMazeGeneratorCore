@@ -35,3 +35,11 @@ AppVeyor will create a number of build artefacts which are added as releases on 
 * DeveMazeGeneratorCore.zip (Build output as zip)
 * DeveMazeGenerator.x.x.x-CI.nupkg (Nuget package of library)
 * DeveMazeGenerator.x.x.x-CI.symbols.nupkg (Nuget package of symbols for library)
+
+## Maze generator details
+
+As of the latest version it is now also possible to generate mazes the size on 2^30 * 2^30 dynamically with a path.
+
+Use the following url as an example:
+http://devemazegeneratorcoredocker.azurewebsites.net/api/mazes/MazeDynamicPathSeedPart/1337/1073741824/1073741824/0/0/512/512
+http://devemazegeneratorcoreweb.azurewebsites.net/api/mazes/MazeDynamicPathSeedPart/1337/1073741824/1073741824/0/0/512/512
