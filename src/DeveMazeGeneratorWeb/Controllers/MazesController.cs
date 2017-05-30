@@ -102,18 +102,14 @@ namespace DeveMazeGeneratorWeb.Controllers
             var w = Stopwatch.StartNew();
             var map = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(width, height, seed, null);
             var mazeGenerationTime = w.Elapsed;
-
-            w.Restart();
-            var path = PathFinderDepthFirstSmartWithPos.GoFind(map, null);
-            var pathGenerationTime = w.Elapsed;
-
+            
             w.Restart();
             using (var memoryStream = new MemoryStream())
             {
                 WithPath.SaveMazeAsImageDeluxePng(map, map.PathData, xPart, yPart, partWidth, partHeight, memoryStream);
                 var toImageTime = w.Elapsed;
 
-                Console.WriteLine($"Maze generation time: {mazeGenerationTime}, Path find time: {pathGenerationTime}, To image time: {toImageTime}");
+                Console.WriteLine($"Maze generation time: {mazeGenerationTime} To image time: {toImageTime}");
 
                 var data = memoryStream.ToArray();
                 return File(data, "image/png");

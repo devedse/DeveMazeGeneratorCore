@@ -129,13 +129,17 @@ namespace DeveMazeGenerator.Imageification
 
             var w = Stopwatch.StartNew();
             var image = new Image<Argb32>(widthPart, heightPart);
+
+            var maxWidth = widthPart;
+            var maxHeight = heightPart;
+
             using (var pixels = image.Lock())
             {
                 int yInPart = yPart;
-                for (int y = 0; y < map.Height - 1; y++)
+                for (int y = 0; y < maxHeight; y++)
                 {
                     int xInPart = xPart;
-                    for (int x = 0; x < map.Width - 1; x++)
+                    for (int x = 0; x < maxWidth; x++)
                     {
                         int r = 0;
                         int g = 0;
@@ -154,7 +158,7 @@ namespace DeveMazeGenerator.Imageification
                                 b = 255;
                             }
                         }
-                        pixels[xInPart, yInPart] = new Argb32((byte)r, (byte)g, (byte)b);
+                        pixels[x, y] = new Argb32((byte)r, (byte)g, (byte)b);
 
                         xInPart++;
                     }

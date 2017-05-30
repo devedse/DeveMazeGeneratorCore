@@ -13,7 +13,7 @@ namespace DeveMazeGenerator.Generators
     public class AlgorithmDivisionDynamicWithPath : AlgorithmWithPath
     {
         private const int tilesCached = 20;
-        private const int tileSize = 64;
+        private const int tileSize = 256;
 
         public override InnerMap GoGenerateWithPath<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
         {
