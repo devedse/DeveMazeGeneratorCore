@@ -124,9 +124,8 @@ namespace DeveMazeGenerator.Imageification
             Console.WriteLine($"First image conversion time: {timeForFirstImageSavePart}, Time for saving as PNG: {timeForSaveAsPng}");
         }
 
-        public static void SaveMazeAsImageDeluxePng(InnerMap map, InnerMap pathMap, int xPart, int yPart, int widthPart, int heightPart, Stream stream)
+        public static void SaveMazeAsImageDeluxePngWithParts(InnerMap map, InnerMap pathMap, int xPart, int yPart, int widthPart, int heightPart, Stream stream)
         {
-
             var w = Stopwatch.StartNew();
             var image = new Image<Argb32>(widthPart, heightPart);
 
