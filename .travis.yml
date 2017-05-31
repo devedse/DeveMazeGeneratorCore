@@ -1,5 +1,5 @@
 language: csharp
-solution: .\DeveMazeGenerator.sln
+solution: DeveMazeGenerator.sln
 
 branches:
   only:
@@ -32,7 +32,8 @@ matrix:
       osx_image: xcode8.2
       env: CONFIGURATION=Debug
 
-
+script:
+  - dotnet restore
 
 notifications:
   email: false
