@@ -24,12 +24,12 @@ matrix:
     - dotnet: 1.0.4
       mono: none
       os: osx
-      osx_image: xcode8.2 # macOS 10.11
+      osx_image: xcode8.3
       env: CONFIGURATION=Release
     - dotnet: 1.0.4
       mono: none
       os: osx
-      osx_image: xcode8.2
+      osx_image: xcode8.3
       env: CONFIGURATION=Debug
 
 before_script:
