@@ -1,3 +1,5 @@
+# Verifying yaml files: http://www.yamllint.com/ or https://github.com/adrienverge/yamllint
+
 language: csharp
 solution: DeveMazeGenerator.sln
 
