@@ -32,8 +32,23 @@ matrix:
       osx_image: xcode8.2
       env: CONFIGURATION=Debug
 
-script:
+before_script:
   - dotnet restore
+
+script:
+  - dotnet build -c $CONFIGURATION
+  - dotnet test -c $CONFIGURATION ./test/DeveMazeGenerator.Tests/DeveMazeGenerator.Tests.csproj
+  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$CONFIGURATION" == "Release" ]]; then
+      mkdir ./Scripts/Docker/DeveMazeGeneratorCoreWebPublish;
+      dotnet publish -c $CONFIGURATION ./src/DeveMazeGeneratorWeb/ --output ./Scripts/Docker/DeveMazeGeneratorCoreWebPublish;
+      cd Scripts;
+      cd Docker;
+      docker build -t devedse/devemazegeneratorcore .;
+      cd ..;
+      cd ..;
+      docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+      docker push devedse/devemazegeneratorcore:latest;
+    fi
 
 notifications:
   email: false
