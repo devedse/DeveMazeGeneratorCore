@@ -34,9 +34,9 @@ matrix:
 
 before_script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      echo "current ulimit is: 'ulimit -n'...";
+      echo "current ulimit is `ulimit -n`...";
       ulimit -n 1024;
-      echo "new limit: 'ulimit -n'";
+      echo "new limit `ulimit -n`";
     fi
   - dotnet restore
 
