@@ -13,6 +13,7 @@
 	<Authors>Devedse</Authors>
 	<Description>This is a maze generator created by Devedse. It can be used to create incredibly big mazes.</Description>
 	<PackageProjectUrl>https://github.com/devedse/DeveMazeGeneratorCore</PackageProjectUrl>
+	<PackageTags>maze;generation;algorithm</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
