@@ -9,6 +9,10 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <Version>1.0.0.0</Version>
+	<Title>DeveMazeGenerator</Title>
+	<Authors>Devedse</Authors>
+	<Description>This is a maze generator created by Devedse. It can be used to create incredibly big mazes.</Description>
+	<PackageProjectUrl>https://github.com/devedse/DeveMazeGeneratorCore</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
