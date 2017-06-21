@@ -47,9 +47,10 @@ script:
   - dotnet test -c $CONFIGURATION ./test/DeveMazeGenerator.Tests/DeveMazeGenerator.Tests.csproj
   - if [[ "$TRAVIS_OS_NAME" == "linux" && "$CONFIGURATION" == "Release" ]]; then
       mkdir ./Scripts/Docker/DeveMazeGeneratorCoreWebPublish;
-      dotnet publish -c $CONFIGURATION ./src/DeveMazeGeneratorWeb/ --output ./Scripts/Docker/DeveMazeGeneratorCoreWebPublish;
-      cd Scripts;
-      cd Docker;
+      dotnet publish -c $CONFIGURATION ./src/DeveMazeGeneratorWeb/ --output Publish;
+      cp ./Scripts/Docker/Dockerfile ./src/DeveMazeGeneratorWeb/
+      cd src;
+      cd DeveMazeGeneratorWeb;
       docker build -t devedse/devemazegeneratorcore .;
       cd ..;
       cd ..;
