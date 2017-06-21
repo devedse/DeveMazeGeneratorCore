@@ -48,7 +48,7 @@ script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" && "$CONFIGURATION" == "Release" ]]; then
       mkdir ./Scripts/Docker/DeveMazeGeneratorCoreWebPublish;
       dotnet publish -c $CONFIGURATION ./src/DeveMazeGeneratorWeb/ --output Publish;
-      cp ./Scripts/Docker/Dockerfile ./src/DeveMazeGeneratorWeb/
+      cp ./Scripts/Docker/Dockerfile ./src/DeveMazeGeneratorWeb/;
       cd src;
       cd DeveMazeGeneratorWeb;
       docker build -t devedse/devemazegeneratorcore .;
