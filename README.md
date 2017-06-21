@@ -1,4 +1,6 @@
 # DeveMazeGeneratorCore
+
+[![Join the chat at https://gitter.im/DeveMazeGeneratorCore/Lobby](https://badges.gitter.im/DeveMazeGeneratorCore/Lobby.svg)](https://gitter.im/DeveMazeGeneratorCore/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 This is the new version of my maze generator, now made with .NET Core.
 
 ## Build status
