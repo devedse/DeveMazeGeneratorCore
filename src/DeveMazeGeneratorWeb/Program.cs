@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Threading;
+using Microsoft.AspNetCore;
 
 namespace DeveMazeGeneratorWeb
 {
@@ -11,20 +12,15 @@ namespace DeveMazeGeneratorWeb
     {
         public static void Main(string[] args)
         {
-            var config = new ConfigurationBuilder()
-                .AddCommandLine(args)
-                .Build();
+            BuildWebHost(args).Run();
+        }
 
-            var host = new WebHostBuilder()
-                .UseConfiguration(config)
-                //.UseUrls("http://*:5000")
-                .UseKestrel()
+        public static IWebHost BuildWebHost(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
                 .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseKestrel()
                 .UseIISIntegration()
                 .UseStartup<Startup>()
                 .Build();
-
-            host.Run();
-        }
     }
 }

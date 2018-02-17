@@ -1,7 +1,7 @@
 ﻿using DeveMazeGenerator.InnerMaps;
-using ImageSharp;
-using ImageSharp.Formats;
-using ImageSharp.PixelFormats;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
 using System.IO;
 
 namespace DeveMazeGenerator.Imageification
@@ -15,22 +15,19 @@ namespace DeveMazeGenerator.Imageification
             var blackPixel = NamedColors<Argb32>.Black;
             var whitePixel = NamedColors<Argb32>.White;
 
-            using (var pixels = image.Lock())
+            for (int y = 0; y < map.Height - 1; y++)
             {
-                for (int y = 0; y < map.Height - 1; y++)
+                for (int x = 0; x < map.Width - 1; x++)
                 {
-                    for (int x = 0; x < map.Width - 1; x++)
-                    {
-                        var wall = map[x, y];
+                    var wall = map[x, y];
 
-                        if (!wall)
-                        {
-                            pixels[x, y] = blackPixel;
-                        }
-                        else
-                        {
-                            pixels[x, y] = whitePixel;
-                        }
+                    if (!wall)
+                    {
+                        image[x, y] = blackPixel;
+                    }
+                    else
+                    {
+                        image[x, y] = whitePixel;
                     }
                 }
             }
