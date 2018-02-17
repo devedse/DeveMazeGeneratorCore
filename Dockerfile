@@ -3,6 +3,7 @@ FROM microsoft/dotnet:2.0.5-sdk-2.1.4-stretch AS builder
 WORKDIR /source
 
 # caches restore result by copying csproj file separately
+COPY /NuGet.config /source/
 COPY /src/DeveMazeGenerator/*.csproj /source/src/DeveMazeGenerator/
 COPY /src/DeveMazeGeneratorConsole/*.csproj /source/src/DeveMazeGeneratorConsole/
 COPY /src/DeveMazeGeneratorWeb/*.csproj /source/src/DeveMazeGeneratorWeb/
