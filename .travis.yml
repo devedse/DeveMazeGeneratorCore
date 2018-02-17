@@ -1,59 +1,26 @@
 # Verifying yaml files: http://www.yamllint.com/ or https://github.com/adrienverge/yamllint
 
-language: csharp
-solution: DeveMazeGenerator.sln
-
 branches:
   only:
   - master
 
+services:
+  - docker
+
 matrix:
   include:
-    - dotnet: 1.0.4
-      mono: none
+    - mono: none
       os: linux
       dist: trusty # Ubuntu 14.04
-      sudo: required
       env: CONFIGURATION=Release
-      services:
-        - docker
-    - dotnet: 1.0.4
-      mono: none
+    - mono: none
       os: linux
       dist: trusty
-      sudo: required
       env: CONFIGURATION=Debug
-    - dotnet: 1.0.4
-      mono: none
-      os: osx
-      osx_image: xcode8.3
-      env: CONFIGURATION=Release
-    - dotnet: 1.0.4
-      mono: none
-      os: osx
-      osx_image: xcode8.3
-      env: CONFIGURATION=Debug
-
-before_script:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      echo "current ulimit is `ulimit -n`...";
-      ulimit -n 1024;
-      echo "new limit `ulimit -n`";
-    fi
-  - dotnet restore
 
 script:
-  - dotnet build -c $CONFIGURATION
-  - dotnet test -c $CONFIGURATION ./test/DeveMazeGenerator.Tests/DeveMazeGenerator.Tests.csproj
-  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$CONFIGURATION" == "Release" ]]; then
-      #mkdir ./Scripts/Docker/DeveMazeGeneratorCoreWebPublish;
-      #dotnet publish -c $CONFIGURATION ./src/DeveMazeGeneratorWeb/ --output Publish;
-      #cp ./Scripts/Docker/Dockerfile ./src/DeveMazeGeneratorWeb/;
-      #cd src;
-      #cd DeveMazeGeneratorWeb;
-      docker build -t devedse/devemazegeneratorcore .;
-      #cd ..;
-      #cd ..;
+  - docker build -t devedse/devemazegeneratorcore .;
+  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$CONFIGURATION" == "Release" && $TRAVIS_BRANCH == 'master' ]]; then
       docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
       docker push devedse/devemazegeneratorcore:latest;
     fi
