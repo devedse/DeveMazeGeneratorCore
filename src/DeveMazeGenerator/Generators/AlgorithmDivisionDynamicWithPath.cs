@@ -31,7 +31,7 @@ namespace DeveMazeGenerator.Generators
             return totalMap;
         }
 
-        public InnerMap GenerateMapPartWithPath(int xStart, int yStart, int width, int height, int widthPart, int heightPart, IRandomFactory randomFactory)
+        private InnerMap GenerateMapPartWithPath(int xStart, int yStart, int width, int height, int widthPart, int heightPart, IRandomFactory randomFactory)
         {
             var visibleRectangle = new Rectangle(xStart, yStart, widthPart, heightPart, 0);
             //Console.WriteLine($"Generating rectangle: {visibleRectangle}");
