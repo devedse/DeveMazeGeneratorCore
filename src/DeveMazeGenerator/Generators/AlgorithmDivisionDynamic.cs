@@ -14,25 +14,19 @@ namespace DeveMazeGenerator.Generators
 
         public override InnerMap GoGenerate<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
         {
-            if (typeof(M) != typeof(UndefinedInnerMap))
-            {
-                throw new InvalidOperationException("Please provide the map type 'UndefinedInnerMap' to this algorithm, else it will take memory that is not required.");
-            }
-
-            var innerMap = mapFactory.Create();
-
-            Func<int, int, int, int, InnerMap> generateAction = (x, y, widthPart, heightPart) => GenerateMapPart(x, y, innerMap.Width, innerMap.Height, widthPart, heightPart, randomFactory);
+            Func<int, int, int, int, InnerMap> generateAction = (x, y, widthPart, heightPart) => GenerateMapPart(x, y, mapFactory.Width, mapFactory.Height, widthPart, heightPart, mapFactory, randomFactory);
             Action<InnerMap> storeAction = (x) => { };
 
-            var totalMap = new CachedInnerMap(innerMap.Width, innerMap.Height, tilesCached, Math.Min(Math.Min(innerMap.Width, innerMap.Height), tileSize), generateAction, storeAction);
+            var totalMap = new CachedInnerMap(mapFactory.Width, mapFactory.Height, tilesCached, Math.Min(Math.Min(mapFactory.Width, mapFactory.Height), tileSize), generateAction, storeAction);
             return totalMap;
         }
 
-        public InnerMap GenerateMapPart(int xStart, int yStart, int width, int height, int widthPart, int heightPart, IRandomFactory randomFactory)
+        private InnerMap GenerateMapPart<M>(int xStart, int yStart, int width, int height, int widthPart, int heightPart, IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory) where M : InnerMap
         {
             var random = randomFactory.Create();
 
-            InnerMap map = new BitArreintjeFastInnerMap(widthPart, heightPart) { StartX = xStart, StartY = yStart };
+            //InnerMap map = new BitArreintjeFastInnerMap(widthPart, heightPart) { StartX = xStart, StartY = yStart };
+            InnerMap map = mapFactory.Create(widthPart, heightPart, xStart, yStart);
 
             //If the maze is out of screen
             var theRightEdge = Math.Max(((xStart + widthPart) - width), 0);
@@ -180,7 +174,7 @@ namespace DeveMazeGenerator.Generators
                             }
                         }
                     }
-                    
+
                     if (IsValidRect(visibleRectangle, rect1))
                     {
                         rectangles.Push(rect1);

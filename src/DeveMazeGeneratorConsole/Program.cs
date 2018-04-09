@@ -25,10 +25,10 @@ namespace DeveMazeGeneratorConsole
 
         public static void Test7()
         {
-            int size = 64;
+            int size = 1024;
 
             var alg = new AlgorithmDivisionDynamicWithPath();
-            var maze = alg.GenerateWithPath<UndefinedInnerMap, NetRandom>(size, size, 1337, null);
+            var maze = alg.GenerateWithPath<BitArreintjeFastInnerMap, NetRandom>(size, size, 1337, null);
 
             using (var fs = new FileStream("DivisionDynamicWithPath.png", FileMode.Create))
             {
@@ -110,7 +110,7 @@ namespace DeveMazeGeneratorConsole
             int size = 128;
 
             var alg = new AlgorithmDivisionDynamic();
-            var maze = alg.Generate<UndefinedInnerMap, NetRandom>(size, size, 1337, null);
+            var maze = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(size, size, 1337, null);
 
             WithoutPath.SaveMaze(Path.Combine($"dinges.png"), maze);
 

@@ -17,28 +17,22 @@ namespace DeveMazeGenerator.Generators
 
         public override InnerMap GoGenerateWithPath<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
         {
-            if (typeof(M) != typeof(UndefinedInnerMap))
-            {
-                throw new InvalidOperationException("Please provide the map type 'UndefinedInnerMap' to this algorithm, else it will take memory that is not required.");
-            }
-
-            var innerMap = mapFactory.Create();
-
-            Func<int, int, int, int, InnerMap> generateAction = (x, y, widthPart, heightPart) => GenerateMapPartWithPath(x, y, innerMap.Width, innerMap.Height, widthPart, heightPart, randomFactory);
+            Func<int, int, int, int, InnerMap> generateAction = (x, y, widthPart, heightPart) => GenerateMapPartWithPath(x, y, mapFactory.Width, mapFactory.Height, widthPart, heightPart, mapFactory, randomFactory);
             Action<InnerMap> storeAction = (x) => { };
 
-            var totalMap = new CachedInnerMap(innerMap.Width, innerMap.Height, tilesCached, Math.Min(Math.Min(innerMap.Width, innerMap.Height), tileSize), generateAction, storeAction);
+            var totalMap = new CachedInnerMap(mapFactory.Width, mapFactory.Height, tilesCached, Math.Min(Math.Min(mapFactory.Width, mapFactory.Height), tileSize), generateAction, storeAction);
             return totalMap;
         }
 
-        private InnerMap GenerateMapPartWithPath(int xStart, int yStart, int width, int height, int widthPart, int heightPart, IRandomFactory randomFactory)
+        private InnerMap GenerateMapPartWithPath<M>(int xStart, int yStart, int width, int height, int widthPart, int heightPart, IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory) where M : InnerMap
         {
             var visibleRectangle = new Rectangle(xStart, yStart, widthPart, heightPart, 0);
             //Console.WriteLine($"Generating rectangle: {visibleRectangle}");
 
             var random = randomFactory.Create();
 
-            InnerMap map = new BitArreintjeFastInnerMap(widthPart, heightPart) { StartX = xStart, StartY = yStart };
+            //InnerMap map = new BitArreintjeFastInnerMap(widthPart, heightPart) { StartX = xStart, StartY = yStart };
+            InnerMap map = mapFactory.Create(widthPart, heightPart, xStart, yStart);
 
             //If the maze is out of screen
             var theRightEdge = Math.Max(((xStart + widthPart) - width), 0);
@@ -46,7 +40,8 @@ namespace DeveMazeGenerator.Generators
 
             map.FillMap(true);
 
-            var pathMap = new BitArreintjeFastInnerMap(widthPart, heightPart) { StartX = xStart, StartY = yStart };
+            //var pathMap = new BitArreintjeFastInnerMap(widthPart, heightPart) { StartX = xStart, StartY = yStart };
+            var pathMap = mapFactory.Create(widthPart, heightPart, xStart, yStart);
 
             //Add walls
             if (xStart == 0)
@@ -266,7 +261,7 @@ namespace DeveMazeGenerator.Generators
             return map;
         }
 
-        private static void FillInPathForRectangleY(Rectangle visibleRectangle, BitArreintjeFastInnerMap pathMap, MazePointClassLinkedList mazePointToWriteFor, MazePointClassLinkedList splitPos, RectangleWithPath rect1)
+        private static void FillInPathForRectangleY(Rectangle visibleRectangle, InnerMap pathMap, MazePointClassLinkedList mazePointToWriteFor, MazePointClassLinkedList splitPos, RectangleWithPath rect1)
         {
             var theX = rect1.X + 1 - visibleRectangle.X;
 
@@ -289,7 +284,7 @@ namespace DeveMazeGenerator.Generators
             }
         }
 
-        private static void FillInPathForRectangleX(Rectangle visibleRectangle, BitArreintjeFastInnerMap pathMap, MazePointClassLinkedList mazePointToWriteFor, MazePointClassLinkedList splitPos, RectangleWithPath rect1)
+        private static void FillInPathForRectangleX(Rectangle visibleRectangle, InnerMap pathMap, MazePointClassLinkedList mazePointToWriteFor, MazePointClassLinkedList splitPos, RectangleWithPath rect1)
         {
             var theY = rect1.Y + 1 - visibleRectangle.Y;
 

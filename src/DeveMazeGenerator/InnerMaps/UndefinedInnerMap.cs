@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace DeveMazeGenerator.InnerMaps
+﻿namespace DeveMazeGenerator.InnerMaps
 {
-    public class UndefinedInnerMap : InnerMap
+    internal class UndefinedInnerMap : InnerMap
     {
         public UndefinedInnerMap(int width, int height) : base(width, height)
         {
@@ -18,7 +16,7 @@ namespace DeveMazeGenerator.InnerMaps
 
             set
             {
-                
+
             }
         }
     }
