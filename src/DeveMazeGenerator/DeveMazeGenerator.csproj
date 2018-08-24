@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-dev000733" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-dev001801" />
   </ItemGroup>
 
 </Project>
