@@ -1,5 +1,5 @@
 # Stage 1
-FROM microsoft/dotnet:2.0.5-sdk-2.1.4-stretch AS builder
+FROM microsoft/dotnet:2.1-sdk-alpine AS builder
 WORKDIR /source
 
 # caches restore result by copying csproj file separately
@@ -19,7 +19,7 @@ RUN dotnet test --configuration Release ./test/DeveMazeGenerator.Tests/DeveMazeG
 RUN dotnet publish ./src/DeveMazeGeneratorWeb/DeveMazeGeneratorWeb.csproj --output /app/ --configuration Release
 
 # Stage 2
-FROM microsoft/aspnetcore:2.0.5-stretch
+FROM microsoft/dotnet:2.1-aspnetcore-runtime-alpine
 WORKDIR /app
 COPY --from=builder /app .
 ENTRYPOINT ["dotnet", "DeveMazeGeneratorWeb.dll"]
