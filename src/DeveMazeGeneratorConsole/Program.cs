@@ -17,7 +17,7 @@ namespace DeveMazeGeneratorConsole
         {
             while (true)
             {
-                Test7();
+                ActualBenchmark();
 
                 Console.ReadKey();
             }
@@ -90,19 +90,23 @@ namespace DeveMazeGeneratorConsole
             }
         }
 
-        public static void Test4()
+        public static void ActualBenchmark()
         {
             int size = 16384;
 
             var alg = new AlgorithmBacktrack();
-            var w = Stopwatch.StartNew();
-            var maze = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(size, size, 1337, null);
-            Console.WriteLine($"Generation time: {w.Elapsed}");
 
-            w.Restart();
-            var result = MazeVerifier.IsPerfectMaze(maze);
-            Console.WriteLine($"Perfect maze verification time: {w.Elapsed}");
-            Console.WriteLine($"Is our maze perfect?: {result}");
+            Console.WriteLine("Generating mazes...");
+
+            int seed = 1337;
+            while (true)
+            {
+                var w = Stopwatch.StartNew();
+                var maze = alg.Generate<BitArreintjeFastInnerMap, XorShiftRandom>(size, size, seed, null);
+                w.Stop();
+                Console.WriteLine($"Generation time: {w.Elapsed}");
+                seed++;
+            }
         }
 
         public static void Test3()

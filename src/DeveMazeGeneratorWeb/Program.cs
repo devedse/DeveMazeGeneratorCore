@@ -1,10 +1,6 @@
-﻿using System.IO;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
-using System.Threading;
-using Microsoft.AspNetCore;
+using System.IO;
 
 namespace DeveMazeGeneratorWeb
 {
@@ -12,15 +8,16 @@ namespace DeveMazeGeneratorWeb
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
+            CreateWebHostBuilder(args).Build().Run();
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseKestrel()
-                .UseIISIntegration()
-                .UseStartup<Startup>()
-                .Build();
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args)
+        {
+            return WebHost.CreateDefaultBuilder(args)
+                    .UseContentRoot(Directory.GetCurrentDirectory())
+                    .UseKestrel()
+                    .UseIISIntegration()
+                    .UseStartup<Startup>();
+        }
     }
 }
