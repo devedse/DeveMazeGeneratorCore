@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DCB113F5-E985-4E48-9C78-9624DF7470D6}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGenerator.Tests", "test\DeveMazeGenerator.Tests\DeveMazeGenerator.Tests.csproj", "{5E23F786-A289-44A1-A9BA-1F84E0A5C281}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorWeb", "src\DeveMazeGeneratorWeb\DeveMazeGeneratorWeb.csproj", "{FAF7B152-7B12-45F0-B75E-DF20575266DB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{EF5B57FD-B94B-44C7-8416-BC9B25B8B7A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,6 +44,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0DC50FAF-2CF0-4630-B97E-150234794188} = {DCB113F5-E985-4E48-9C78-9624DF7470D6}
 		{EB564EBD-4C2D-4D61-BCDE-5576EFA85210} = {DCB113F5-E985-4E48-9C78-9624DF7470D6}
+		{5E23F786-A289-44A1-A9BA-1F84E0A5C281} = {EF5B57FD-B94B-44C7-8416-BC9B25B8B7A9}
 		{FAF7B152-7B12-45F0-B75E-DF20575266DB} = {DCB113F5-E985-4E48-9C78-9624DF7470D6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
