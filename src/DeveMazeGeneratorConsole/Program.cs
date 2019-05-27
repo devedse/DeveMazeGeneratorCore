@@ -23,6 +23,25 @@ namespace DeveMazeGeneratorConsole
             }
         }
 
+        public static void ActualBenchmark()
+        {
+            int size = 16384;
+
+            var alg = new AlgorithmBacktrack();
+
+            Console.WriteLine("Generating mazes...");
+
+            int seed = 1337;
+            while (true)
+            {
+                var w = Stopwatch.StartNew();
+                var maze = alg.Generate<BitArreintjeFastInnerMap, XorShiftRandom>(size, size, seed, null);
+                w.Stop();
+                Console.WriteLine($"Generation time: {w.Elapsed}");
+                seed++;
+            }
+        }
+
         public static void Test7()
         {
             int size = 1024;
@@ -87,25 +106,6 @@ namespace DeveMazeGeneratorConsole
             using (var fs = new FileStream("GeneratingAMazeWithABlockInTheMiddleWorks.png", FileMode.Create))
             {
                 WithPath.SaveMazeAsImageDeluxePng(map, path, fs);
-            }
-        }
-
-        public static void ActualBenchmark()
-        {
-            int size = 16384;
-
-            var alg = new AlgorithmBacktrack();
-
-            Console.WriteLine("Generating mazes...");
-
-            int seed = 1337;
-            while (true)
-            {
-                var w = Stopwatch.StartNew();
-                var maze = alg.Generate<BitArreintjeFastInnerMap, XorShiftRandom>(size, size, seed, null);
-                w.Stop();
-                Console.WriteLine($"Generation time: {w.Elapsed}");
-                seed++;
             }
         }
 
