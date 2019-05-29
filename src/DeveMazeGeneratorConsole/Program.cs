@@ -42,6 +42,31 @@ namespace DeveMazeGeneratorConsole
             }
         }
 
+        public static void ActualBenchmark2()
+        {
+            int size = 16384;
+
+            var alg = new AlgorithmBacktrack2();
+
+            Console.WriteLine("Generating mazes...");
+
+            int seed = 1337;
+            while (true)
+            {
+                var w = Stopwatch.StartNew();
+
+                var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>(size, size);
+                var randomFactory = new RandomFactory<XorShiftRandom>(seed);
+
+                var actionThing = new NoAction();
+
+                var maze = alg.GoGenerate2<BitArreintjeFastInnerMap, NoAction>(innerMapFactory, randomFactory, actionThing);
+                w.Stop();
+                Console.WriteLine($"Generation time: {w.Elapsed}");
+                seed++;
+            }
+        }
+
         public static void Test7()
         {
             int size = 1024;
