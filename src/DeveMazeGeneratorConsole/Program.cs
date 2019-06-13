@@ -47,7 +47,7 @@ namespace DeveMazeGeneratorConsole
         {
             int size = 16384;
 
-            var alg = new AlgorithmBacktrack3();
+            var alg = new AlgorithmBacktrack2();
 
             Console.WriteLine($"Generating mazes using {alg.GetType().Name}...");
 
@@ -61,10 +61,16 @@ namespace DeveMazeGeneratorConsole
 
                 var actionThing = new NoAction();
 
-                var maze = alg.GoGenerate2<BitArreintjeFastInnerMap, NoAction>(innerMapFactory, randomFactory, actionThing);
+                var maze = alg.GoGenerate2(innerMapFactory, randomFactory, actionThing);
                 w.Stop();
                 Console.WriteLine($"Generation time: {w.Elapsed}");
                 seed++;
+
+
+
+                //var result = MazeVerifier.IsPerfectMaze(maze);
+                //Console.WriteLine($"Perfect maze verification time: {w.Elapsed}");
+                //Console.WriteLine($"Is our maze perfect?: {result}");
             }
         }
 
