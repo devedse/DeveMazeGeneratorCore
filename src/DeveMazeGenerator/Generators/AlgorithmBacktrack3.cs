@@ -72,14 +72,12 @@ namespace DeveMazeGenerator.Generators
 
             int width = map.Width - 1;
             int height = map.Height - 1;
-            int x = 1;
-            int y = 1;
 
             var stackje = new Stack<MazePoint>();
-            stackje.Push(new MazePoint(x, y));
-            map[x, y] = true;
+            stackje.Push(new MazePoint(1, 1));
+            map[1, 1] = true;
 
-            pixelChangedCallback.Invoke(x, y, currentStep, totSteps);
+            pixelChangedCallback.Invoke(1, 1, currentStep, totSteps);
 
             MazePoint[] targets = new MazePoint[4];
             //Span<MazePoint> targets = stackalloc MazePoint[4];
@@ -87,25 +85,23 @@ namespace DeveMazeGenerator.Generators
             while (stackje.Count != 0)
             {
                 MazePoint cur = stackje.Peek();
-                x = cur.X;
-                y = cur.Y;
 
                 uint validDirections = MazeDir.NoDirections;
 
 
-                if (x - 2 > 0 && !map[x - 2, y])
+                if (cur.X - 2 > 0 && !map[cur.X - 2, cur.Y])
                 {
                     validDirections |= MazeDir.L;
                 }
-                if (x + 2 < width && !map[x + 2, y])
+                if (cur.X + 2 < width && !map[cur.X + 2, cur.Y])
                 {
                     validDirections |= MazeDir.R;
                 }
-                if (y - 2 > 0 && !map[x, y - 2])
+                if (cur.Y - 2 > 0 && !map[cur.X, cur.Y - 2])
                 {
                     validDirections |= MazeDir.U;
                 }
-                if (y + 2 < height && !map[x, y + 2])
+                if (cur.Y + 2 < height && !map[cur.X, cur.Y + 2])
                 {
                     validDirections |= MazeDir.D;
                 }
@@ -114,88 +110,88 @@ namespace DeveMazeGenerator.Generators
                 switch (validDirections)
                 {
                     case MazeDir.L:
-                        SetMap<MazeDirGenericLeft, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                        SetMap<MazeDirGenericLeft, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         break;
                     case MazeDir.R:
-                        SetMap<MazeDirGenericRight, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                        SetMap<MazeDirGenericRight, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         break;
                     case MazeDir.U:
-                        SetMap<MazeDirGenericUp, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                        SetMap<MazeDirGenericUp, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         break;
                     case MazeDir.D:
-                        SetMap<MazeDirGenericDown, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                        SetMap<MazeDirGenericDown, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         break;
                     case MazeDir.LU:
                         if (random.Next(2) == 0)
                         {
-                            SetMap<MazeDirGenericLeft, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                            SetMap<MazeDirGenericLeft, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         }
                         else
                         {
-                            SetMap<MazeDirGenericUp, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                            SetMap<MazeDirGenericUp, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         }
                         break;
                     case MazeDir.RU:
                         if (random.Next(2) == 0)
                         {
-                            SetMap<MazeDirGenericRight, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                            SetMap<MazeDirGenericRight, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         }
                         else
                         {
-                            SetMap<MazeDirGenericUp, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                            SetMap<MazeDirGenericUp, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         }
                         break;
                     case MazeDir.LD:
                         if (random.Next(2) == 0)
                         {
-                            SetMap<MazeDirGenericLeft, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                            SetMap<MazeDirGenericLeft, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         }
                         else
                         {
-                            SetMap<MazeDirGenericDown, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                            SetMap<MazeDirGenericDown, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         }
                         break;
                     case MazeDir.RD:
                         if (random.Next(2) == 0)
                         {
-                            SetMap<MazeDirGenericRight, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                            SetMap<MazeDirGenericRight, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         }
                         else
                         {
-                            SetMap<MazeDirGenericDown, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                            SetMap<MazeDirGenericDown, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         }
                         break;
                     case MazeDir.LR:
                         if (random.Next(2) == 0)
                         {
-                            SetMap<MazeDirGenericLeft, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                            SetMap<MazeDirGenericLeft, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         }
                         else
                         {
-                            SetMap<MazeDirGenericRight, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                            SetMap<MazeDirGenericRight, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         }
                         break;
                     case MazeDir.UD:
                         if (random.Next(2) == 0)
                         {
-                            SetMap<MazeDirGenericUp, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                            SetMap<MazeDirGenericUp, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         }
                         else
                         {
-                            SetMap<MazeDirGenericDown, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                            SetMap<MazeDirGenericDown, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                         }
                         break;
                     case MazeDir.LUR:
                         switch (random.Next(3))
                         {
                             case 0:
-                                SetMap<MazeDirGenericLeft, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                                SetMap<MazeDirGenericLeft, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                                 break;
                             case 1:
-                                SetMap<MazeDirGenericUp, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                                SetMap<MazeDirGenericUp, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                                 break;
                             case 2:
-                                SetMap<MazeDirGenericRight, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                                SetMap<MazeDirGenericRight, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                                 break;
                             default:
                                 throw new Exception("Random returned an unexpected value. This can't happen");
@@ -205,13 +201,13 @@ namespace DeveMazeGenerator.Generators
                         switch (random.Next(3))
                         {
                             case 0:
-                                SetMap<MazeDirGenericUp, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                                SetMap<MazeDirGenericUp, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                                 break;
                             case 1:
-                                SetMap<MazeDirGenericRight, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                                SetMap<MazeDirGenericRight, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                                 break;
                             case 2:
-                                SetMap<MazeDirGenericDown, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                                SetMap<MazeDirGenericDown, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                                 break;
                             default:
                                 throw new Exception("Random returned an unexpected value. This can't happen");
@@ -221,13 +217,13 @@ namespace DeveMazeGenerator.Generators
                         switch (random.Next(3))
                         {
                             case 0:
-                                SetMap<MazeDirGenericRight, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                                SetMap<MazeDirGenericRight, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                                 break;
                             case 1:
-                                SetMap<MazeDirGenericDown, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                                SetMap<MazeDirGenericDown, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                                 break;
                             case 2:
-                                SetMap<MazeDirGenericLeft, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                                SetMap<MazeDirGenericLeft, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                                 break;
                             default:
                                 throw new Exception("Random returned an unexpected value. This can't happen");
@@ -237,13 +233,13 @@ namespace DeveMazeGenerator.Generators
                         switch (random.Next(3))
                         {
                             case 0:
-                                SetMap<MazeDirGenericDown, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                                SetMap<MazeDirGenericDown, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                                 break;
                             case 1:
-                                SetMap<MazeDirGenericLeft, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                                SetMap<MazeDirGenericLeft, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                                 break;
                             case 2:
-                                SetMap<MazeDirGenericUp, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, x, y);
+                                SetMap<MazeDirGenericUp, TAction>(stackje, map, pixelChangedCallback, totSteps, currentStep, cur.X, cur.Y);
                                 break;
                             default:
                                 throw new Exception("Random returned an unexpected value. This can't happen");

@@ -34,14 +34,12 @@ namespace DeveMazeGenerator.Generators
 
             int width = map.Width - 1;
             int height = map.Height - 1;
-            int x = 1;
-            int y = 1;
 
             var stackje = new Stack<MazePoint>();
-            stackje.Push(new MazePoint(x, y));
-            map[x, y] = true;
+            stackje.Push(new MazePoint(1, 1));
+            map[1, 1] = true;
 
-            pixelChangedCallback.Invoke(x, y, currentStep, totSteps);
+            pixelChangedCallback.Invoke(1, 1, currentStep, totSteps);
 
             MazePoint[] targets = new MazePoint[4];
             //Span<MazePoint> targets = stackalloc MazePoint[4];
@@ -49,36 +47,34 @@ namespace DeveMazeGenerator.Generators
             while (stackje.Count != 0)
             {
                 MazePoint cur = stackje.Peek();
-                x = cur.X;
-                y = cur.Y;
 
                 int targetCount = 0;
-                if (x - 2 > 0 && !map[x - 2, y])
+                if (cur.X - 2 > 0 && !map[cur.X - 2, cur.Y])
                 {
                     ref var curTarget = ref targets[targetCount];
-                    curTarget.X = x - 2;
-                    curTarget.Y = y;
+                    curTarget.X = cur.X - 2;
+                    curTarget.Y = cur.Y;
                     targetCount++;
                 }
-                if (x + 2 < width && !map[x + 2, y])
+                if (cur.X + 2 < width && !map[cur.X + 2, cur.Y])
                 {
                     ref var curTarget = ref targets[targetCount];
-                    curTarget.X = x + 2;
-                    curTarget.Y = y;
+                    curTarget.X = cur.X + 2;
+                    curTarget.Y = cur.Y;
                     targetCount++;
                 }
-                if (y - 2 > 0 && !map[x, y - 2])
+                if (cur.Y - 2 > 0 && !map[cur.X, cur.Y - 2])
                 {
                     ref var curTarget = ref targets[targetCount];
-                    curTarget.X = x;
-                    curTarget.Y = y - 2;
+                    curTarget.X = cur.X;
+                    curTarget.Y = cur.Y - 2;
                     targetCount++;
                 }
-                if (y + 2 < height && !map[x, y + 2])
+                if (cur.Y + 2 < height && !map[cur.X, cur.Y + 2])
                 {
                     ref var curTarget = ref targets[targetCount];
-                    curTarget.X = x;
-                    curTarget.Y = y + 2;
+                    curTarget.X = cur.X;
+                    curTarget.Y = cur.Y + 2;
                     targetCount++;
                 }
 
@@ -90,26 +86,26 @@ namespace DeveMazeGenerator.Generators
 
                     currentStep++;
 
-                    if (target.X < x)
+                    if (target.X < cur.X)
                     {
-                        map[x - 1, y] = true;
-                        pixelChangedCallback.Invoke(x - 1, y, currentStep, totSteps);
+                        map[cur.X - 1, cur.Y] = true;
+                        pixelChangedCallback.Invoke(cur.X - 1, cur.Y, currentStep, totSteps);
                     }
-                    else if (target.X > x)
+                    else if (target.X > cur.X)
                     {
-                        map[x + 1, y] = true;
-                        pixelChangedCallback.Invoke(x + 1, y, currentStep, totSteps);
+                        map[cur.X + 1, cur.Y] = true;
+                        pixelChangedCallback.Invoke(cur.X + 1, cur.Y, currentStep, totSteps);
                     }
-                    else if (target.Y < y)
+                    else if (target.Y < cur.Y)
                     {
-                        map[x, y - 1] = true;
-                        pixelChangedCallback.Invoke(x, y - 1, currentStep, totSteps);
+                        map[cur.X, cur.Y - 1] = true;
+                        pixelChangedCallback.Invoke(cur.X, cur.Y - 1, currentStep, totSteps);
                     }
-                    else if (target.Y > y)
+                    else if (target.Y > cur.Y)
                     {
-                        map[x, y + 1] = true;
+                        map[cur.X, cur.Y + 1] = true;
 
-                        pixelChangedCallback.Invoke(x, y + 1, currentStep, totSteps);
+                        pixelChangedCallback.Invoke(cur.X, cur.Y + 1, currentStep, totSteps);
                     }
 
                     pixelChangedCallback.Invoke(target.X, target.Y, currentStep, totSteps);
