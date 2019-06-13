@@ -84,26 +84,30 @@ namespace DeveMazeGenerator.Generators
                 int targetCount = 0;
                 if (x - 2 > 0 && !map[x - 2, y])
                 {
-                    targets[targetCount].X = x - 2;
-                    targets[targetCount].Y = y;
+                    ref var curTarget = ref targets[targetCount];
+                    curTarget.X = x - 2;
+                    curTarget.Y = y;
                     targetCount++;
                 }
                 if (x + 2 < width - 1 && !map[x + 2, y])
                 {
-                    targets[targetCount].X = x + 2;
-                    targets[targetCount].Y = y;
+                    ref var curTarget = ref targets[targetCount];
+                    curTarget.X = x + 2;
+                    curTarget.Y = y;
                     targetCount++;
                 }
                 if (y - 2 > 0 && !map[x, y - 2])
                 {
-                    targets[targetCount].X = x;
-                    targets[targetCount].Y = y - 2;
+                    ref var curTarget = ref targets[targetCount];
+                    curTarget.X = x;
+                    curTarget.Y = y - 2;
                     targetCount++;
                 }
                 if (y + 2 < height - 1 && !map[x, y + 2])
                 {
-                    targets[targetCount].X = x;
-                    targets[targetCount].Y = y + 2;
+                    ref var curTarget = ref targets[targetCount];
+                    curTarget.X = x;
+                    curTarget.Y = y + 2;
                     targetCount++;
                 }
 

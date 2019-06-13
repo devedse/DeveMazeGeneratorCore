@@ -17,7 +17,7 @@ namespace DeveMazeGeneratorConsole
         {
             while (true)
             {
-                ActualBenchmark();
+                ActualBenchmark2();
 
                 Console.ReadKey();
             }
@@ -46,7 +46,7 @@ namespace DeveMazeGeneratorConsole
         {
             int size = 16384;
 
-            var alg = new AlgorithmBacktrack2();
+            var alg = new AlgorithmBacktrack3();
 
             Console.WriteLine("Generating mazes...");
 

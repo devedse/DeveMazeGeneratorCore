@@ -4,12 +4,22 @@ using System;
 using System.Collections.Generic;
 using DeveMazeGenerator.Factories;
 using DeveMazeGenerator.Structures;
+using System.Runtime.CompilerServices;
 
 namespace DeveMazeGenerator.Generators
 {
-    public class AlgorithmBacktrack : Algorithm
+    public class AlgorithmBacktrack3 : Algorithm
     {
         public override InnerMap GoGenerate<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
+        {
+            return null;
+            //var innerMap = mapFactory.Create();
+            //var random = randomFactory.Create();
+
+            //return GoGenerateInternal(innerMap, random, pixelChangedCallback);
+        }
+
+        public InnerMap GoGenerate2<M, TAction>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, TAction pixelChangedCallback) where M : InnerMap where TAction : struct, IAction
         {
             var innerMap = mapFactory.Create();
             var random = randomFactory.Create();
@@ -17,13 +27,8 @@ namespace DeveMazeGenerator.Generators
             return GoGenerateInternal(innerMap, random, pixelChangedCallback);
         }
 
-        private InnerMap GoGenerateInternal(InnerMap map, IRandom random, Action<int, int, long, long> pixelChangedCallback)
+        private InnerMap GoGenerateInternal<TAction>(InnerMap map, IRandom random, TAction pixelChangedCallback) where TAction : struct, IAction
         {
-            if (pixelChangedCallback == null)
-            {
-                pixelChangedCallback = (vvv, yyy, zzz, www) => { };
-            }
-
             long totSteps = (map.Width - 1L) / 2L * ((map.Height - 1L) / 2L);
             long currentStep = 1;
 
