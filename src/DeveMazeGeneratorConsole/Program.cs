@@ -1,6 +1,7 @@
 ﻿using DeveMazeGenerator.Factories;
 using DeveMazeGenerator.Generators;
 using DeveMazeGenerator.Generators.Helpers;
+using DeveMazeGenerator.Generators.SpeedOptimization;
 using DeveMazeGenerator.Helpers;
 using DeveMazeGenerator.Imageification;
 using DeveMazeGenerator.InnerMaps;
@@ -29,7 +30,7 @@ namespace DeveMazeGeneratorConsole
 
             var alg = new AlgorithmBacktrack();
 
-            Console.WriteLine("Generating mazes...");
+            Console.WriteLine($"Generating mazes using {alg.GetType().Name}...");
 
             int seed = 1337;
             while (true)
@@ -48,7 +49,7 @@ namespace DeveMazeGeneratorConsole
 
             var alg = new AlgorithmBacktrack3();
 
-            Console.WriteLine("Generating mazes...");
+            Console.WriteLine($"Generating mazes using {alg.GetType().Name}...");
 
             int seed = 1337;
             while (true)

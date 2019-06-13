@@ -1,43 +1,13 @@
-﻿using DeveMazeGenerator.Generators.Helpers;
+﻿using DeveMazeGenerator.Factories;
+using DeveMazeGenerator.Generators.Helpers;
+using DeveMazeGenerator.Generators.SpeedOptimization;
 using DeveMazeGenerator.InnerMaps;
+using DeveMazeGenerator.Structures;
 using System;
 using System.Collections.Generic;
-using DeveMazeGenerator.Factories;
-using DeveMazeGenerator.Structures;
-using System.Runtime.CompilerServices;
 
 namespace DeveMazeGenerator.Generators
 {
-    public interface IAction
-    {
-        void Invoke(int step, int total, long x, long y);
-    }
-
-    public readonly struct ProgressAction : IAction
-    {
-        private readonly Action<int, int, long, long> _pixelChangedCallback;
-
-        public ProgressAction(Action<int, int, long, long> pixelChangedCallback)
-        {
-            this._pixelChangedCallback = pixelChangedCallback;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Invoke(int step, int total, long x, long y)
-        {
-            _pixelChangedCallback(step, total, x, y);
-        }
-    }
-
-    public readonly struct NoAction : IAction
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Invoke(int step, int total, long x, long y)
-        {
-
-        }
-    }
-
     public class AlgorithmBacktrack2 : Algorithm
     {
         public override InnerMap GoGenerate<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
@@ -49,7 +19,7 @@ namespace DeveMazeGenerator.Generators
             //return GoGenerateInternal(innerMap, random, pixelChangedCallback);
         }
 
-        public InnerMap GoGenerate2<M, TAction>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, TAction pixelChangedCallback) where M : InnerMap where TAction : struct, IAction
+        public InnerMap GoGenerate2<M, TAction>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, TAction pixelChangedCallback) where M : InnerMap where TAction : struct, IProgressAction
         {
             var innerMap = mapFactory.Create();
             var random = randomFactory.Create();
@@ -57,7 +27,7 @@ namespace DeveMazeGenerator.Generators
             return GoGenerateInternal(innerMap, random, pixelChangedCallback);
         }
 
-        private InnerMap GoGenerateInternal<TAction>(InnerMap map, IRandom random, TAction pixelChangedCallback) where TAction : struct, IAction
+        private InnerMap GoGenerateInternal<TAction>(InnerMap map, IRandom random, TAction pixelChangedCallback) where TAction : struct, IProgressAction
         {
             long totSteps = (map.Width - 1L) / 2L * ((map.Height - 1L) / 2L);
             long currentStep = 1;
