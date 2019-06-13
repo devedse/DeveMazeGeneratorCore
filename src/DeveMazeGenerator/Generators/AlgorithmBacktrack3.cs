@@ -32,8 +32,8 @@ namespace DeveMazeGenerator.Generators
             long totSteps = (map.Width - 1L) / 2L * ((map.Height - 1L) / 2L);
             long currentStep = 1;
 
-            int width = map.Width;
-            int height = map.Height;
+            int width = map.Width - 1;
+            int height = map.Height - 1;
             int x = 1;
             int y = 1;
 
@@ -60,7 +60,7 @@ namespace DeveMazeGenerator.Generators
                     curTarget.Y = y;
                     targetCount++;
                 }
-                if (x + 2 < width - 1 && !map[x + 2, y])
+                if (x + 2 < width && !map[x + 2, y])
                 {
                     ref var curTarget = ref targets[targetCount];
                     curTarget.X = x + 2;
@@ -74,7 +74,7 @@ namespace DeveMazeGenerator.Generators
                     curTarget.Y = y - 2;
                     targetCount++;
                 }
-                if (y + 2 < height - 1 && !map[x, y + 2])
+                if (y + 2 < height && !map[x, y + 2])
                 {
                     ref var curTarget = ref targets[targetCount];
                     curTarget.X = x;
