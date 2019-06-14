@@ -1,20 +1,19 @@
-﻿using DeveMazeGenerator.InnerMaps.InnerStuff;
-using System;
+﻿using System;
 using System.Runtime.CompilerServices;
 
 namespace DeveMazeGenerator.InnerMaps
 {
-    public class BitArreintjeFastInnerMap : InnerMap
+    public class BoolInnerMap : InnerMap
     {
-        private BitArreintjeFastInnerMapArray[] innerData;
+        private bool[][] innerData;
 
-        public BitArreintjeFastInnerMap(int width, int height)
+        public BoolInnerMap(int width, int height)
             : base(width, height)
         {
-            innerData = new BitArreintjeFastInnerMapArray[width];
+            innerData = new bool[width][];
             for (int i = 0; i < width; i++)
             {
-                innerData[i] = new BitArreintjeFastInnerMapArray(height);
+                innerData[i] = new bool[height];
             }
         }
 
@@ -22,18 +21,23 @@ namespace DeveMazeGenerator.InnerMaps
         {
             for (int i = 0; i < innerData.Length; i++)
             {
-                innerData[i].FillMap(state);
+                var arrayHere = innerData[i];
+                for (int y = 0; y < arrayHere.Length; y++)
+                {
+                    arrayHere[y] = state;
+                }
             }
         }
 
         public override InnerMap Clone()
         {
-            var innerMapTarget = new BitArreintjeFastInnerMap(Width, Height);
-            for (int i = 0; i < innerData.Length; i++)
-            {
-                innerMapTarget.innerData[i] = innerData[i].Clone();
-            }
-            return innerMapTarget;
+            throw new NotImplementedException("Clone is not yet implemented for BoolInnerMap");
+            //var innerMapTarget = new BitArreintjeFastInnerMap(Width, Height);
+            //for (int i = 0; i < innerData.Length; i++)
+            //{
+            //    innerMapTarget.innerData[i] = innerData[i].Clone();
+            //}
+            //return innerMapTarget;
         }
 
         public override bool this[int x, int y]

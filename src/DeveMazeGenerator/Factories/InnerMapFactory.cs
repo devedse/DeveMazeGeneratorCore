@@ -21,7 +21,8 @@ namespace DeveMazeGenerator.Factories
         public T Create(int desiredWidth, int desiredHeight)
         {
             var typeSwitcher = new TypeSwitch<InnerMap>()
-              .Case(() => new BitArreintjeFastInnerMap(desiredWidth, desiredHeight));
+              .Case(() => new BitArreintjeFastInnerMap(desiredWidth, desiredHeight))
+              .Case(() => new BoolInnerMap(desiredWidth, desiredHeight));
 
             var createdObject = typeSwitcher.Switch(typeof(T));
             return (T)createdObject;
