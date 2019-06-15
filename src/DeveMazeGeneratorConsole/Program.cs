@@ -27,6 +27,7 @@ namespace DeveMazeGeneratorConsole
         public static void ActualBenchmark()
         {
             int size = 16384;
+            var fastestElapsed = TimeSpan.MaxValue;
 
             var alg = new AlgorithmBacktrack();
 
@@ -38,7 +39,15 @@ namespace DeveMazeGeneratorConsole
                 var w = Stopwatch.StartNew();
                 var maze = alg.Generate<BitArreintjeFastInnerMap, XorShiftRandom>(size, size, seed, null);
                 w.Stop();
-                Console.WriteLine($"Generation time: {w.Elapsed}");
+
+                bool foundFastest = false;
+                if (w.Elapsed < fastestElapsed)
+                {
+                    foundFastest = true;
+                    fastestElapsed = w.Elapsed;
+                }
+
+                Console.WriteLine($"Generation time: {w.Elapsed}" + (foundFastest ? " <<<<<<<< new fastest time" : ""));
                 seed++;
             }
         }
@@ -46,6 +55,7 @@ namespace DeveMazeGeneratorConsole
         public static void ActualBenchmark2()
         {
             int size = 16384;
+            var fastestElapsed = TimeSpan.MaxValue;
 
             var alg = new AlgorithmBacktrack3();
 
@@ -63,7 +73,15 @@ namespace DeveMazeGeneratorConsole
 
                 var maze = alg.GoGenerate2(innerMapFactory, randomFactory, actionThing);
                 w.Stop();
-                Console.WriteLine($"Generation time: {w.Elapsed}");
+
+                bool foundFastest = false;
+                if (w.Elapsed < fastestElapsed)
+                {
+                    foundFastest = true;
+                    fastestElapsed = w.Elapsed;
+                }
+
+                Console.WriteLine($"Generation time: {w.Elapsed}" + (foundFastest ? " <<<<<<<< new fastest time" : ""));
                 seed++;
 
 
