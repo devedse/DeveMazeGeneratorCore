@@ -79,9 +79,6 @@ namespace DeveMazeGenerator.Generators
 
             pixelChangedCallback.Invoke(1, 1, currentStep, totSteps);
 
-            MazePoint[] targets = new MazePoint[4];
-            //Span<MazePoint> targets = stackalloc MazePoint[4];
-
             while (stackje.Count != 0)
             {
                 MazePoint cur = stackje.Peek();
