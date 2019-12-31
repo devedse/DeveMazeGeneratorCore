@@ -7,7 +7,7 @@ COPY /NuGet.config /source/
 COPY /src/DeveMazeGenerator/*.csproj /source/src/DeveMazeGenerator/
 COPY /src/DeveMazeGeneratorConsole/*.csproj /source/src/DeveMazeGeneratorConsole/
 COPY /src/DeveMazeGeneratorWeb/*.csproj /source/src/DeveMazeGeneratorWeb/
-copy /test/DeveMazeGenerator.Tests/*.csproj /source/test/DeveMazeGenerator.Tests/
+COPY /test/DeveMazeGenerator.Tests/*.csproj /source/test/DeveMazeGenerator.Tests/
 COPY /DeveMazeGenerator.sln /source/
 RUN ls
 RUN dotnet restore
