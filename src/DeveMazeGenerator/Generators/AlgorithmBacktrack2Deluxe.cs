@@ -51,10 +51,10 @@ namespace DeveMazeGenerator.Generators
                 bool validUp = cur.Y - 2 > 0 && !map[cur.X, cur.Y - 2];
                 bool validDown = cur.Y + 2 < height && !map[cur.X, cur.Y + 2];
 
-                byte validLeftByte = Unsafe.As<bool, byte>(ref validLeft);
-                byte validRightByte = Unsafe.As<bool, byte>(ref validRight);
-                byte validUpByte = Unsafe.As<bool, byte>(ref validUp);
-                byte validDownByte = Unsafe.As<bool, byte>(ref validDown);
+                int validLeftByte = Unsafe.As<bool, int>(ref validLeft);
+                int validRightByte = Unsafe.As<bool, int>(ref validRight);
+                int validUpByte = Unsafe.As<bool, int>(ref validUp);
+                int validDownByte = Unsafe.As<bool, int>(ref validDown);
 
                 int targetCount = validLeftByte + validRightByte + validUpByte + validDownByte;
 
@@ -72,10 +72,10 @@ namespace DeveMazeGenerator.Generators
                     bool actuallyGoingUp = validUp && chosenDirection == countertje++;
                     bool actuallyGoingDown = validDown && chosenDirection == countertje;
 
-                    byte actuallyGoingLeftByte = Unsafe.As<bool, byte>(ref actuallyGoingLeft);
-                    byte actuallyGoingRightByte = Unsafe.As<bool, byte>(ref actuallyGoingRight);
-                    byte actuallyGoingUpByte = Unsafe.As<bool, byte>(ref actuallyGoingUp);
-                    byte actuallyGoingDownByte = Unsafe.As<bool, byte>(ref actuallyGoingDown);
+                    int actuallyGoingLeftByte = Unsafe.As<bool, int>(ref actuallyGoingLeft);
+                    int actuallyGoingRightByte = Unsafe.As<bool, int>(ref actuallyGoingRight);
+                    int actuallyGoingUpByte = Unsafe.As<bool, int>(ref actuallyGoingUp);
+                    int actuallyGoingDownByte = Unsafe.As<bool, int>(ref actuallyGoingDown);
 
                     var nextX = cur.X + actuallyGoingLeftByte * -2 + actuallyGoingRightByte * 2;
                     var nextY = cur.Y + actuallyGoingUpByte * -2 + actuallyGoingDownByte * 2;
