@@ -16,6 +16,8 @@ namespace DeveMazeGeneratorConsole
     {
         public static void Main(string[] args)
         {
+            TestWithSave();
+
             while (true)
             {
                 ActualBenchmark2();
@@ -57,7 +59,7 @@ namespace DeveMazeGeneratorConsole
             int size = 16384;
             var fastestElapsed = TimeSpan.MaxValue;
 
-            var alg = new AlgorithmBacktrack4();
+            var alg = new AlgorithmBacktrack2Deluxe();
 
             Console.WriteLine($"Generating mazes using {alg.GetType().Name}...");
 
@@ -90,6 +92,46 @@ namespace DeveMazeGeneratorConsole
                 //Console.WriteLine($"Perfect maze verification time: {w.Elapsed}");
                 //Console.WriteLine($"Is our maze perfect?: {result}");
             }
+        }
+
+        public static void TestWithSave()
+        {
+            int size = 8;
+            var fastestElapsed = TimeSpan.MaxValue;
+
+            var alg = new AlgorithmBacktrack2Deluxe();
+
+            Console.WriteLine($"Generating maze using {alg.GetType().Name}...");
+
+            int seed = 1337;
+
+            var w = Stopwatch.StartNew();
+
+            var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>(size, size);
+            var randomFactory = new RandomFactory<XorShiftRandom>(seed);
+
+            var actionThing = new NoAction();
+
+            var maze = alg.GoGenerate2(innerMapFactory, randomFactory, actionThing);
+            w.Stop();
+
+
+            Console.WriteLine($"Generation time: {w.Elapsed}");
+            
+
+            var path = PathFinderDepthFirstSmartWithPos.GoFind(maze, null);
+
+            using (var fs = new FileStream($"GeneratedMaze{alg.GetType().Name}.png", FileMode.Create))
+            {
+                WithPath.SaveMazeAsImageDeluxePng(maze, path, fs);
+            }
+
+
+            //var result = MazeVerifier.IsPerfectMaze(maze);
+            //Console.WriteLine($"Perfect maze verification time: {w.Elapsed}");
+            //Console.WriteLine($"Is our maze perfect?: {result}");
+
+
         }
 
         public static void Test7()
