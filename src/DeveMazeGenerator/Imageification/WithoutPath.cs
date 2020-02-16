@@ -12,8 +12,8 @@ namespace DeveMazeGenerator.Imageification
         {
             var image = new Image<Argb32>(map.Width - 1, map.Height - 1);
 
-            var blackPixel = NamedColors<Argb32>.Black;
-            var whitePixel = NamedColors<Argb32>.White;
+            var blackPixel = Color.Black;
+            var whitePixel = Color.White;
 
             for (int y = 0; y < map.Height - 1; y++)
             {
@@ -27,7 +27,7 @@ namespace DeveMazeGenerator.Imageification
                     }
                     else
                     {
-                        image[x, y] = whitePixel;
+                        image[x, y]= whitePixel;
                     }
                 }
             }

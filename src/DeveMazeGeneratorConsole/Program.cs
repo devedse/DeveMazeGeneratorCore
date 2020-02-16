@@ -96,7 +96,7 @@ namespace DeveMazeGeneratorConsole
 
         public static void TestWithSave()
         {
-            int size = 1024;
+            int size = 16384;
             var fastestElapsed = TimeSpan.MaxValue;
 
             var alg = new AlgorithmBacktrack2Deluxe2();
