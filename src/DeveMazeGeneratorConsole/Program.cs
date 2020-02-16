@@ -83,7 +83,10 @@ namespace DeveMazeGeneratorConsole
                     fastestElapsed = w.Elapsed;
                 }
 
-                Console.WriteLine($"Generation time: {w.Elapsed}" + (foundFastest ? " <<<<<<<< new fastest time" : ""));
+                var strToPrint = $"Generation time: {w.Elapsed}" + (foundFastest ? " <<<<<<<< new fastest time" : "");
+                var strToPrint2 = $"{strToPrint.PadRight(68, ' ')} Fastest: {fastestElapsed}";
+
+                Console.WriteLine(strToPrint2);
                 seed++;
 
 
@@ -117,7 +120,7 @@ namespace DeveMazeGeneratorConsole
 
 
             Console.WriteLine($"Generation time: {w.Elapsed}");
-            
+
 
             var path = PathFinderDepthFirstSmartWithPos.GoFind(maze, null);
 
