@@ -26,7 +26,7 @@ script:
       docker push devedse/devemazegeneratorcore;
       heroku container:login;
       docker image tag devedse/devemazegeneratorcore:latest "registry.heroku.com/devemazegeneratorcore/latest";
-      docker push registry.heroku.com/devemazegeneratorcore/latest;
+      docker push registry.heroku.com/devemazegeneratorcore/latest --app devemazegeneratorcore;
     fi
   - heroku apps
   - heroku container:login
