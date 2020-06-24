@@ -24,12 +24,10 @@ script:
       docker image tag devedse/devemazegeneratorcore:latest "devedse/devemazegeneratorcore:$TRAVIS_BUILD_NUMBER";
       docker images;
       docker push devedse/devemazegeneratorcore;
-      heroku container:login;
-      docker image tag devedse/devemazegeneratorcore:latest "registry.heroku.com/devemazegeneratorcore/latest";
-      docker push registry.heroku.com/devemazegeneratorcore/latest --app devemazegeneratorcore;
     fi
-  - heroku apps
-  - heroku container:login
+  - heroku container:login;
+  - docker image tag devedse/devemazegeneratorcore:latest "registry.heroku.com/devemazegeneratorcore/latest";
+#  - docker push registry.heroku.com/devemazegeneratorcore/latest --app devemazegeneratorcore;
   - heroku container:push devedse/devemazegeneratorcore
 
 notifications:
