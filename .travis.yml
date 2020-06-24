@@ -24,3 +24,11 @@ script:
 
 notifications:
   email: false
+
+deploy:
+  provider: heroku
+  api_key:
+    secure: n9ojHVvyAeIY7vRYMZ9YrUJZ/EPwxKpciGlPO0SULRS7ogkaO/0P60PhgP/yofE4uuYAS1FkP0Qo/eN5s4H9M/4+/lLVrkiE+pzDEKh+wZLz8DIq1F5wJsL8pE3v1bAlO82BroxtCnyL+r7ANrIRWeg2mjIgrhLhGhEYhyktnY3DL090TN0u4Xaxo/ma6JPlYdtpI9f9EGl6l1KIcI6OhR146bdDdUKECQPW7lx9AVIxJdrVmJ+pj/OEOAQuw52ijLhfHNYpmZl4GaIb8RuifT7jbd0hPRBdEs+fLpW2oEWPC3ZRXkrJhCPm8jwjjpAcL6tlRwCmdXJPuDfsaZq7UF4sb9FSKtA/MEwIHoQJ7sM9rTEHbQgYt3W2BUcDnHIHekLtqSpBMKPhAFhYKs9gzSbqWnxYZlUgOZJLhMJu0d35ptfqJf5K+/cWOzSTZLlOYQQ2AvnPnnQKksJqP4g6JkZTCubtJFYT0fhZztuoHTsu/n0EplEsYwhc5QpQZ/Jz2UaBosyr7td0WVapVCNIDjrNsjbcmP8kWdF01S+PqkequuPEtShNJzoXn36Q3P7+z2jmF8mOOLrA6RoFE+rWIMSypz1Fn2UJTcz8e5K/uG3sR1XvVQh8W4rAr+ofvjbPIQrFTkhhGZH1Yvuj9cqOMn79RyXTpOvP0oup7g25eK8=
+  run:
+    - docker ps
+
