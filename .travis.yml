@@ -29,7 +29,7 @@ script:
   - docker image tag devedse/devemazegeneratorcore:latest "registry.heroku.com/devemazegeneratorcore/release";
   - docker push registry.heroku.com/devemazegeneratorcore/release;
   #- heroku container:push devedse/devemazegeneratorcore --app devemazegeneratorcore
-  - heroku container:release registry.heroku.com/devemazegeneratorcore/release --app devemazegeneratorcore
+  - heroku container:release release --app devemazegeneratorcore
 
 notifications:
   email: false
