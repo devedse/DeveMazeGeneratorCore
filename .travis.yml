@@ -18,7 +18,7 @@ matrix:
       dist: trusty # Ubuntu 14.04
 
 script:
-  - docker build -t devedse/devemazegeneratorcore:latest .;
+  - docker build -f src/DeveMazeGeneratorWeb/Dockerfile -t devedse/devemazegeneratorcore:latest .;
   - if [[ $TRAVIS_BRANCH == 'master' ]]; then
       docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
       docker image tag devedse/devemazegeneratorcore:latest "devedse/devemazegeneratorcore:$TRAVIS_BUILD_NUMBER";

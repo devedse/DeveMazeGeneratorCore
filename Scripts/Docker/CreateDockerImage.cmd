@@ -1,4 +1,4 @@
 cd ..
 cd ..
-docker build -t devedse/devemazegeneratorcore .
+docker build -f src/DeveMazeGeneratorWeb/Dockerfile -t devedse/devemazegeneratorcore .
 pause

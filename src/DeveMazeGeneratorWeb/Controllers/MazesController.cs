@@ -1,19 +1,19 @@
 ﻿using DeveMazeGenerator.Generators;
 using DeveMazeGenerator.Generators.Helpers;
-using DeveMazeGenerator.InnerMaps;
-using Microsoft.Net.Http.Headers;
-using System.Collections.Generic;
-using System.IO;
-using Microsoft.AspNetCore.Mvc;
 using DeveMazeGenerator.Imageification;
+using DeveMazeGenerator.InnerMaps;
 using DeveMazeGenerator.PathFinders;
-using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 
 namespace DeveMazeGeneratorWeb.Controllers
 {
-    [Route("api/[controller]")]
-    public class MazesController : Controller
+    [ApiController]
+    [Route("[controller]")]
+    public class MazesController : ControllerBase
     {
         // GET api/values
         [HttpGet]
