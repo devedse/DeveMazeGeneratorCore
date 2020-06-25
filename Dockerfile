@@ -22,4 +22,4 @@ RUN dotnet publish ./src/DeveMazeGeneratorWeb/DeveMazeGeneratorWeb.csproj --outp
 FROM microsoft/dotnet:2.2-aspnetcore-runtime-alpine
 WORKDIR /app
 COPY --from=builder /app .
-ENTRYPOINT ["dotnet", "DeveMazeGeneratorWeb.dll"]
+CMD ["dotnet", "DeveMazeGeneratorWeb.dll"]
