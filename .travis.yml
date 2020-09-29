@@ -23,12 +23,12 @@ script:
   #docker-compose -f /home/vsts/work/1/s/src/DocumentMining/docker-compose.yml -f /home/vsts/agents/2.174.2/.docker-compose.1600782605817.yml -p DS-DocumentMining build
   - if [[ $TRAVIS_BRANCH == 'master' ]]; then
       docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-      docker image tag devedse/devemazegeneratorcore:latest "devedse/devemazegeneratorcore:$TRAVIS_BUILD_NUMBER";
+      docker image tag devedse/devemazegeneratorcoreweb:latest "devedse/devemazegeneratorcoreweb:$TRAVIS_BUILD_NUMBER";
       docker images;
-      docker push devedse/devemazegeneratorcore;
+      docker push devedse/devemazegeneratorcoreweb;
     fi
   - heroku container:login;
-  - docker image tag devedse/devemazegeneratorcore:latest "registry.heroku.com/devemazegeneratorcore/release";
+  - docker image tag devedse/devemazegeneratorcoreweb:latest "registry.heroku.com/devemazegeneratorcore/release";
   - docker push registry.heroku.com/devemazegeneratorcore/release;
   #- heroku container:push devedse/devemazegeneratorcore --app devemazegeneratorcore
   - heroku container:release release --app devemazegeneratorcore
