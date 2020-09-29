@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: DeveMazeGeneratorCore.Web/Dockerfile
       args:
-        - BUILD_VERSION=${BUILD_VERSION}
+        - BUILD_VERSION=${TRAVIS_BUILD_NUMBER}
 
   devemazegeneratorcore.consoleapp:
     image: ${DOCKER_REGISTRY-}devemazegeneratorcoreconsoleapp
@@ -15,4 +15,4 @@ services:
       context: .
       dockerfile: DeveMazeGeneratorCore.ConsoleApp/Dockerfile
       args:
-        - BUILD_VERSION=${BUILD_VERSION}
+        - BUILD_VERSION=${TRAVIS_BUILD_NUMBER}
