@@ -7,18 +7,19 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY ["NuGet.config", "/"]
-COPY ["DeveMazeGenerator.Web/DeveMazeGenerator.Web.csproj", "DeveMazeGenerator.Web/"]
-COPY ["DeveMazeGenerator/DeveMazeGenerator.csproj", "DeveMazeGenerator/"]
-RUN dotnet restore "DeveMazeGenerator.Web/DeveMazeGenerator.Web.csproj"
+COPY ["DeveMazeGeneratorCore.Web/DeveMazeGeneratorCore.Web.csproj", "DeveMazeGeneratorCore.Web/"]
+COPY ["DeveMazeGeneratorCore/DeveMazeGeneratorCore.csproj", "DeveMazeGeneratorCore/"]
+RUN dotnet restore "DeveMazeGeneratorCore.Web/DeveMazeGeneratorCore.Web.csproj"
 COPY . .
-WORKDIR "/src/DeveMazeGenerator.Web"
-RUN dotnet build "DeveMazeGenerator.Web.csproj" -c Release -o /app/build
+WORKDIR "/src/DeveMazeGeneratorCore.Web"
+RUN dotnet build "DeveMazeGeneratorCore.Web.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "DeveMazeGenerator.Web.csproj" -c Release -o /app/publish
+ARG BUILD_VERSION
+ARG VER=${BUILD_VERSION:-1.0.0}
+RUN dotnet publish "DeveMazeGeneratorCore.Web.csproj" -c Release -o /app/publish /p:Version=$VER
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-CMD dotnet DeveMazeGenerator.Web.dll --urls=http://+:$PORT/
+ENTRYPOINT ["dotnet", "DeveMazeGeneratorCore.Web.dll"]

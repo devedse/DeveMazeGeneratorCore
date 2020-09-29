@@ -1,0 +1,18 @@
+version: '3.4'
+
+services:
+  devemazegeneratorcore.web:
+    image: ${DOCKER_REGISTRY-}devemazegeneratorcoreweb
+    build:
+      context: .
+      dockerfile: DeveMazeGeneratorCore.Web/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+
+  devemazegeneratorcore.consoleapp:
+    image: ${DOCKER_REGISTRY-}devemazegeneratorcoreconsoleapp
+    build:
+      context: .
+      dockerfile: DeveMazeGeneratorCore.ConsoleApp/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}

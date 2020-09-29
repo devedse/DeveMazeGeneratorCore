@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DeveMazeGeneratorCore.ConsoleApp": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
