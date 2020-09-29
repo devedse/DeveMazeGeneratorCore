@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>DeveMazeGenerator.ConsoleApp</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <PackageId>DeveMazeGeneratorConsole</PackageId>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <Version>1.0.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DeveMazeGeneratorCore\DeveMazeGeneratorCore.csproj" />
+  </ItemGroup>
+
+</Project>
