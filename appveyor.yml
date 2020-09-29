@@ -3,43 +3,52 @@ os: Visual Studio 2019
 skip_tags: true
 configuration: Release
 
-assembly_info:
-  patch: true
-  file: '**\AssemblyInfo.*'
-  assembly_version: '{version}'
-  assembly_file_version: '{version}'
+environment:
+  sonarqubetoken:
+    secure: ppdeirHI9dsM7NpQgtwIRqXbiqhJZvIyHxOFhnME5HhRFS6IbYZqRppQi7fTqv37
 
 before_build:
   - ps: .\scripts\set-version.ps1
-  - cmd: dotnet --info
-  - cmd: dotnet restore
-  - choco install 7zip.portable
+  - dotnet --info
+  - dotnet restore
+  - dotnet tool install --global dotnet-reportgenerator-globaltool
+  #- choco install opencover.portable
+  - choco install codecov
+  #- choco install xunit
+  - choco install "msbuild-sonarqube-runner" -y
+  - choco install 7zip
 
 build_script:
-  - cmd: dotnet build -c Release
-
-test_script:
-  - cmd: dotnet test -c release test\DeveMazeGenerator.Tests\DeveMazeGenerator.Tests.csproj
-  
+  - SonarScanner.MSBuild.exe begin /k:"DeveMazeGenerator" /o:"devedse-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=%sonarqubetoken% /d:sonar.cs.opencover.reportsPaths=".\DeveMazeGenerator.Tests\TestResults\Coverage\coverage.opencover.xml" /d:sonar.coverage.exclusions="DeveMazeGenerator.ConsoleApp/**/*.cs,DeveMazeGenerator.Tests/**/*.cs"
+  - dotnet build -c Release
+  #- OpenCover.Console.exe -register:user -target:"dotnet.exe" -targetargs:"test .\DeveMazeGenerator.Tests\DeveMazeGenerator.Tests.csproj -c Release" -oldstyle -returntargetcode -output:.\DeveMazeGenerator.Coverage.xml -filter:"+[DeveMazeGenerator*]*"
+  - dotnet test --no-build -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=\"cobertura,opencover\" /p:CoverletOutput=./TestResults/Coverage/
+  - SonarScanner.MSBuild.exe end /d:sonar.login=%sonarqubetoken%
+  - codecov -f ".\DeveMazeGenerator.Tests\TestResults\Coverage\coverage.opencover.xml"
+  - reportgenerator -reports:.\DeveMazeGenerator.Tests\TestResults\Coverage\coverage.opencover.xml -targetdir:.\DeveMazeGenerator.Tests\TestResults\Coverage\HtmlInline\ -reporttypes:HtmlInline_AzurePipelines
+ 
 after_test:
-  - cmd: dotnet pack -c Release src\DeveMazeGenerator\
-  - cmd: Scripts\GoRepack.cmd
+  - dotnet pack -c Release DeveMazeGenerator\
+  - ps: Scripts\GoPackage.ps1
+  - 7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "Scripts\Output\CodeCoverageReport.7z" ".\DeveMazeGenerator.Tests\TestResults\Coverage\HtmlInline\*"
 
 artifacts:
-- path: Scripts\DeveMazeGeneratorCore.7z
+- path: Scripts\Output\DeveMazeGenerator.7z
   name: droppackage7z
-- path: Scripts\DeveMazeGeneratorCore.zip
+- path: Scripts\Output\DeveMazeGenerator.zip
   name: droppackagezip
-- path: 'src\DeveMazeGenerator\bin\Release\*.nupkg'
+- path: 'DeveMazeGenerator\bin\Release\*.nupkg'
   name: nugetPackages
+- path: 'DeveMazeGenerator\bin\Release\*.snupkg'
+  name: snugetPackages
+- path: Scripts\Output\CodeCoverageReport.7z
+  name: CodeCoverageReport
 
 deploy:
 - provider: GitHub
   auth_token:
     secure: do7S++r1rE5E3IZujCoMONsWYJNF7eoRoPyJbxSD851I850OlEq0gsHH/Tji7o00
-  artifact: droppackage7z,droppackagezip,nugetPackages
+  artifact: droppackage7z,droppackagezip,nugetPackages,snugetPackages
 - provider: NuGet
   api_key:
     secure: pVOzQthQbu7P9SUQwjG43ZEMcwAp7dVbe4BkDVEwJFu1gWK+L11L9mdfGLC5iO5Z
-  skip_symbols: true
-  artifact: /.*\.nupkg/

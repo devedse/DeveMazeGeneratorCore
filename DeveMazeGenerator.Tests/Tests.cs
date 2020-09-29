@@ -1,11 +1,11 @@
 ﻿using Xunit;
 
-namespace Tests
+namespace DeveMazeGenerator.Tests
 {
     public class Tests
     {
         [Fact]
-        public void Test1() 
+        public void Test1()
         {
             Assert.True(true);
         }

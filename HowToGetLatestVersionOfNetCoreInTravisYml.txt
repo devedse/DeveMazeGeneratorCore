@@ -1,5 +1,0 @@
-#See: https://www.microsoft.com/net/download#core (MacOS) .NET Core SDK binaries only
-export DOTNET_SDK_URL="https://go.microsoft.com/fwlink/?LinkID=827533";
-
-#See: https://www.microsoft.com/net/download#core (Ubuntu 14.04 64-bit) .NET Core SDK binaries only
-export DOTNET_SDK_URL="https://go.microsoft.com/fwlink/?LinkID=827536";

@@ -10,7 +10,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace DeveMazeGeneratorConsole
+namespace DeveMazeGenerator.ConsoleApp
 {
     public class Program
     {
