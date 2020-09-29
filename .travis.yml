@@ -18,7 +18,9 @@ matrix:
       dist: bionic # Ubuntu 18.04
 
 script:
-  - docker build -f DeveMazeGeneratorWeb/Dockerfile -t devedse/devemazegeneratorcore:latest .;
+  #- docker build -f DeveMazeGeneratorWeb/Dockerfile -t devedse/devemazegeneratorcore:latest .;
+  - docker-compose -f docker-compose.yml -e BUILD_VERSION=$TRAVIS_BUILD_NUMBER
+  #docker-compose -f /home/vsts/work/1/s/src/DocumentMining/docker-compose.yml -f /home/vsts/agents/2.174.2/.docker-compose.1600782605817.yml -p DS-DocumentMining build
   - if [[ $TRAVIS_BRANCH == 'master' ]]; then
       docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
       docker image tag devedse/devemazegeneratorcore:latest "devedse/devemazegeneratorcore:$TRAVIS_BUILD_NUMBER";
