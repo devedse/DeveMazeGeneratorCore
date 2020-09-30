@@ -20,7 +20,9 @@ matrix:
 script:
   #- docker build -f DeveMazeGeneratorWeb/Dockerfile -t devedse/devemazegeneratorcore:latest .;
   - docker version
-  - docker buildx build -f DeveMazeGeneratorWeb/Dockerfile --platform linux/arm/v7,linux/arm64/v8,linux/amd64 --tag devedse/devemazegeneratorcoremultiarch:latest .
+  - cd DeveMazeGeneratorWeb
+  - docker buildx build --platform linux/arm/v7,linux/arm64/v8,linux/amd64 --tag devedse/devemazegeneratorcoremultiarch:latest .
+  - cd ..
   - docker-compose -f docker-compose.yml build
   #docker-compose -f /home/vsts/work/1/s/src/DocumentMining/docker-compose.yml -f /home/vsts/agents/2.174.2/.docker-compose.1600782605817.yml -p DS-DocumentMining build
   - if [[ $TRAVIS_BRANCH == 'master' ]]; then
