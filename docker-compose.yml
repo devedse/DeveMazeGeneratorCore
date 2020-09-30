@@ -17,6 +17,14 @@ services:
       args:
         - BUILD_VERSION=${TRAVIS_BUILD_NUMBER}
 
+  devemazegeneratorcore.web.arm32:
+    image: ${DOCKER_REGISTRY-}devemazegeneratorcorewebarm32
+    build:
+      context: .
+      dockerfile: DeveMazeGeneratorCore.Web/ARM32.Dockerfile
+      args:
+        - BUILD_VERSION=${TRAVIS_BUILD_NUMBER}
+
   devemazegeneratorcore.consoleapp:
     image: ${DOCKER_REGISTRY-}devemazegeneratorcoreconsoleapp
     build:
