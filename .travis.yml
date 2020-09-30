@@ -31,6 +31,8 @@ script:
       docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
       docker image tag devemazegeneratorcoreweb:latest "devedse/devemazegeneratorcoreweb:$TRAVIS_BUILD_NUMBER";
       docker image tag devemazegeneratorcoreweb:latest "devedse/devemazegeneratorcoreweb:latest";
+      docker image tag devemazegeneratorcorewebarm32:latest "devedse/devemazegeneratorcorewebarm32:$TRAVIS_BUILD_NUMBER";
+      docker image tag devemazegeneratorcorewebarm32:latest "devedse/devemazegeneratorcorewebarm32:latest";
       docker images;
       docker push devedse/devemazegeneratorcoreweb;
     fi
