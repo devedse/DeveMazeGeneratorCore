@@ -31,11 +31,11 @@ script:
       docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
       docker image tag devemazegeneratorcoreweb:latest "devedse/devemazegeneratorcoreweb:$TRAVIS_BUILD_NUMBER";
       docker image tag devemazegeneratorcoreweb:latest "devedse/devemazegeneratorcoreweb:latest";
-      docker image tag devemazegeneratorcorewebarm32:latest "devedse/devemazegeneratorcorewebarm32:$TRAVIS_BUILD_NUMBER";
-      docker image tag devemazegeneratorcorewebarm32:latest "devedse/devemazegeneratorcorewebarm32:latest";
+      docker image tag devemazegeneratorcorewebarm64:latest "devedse/devemazegeneratorcorewebarm64:$TRAVIS_BUILD_NUMBER";
+      docker image tag devemazegeneratorcorewebarm64:latest "devedse/devemazegeneratorcorewebarm64:latest";
       docker images;
       docker push devedse/devemazegeneratorcoreweb;
-      docker push devedse/devemazegeneratorcorewebarm32;
+      docker push devedse/devemazegeneratorcorewebarm64;
     fi
   - heroku container:login;
   - docker image tag devemazegeneratorcoreweb:latest "registry.heroku.com/devemazegeneratorcore/release";
