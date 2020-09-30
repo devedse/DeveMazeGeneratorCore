@@ -35,6 +35,7 @@ script:
       docker image tag devemazegeneratorcorewebarm32:latest "devedse/devemazegeneratorcorewebarm32:latest";
       docker images;
       docker push devedse/devemazegeneratorcoreweb;
+      docker push devedse/devemazegeneratorcorewebarm32;
     fi
   - heroku container:login;
   - docker image tag devemazegeneratorcoreweb:latest "registry.heroku.com/devemazegeneratorcore/release";
