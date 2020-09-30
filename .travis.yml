@@ -24,7 +24,7 @@ script:
   #- cd DeveMazeGeneratorWeb
   #- docker buildx build --platform linux/arm/v7,linux/arm64/v8,linux/amd64 --tag devedse/devemazegeneratorcoremultiarch:latest .
   #- cd ..
-  #- docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+  - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
   - docker-compose -f docker-compose.yml build
   #docker-compose -f /home/vsts/work/1/s/src/DocumentMining/docker-compose.yml -f /home/vsts/agents/2.174.2/.docker-compose.1600782605817.yml -p DS-DocumentMining build
   - if [[ $TRAVIS_BRANCH == 'master' ]]; then
