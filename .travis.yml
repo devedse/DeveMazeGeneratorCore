@@ -15,7 +15,7 @@ matrix:
   include:
     - mono: none
       os: linux
-      dist: bionic # Ubuntu 18.04
+      dist: focal # Ubuntu 18.04
 
 script:
   #- docker build -f DeveMazeGeneratorWeb/Dockerfile -t devedse/devemazegeneratorcore:latest .;
