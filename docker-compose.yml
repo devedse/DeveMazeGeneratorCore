@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: DeveMazeGeneratorCore.Web/Dockerfile
       args:
-        - BUILD_VERSION=${TRAVIS_BUILD_NUMBER}
+        - BUILD_VERSION=1.0.${TRAVIS_BUILD_NUMBER}
 
   devemazegeneratorcore.web.arm64:
     image: ${DOCKER_REGISTRY-}devemazegeneratorcorewebarm64
@@ -15,7 +15,7 @@ services:
       context: .
       dockerfile: DeveMazeGeneratorCore.Web/ARM64.Dockerfile
       args:
-        - BUILD_VERSION=${TRAVIS_BUILD_NUMBER}
+        - BUILD_VERSION=1.0.${TRAVIS_BUILD_NUMBER}
 
   devemazegeneratorcore.web.arm32:
     image: ${DOCKER_REGISTRY-}devemazegeneratorcorewebarm32
@@ -23,7 +23,7 @@ services:
       context: .
       dockerfile: DeveMazeGeneratorCore.Web/ARM32.Dockerfile
       args:
-        - BUILD_VERSION=${TRAVIS_BUILD_NUMBER}
+        - BUILD_VERSION=1.0.${TRAVIS_BUILD_NUMBER}
 
   devemazegeneratorcore.consoleapp:
     image: ${DOCKER_REGISTRY-}devemazegeneratorcoreconsoleapp
@@ -31,4 +31,4 @@ services:
       context: .
       dockerfile: DeveMazeGeneratorCore.ConsoleApp/Dockerfile
       args:
-        - BUILD_VERSION=${TRAVIS_BUILD_NUMBER}
+        - BUILD_VERSION=1.0.${TRAVIS_BUILD_NUMBER}
