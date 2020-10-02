@@ -10,7 +10,6 @@ environment:
 before_build:
   #- ps: .\scripts\set-version.ps1
   - dotnet --info
-  - dotnet restore
   - dotnet tool install --global dotnet-reportgenerator-globaltool
   #- choco install opencover.portable
   - choco install codecov
