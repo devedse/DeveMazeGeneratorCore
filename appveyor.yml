@@ -19,27 +19,27 @@ before_build:
   - choco install 7zip
 
 build_script:
-  - SonarScanner.MSBuild.exe begin /k:"DeveMazeGenerator" /o:"devedse-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=%sonarqubetoken% /d:sonar.cs.opencover.reportsPaths=".\DeveMazeGenerator.Tests\TestResults\Coverage\coverage.opencover.xml" /d:sonar.coverage.exclusions="DeveMazeGenerator.ConsoleApp/**/*.cs,DeveMazeGenerator.Tests/**/*.cs"
+  - SonarScanner.MSBuild.exe begin /k:"DeveMazeGeneratorCore" /o:"devedse-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=%sonarqubetoken% /d:sonar.cs.opencover.reportsPaths=".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml" /d:sonar.coverage.exclusions="DeveMazeGeneratorCore.ConsoleApp/**/*.cs,DeveMazeGeneratorCore.Tests/**/*.cs"
   - dotnet build -c Release /p:Version=1.0.$APPVEYOR_PULL_REQUEST_NUMBER
-  #- OpenCover.Console.exe -register:user -target:"dotnet.exe" -targetargs:"test .\DeveMazeGenerator.Tests\DeveMazeGenerator.Tests.csproj -c Release" -oldstyle -returntargetcode -output:.\DeveMazeGenerator.Coverage.xml -filter:"+[DeveMazeGenerator*]*"
+  #- OpenCover.Console.exe -register:user -target:"dotnet.exe" -targetargs:"test .\DeveMazeGeneratorCore.Tests\DeveMazeGeneratorCore.Tests.csproj -c Release" -oldstyle -returntargetcode -output:.\DeveMazeGeneratorCore.Coverage.xml -filter:"+[DeveMazeGeneratorCore*]*"
   - dotnet test --no-build -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=\"cobertura,opencover\" /p:CoverletOutput=./TestResults/Coverage/
   - SonarScanner.MSBuild.exe end /d:sonar.login=%sonarqubetoken%
-  - codecov -f ".\DeveMazeGenerator.Tests\TestResults\Coverage\coverage.opencover.xml"
-  - reportgenerator -reports:.\DeveMazeGenerator.Tests\TestResults\Coverage\coverage.opencover.xml -targetdir:.\DeveMazeGenerator.Tests\TestResults\Coverage\HtmlInline\ -reporttypes:HtmlInline_AzurePipelines
+  - codecov -f ".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml"
+  - reportgenerator -reports:.\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml -targetdir:.\DeveMazeGeneratorCore.Tests\TestResults\Coverage\HtmlInline\ -reporttypes:HtmlInline_AzurePipelines
  
 after_test:
-  - dotnet pack -c Release DeveMazeGenerator\
+  - dotnet pack -c Release DeveMazeGeneratorCore\
   - ps: Scripts\GoPackage.ps1
-  - 7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "Scripts\Output\CodeCoverageReport.7z" ".\DeveMazeGenerator.Tests\TestResults\Coverage\HtmlInline\*"
+  - 7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "Scripts\Output\CodeCoverageReport.7z" ".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\HtmlInline\*"
 
 artifacts:
-- path: Scripts\Output\DeveMazeGenerator.7z
+- path: Scripts\Output\DeveMazeGeneratorCore.7z
   name: droppackage7z
-- path: Scripts\Output\DeveMazeGenerator.zip
+- path: Scripts\Output\DeveMazeGeneratorCore.zip
   name: droppackagezip
-- path: 'DeveMazeGenerator\bin\Release\*.nupkg'
+- path: 'DeveMazeGeneratorCore\bin\Release\*.nupkg'
   name: nugetPackages
-- path: 'DeveMazeGenerator\bin\Release\*.snupkg'
+- path: 'DeveMazeGeneratorCore\bin\Release\*.snupkg'
   name: snugetPackages
 - path: Scripts\Output\CodeCoverageReport.7z
   name: CodeCoverageReport
