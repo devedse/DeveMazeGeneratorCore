@@ -8,7 +8,7 @@ environment:
     secure: ppdeirHI9dsM7NpQgtwIRqXbiqhJZvIyHxOFhnME5HhRFS6IbYZqRppQi7fTqv37
 
 before_build:
-  - ps: .\scripts\set-version.ps1
+  #- ps: .\scripts\set-version.ps1
   - dotnet --info
   - dotnet restore
   - dotnet tool install --global dotnet-reportgenerator-globaltool
@@ -20,7 +20,7 @@ before_build:
 
 build_script:
   - SonarScanner.MSBuild.exe begin /k:"DeveMazeGenerator" /o:"devedse-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=%sonarqubetoken% /d:sonar.cs.opencover.reportsPaths=".\DeveMazeGenerator.Tests\TestResults\Coverage\coverage.opencover.xml" /d:sonar.coverage.exclusions="DeveMazeGenerator.ConsoleApp/**/*.cs,DeveMazeGenerator.Tests/**/*.cs"
-  - dotnet build -c Release
+  - dotnet build -c Release /p:Version=1.0.$APPVEYOR_PULL_REQUEST_NUMBER
   #- OpenCover.Console.exe -register:user -target:"dotnet.exe" -targetargs:"test .\DeveMazeGenerator.Tests\DeveMazeGenerator.Tests.csproj -c Release" -oldstyle -returntargetcode -output:.\DeveMazeGenerator.Coverage.xml -filter:"+[DeveMazeGenerator*]*"
   - dotnet test --no-build -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=\"cobertura,opencover\" /p:CoverletOutput=./TestResults/Coverage/
   - SonarScanner.MSBuild.exe end /d:sonar.login=%sonarqubetoken%
