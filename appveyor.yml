@@ -27,7 +27,7 @@ build_script:
   - reportgenerator -reports:.\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml -targetdir:.\DeveMazeGeneratorCore.Tests\TestResults\Coverage\HtmlInline\ -reporttypes:HtmlInline_AzurePipelines
  
 after_test:
-  - dotnet pack -c Release DeveMazeGeneratorCore\DeveMazeGeneratorCore.csproj
+  - dotnet pack -c Release DeveMazeGeneratorCore\DeveMazeGeneratorCore.csproj --no-build
   - ps: Scripts\GoPackage.ps1
   - 7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "Scripts\Output\CodeCoverageReport.7z" ".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\HtmlInline\*"
 
