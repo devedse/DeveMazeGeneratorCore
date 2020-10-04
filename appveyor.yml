@@ -22,7 +22,7 @@ build_script:
   - echo $APPVEYOR_PULL_REQUEST_NUMBER
   - echo $env:APPVEYOR_PULL_REQUEST_NUMBER
   - echo "$APPVEYOR_PULL_REQUEST_NUMBER"
-  - echo Blah: %APPVEYOR_PULL_REQUEST_NUMBER%
+  - echo Blah %APPVEYOR_PULL_REQUEST_NUMBER%
   - dotnet build DeveMazeGeneratorCore.sln -c Release /p:Version=1.0.%APPVEYOR_PULL_REQUEST_NUMBER%
   #- OpenCover.Console.exe -register:user -target:"dotnet.exe" -targetargs:"test .\DeveMazeGeneratorCore.Tests\DeveMazeGeneratorCore.Tests.csproj -c Release" -oldstyle -returntargetcode -output:.\DeveMazeGeneratorCore.Coverage.xml -filter:"+[DeveMazeGeneratorCore*]*"
   - dotnet test DeveMazeGeneratorCore.sln --no-build -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=\"cobertura,opencover\" /p:CoverletOutput=./TestResults/Coverage/
