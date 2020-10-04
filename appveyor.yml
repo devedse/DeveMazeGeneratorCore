@@ -19,15 +19,15 @@ before_build:
 
 build_script:
   - SonarScanner.MSBuild.exe begin /k:"DeveMazeGeneratorCore" /o:"devedse-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=%sonarqubetoken% /d:sonar.cs.opencover.reportsPaths=".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml" /d:sonar.coverage.exclusions="DeveMazeGeneratorCore.ConsoleApp/**/*.cs,DeveMazeGeneratorCore.Tests/**/*.cs"
-  - dotnet build -c Release /p:Version=1.0.$APPVEYOR_PULL_REQUEST_NUMBER
+  - dotnet build DeveMazeGeneratorCore.sln -c Release /p:Version=1.0.$APPVEYOR_PULL_REQUEST_NUMBER
   #- OpenCover.Console.exe -register:user -target:"dotnet.exe" -targetargs:"test .\DeveMazeGeneratorCore.Tests\DeveMazeGeneratorCore.Tests.csproj -c Release" -oldstyle -returntargetcode -output:.\DeveMazeGeneratorCore.Coverage.xml -filter:"+[DeveMazeGeneratorCore*]*"
-  - dotnet test --no-build -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=\"cobertura,opencover\" /p:CoverletOutput=./TestResults/Coverage/
+  - dotnet test DeveMazeGeneratorCore.sln --no-build -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=\"cobertura,opencover\" /p:CoverletOutput=./TestResults/Coverage/
   - SonarScanner.MSBuild.exe end /d:sonar.login=%sonarqubetoken%
   - codecov -f ".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml"
   - reportgenerator -reports:.\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml -targetdir:.\DeveMazeGeneratorCore.Tests\TestResults\Coverage\HtmlInline\ -reporttypes:HtmlInline_AzurePipelines
  
 after_test:
-  - dotnet pack -c Release DeveMazeGeneratorCore\
+  - dotnet pack DeveMazeGeneratorCore.sln -c Release DeveMazeGeneratorCore\
   - ps: Scripts\GoPackage.ps1
   - 7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "Scripts\Output\CodeCoverageReport.7z" ".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\HtmlInline\*"
 
