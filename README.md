@@ -59,8 +59,8 @@ http://devemazegeneratorcoreweb.azurewebsites.net/api/mazes/MazePath/512/512
 AppVeyor will create a number of build artefacts which are added as releases on Github so they can be downloaded:
 * DeveMazeGeneratorCore.7z (Build output as 7z)
 * DeveMazeGeneratorCore.zip (Build output as zip)
-* DeveMazeGenerator.x.x.x-CI.nupkg (Nuget package of library)
-* DeveMazeGenerator.x.x.x-CI.symbols.nupkg (Nuget package of symbols for library)
+* DeveMazeGeneratorCore.x.x.x.nupkg (Nuget package of library)
+* DeveMazeGeneratorCore.x.x.x.symbols.nupkg (Nuget package of symbols for library)
 
 ## Maze generator details
 
