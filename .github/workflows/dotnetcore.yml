@@ -17,11 +17,11 @@ jobs:
       with:
         dotnet-version: 3.1.101
     - name: Install dependencies
-      run: dotnet restore
+      run: dotnet restore DeveMazeGeneratorCore.sln
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build DeveMazeGeneratorCore.sln --configuration Release --no-restore
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
   build_windows:
     runs-on: windows-latest
 
@@ -32,8 +32,8 @@ jobs:
       with:
         dotnet-version: 3.1.101
     - name: Install dependencies
-      run: dotnet restore
+      run: dotnet restore DeveMazeGeneratorCore.sln
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build DeveMazeGeneratorCore.sln --configuration Release --no-restore
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
