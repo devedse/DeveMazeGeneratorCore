@@ -18,6 +18,6 @@ jobs:
       with:
         dotnet-version: 3.1.101
     - name: Build with dotnet
-      run: dotnet build --configuration Release # Project needs to build before training a model.
+      run: dotnet build DeveMazeGeneratorCore.sln --configuration Release # Project needs to build before training a model.
     - name: Train Intellicode Model
       uses: microsoft/vs-intellicode@v1
