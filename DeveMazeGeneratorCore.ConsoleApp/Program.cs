@@ -16,7 +16,7 @@ namespace DeveMazeGeneratorCore.ConsoleApp
     {
         public static void Main(string[] args)
         {
-            TestWithSave();
+            //TestWithSave();
 
             while (true)
             {
