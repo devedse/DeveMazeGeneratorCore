@@ -6,17 +6,17 @@ namespace DeveMazeGeneratorCore.InnerMaps.InnerStuff
     public class BitArreintjeFastInnerMapArray
     {
         //Internal since it's used by some other classes (because this is so awesome)
-        internal int[] _innerData;
+        internal long[] _innerData;
 
         public BitArreintjeFastInnerMapArray(int height)
         {
-            _innerData = new int[height / 32 + 1];
+            _innerData = new long[height / 64 + 1];
         }
 
         public BitArreintjeFastInnerMapArray Clone()
         {
             var cloned = new BitArreintjeFastInnerMapArray(0);
-            cloned._innerData = new int[_innerData.Length];
+            cloned._innerData = new long[_innerData.Length];
             Array.Copy(_innerData, cloned._innerData, _innerData.Length);
             return cloned;
         }
@@ -48,19 +48,19 @@ namespace DeveMazeGeneratorCore.InnerMaps.InnerStuff
             {
                 if (value)
                 {
-                    int a = 1 << y;
-                    _innerData[y / 32] |= a;
+                    long a = 1 << y;
+                    _innerData[y / 64] |= a;
                 }
                 else
                 {
-                    int a = ~(1 << y);
-                    _innerData[y / 32] &= a;
+                    long a = ~(1 << y);
+                    _innerData[y / 64] &= a;
                 }
             }
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return (_innerData[y / 32] & 1 << y) != 0;
+                return (_innerData[y / 64] & 1 << y) != 0;
             }
         }
     }
