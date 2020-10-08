@@ -48,19 +48,19 @@ namespace DeveMazeGeneratorCore.InnerMaps.InnerStuff
             {
                 if (value)
                 {
-                    long a = 1 << y;
+                    long a = 1L << y;
                     _innerData[y / 64] |= a;
                 }
                 else
                 {
-                    long a = ~(1 << y);
+                    long a = ~(1L << y);
                     _innerData[y / 64] &= a;
                 }
             }
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return (_innerData[y / 64] & 1 << y) != 0;
+                return (_innerData[y / 64] & 1L << y) != 0;
             }
         }
     }
