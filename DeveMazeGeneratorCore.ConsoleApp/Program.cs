@@ -16,7 +16,7 @@ namespace DeveMazeGeneratorCore.ConsoleApp
     {
         public static void Main(string[] args)
         {
-            //TestWithSave();
+            TestWithSave();
 
             while (true)
             {
@@ -89,8 +89,22 @@ namespace DeveMazeGeneratorCore.ConsoleApp
                 Console.WriteLine(strToPrint2);
                 seed++;
 
+                //using (var fs = new FileStream($"GeneratedMazeNoPath{alg.GetType().Name}.png", FileMode.Create))
+                //{
+                //    WithPath.SaveMazeAsImageDeluxePng(maze, new System.Collections.Generic.List<Structures.MazePointPos>(), fs);
+                //}
 
+                //Console.WriteLine("Finding path");
 
+                //var path = PathFinderDepthFirstSmartWithPos.GoFind(maze, null);
+                //Console.WriteLine("Found path :)");
+
+                //using (var fs = new FileStream($"GeneratedMaze{alg.GetType().Name}.png", FileMode.Create))
+                //{
+                //    WithPath.SaveMazeAsImageDeluxePng(maze, path, fs);
+                //}
+
+                //return;
                 //var result = MazeVerifier.IsPerfectMaze(maze);
                 //Console.WriteLine($"Perfect maze verification time: {w.Elapsed}");
                 //Console.WriteLine($"Is our maze perfect?: {result}");
@@ -99,7 +113,7 @@ namespace DeveMazeGeneratorCore.ConsoleApp
 
         public static void TestWithSave()
         {
-            int size = 16384;
+            int size = 128;
             var fastestElapsed = TimeSpan.MaxValue;
 
             var alg = new AlgorithmBacktrack2Deluxe2();
@@ -118,13 +132,17 @@ namespace DeveMazeGeneratorCore.ConsoleApp
             var maze = alg.GoGenerate2(innerMapFactory, randomFactory, actionThing);
             w.Stop();
 
+            using (var fs = new FileStream($"SmallTestGeneratedMazeNoPath{alg.GetType().Name}.png", FileMode.Create))
+            {
+                WithPath.SaveMazeAsImageDeluxePng(maze, new System.Collections.Generic.List<Structures.MazePointPos>(), fs);
+            }
 
             Console.WriteLine($"Generation time: {w.Elapsed}");
 
 
             var path = PathFinderDepthFirstSmartWithPos.GoFind(maze, null);
 
-            using (var fs = new FileStream($"GeneratedMaze{alg.GetType().Name}.png", FileMode.Create))
+            using (var fs = new FileStream($"SmallTestGeneratedMaze{alg.GetType().Name}.png", FileMode.Create))
             {
                 WithPath.SaveMazeAsImageDeluxePng(maze, path, fs);
             }

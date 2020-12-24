@@ -20,25 +20,26 @@ matrix:
 script:
   #- docker build -f DeveMazeGeneratorWeb/Dockerfile -t devedse/devemazegeneratorcore:latest .;
   - docker version
-  #- docker buildx version
+  - docker buildx version
   #- cd DeveMazeGeneratorWeb
   #- docker buildx build --platform linux/arm/v7,linux/arm64/v8,linux/amd64 --tag devedse/devemazegeneratorcoremultiarch:latest .
   #- cd ..
   - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-  - docker-compose -f docker-compose.yml build
+  #- docker-compose -f docker-compose.yml build
+  - docker buildx build --platform linux/arm,linux/arm64,linux/amd64 -t devedse/devemazegeneratorcoreweb .
   #docker-compose -f /home/vsts/work/1/s/src/DocumentMining/docker-compose.yml -f /home/vsts/agents/2.174.2/.docker-compose.1600782605817.yml -p DS-DocumentMining build
   - if [[ $TRAVIS_BRANCH == 'master' ]]; then
       docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-      docker image tag devemazegeneratorcoreweb:latest "devedse/devemazegeneratorcoreweb:$TRAVIS_BUILD_NUMBER";
-      docker image tag devemazegeneratorcoreweb:latest "devedse/devemazegeneratorcoreweb:latest";
-      docker image tag devemazegeneratorcorewebarm64:latest "devedse/devemazegeneratorcorewebarm64:$TRAVIS_BUILD_NUMBER";
-      docker image tag devemazegeneratorcorewebarm64:latest "devedse/devemazegeneratorcorewebarm64:latest";
-      docker image tag devemazegeneratorcorewebarm32:latest "devedse/devemazegeneratorcorewebarm32:$TRAVIS_BUILD_NUMBER";
-      docker image tag devemazegeneratorcorewebarm32:latest "devedse/devemazegeneratorcorewebarm32:latest";
+      # docker image tag devemazegeneratorcoreweb:latest "devedse/devemazegeneratorcoreweb:$TRAVIS_BUILD_NUMBER";
+      # docker image tag devemazegeneratorcoreweb:latest "devedse/devemazegeneratorcoreweb:latest";
+      # docker image tag devemazegeneratorcorewebarm64:latest "devedse/devemazegeneratorcorewebarm64:$TRAVIS_BUILD_NUMBER";
+      # docker image tag devemazegeneratorcorewebarm64:latest "devedse/devemazegeneratorcorewebarm64:latest";
+      # docker image tag devemazegeneratorcorewebarm32:latest "devedse/devemazegeneratorcorewebarm32:$TRAVIS_BUILD_NUMBER";
+      # docker image tag devemazegeneratorcorewebarm32:latest "devedse/devemazegeneratorcorewebarm32:latest";
       docker images;
-      docker push devedse/devemazegeneratorcoreweb;
-      docker push devedse/devemazegeneratorcorewebarm64;
-      docker push devedse/devemazegeneratorcorewebarm32;
+      # docker push devedse/devemazegeneratorcoreweb;
+      # docker push devedse/devemazegeneratorcorewebarm64;
+      # docker push devedse/devemazegeneratorcorewebarm32;
     fi
   - heroku container:login;
   - docker image tag devemazegeneratorcoreweb:latest "registry.heroku.com/devemazegeneratorcore/release";

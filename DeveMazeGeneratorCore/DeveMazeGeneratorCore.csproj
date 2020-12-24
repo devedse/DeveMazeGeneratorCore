@@ -1,13 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>DeveMazeGeneratorCore</AssemblyName>
     <PackageId>DeveMazeGeneratorCore</PackageId>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <Version>1.0.0.0</Version>
     <Title>DeveMazeGenerator</Title>
     <Authors>Devedse</Authors>
     <Description>This is Devedse's maze generator implemented in .NET Core.</Description>
