@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorCore.Web",
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{88F824DD-63DC-46E5-A75E-83014D139E71}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary1", "..\ClassLibrary1\ClassLibrary1.csproj", "{5D5C0B87-8C74-4783-B00C-7BA45878FBD1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{88F824DD-63DC-46E5-A75E-83014D139E71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88F824DD-63DC-46E5-A75E-83014D139E71}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88F824DD-63DC-46E5-A75E-83014D139E71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D5C0B87-8C74-4783-B00C-7BA45878FBD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D5C0B87-8C74-4783-B00C-7BA45878FBD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D5C0B87-8C74-4783-B00C-7BA45878FBD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D5C0B87-8C74-4783-B00C-7BA45878FBD1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
