@@ -8,7 +8,7 @@ This is the new version of my maze generator, now made with .NET Core.
 
 | Travis (Linux/Osx build) | AppVeyor (Windows build) | Github Actions (Windows and Linux build) | Github Actions (Docker build) |
 |:------------------------:|:------------------------:|:----------------------------------------:|:-----------------------------:|
-| [![Build Status](https://travis-ci.org/devedse/DeveMazeGeneratorCore.svg?branch=master)](https://travis-ci.org/devedse/DeveMazeGeneratorCore) | [![Build status](https://ci.appveyor.com/api/projects/status/ainctv2tnoxg2t86?svg=true)](https://ci.appveyor.com/project/devedse/devemazegeneratorcore) | [![.NET Core](https://github.com/devedse/DeveMazeGeneratorCore/workflows/.NET%20Core/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions?query=workflow%3A%22.NET+Core%22) | [![.NET Core](https://github.com/devedse/DeveMazeGeneratorCore/workflows/docker/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions?query=workflow%3Adocker) |
+| [![Build Status](https://travis-ci.org/devedse/DeveMazeGeneratorCore.svg?branch=master)](https://travis-ci.org/devedse/DeveMazeGeneratorCore) | [![Build status](https://ci.appveyor.com/api/projects/status/ainctv2tnoxg2t86?svg=true)](https://ci.appveyor.com/project/devedse/devemazegeneratorcore) | [![.NET Core](https://github.com/devedse/DeveMazeGeneratorCore/workflows/.NET%20Core/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions?query=workflow%3A%22.NET+Core%22) | [![Docker](https://github.com/devedse/DeveMazeGeneratorCore/workflows/docker/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions?query=workflow%3Adocker) |
 
 ## Intellicode
 
