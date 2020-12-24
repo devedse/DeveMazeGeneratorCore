@@ -35,4 +35,4 @@ jobs:
     # - name: Run docker
     #   run: docker build -f DeveMazeGeneratorCore.Web/Dockerfile -t devedse/devemazegeneratorcoreweb .
     - name: Run Buildx
-      run: docker buildx build -f DeveMazeGeneratorCore.Web/Dockerfile --platform linux/arm/v7,linux/arm64,linux/amd64 -t devedse/devemazegeneratorcoreweb .
+      run: docker buildx build -f DeveMazeGeneratorCore.Web/Dockerfile --platform linux/arm32,linux/arm64,linux/amd64 -t devedse/devemazegeneratorcoreweb .
