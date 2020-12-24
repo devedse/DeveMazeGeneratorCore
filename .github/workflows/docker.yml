@@ -32,6 +32,6 @@ jobs:
     - name: Available platforms
       run: echo ${{ steps.buildx.outputs.platforms }}
     - name: Run docker
-      run: docker build -f ./DeveMazeGeneratorCore.Web/dockerfile -t devedse/devemazegeneratorcoreweb .
+      run: docker build -f DeveMazeGeneratorCore.Web/Dockerfile -t devedse/devemazegeneratorcoreweb .
     - name: Run Buildx
       run: docker buildx build --platform linux/arm,linux/arm64,linux/amd64 -t devedse/devemazegeneratorcoreweb .
