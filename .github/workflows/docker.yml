@@ -34,5 +34,9 @@ jobs:
       run: echo ${{ steps.buildx.outputs.platforms }}
     # - name: Run docker
     #   run: docker build -f DeveMazeGeneratorCore.Web/Dockerfile -t devedse/devemazegeneratorcoreweb .
+    - name: Install stuff
+      run: |
+        sudo apt update
+        sudo apt install -y qemu qemu-user-static qemu-user binfmt-support
     - name: Run Buildx
       run: docker buildx build -f DeveMazeGeneratorCore.Web/Dockerfile --platform linux/arm,linux/arm64,linux/amd64 -t devedse/devemazegeneratorcoreweb .
