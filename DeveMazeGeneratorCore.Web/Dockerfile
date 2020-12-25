@@ -6,7 +6,7 @@ EXPOSE 80
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
-COPY /usr/bin/qemu-arm-static /usr/bin/qemu-arm-static
+# COPY /usr/bin/qemu-arm-static /usr/bin/qemu-arm-static
 WORKDIR /src
 COPY ["DeveMazeGeneratorCore.Web/DeveMazeGeneratorCore.Web.csproj", "DeveMazeGeneratorCore.Web/"]
 COPY ["DeveMazeGeneratorCore/DeveMazeGeneratorCore.csproj", "DeveMazeGeneratorCore/"]
