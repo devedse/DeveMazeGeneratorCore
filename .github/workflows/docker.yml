@@ -39,4 +39,4 @@ jobs:
     #     sudo apt update
     #     sudo apt install -y qemu qemu-user-static qemu-user binfmt-support
     - name: Run Buildx
-      run: docker buildx build -f DeveMazeGeneratorCore.Web/Dockerfile --platform linux/arm,linux/arm64,linux/amd64 -t devedse/devemazegeneratorcoreweb .
+      run: docker buildx build -f DeveMazeGeneratorCore.Web/Dockerfile --platform linux/arm,linux/arm64,linux/amd64 -t devedse/devemazegeneratorcoreweb --push .
