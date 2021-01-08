@@ -14,7 +14,7 @@ This is the new version of my maze generator, now made with .NET Core.
 
 | Docker Hub |
 |:----------:|
-| [![Docker pulls](https://img.shields.io/docker/pulls/devedse/devemazegeneratorcore.svg)](https://hub.docker.com/r/devedse/devemazegeneratorcore/) |
+| [![Docker pulls](https://img.shields.io/docker/v/devedse/devemazegeneratorcore)](https://hub.docker.com/r/devedse/devemazegeneratorcore/) |
 
 ## Intellicode
 
