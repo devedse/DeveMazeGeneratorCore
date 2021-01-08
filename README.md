@@ -10,10 +10,16 @@ This is the new version of my maze generator, now made with .NET Core.
 |:------------------------:|:------------------------:|:----------------------------------------:|:-----------------------------:|
 | [![Build Status](https://travis-ci.org/devedse/DeveMazeGeneratorCore.svg?branch=master)](https://travis-ci.org/devedse/DeveMazeGeneratorCore) | [![Build status](https://ci.appveyor.com/api/projects/status/ainctv2tnoxg2t86?svg=true)](https://ci.appveyor.com/project/devedse/devemazegeneratorcore) | [![.NET Core](https://github.com/devedse/DeveMazeGeneratorCore/workflows/.NET%20Core/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions?query=workflow%3A%22.NET+Core%22) | [![Docker](https://github.com/devedse/DeveMazeGeneratorCore/workflows/docker/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions?query=workflow%3Adocker) |
 
+## DockerHub
+
+| Docker Hub |
+|:----------:|
+| [![Docker pulls](https://img.shields.io/docker/pulls/devedse/devemazegeneratorcore.svg)](https://hub.docker.com/r/devedse/devemazegeneratorcore/) |
+
 ## Intellicode
 
 |  Github Actions (Intellicode) |
-|:----------------------------------------:|
+|:-----------------------------:|
 | [![Main IntelliCode Workflow](https://github.com/devedse/DeveMazeGeneratorCore/workflows/Main%20IntelliCode%20Workflow/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions?query=workflow%3A%22Main+IntelliCode+Workflow%22) |
 
 ## Code Coverage Status
