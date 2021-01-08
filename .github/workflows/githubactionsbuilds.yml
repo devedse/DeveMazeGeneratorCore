@@ -1,0 +1,103 @@
+name: docker
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  generate_version_number:
+    outputs:
+      build_number: ${{ steps.buildnumber.outputs.build_number }}
+    steps:
+    - name: Generate build number
+      id: buildnumber
+      uses: einaregilsson/build-number@v3 
+      with:
+        token: ${{secrets.github_token}}
+
+  build_docker:
+    needs: generate_version_number
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: devedse
+        password: ${{ secrets.DEVEMAZEGENERATORCOREGITHUBACTIONS }}
+    - name: Set up QEMU
+      id: qemu
+      uses: docker/setup-qemu-action@v1
+      with:
+        image: tonistiigi/binfmt:latest
+        platforms: all
+    - name: Available platforms
+      run: echo ${{ steps.qemu.outputs.platforms }}
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Builder instance name
+      run: echo ${{ steps.buildx.outputs.name }}
+    - name: Available platforms
+      run: echo ${{ steps.buildx.outputs.platforms }}
+    # - name: Run docker
+    #   run: docker build -f DeveMazeGeneratorCore.Web/Dockerfile -t devedse/devemazegeneratorcoreweb .
+    # - name: Install stuff
+    #   run: |
+    #     sudo apt update
+    #     sudo apt install -y qemu qemu-user-static qemu-user binfmt-support
+    - name: Run Buildx
+      run: |
+        export VERSION=1.0.$BUILD_NUMBER
+        echo Version: $VERSION
+        docker buildx build -f DeveMazeGeneratorCore.Web/Dockerfile --build-arg BUILD_VERSION=$VERSION --platform linux/arm,linux/arm64,linux/amd64 -t devedse/devemazegeneratorcoreweb --push .
+
+  build_linux:
+    needs: generate_version_number
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Install dependencies
+      run: dotnet restore DeveMazeGeneratorCore.sln
+    - name: Build
+      run: dotnet build DeveMazeGeneratorCore.sln --configuration Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+    - name: Test
+      run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
+
+  build_windows:
+    needs: generate_version_number
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Install dependencies
+      run: dotnet restore DeveMazeGeneratorCore.sln
+    - name: Build
+      run: dotnet build DeveMazeGeneratorCore.sln --configuration Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+    - name: Test
+      run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
+
+  intellicode:
+    needs: generate_version_number
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # We need to fetch the entire Git history in order to verify the authenticity.
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Build with dotnet
+      run: dotnet build DeveMazeGeneratorCore.sln --configuration Release /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} # Project needs to build before training a model.
+    - name: Train Intellicode Model
+      uses: microsoft/vs-intellicode@v1
