@@ -5,8 +5,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
-COPY /usr/bin/qemu-arm-static /usr/bin/qemu-arm-static
+FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim-amd64 AS build
 WORKDIR /src
 COPY ["DeveMazeGeneratorCore.Web/DeveMazeGeneratorCore.Web.csproj", "DeveMazeGeneratorCore.Web/"]
 COPY ["DeveMazeGeneratorCore/DeveMazeGeneratorCore.csproj", "DeveMazeGeneratorCore/"]
@@ -18,7 +17,7 @@ RUN dotnet build "DeveMazeGeneratorCore.Web.csproj" -c Release -o /app/build
 FROM build AS publish
 ARG BUILD_VERSION
 ARG VER=${BUILD_VERSION:-1.0.0}
-RUN dotnet publish "DeveMazeGeneratorCore.Web.csproj" -c Release -o /app/publish /p:Version=$VER
+RUN dotnet publish "DeveMazeGeneratorCore.Web.csproj" -c Release -o /app/publish /p:Version=$VER /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
