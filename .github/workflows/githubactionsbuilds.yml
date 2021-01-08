@@ -8,6 +8,7 @@ on:
 
 jobs:
   generate_version_number:
+    runs-on: ubuntu-latest
     outputs:
       build_number: ${{ steps.buildnumber.outputs.build_number }}
     steps:
