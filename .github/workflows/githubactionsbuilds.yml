@@ -90,6 +90,11 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
+    - uses: actions/setup-java@v1
+      with:
+        java-version: '15' # The JDK version to make available on the path.
+        java-package: jdk # (jre, jdk, or jdk+fx) - defaults to jdk
+        architecture: x64 # (x64 or x86) - defaults to x64
     - name: Install tools
       run: |
         dotnet tool install --global dotnet-sonarscanner
@@ -104,7 +109,6 @@ jobs:
       run: dotnet test DeveMazeGeneratorCore.sln --verbosity normal --no-build -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=\`"cobertura,opencover\`" /p:CoverletOutput=./TestResults/Coverage/
     - name: SonarQube end
       env:
-        # to get access to secrets.SONAR_TOKEN, provide GITHUB_TOKEN
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: dotnet-sonarscanner end /d:sonar.login=${{secrets.SONARQUBETOKEN}}
     - name: Run CodeCov #codecov -f ".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml"
