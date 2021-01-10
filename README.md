@@ -12,7 +12,7 @@ This is the new version of my maze generator, now made with .NET Core.
 
 | GitHubActions Builds |
 |:--------------------:|
-| [![Docker](https://github.com/devedse/DeveMazeGeneratorCore/workflows/GitHubActionsBuilds/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions?query=GitHubActionsBuilds) |
+| [![GitHubActions Builds](https://github.com/devedse/DeveMazeGeneratorCore/workflows/GitHubActionsBuilds/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions?query=GitHubActionsBuilds) |
 
 ## DockerHub
 
@@ -24,7 +24,7 @@ This is the new version of my maze generator, now made with .NET Core.
 
 |  Github Actions (Intellicode) |
 |:-----------------------------:|
-| [![Main IntelliCode Workflow](https://github.com/devedse/DeveMazeGeneratorCore/workflows/Main%20IntelliCode%20Workflow/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions?query=workflow%3A%22Main+IntelliCode+Workflow%22) |
+| [![GitHubActions Builds](https://github.com/devedse/DeveMazeGeneratorCore/workflows/GitHubActionsBuilds/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions?query=GitHubActionsBuilds) |
 
 ## Code Coverage Status
 
