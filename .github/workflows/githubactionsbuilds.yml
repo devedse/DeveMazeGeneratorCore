@@ -49,6 +49,22 @@ jobs:
         echo Version: $VERSION
         docker buildx build -f DeveMazeGeneratorCore.Web/Dockerfile --build-arg BUILD_VERSION=$VERSION --platform linux/arm,linux/arm64,linux/amd64 -t devedse/devemazegeneratorcoreweb:${{needs.generate_version_number.outputs.build_number}} -t devedse/devemazegeneratorcoreweb:latest --push .
 
+  intellicode:
+    needs: generate_version_number
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # We need to fetch the entire Git history in order to verify the authenticity.
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Build with dotnet
+      run: dotnet build DeveMazeGeneratorCore.sln --configuration Release /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} # Project needs to build before training a model.
+    - name: Train Intellicode Model
+      uses: microsoft/vs-intellicode@v1
+
   build_linux:
     needs: generate_version_number
     runs-on: ubuntu-latest
@@ -80,19 +96,3 @@ jobs:
       run: dotnet build DeveMazeGeneratorCore.sln --configuration Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Test
       run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
-
-  intellicode:
-    needs: generate_version_number
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0 # We need to fetch the entire Git history in order to verify the authenticity.
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.x
-    - name: Build with dotnet
-      run: dotnet build DeveMazeGeneratorCore.sln --configuration Release /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} # Project needs to build before training a model.
-    - name: Train Intellicode Model
-      uses: microsoft/vs-intellicode@v1

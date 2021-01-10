@@ -18,13 +18,13 @@ before_build:
   - choco install 7zip
 
 build_script:
-  - SonarScanner.MSBuild.exe begin /k:"DeveMazeGeneratorCore" /o:"devedse-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=%sonarqubetoken% /d:sonar.cs.opencover.reportsPaths=".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml" /d:sonar.coverage.exclusions="DeveMazeGeneratorCore.ConsoleApp/**/*.cs,DeveMazeGeneratorCore.Tests/**/*.cs"
+  #- SonarScanner.MSBuild.exe begin /k:"DeveMazeGeneratorCore" /o:"devedse-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=%sonarqubetoken% /d:sonar.cs.opencover.reportsPaths=".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml" /d:sonar.coverage.exclusions="DeveMazeGeneratorCore.ConsoleApp/**/*.cs,DeveMazeGeneratorCore.Tests/**/*.cs"
   - dotnet build DeveMazeGeneratorCore.sln -c Release /p:Version=%APPVEYOR_BUILD_VERSION%
   #- OpenCover.Console.exe -register:user -target:"dotnet.exe" -targetargs:"test .\DeveMazeGeneratorCore.Tests\DeveMazeGeneratorCore.Tests.csproj -c Release" -oldstyle -returntargetcode -output:.\DeveMazeGeneratorCore.Coverage.xml -filter:"+[DeveMazeGeneratorCore*]*"
   - dotnet test DeveMazeGeneratorCore.sln --no-build -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=\"cobertura,opencover\" /p:CoverletOutput=./TestResults/Coverage/
-  - SonarScanner.MSBuild.exe end /d:sonar.login=%sonarqubetoken%
-  - codecov -f ".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml"
-  - reportgenerator -reports:.\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml -targetdir:.\DeveMazeGeneratorCore.Tests\TestResults\Coverage\HtmlInline\ -reporttypes:HtmlInline_AzurePipelines
+  #- SonarScanner.MSBuild.exe end /d:sonar.login=%sonarqubetoken%
+  #- codecov -f ".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml"
+  #- reportgenerator -reports:.\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml -targetdir:.\DeveMazeGeneratorCore.Tests\TestResults\Coverage\HtmlInline\ -reporttypes:HtmlInline_AzurePipelines
  
 after_test:
   - dotnet pack DeveMazeGeneratorCore\DeveMazeGeneratorCore.csproj -c Release /p:Version=%APPVEYOR_BUILD_VERSION%
@@ -43,11 +43,11 @@ artifacts:
 - path: Scripts\Output\CodeCoverageReport.7z
   name: CodeCoverageReport
 
-deploy:
-- provider: GitHub
-  auth_token:
-    secure: do7S++r1rE5E3IZujCoMONsWYJNF7eoRoPyJbxSD851I850OlEq0gsHH/Tji7o00
-  artifact: droppackage7z,droppackagezip,nugetPackages,snugetPackages
-- provider: NuGet
-  api_key:
-    secure: Pm44PxW8K2yScSQE7qcixZYcc4w2Z7xiX4zjuiU+SyNLGaOsosm6pitLOwhfPidp
+# deploy:
+# - provider: GitHub
+#   auth_token:
+#     secure: do7S++r1rE5E3IZujCoMONsWYJNF7eoRoPyJbxSD851I850OlEq0gsHH/Tji7o00
+#   artifact: droppackage7z,droppackagezip,nugetPackages,snugetPackages
+# - provider: NuGet
+#   api_key:
+#     secure: Pm44PxW8K2yScSQE7qcixZYcc4w2Z7xiX4zjuiU+SyNLGaOsosm6pitLOwhfPidp
