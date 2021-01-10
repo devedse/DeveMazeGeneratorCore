@@ -103,6 +103,9 @@ jobs:
     - name: Test
       run: dotnet test DeveMazeGeneratorCore.sln --verbosity normal --no-build -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=\`"cobertura,opencover\`" /p:CoverletOutput=./TestResults/Coverage/
     - name: SonarQube end
+      env:
+        # to get access to secrets.SONAR_TOKEN, provide GITHUB_TOKEN
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: dotnet-sonarscanner end /d:sonar.login=${{secrets.SONARQUBETOKEN}}
     - name: Run CodeCov #codecov -f ".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml"
       uses: codecov/codecov-action@v1
