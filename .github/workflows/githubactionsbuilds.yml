@@ -120,3 +120,61 @@ jobs:
         #name: codecov-umbrella # optional
         #fail_ci_if_error: true # optional (default = false)
         verbose: true # optional (default = false)
+
+
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: 1.0.${{needs.generate_version_number.outputs.build_number}}
+        body: |
+          ${{ github.event.head_commit.message }}
+        draft: false
+        prerelease: false
+    - name: Run a one-line script
+      run: .\Script\GoPackage.ps1
+        shell: powershell
+    - name: Upload Release Asset droppackage7z
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Scripts/Output/DeveMazeGeneratorCore.7z
+        asset_name: droppackage7z
+        asset_content_type: application/x-7z-compressed
+    - name: Upload Release Asset droppackagezip
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Scripts/Output/DeveMazeGeneratorCore.zip
+        asset_name: droppackagezip
+        asset_content_type: application/zip
+    - name: Upload Release Asset nugetPackages
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./DeveMazeGeneratorCore/bin/Release/DeveMazeGeneratorCore.1.0.${{ steps.create_release.outputs.upload_url }}.nupkg
+        asset_name: nugetPackages
+        #asset_content_type: application/zip
+    - name: Upload Release Asset snugetPackages
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./DeveMazeGeneratorCore/bin/Release/DeveMazeGeneratorCore.1.0.${{ steps.create_release.outputs.upload_url }}.snupkg
+        asset_name: snugetPackages
+        #asset_content_type: application/zip
