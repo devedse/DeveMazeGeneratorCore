@@ -101,7 +101,7 @@ jobs:
     - name: Build
       run: dotnet build DeveMazeGeneratorCore.sln -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Test
-      run: dotnet test DeveMazeGeneratorCore.sln --verbosity normal --no-build -c Release /p:CollectCoverage=true /p:CoverletOutputFormat="cobertura,opencover" /p:CoverletOutput=./TestResults/Coverage/
+      run: dotnet test DeveMazeGeneratorCore.sln --verbosity normal --no-build -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=\"cobertura,opencover\" /p:CoverletOutput=./TestResults/Coverage/
     - name: SonarQube end
       run: dotnet-sonarscanner end
     - name: Run CodeCov #codecov -f ".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml"
