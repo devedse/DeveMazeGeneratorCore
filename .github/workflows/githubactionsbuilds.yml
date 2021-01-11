@@ -129,7 +129,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
       with:
-        tag_name: ${{ github.ref }}
+        tag_name: 1.0.${{needs.generate_version_number.outputs.build_number}}
         release_name: 1.0.${{needs.generate_version_number.outputs.build_number}}
         body: |
           ${{ github.event.head_commit.message }}
