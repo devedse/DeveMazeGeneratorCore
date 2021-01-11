@@ -135,7 +135,7 @@ jobs:
           ${{ github.event.head_commit.message }}
         draft: false
         prerelease: false
-    - name: Run a one-line script
+    - name: Run GoPackage.ps1 script
       run: .\Scripts\GoPackage.ps1
       shell: powershell
     - uses: actions/upload-artifact@v2
