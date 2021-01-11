@@ -144,5 +144,5 @@ jobs:
         path: |
           ./Scripts/Output/DeveMazeGeneratorCore.7z
           ./Scripts/Output/DeveMazeGeneratorCore.zip
-          ./DeveMazeGeneratorCore/bin/Release/DeveMazeGeneratorCore.1.0.${{ steps.create_release.outputs.upload_url }}.nupkg
-          ./DeveMazeGeneratorCore/bin/Release/DeveMazeGeneratorCore.1.0.${{ steps.create_release.outputs.upload_url }}.snupkg
+          ./DeveMazeGeneratorCore/bin/Release/*.nupkg
+          ./DeveMazeGeneratorCore/bin/Release/*.snupkg
