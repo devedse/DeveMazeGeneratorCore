@@ -136,7 +136,7 @@ jobs:
         draft: false
         prerelease: false
     - name: Run a one-line script
-      run: .\Script\GoPackage.ps1
+      run: .\Scripts\GoPackage.ps1
       shell: powershell
     - uses: actions/upload-artifact@v2
       with:
