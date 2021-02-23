@@ -86,10 +86,13 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core
+    - name: Setup .NET Core @ Latest
       uses: actions/setup-dotnet@v1
       with:
+        source-url: https://nuget.pkg.github.com/<organization>/index.json
         dotnet-version: 5.0.x
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}        
     - uses: actions/setup-java@v1
       with:
         java-version: '15' # The JDK version to make available on the path.
@@ -152,3 +155,7 @@ jobs:
           ./DeveMazeGeneratorCore/bin/Release/*.snupkg
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+    - name: Push NuGet
+      run: dotnet nuget push ./DeveMazeGeneratorCore/bin/Release/*.nupkg -k ${{ secrets.NUGETTOKEN }}
