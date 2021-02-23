@@ -12,7 +12,7 @@ This is the new version of my maze generator, now made with .NET Core.
 
 | GitHubActions Builds |
 |:--------------------:|
-| [![GitHubActions Builds](https://github.com/devedse/DeveMazeGeneratorCore/workflows/GitHubActionsBuilds/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions?query=GitHubActionsBuilds) |
+| [![GitHubActions Builds](https://github.com/devedse/DeveMazeGeneratorCore/workflows/GitHubActionsBuilds/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions/workflows/githubactionsbuilds.yml) |
 
 ## DockerHub
 
