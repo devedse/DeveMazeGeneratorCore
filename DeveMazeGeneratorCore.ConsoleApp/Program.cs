@@ -26,6 +26,38 @@ namespace DeveMazeGeneratorCore.ConsoleApp
             }
         }
 
+        public static void CreateIcons()
+        {
+            int size = 16;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var alg = new AlgorithmBacktrack2Deluxe2();
+
+                Console.WriteLine($"Generating maze using {alg.GetType().Name}...");
+
+                int seed = i;
+
+                var w = Stopwatch.StartNew();
+
+                var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>(size, size);
+                var randomFactory = new RandomFactory<XorShiftRandom>(seed);
+
+                var actionThing = new NoAction();
+
+                var maze = alg.GoGenerate2(innerMapFactory, randomFactory, actionThing);
+                w.Stop();
+
+
+                var path = PathFinderDepthFirstSmartWithPos.GoFind(maze, null);
+
+                using (var fs = new FileStream($"icon{seed}.png", FileMode.Create))
+                {
+                    WithPath.SaveMazeAsImageDeluxePng(maze, path, fs);
+                }
+            }
+        }
+
         public static void ActualBenchmark()
         {
             int size = 16384;

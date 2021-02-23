@@ -6,6 +6,7 @@
     <PackageId>DeveMazeGeneratorConsole</PackageId>
     <TargetFramework>net5.0</TargetFramework>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <ApplicationIcon>IconBig.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
