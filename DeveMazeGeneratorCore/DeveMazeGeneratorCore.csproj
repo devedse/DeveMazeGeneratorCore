@@ -34,8 +34,4 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="IconBig.png" />
-  </ItemGroup>
-
 </Project>
