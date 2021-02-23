@@ -158,4 +158,4 @@ jobs:
 
 
     - name: Push NuGet
-      run: dotnet nuget push ./DeveMazeGeneratorCore/bin/Release/DeveMazeGeneratorCore.1.0.${{needs.generate_version_number.outputs.build_number}}.nupkg -k ${{ secrets.NUGETTOKEN }}
+      run: dotnet nuget push ./DeveMazeGeneratorCore/bin/Release/DeveMazeGeneratorCore.1.0.${{needs.generate_version_number.outputs.build_number}}.nupkg -k ${{ secrets.NUGETTOKEN }} -s https://api.nuget.org/v3/index.json
