@@ -19,9 +19,12 @@
     <!-- Optional: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <ApplicationIcon>IconBig.ico</ApplicationIcon>
-	<Icon>../Icon/IconBig.png</Icon>
+	<PackageIcon>IconBig.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+	  <None Include="..\Icon\IconBig.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
@@ -29,6 +32,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="IconBig.png" />
   </ItemGroup>
 
 </Project>
