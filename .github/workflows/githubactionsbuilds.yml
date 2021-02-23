@@ -141,8 +141,8 @@ jobs:
   
     - name: Release
       uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
       with:
+        tag_name: 1.0.${{needs.generate_version_number.outputs.build_number}}
         files: |
           ./Scripts/Output/DeveMazeGeneratorCore.7z
           ./Scripts/Output/DeveMazeGeneratorCore.zip
