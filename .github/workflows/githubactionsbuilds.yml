@@ -138,11 +138,14 @@ jobs:
     - name: Run GoPackage.ps1 script
       run: .\Scripts\GoPackage.ps1
       shell: powershell
-    - uses: actions/upload-artifact@v2
+  
+    - name: Release
+      uses: softprops/action-gh-release@v1
       with:
-        name: my-artifact
-        path: |
+        files: |
           ./Scripts/Output/DeveMazeGeneratorCore.7z
           ./Scripts/Output/DeveMazeGeneratorCore.zip
           ./DeveMazeGeneratorCore/bin/Release/*.nupkg
           ./DeveMazeGeneratorCore/bin/Release/*.snupkg
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
