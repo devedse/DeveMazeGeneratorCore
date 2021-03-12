@@ -56,6 +56,8 @@ This is the new version of my maze generator, now made with .NET Core.
 
 ### Travis
 
+**Obsolete**
+
 The Travis build will also run publish and then create a docker image which is automatically published to here:
 https://hub.docker.com/r/devedse/devemazegeneratorcore/
 
@@ -66,6 +68,8 @@ Azure will also do a seperate deployment/build when a push to git has occured:
 http://devemazegeneratorcoreweb.azurewebsites.net/api/mazes/MazePath/512/512
 
 ### AppVeyor:
+
+**Obsolete**
 
 AppVeyor will create a number of build artefacts which are added as releases on Github so they can be downloaded:
 * DeveMazeGeneratorCore.7z (Build output as 7z)
