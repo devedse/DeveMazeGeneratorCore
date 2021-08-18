@@ -20,12 +20,6 @@ This is the new version of my maze generator, now made with .NET Core.
 |:----------:|
 | [![Docker pulls](https://img.shields.io/docker/v/devedse/devemazegeneratorcoreweb)](https://hub.docker.com/r/devedse/devemazegeneratorcoreweb/) |
 
-## Intellicode
-
-|  Github Actions (Intellicode) |
-|:-----------------------------:|
-| [![GitHubActions Builds](https://github.com/devedse/DeveMazeGeneratorCore/workflows/GitHubActionsBuilds/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions?query=GitHubActionsBuilds) |
-
 ## Code Coverage Status
 
 | CodeCov |

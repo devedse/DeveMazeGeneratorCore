@@ -5,6 +5,7 @@ using DeveMazeGeneratorCore.Generators.SpeedOptimization;
 using DeveMazeGeneratorCore.Helpers;
 using DeveMazeGeneratorCore.Imageification;
 using DeveMazeGeneratorCore.InnerMaps;
+using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.PathFinders;
 using System;
 using System.Diagnostics;
@@ -16,6 +17,8 @@ namespace DeveMazeGeneratorCore.ConsoleApp
     {
         public static void Main(string[] args)
         {
+            TestWithGenerics();
+
             TestWithSave();
 
             while (true)
@@ -24,6 +27,11 @@ namespace DeveMazeGeneratorCore.ConsoleApp
 
                 Console.ReadKey();
             }
+        }
+
+        public static void TestWithGenerics()
+        {
+            var result = MazeGenerator.Generate<AlgorithmBacktrack2Deluxe, BitArreintjeFastInnerMap, XorShiftRandom>(16384, 16384, null);
         }
 
         public static void CreateIcons()
