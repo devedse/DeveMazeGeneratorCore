@@ -4,7 +4,6 @@ using DeveMazeGeneratorCore.Generators.SpeedOptimization;
 using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.Structures;
-using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -12,12 +11,12 @@ namespace DeveMazeGeneratorCore.Generators
 {
     public class AlgorithmBacktrack2Deluxe : IAlgorithm<Maze>
     {
-        public Maze GoGenerate<M, TAction>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, TAction pixelChangedCallback)
+        public Maze GoGenerate<M, TAction>(int width, int height, int seed, IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, TAction pixelChangedCallback)
             where M : InnerMap
             where TAction : struct, IProgressAction
         {
-            var innerMap = mapFactory.Create();
-            var random = randomFactory.Create();
+            var innerMap = mapFactory.Create(width, height);
+            var random = randomFactory.Create(seed);
 
             return GoGenerateInternal(innerMap, random, pixelChangedCallback);
         }
@@ -86,7 +85,7 @@ namespace DeveMazeGeneratorCore.Generators
                 }
             }
 
-            return new Maze<M>(map);
+            return new Maze(map);
         }
     }
 }

@@ -8,12 +8,12 @@ namespace DeveMazeGeneratorCore.InnerMaps
     /// 0 = False = Wall = Black
     /// 1 = True = Empty = White
     /// </summary>
-    public abstract class InnerMap
+    public abstract class InnerMap : IMapPart
     {
-        /// <summary>
-        /// This data can be used by some algorithms to also generate path data
-        /// </summary>
-        public InnerMap PathData { get; set; }
+        ///// <summary>
+        ///// This data can be used by some algorithms to also generate path data
+        ///// </summary>
+        //public InnerMap PathData { get; set; }
 
         public int Width { get; private set; }
         public int Height { get; private set; }

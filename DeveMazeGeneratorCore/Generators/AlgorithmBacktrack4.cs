@@ -2,28 +2,21 @@
 using DeveMazeGeneratorCore.Generators.Helpers;
 using DeveMazeGeneratorCore.Generators.SpeedOptimization;
 using DeveMazeGeneratorCore.InnerMaps;
+using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.Structures;
-using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace DeveMazeGeneratorCore.Generators
 {
-    public class AlgorithmBacktrack4 : Algorithm
+    public class AlgorithmBacktrack4 : IAlgorithm<Maze>
     {
-        public override InnerMap GoGenerate<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
+        public Maze GoGenerate<M, TAction>(int width, int height, int seed, IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, TAction pixelChangedCallback)
+            where M : InnerMap
+            where TAction : struct, IProgressAction
         {
-            return null;
-            //var innerMap = mapFactory.Create();
-            //var random = randomFactory.Create();
-
-            //return GoGenerateInternal(innerMap, random, pixelChangedCallback);
-        }
-
-        public InnerMap GoGenerate2<M, TAction>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, TAction pixelChangedCallback) where M : InnerMap where TAction : struct, IProgressAction
-        {
-            var innerMap = mapFactory.Create();
-            var random = randomFactory.Create();
+            var innerMap = mapFactory.Create(width, height);
+            var random = randomFactory.Create(seed);
 
             return GoGenerateInternal(innerMap, random, pixelChangedCallback);
         }
@@ -65,7 +58,7 @@ namespace DeveMazeGeneratorCore.Generators
             }
         }
 
-        private InnerMap GoGenerateInternal<TAction>(InnerMap map, IRandom random, TAction pixelChangedCallback) where TAction : struct, IProgressAction
+        private Maze GoGenerateInternal<M, TAction>(M map, IRandom random, TAction pixelChangedCallback) where M : InnerMap where TAction : struct, IProgressAction
         {
             long totSteps = (map.Width - 1L) / 2L * ((map.Height - 1L) / 2L);
             long currentStep = 1;
@@ -268,7 +261,7 @@ namespace DeveMazeGeneratorCore.Generators
                     }
                 }
             }
-            return map;
+            return new Maze(map);
         }
 
     }

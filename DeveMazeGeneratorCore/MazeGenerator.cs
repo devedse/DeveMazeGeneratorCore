@@ -38,19 +38,19 @@ namespace DeveMazeGeneratorCore
             where InnerMapType : InnerMap
             where RandomType : IRandom
         {
-            var innerMapFactory = new InnerMapFactory<InnerMapType>(width, height);
-            var randomFactory = new RandomFactory<RandomType>(seed);
+            var innerMapFactory = new InnerMapFactory<InnerMapType>();
+            var randomFactory = new RandomFactory<RandomType>();
 
             var alg = new AlgorithmType();
 
             if (pixelChangedCallback == null)
             {
-                var test = alg.GoGenerate(innerMapFactory, randomFactory, new NoAction());
+                var test = alg.GoGenerate(width, height, seed, innerMapFactory, randomFactory, new NoAction());
                 return test;
             }
             else
             {
-                return alg.GoGenerate(innerMapFactory, randomFactory, new ProgressAction(pixelChangedCallback));
+                return alg.GoGenerate(width, height, seed, innerMapFactory, randomFactory, new ProgressAction(pixelChangedCallback));
             }
         }
     }

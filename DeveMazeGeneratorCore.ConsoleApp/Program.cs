@@ -8,6 +8,7 @@ using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.PathFinders;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -17,12 +18,18 @@ namespace DeveMazeGeneratorCore.ConsoleApp
     {
         public static void Main(string[] args)
         {
+            Console.WriteLine(nameof(TestWithGenerics));
             TestWithGenerics();
 
+            Console.WriteLine(nameof(TestWithSave));
             TestWithSave();
+
+            Console.WriteLine(nameof(Test7));
+            Test7();
 
             while (true)
             {
+                Console.WriteLine(nameof(ActualBenchmark2));
                 ActualBenchmark2();
 
                 Console.ReadKey();
@@ -48,20 +55,20 @@ namespace DeveMazeGeneratorCore.ConsoleApp
 
                 var w = Stopwatch.StartNew();
 
-                var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>(size, size);
-                var randomFactory = new RandomFactory<XorShiftRandom>(seed);
+                var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
+                var randomFactory = new RandomFactory<XorShiftRandom>();
 
                 var actionThing = new NoAction();
 
-                var maze = alg.GoGenerate2(innerMapFactory, randomFactory, actionThing);
+                var maze = alg.GoGenerate(size, size, seed, innerMapFactory, randomFactory, actionThing);
                 w.Stop();
 
 
-                var path = PathFinderDepthFirstSmartWithPos.GoFind(maze, null);
+                var path = PathFinderDepthFirstSmartWithPos.GoFind(maze.InnerMap, null);
 
                 using (var fs = new FileStream($"icon{seed}.png", FileMode.Create))
                 {
-                    WithPath.SaveMazeAsImageDeluxePng(maze, path, fs);
+                    WithPath.SaveMazeAsImageDeluxePng(maze.InnerMap, path, fs);
                 }
             }
         }
@@ -71,15 +78,13 @@ namespace DeveMazeGeneratorCore.ConsoleApp
             int size = 16384;
             var fastestElapsed = TimeSpan.MaxValue;
 
-            var alg = new AlgorithmBacktrack();
-
-            Console.WriteLine($"Generating mazes using {alg.GetType().Name}...");
 
             int seed = 1337;
             while (true)
             {
                 var w = Stopwatch.StartNew();
-                var maze = alg.Generate<BitArreintjeFastInnerMap, XorShiftRandom>(size, size, seed, null);
+                Console.WriteLine($"Generating mazes using {nameof(AlgorithmBacktrack)}...");
+                var maze = MazeGenerator.Generate<AlgorithmBacktrack, BitArreintjeFastInnerMap, XorShiftRandom>(size, size, null);
                 w.Stop();
 
                 bool foundFastest = false;
@@ -108,12 +113,12 @@ namespace DeveMazeGeneratorCore.ConsoleApp
             {
                 var w = Stopwatch.StartNew();
 
-                var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>(size, size);
-                var randomFactory = new RandomFactory<XorShiftRandom>(seed);
+                var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
+                var randomFactory = new RandomFactory<XorShiftRandom>();
 
                 var actionThing = new NoAction();
 
-                var maze = alg.GoGenerate2(innerMapFactory, randomFactory, actionThing);
+                var maze = alg.GoGenerate(size, size, seed, innerMapFactory, randomFactory, actionThing);
                 w.Stop();
 
                 bool foundFastest = false;
@@ -164,27 +169,27 @@ namespace DeveMazeGeneratorCore.ConsoleApp
 
             var w = Stopwatch.StartNew();
 
-            var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>(size, size);
-            var randomFactory = new RandomFactory<XorShiftRandom>(seed);
+            var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
+            var randomFactory = new RandomFactory<XorShiftRandom>();
 
             var actionThing = new NoAction();
 
-            var maze = alg.GoGenerate2(innerMapFactory, randomFactory, actionThing);
+            var maze = alg.GoGenerate(size, size, seed, innerMapFactory, randomFactory, actionThing);
             w.Stop();
 
             using (var fs = new FileStream($"SmallTestGeneratedMazeNoPath{alg.GetType().Name}.png", FileMode.Create))
             {
-                WithPath.SaveMazeAsImageDeluxePng(maze, new System.Collections.Generic.List<Structures.MazePointPos>(), fs);
+                WithPath.SaveMazeAsImageDeluxePng(maze.InnerMap, new List<Structures.MazePointPos>(), fs);
             }
 
             Console.WriteLine($"Generation time: {w.Elapsed}");
 
 
-            var path = PathFinderDepthFirstSmartWithPos.GoFind(maze, null);
+            var path = PathFinderDepthFirstSmartWithPos.GoFind(maze.InnerMap, null);
 
             using (var fs = new FileStream($"SmallTestGeneratedMaze{alg.GetType().Name}.png", FileMode.Create))
             {
-                WithPath.SaveMazeAsImageDeluxePng(maze, path, fs);
+                WithPath.SaveMazeAsImageDeluxePng(maze.InnerMap, path, fs);
             }
 
 
@@ -199,12 +204,11 @@ namespace DeveMazeGeneratorCore.ConsoleApp
         {
             int size = 1024;
 
-            var alg = new AlgorithmDivisionDynamicWithPath();
-            var maze = alg.GenerateWithPath<BitArreintjeFastInnerMap, NetRandom>(size, size, 1337, null);
+            var maze = (MazeWithPathAsInnerMap)MazeGenerator.Generate<AlgorithmDivisionDynamicWithPath, BitArreintjeFastInnerMap, XorShiftRandom>(size, size, null);
 
             using (var fs = new FileStream("DivisionDynamicWithPath.png", FileMode.Create))
             {
-                WithPath.SaveMazeAsImageDeluxePng(maze, maze.PathData, fs);
+                WithPath.SaveMazeAsImageDeluxePng(maze.InnerMap, maze.PathMap, fs);
             }
 
             //var alg = new AlgorithmDivisionDynamic();
@@ -220,45 +224,18 @@ namespace DeveMazeGeneratorCore.ConsoleApp
         {
             int size = 4096;
 
-            var alg = new AlgorithmKruskal();
             var w = Stopwatch.StartNew();
-            var maze = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(size, size, 1337, null);
+            var maze = MazeGenerator.Generate<AlgorithmKruskal, BitArreintjeFastInnerMap, NetRandom>(size, size, null);
             Console.WriteLine($"Generation time: {w.Elapsed}");
 
             w.Restart();
-            var result = MazeVerifier.IsPerfectMaze(maze);
+            var result = MazeVerifier.IsPerfectMaze(maze.InnerMap);
             Console.WriteLine($"Perfect maze verification time: {w.Elapsed}");
             Console.WriteLine($"Is our maze perfect?: {result}");
 
             using (var fs = new FileStream("KruskalMaze.png", FileMode.Create))
             {
-                WithoutPath.MazeToImage(maze, fs);
-            }
-        }
-
-        public static void Test5()
-        {
-            var map = new BitArreintjeFastInnerMap(128, 128);
-
-            for (int y = 33; y < 96; y++)
-            {
-                for (int x = 33; x < 96; x++)
-                {
-                    map[x, y] = true;
-                }
-            }
-
-            var mapFactory = new InnerMapFactoryCustom<BitArreintjeFastInnerMap>(map);
-            var randomFactory = new RandomFactory<NetRandom>(1337);
-
-            var algorithm = new AlgorithmBacktrack();
-            var generatedMap = algorithm.GoGenerate(mapFactory, randomFactory, null);
-
-            var path = PathFinderDepthFirstSmartWithPos.GoFind(map, null);
-
-            using (var fs = new FileStream("GeneratingAMazeWithABlockInTheMiddleWorks.png", FileMode.Create))
-            {
-                WithPath.SaveMazeAsImageDeluxePng(map, path, fs);
+                WithoutPath.MazeToImage(maze.InnerMap, fs);
             }
         }
 
@@ -266,11 +243,9 @@ namespace DeveMazeGeneratorCore.ConsoleApp
         {
             int size = 128;
 
-            var alg = new AlgorithmDivisionDynamic();
-            var maze = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(size, size, 1337, null);
+            var maze = MazeGenerator.Generate<AlgorithmDivisionDynamic, BitArreintjeFastInnerMap, XorShiftRandom>(size, size, null);
 
-            WithoutPath.SaveMaze(Path.Combine($"dinges.png"), maze);
-
+            WithoutPath.SaveMaze(Path.Combine($"dinges.png"), maze.InnerMap);
 
             var otherThing = new AlgorithmDivisionDynamicOldTestingThing(size, size, 1337);
 
@@ -358,18 +333,16 @@ namespace DeveMazeGeneratorCore.ConsoleApp
 
         public static void Test1()
         {
-            var alg = new AlgorithmBacktrack();
-
             int size = 16384;
 
             var w = Stopwatch.StartNew();
-            var map = alg.Generate<BitArreintjeFastInnerMap, XorShiftRandom>(size, size, null);
+            var maze = MazeGenerator.Generate<AlgorithmBacktrack, BitArreintjeFastInnerMap, XorShiftRandom>(size, size, null);
 
             Console.WriteLine($"Generated maze in {w.Elapsed}");
             Console.WriteLine("Saving maze...");
 
             w.Restart();
-            WithoutPath.SaveMaze("output.png", map);
+            WithoutPath.SaveMaze("output.png", maze.InnerMap);
 
             Console.WriteLine($"Saved maze in: {w.Elapsed}");
 
