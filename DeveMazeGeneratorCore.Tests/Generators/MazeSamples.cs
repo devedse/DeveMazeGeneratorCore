@@ -1,6 +1,7 @@
 ﻿using DeveMazeGeneratorCore.Factories;
 using DeveMazeGeneratorCore.Generators;
 using DeveMazeGeneratorCore.Generators.Helpers;
+using DeveMazeGeneratorCore.Generators.SpeedOptimization;
 using DeveMazeGeneratorCore.Imageification;
 using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.PathFinders;
@@ -25,10 +26,10 @@ namespace DeveMazeGeneratorCore.Tests.Generators
             }
 
             var mapFactory = new InnerMapFactoryCustom<BitArreintjeFastInnerMap>(map);
-            var randomFactory = new RandomFactory<NetRandom>(1337);
+            var randomFactory = new RandomFactory<NetRandom>();
 
             var algorithm = new AlgorithmBacktrack();
-            var generatedMap = algorithm.GoGenerate(mapFactory, randomFactory, null);
+            var generatedMap = algorithm.GoGenerate(128, 128, 1337, mapFactory, randomFactory, new NoAction());            
 
             var path = PathFinderDepthFirstSmartWithPos.GoFind(map, null);
 
