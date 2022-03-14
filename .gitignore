@@ -253,3 +253,4 @@ paket-files/
 
 # My stuff
 /Scripts/Docker/DeveMazeGeneratorCoreWebPublish
+.vscode
