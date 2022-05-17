@@ -1,32 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 using DeveMazeGeneratorCore.Factories;
+using DeveMazeGeneratorCore.Generators.SpeedOptimization;
 using DeveMazeGeneratorCore.Helpers;
 using DeveMazeGeneratorCore.InnerMaps;
+using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.Structures;
 
 namespace DeveMazeGeneratorCore.Generators
 {
-    public class AlgorithmDivisionDynamic : Algorithm
+    public class AlgorithmDivisionDynamic : IAlgorithm<Maze>
     {
         private const int tilesCached = 20;
         private const int tileSize = 64;
 
-        public override InnerMap GoGenerate<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
+        public Maze GoGenerate<M, TAction>(int width, int height, int seed, IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, TAction pixelChangedCallback)
+           where M : InnerMap
+           where TAction : struct, IProgressAction
         {
-            Func<int, int, int, int, InnerMap> generateAction = (x, y, widthPart, heightPart) => GenerateMapPart(x, y, mapFactory.Width, mapFactory.Height, widthPart, heightPart, mapFactory, randomFactory);
+            Func<int, int, int, int, M> generateAction = (x, y, widthPart, heightPart) => GenerateMapPart(x, y, width, height, widthPart, heightPart, mapFactory, randomFactory, seed);
             Action<InnerMap> storeAction = (x) => { };
 
-            var totalMap = new CachedInnerMap(mapFactory.Width, mapFactory.Height, tilesCached, Math.Min(Math.Min(mapFactory.Width, mapFactory.Height), tileSize), generateAction, storeAction);
-            return totalMap;
+            var gridSize = Math.Min(Math.Min(width, height), tileSize);
+            var totalMap = new CachedInnerMap2<M>(tilesCached, gridSize, generateAction, storeAction);
+            return new Maze(new ForwardingInnerMap(width, height, (x, y) => totalMap.GetMapPoint(x, y, t => t)));
         }
 
-        private InnerMap GenerateMapPart<M>(int xStart, int yStart, int width, int height, int widthPart, int heightPart, IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory) where M : InnerMap
+        private M GenerateMapPart<M>(int xStart, int yStart, int width, int height, int widthPart, int heightPart, IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, int seed) where M : InnerMap
         {
-            var random = randomFactory.Create();
+            var random = randomFactory.Create(seed);
 
             //InnerMap map = new BitArreintjeFastInnerMap(widthPart, heightPart) { StartX = xStart, StartY = yStart };
-            InnerMap map = mapFactory.Create(widthPart, heightPart, xStart, yStart);
+            var map = mapFactory.Create(widthPart, heightPart, xStart, yStart);
 
             //If the maze is out of screen
             var theRightEdge = Math.Max(xStart + widthPart - width, 0);
@@ -98,7 +103,8 @@ namespace DeveMazeGeneratorCore.Generators
 
                 //Console.WriteLine($"X: {curRect.X} Y: {curRect.Y} Width: {curRect.Width} Height: {curRect.Height}");
 
-                random.Reinitialise(curRect.Seed);
+                //random.Reinitialise(curRect.Seed);
+                random = randomFactory.Create(curRect.Seed);
 
                 bool horizontalSplit = true;
 

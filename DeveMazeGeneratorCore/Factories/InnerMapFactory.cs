@@ -4,18 +4,8 @@ namespace DeveMazeGeneratorCore.Factories
 {
     public class InnerMapFactory<T> : IInnerMapFactory<T> where T : InnerMap
     {
-        public int Width { get; }
-        public int Height { get; }
-
-        public InnerMapFactory(int width, int height)
+        public InnerMapFactory()
         {
-            Width = width;
-            Height = height;
-        }
-
-        public T Create()
-        {
-            return Create(Width, Height);
         }
 
         public T Create(int desiredWidth, int desiredHeight)

@@ -2,6 +2,7 @@
 using DeveMazeGeneratorCore.Generators.Helpers;
 using DeveMazeGeneratorCore.Imageification;
 using DeveMazeGeneratorCore.InnerMaps;
+using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.PathFinders;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -26,13 +27,11 @@ namespace DeveMazeGeneratorCore.Web.Controllers
         [HttpGet("Maze/{width}/{height}", Name = "GenerateMaze")]
         public ActionResult GenerateMaze(int width, int height)
         {
-            var alg = new AlgorithmDivisionDynamic();
-
-            var map = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(width, height, null);
+            var maze = MazeGenerator.Generate<AlgorithmBacktrack, BitArreintjeFastInnerMap, NetRandom>(width, height, null);
 
             using (var memoryStream = new MemoryStream())
             {
-                WithoutPath.MazeToImage(map, memoryStream);
+                WithoutPath.MazeToImage(maze.InnerMap, memoryStream);
 
                 var data = memoryStream.ToArray();
                 return File(data, "image/png");
@@ -43,20 +42,18 @@ namespace DeveMazeGeneratorCore.Web.Controllers
         [HttpGet("MazePath/{width}/{height}", Name = "GenerateMazeWithPath")]
         public ActionResult GenerateMazeWithPath(int width, int height)
         {
-            var alg = new AlgorithmBacktrack();
-
             var w = Stopwatch.StartNew();
-            var map = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(width, height, null);
+            var maze = MazeGenerator.Generate<AlgorithmBacktrack, BitArreintjeFastInnerMap, NetRandom>(width, height, null);
             var mazeGenerationTime = w.Elapsed;
 
             w.Restart();
-            var path = PathFinderDepthFirstSmartWithPos.GoFind(map, null);
+            var path = PathFinderDepthFirstSmartWithPos.GoFind(maze.InnerMap, null);
             var pathGenerationTime = w.Elapsed;
 
             w.Restart();
             using (var memoryStream = new MemoryStream())
             {
-                WithPath.SaveMazeAsImageDeluxePng(map, path, memoryStream);
+                WithPath.SaveMazeAsImageDeluxePng(maze.InnerMap, path, memoryStream);
                 var toImageTime = w.Elapsed;
 
                 Console.WriteLine($"Maze generation time: {mazeGenerationTime}, Path find time: {pathGenerationTime}, To image time: {toImageTime}");
@@ -73,17 +70,17 @@ namespace DeveMazeGeneratorCore.Web.Controllers
             var alg = new AlgorithmBacktrack();
 
             var w = Stopwatch.StartNew();
-            var map = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(width, height, seed, null);
+            var maze = MazeGenerator.Generate<AlgorithmBacktrack, BitArreintjeFastInnerMap, NetRandom>(width, height, seed, null);
             var mazeGenerationTime = w.Elapsed;
 
             w.Restart();
-            var path = PathFinderDepthFirstSmartWithPos.GoFind(map, null);
+            var path = PathFinderDepthFirstSmartWithPos.GoFind(maze.InnerMap, null);
             var pathGenerationTime = w.Elapsed;
 
             w.Restart();
             using (var memoryStream = new MemoryStream())
             {
-                WithPath.SaveMazeAsImageDeluxePng(map, path, memoryStream);
+                WithPath.SaveMazeAsImageDeluxePng(maze.InnerMap, path, memoryStream);
                 var toImageTime = w.Elapsed;
 
                 Console.WriteLine($"Maze generation time: {mazeGenerationTime}, Path find time: {pathGenerationTime}, To image time: {toImageTime}");
@@ -100,13 +97,13 @@ namespace DeveMazeGeneratorCore.Web.Controllers
             var alg = new AlgorithmDivisionDynamicWithPath();
 
             var w = Stopwatch.StartNew();
-            var map = alg.Generate<BitArreintjeFastInnerMap, NetRandom>(width, height, seed, null);
+            var maze = (MazeWithPathAsInnerMap)MazeGenerator.Generate<AlgorithmDivisionDynamicWithPath, BitArreintjeFastInnerMap, NetRandom>(width, height, seed, null);
             var mazeGenerationTime = w.Elapsed;
 
             w.Restart();
             using (var memoryStream = new MemoryStream())
             {
-                WithPath.SaveMazeAsImageDeluxePngWithParts(map, map.PathData, xPart, yPart, partWidth, partHeight, memoryStream);
+                WithPath.SaveMazeAsImageDeluxePngWithParts(maze.InnerMap, maze.InnerMap, xPart, yPart, partWidth, partHeight, memoryStream);
                 var toImageTime = w.Elapsed;
 
                 Console.WriteLine($"Maze generation time: {mazeGenerationTime} To image time: {toImageTime}");

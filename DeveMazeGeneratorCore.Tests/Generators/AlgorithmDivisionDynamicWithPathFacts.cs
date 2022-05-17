@@ -15,8 +15,6 @@ namespace DeveMazeGeneratorCore.Tests.Generators
             public void GeneratesAPerfectMaze()
             {
                 //Arrange
-                var generator = new AlgorithmDivisionDynamicWithPath();
-
                 long current = 0;
                 long total = 0;
                 var mazeAction = new Action<int, int, long, long>((x, y, cur, tot) =>
@@ -26,9 +24,9 @@ namespace DeveMazeGeneratorCore.Tests.Generators
                 });
 
                 //Act
-                var map = generator.Generate<BitArreintjeFastInnerMap, NetRandom>(128, 128, mazeAction);
+                var maze = MazeGenerator.Generate<AlgorithmDivisionDynamicWithPath, BitArreintjeFastInnerMap, NetRandom>(128, 128, mazeAction);
 
-                Assert.True(MazeVerifier.IsPerfectMaze(map));
+                Assert.True(MazeVerifier.IsPerfectMaze(maze.InnerMap));
             }
         }
     }
