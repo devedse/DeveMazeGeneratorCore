@@ -27,7 +27,7 @@ namespace DeveMazeGeneratorCore.Tests.Generators
                 });
 
                 //Act
-                var map = generator.Generate<BitArreintjeFastInnerMap, NetRandom>(128, 128, mazeAction);
+                var maze = MazeGenerator.Generate<AlgorithmKruskal, BitArreintjeFastInnerMap, NetRandom>(128, 128, mazeAction);
 
                 //Assert
                 Trace.WriteLine("Taken steps: " + current);
@@ -35,15 +35,14 @@ namespace DeveMazeGeneratorCore.Tests.Generators
 
                 Assert.NotEqual(0, total);
                 Assert.Equal(total, current);
-                Assert.False(map[0, 0]);
-                Assert.True(map[1, 1]);
+                Assert.False(maze.InnerMap[0, 0]);
+                Assert.True(maze.InnerMap[1, 1]);
             }
 
             [Fact]
             public void GeneratesAPerfectMaze()
             {
                 //Arrange
-                var generator = new AlgorithmBacktrack();
 
                 long current = 0;
                 long total = 0;
@@ -54,9 +53,9 @@ namespace DeveMazeGeneratorCore.Tests.Generators
                 });
 
                 //Act
-                var map = generator.Generate<BitArreintjeFastInnerMap, NetRandom>(128, 128, mazeAction);
+                var maze = MazeGenerator.Generate<AlgorithmKruskal, BitArreintjeFastInnerMap, NetRandom>(128, 128, mazeAction);
 
-                Assert.True(MazeVerifier.IsPerfectMaze(map));
+                Assert.True(MazeVerifier.IsPerfectMaze(maze.InnerMap));
             }
         }
     }

@@ -1,29 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using DeveMazeGeneratorCore.Factories;
+﻿using DeveMazeGeneratorCore.Factories;
 using DeveMazeGeneratorCore.Generators.Helpers;
+using DeveMazeGeneratorCore.Generators.SpeedOptimization;
 using DeveMazeGeneratorCore.InnerMaps;
+using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.Structures;
+using System.Collections.Generic;
 
 namespace DeveMazeGeneratorCore.Generators
 {
-    public class AlgorithmBacktrack : Algorithm
+    public class AlgorithmBacktrack : IAlgorithm<Maze>
     {
-        public override InnerMap GoGenerate<M>(IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, Action<int, int, long, long> pixelChangedCallback)
+        public Maze GoGenerate<M, TAction>(int width, int height, int seed, IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, TAction pixelChangedCallback)
+            where M : InnerMap
+            where TAction : struct, IProgressAction
         {
-            var innerMap = mapFactory.Create();
-            var random = randomFactory.Create();
+            var innerMap = mapFactory.Create(width, height);
+            var random = randomFactory.Create(seed);
 
             return GoGenerateInternal(innerMap, random, pixelChangedCallback);
         }
 
-        private InnerMap GoGenerateInternal(InnerMap map, IRandom random, Action<int, int, long, long> pixelChangedCallback)
+        private Maze GoGenerateInternal<M, TAction>(M map, IRandom random, TAction pixelChangedCallback) where M : InnerMap where TAction : struct, IProgressAction
         {
-            if (pixelChangedCallback == null)
-            {
-                pixelChangedCallback = (vvv, yyy, zzz, www) => { };
-            }
-
             long totSteps = (map.Width - 1L) / 2L * ((map.Height - 1L) / 2L);
             long currentStep = 1;
 
@@ -114,7 +112,7 @@ namespace DeveMazeGeneratorCore.Generators
                 }
             }
 
-            return map;
+            return new Maze(map);
         }
     }
 }

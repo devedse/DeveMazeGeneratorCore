@@ -26,9 +26,9 @@ namespace DeveMazeGeneratorCore.Tests.Generators
                 });
 
                 //Act
-                var map = generator.Generate<BitArreintjeFastInnerMap, NetRandom>(128, 128, mazeAction);
+                var maze = MazeGenerator.Generate<AlgorithmDivisionDynamic, BitArreintjeFastInnerMap, NetRandom>(128, 128, mazeAction);
 
-                Assert.True(MazeVerifier.IsPerfectMaze(map));
+                Assert.True(MazeVerifier.IsPerfectMaze(maze.InnerMap));
             }
         }
     }

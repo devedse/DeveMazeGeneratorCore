@@ -4,6 +4,6 @@ namespace DeveMazeGeneratorCore.Factories
 {
     public interface IRandomFactory
     {
-        IRandom Create();
+        IRandom Create(int seed);
     }
 }
