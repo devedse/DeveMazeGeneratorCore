@@ -97,7 +97,7 @@ namespace DeveMazeGeneratorMonoGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            if (true)
+            if (false)
             {
                 graphics.PreferredBackBufferWidth = 3500;
                 graphics.PreferredBackBufferHeight = 1700;
@@ -106,8 +106,10 @@ namespace DeveMazeGeneratorMonoGame
             {
                 graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
                 graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-                //graphics.IsFullScreen = true;
+                graphics.IsFullScreen = true;
             }
+
+            this.TargetElapsedTime = TimeSpan.FromMilliseconds(1000d / 240);
 
             Window.AllowUserResizing = true;
             graphics.ApplyChanges();
@@ -574,7 +576,7 @@ namespace DeveMazeGeneratorMonoGame
             RasterizerState state = new RasterizerState();
             state.CullMode = CullMode.CullCounterClockwiseFace;
             state.MultiSampleAntiAlias = true;
-            state.DepthBias = 0.01f;
+            //state.DepthBias = 0.01f;
             GraphicsDevice.RasterizerState = state;
 
 
