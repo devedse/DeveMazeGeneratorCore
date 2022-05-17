@@ -1,7 +1,10 @@
 ﻿#region Using Statements
+using DeveMazeGeneratorCore.Factories;
 using DeveMazeGeneratorCore.Generators;
 using DeveMazeGeneratorCore.Generators.Helpers;
+using DeveMazeGeneratorCore.Generators.SpeedOptimization;
 using DeveMazeGeneratorCore.InnerMaps;
+using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.PathFinders;
 using DeveMazeGeneratorCore.Structures;
 using DeveMazeGeneratorMonoGame.LineOfSight;
@@ -40,7 +43,7 @@ namespace DeveMazeGeneratorMonoGame
         private int wallsCount = 0;
         private int pathCount = 0;
 
-        private InnerMap currentMaze = null;
+        private Maze currentMaze = null;
         private List<MazePointPos> currentPath = null;
 
         private bool drawRoof = true;
@@ -143,7 +146,7 @@ namespace DeveMazeGeneratorMonoGame
                 vertexBuffer.Dispose();
 
 
-            Algorithm alg = new AlgorithmBacktrack2Deluxe2();
+            var alg = new AlgorithmBacktrack2Deluxe2();
             //int randomnumber = curMazeWidth < 2048 ? random.Next(3) : random.Next(2);
             //if (randomnumber == 0)
             //    alg = new AlgorithmBacktrack();
@@ -152,14 +155,17 @@ namespace DeveMazeGeneratorMonoGame
             //else
             //    alg = new AlgorithmKruskal();
 
+            var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
+            var randomFactory = new RandomFactory<XorShiftRandom>();
+
             lastAlgorithm = alg.GetType().Name;
 
-            currentMaze = alg.Generate<BitArreintjeFastInnerMap, XorShiftRandom>(curMazeWidth, curMazeHeight, null);
-            var walls = currentMaze.GenerateListOfMazeWalls();
-            currentPath = PathFinderDepthFirstSmartWithPos.GoFind(currentMaze, null);
+            currentMaze = alg.GoGenerate(curMazeWidth, curMazeHeight, Environment.TickCount, innerMapFactory, randomFactory, new NoAction());
+            var walls = currentMaze.InnerMap.GenerateListOfMazeWalls();
+            currentPath = PathFinderDepthFirstSmartWithPos.GoFind(currentMaze.InnerMap, null);
 
 
-            determiner = new LineOfSightDeterminer(currentMaze, currentPath);
+            determiner = new LineOfSightDeterminer(currentMaze.InnerMap, currentPath);
             curChaseCameraPoint = null;
 
             VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[walls.Count * 8];
