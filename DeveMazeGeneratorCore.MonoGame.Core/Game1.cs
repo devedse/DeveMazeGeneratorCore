@@ -83,17 +83,7 @@ namespace DeveMazeGeneratorMonoGame
 
             //TargetElapsedTime = TimeSpan.FromTicks((long)10000000 / (long)500);
 
-            if (false)
-            {
-                graphics.PreferredBackBufferWidth = 1920;
-                graphics.PreferredBackBufferHeight = 1080;
-            }
-            else
-            {
-                graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-                graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-                graphics.IsFullScreen = true;
-            }
+        
 
             Content.RootDirectory = "Content";
         }
@@ -107,6 +97,20 @@ namespace DeveMazeGeneratorMonoGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            if (true)
+            {
+                graphics.PreferredBackBufferWidth = 3500;
+                graphics.PreferredBackBufferHeight = 1700;
+            }
+            else
+            {
+                graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+                graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+                //graphics.IsFullScreen = true;
+            }
+
+            Window.AllowUserResizing = true;
+            graphics.ApplyChanges();
 
             base.Initialize();
         }

@@ -56,7 +56,7 @@ namespace DeveMazeGeneratorMonoGame
             semiTransparantTexture = new Texture2D(graphicsDevice, 1, 1, false, SurfaceFormat.Color);
             semiTransparantTexture.SetData(new[] { new Color(0, 0, 0, 128) });
 
-            spriteFont = Content.Load<SpriteFont>("SecularOne72");
+            spriteFont = Content.Load<SpriteFont>("SecularOne20");
         }
     }
 }
