@@ -14,6 +14,12 @@ This is the new version of my maze generator, now made with .NET Core.
 |:--------------------:|
 | [![GitHubActions Builds](https://github.com/devedse/DeveMazeGeneratorCore/workflows/GitHubActionsBuilds/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions/workflows/githubactionsbuilds.yml) |
 
+## Intellicode
+
+|  Github Actions (Intellicode) |
+|:-----------------------------:|
+| [![GitHubActions Builds](https://github.com/devedse/DeveMazeGeneratorCore/workflows/GitHubActionsBuilds/badge.svg)](https://github.com/devedse/DeveMazeGeneratorCore/actions?query=GitHubActionsBuilds) |
+
 ## DockerHub
 
 | Docker Hub |
