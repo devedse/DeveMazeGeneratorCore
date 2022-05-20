@@ -11,7 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorCore.Tests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorCore.Web", "DeveMazeGeneratorCore.Web\DeveMazeGeneratorCore.Web.csproj", "{1112FB5A-BB2E-4898-813C-7F4718E8CD7B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveMazeGeneratorCore.Benchmark", "DeveMazeGeneratorCore.Benchmark\DeveMazeGeneratorCore.Benchmark.csproj", "{B0A60E45-7B41-46BC-BE62-88AE62E4A1CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorCore.Benchmark", "DeveMazeGeneratorCore.Benchmark\DeveMazeGeneratorCore.Benchmark.csproj", "{B0A60E45-7B41-46BC-BE62-88AE62E4A1CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveMazeGeneratorCore.ConsoleApp.Wasmtime", "DeveMazeGeneratorCore.ConsoleApp.Wasmtime\DeveMazeGeneratorCore.ConsoleApp.Wasmtime.csproj", "{279CC8E8-FA53-4506-A1E4-390CA00D959F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveMazeGeneratorCore.ConsoleApp.WasiSdk", "DeveMazeGeneratorCore.ConsoleApp.WasiSdk\DeveMazeGeneratorCore.ConsoleApp.WasiSdk.csproj", "{C7B98C60-15CA-4049-9E5A-17A9546C795B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +43,14 @@ Global
 		{B0A60E45-7B41-46BC-BE62-88AE62E4A1CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0A60E45-7B41-46BC-BE62-88AE62E4A1CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0A60E45-7B41-46BC-BE62-88AE62E4A1CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{279CC8E8-FA53-4506-A1E4-390CA00D959F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{279CC8E8-FA53-4506-A1E4-390CA00D959F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{279CC8E8-FA53-4506-A1E4-390CA00D959F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{279CC8E8-FA53-4506-A1E4-390CA00D959F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7B98C60-15CA-4049-9E5A-17A9546C795B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7B98C60-15CA-4049-9E5A-17A9546C795B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7B98C60-15CA-4049-9E5A-17A9546C795B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7B98C60-15CA-4049-9E5A-17A9546C795B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
