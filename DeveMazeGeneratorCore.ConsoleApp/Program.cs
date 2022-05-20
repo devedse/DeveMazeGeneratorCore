@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 
 namespace DeveMazeGeneratorCore.ConsoleApp
 {
@@ -101,12 +102,16 @@ namespace DeveMazeGeneratorCore.ConsoleApp
 
         public static void ActualBenchmark2()
         {
+            //int size = 16384 / 2 / 2 / 2 / 2 / 2;
             int size = 16384;
             var fastestElapsed = TimeSpan.MaxValue;
+
+            Console.WriteLine("Hoi");
 
             var alg = new AlgorithmBacktrack2Deluxe2();
 
             Console.WriteLine($"Generating mazes using {alg.GetType().Name}...");
+
 
             int seed = 1337;
             while (true)
@@ -131,7 +136,9 @@ namespace DeveMazeGeneratorCore.ConsoleApp
                 var strToPrint = $"Generation time: {w.Elapsed}" + (foundFastest ? " <<<<<<<< new fastest time" : "");
                 var strToPrint2 = $"{strToPrint.PadRight(68, ' ')} Fastest: {fastestElapsed}";
 
+
                 Console.WriteLine(strToPrint2);
+                
                 seed++;
 
                 //using (var fs = new FileStream($"GeneratedMazeNoPath{alg.GetType().Name}.png", FileMode.Create))

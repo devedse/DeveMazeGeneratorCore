@@ -1,0 +1,97 @@
+﻿@page "/counter"
+@using DeveMazeGeneratorCore.Factories
+@using DeveMazeGeneratorCore.Generators
+@using DeveMazeGeneratorCore.Generators.Helpers
+@using DeveMazeGeneratorCore.Generators.SpeedOptimization
+@using DeveMazeGeneratorCore.Imageification
+@using DeveMazeGeneratorCore.InnerMaps
+@using System.Diagnostics
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        ActualBenchmark2();
+    }
+
+    public static void ActualBenchmark2()
+    {
+        int size = 16384 / 2 / 2 / 2 / 2 / 2;
+        //int size = 16384;
+        var fastestElapsed = TimeSpan.MaxValue;
+
+        Console.WriteLine("Hoi");
+
+        var alg = new AlgorithmBacktrack2Deluxe2();
+
+        Console.WriteLine($"Generating mazes using {alg.GetType().Name}...");
+
+
+        int seed = 1337;
+        while (true)
+        {
+            var w = Stopwatch.StartNew();
+
+            var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
+            var randomFactory = new RandomFactory<XorShiftRandom>();
+
+            var actionThing = new NoAction();
+
+            var maze = alg.GoGenerate(size, size, seed, innerMapFactory, randomFactory, actionThing);
+            w.Stop();
+
+            bool foundFastest = false;
+            if (w.Elapsed < fastestElapsed)
+            {
+                foundFastest = true;
+                fastestElapsed = w.Elapsed;
+            }
+
+            var strToPrint = $"Generation time: {w.Elapsed}" + (foundFastest ? " <<<<<<<< new fastest time" : "");
+            var strToPrint2 = $"{strToPrint.PadRight(68, ' ')} Fastest: {fastestElapsed}";
+
+
+            Console.WriteLine(strToPrint2);
+
+            seed++;
+
+            using (var fs = new FileStream($"GeneratedMazeNoPath{alg.GetType().Name}.png", FileMode.Create))
+            {
+                WithPath.SaveMazeAsImageDeluxePng(maze.InnerMap, new System.Collections.Generic.List<Structures.MazePointPos>(), fs);
+            }
+
+            Console.WriteLine(Directory.GetCurrentDirectory());
+
+            var files = Directory.GetFiles(Directory.GetCurrentDirectory());
+
+            foreach (var file in files)
+            {
+                Console.WriteLine(file);
+            }
+
+            //Console.WriteLine("Finding path");
+
+            //var path = PathFinderDepthFirstSmartWithPos.GoFind(maze, null);
+            //Console.WriteLine("Found path :)");
+
+            //using (var fs = new FileStream($"GeneratedMaze{alg.GetType().Name}.png", FileMode.Create))
+            //{
+            //    WithPath.SaveMazeAsImageDeluxePng(maze, path, fs);
+            //}
+
+            //return;
+            //var result = MazeVerifier.IsPerfectMaze(maze);
+            //Console.WriteLine($"Perfect maze verification time: {w.Elapsed}");
+            //Console.WriteLine($"Is our maze perfect?: {result}");
+        }
+    }
+}
