@@ -103,7 +103,7 @@ namespace DeveMazeGeneratorCore.Web.Controllers
             w.Restart();
             using (var memoryStream = new MemoryStream())
             {
-                WithPath.SaveMazeAsImageDeluxePngWithParts(maze.InnerMap, maze.InnerMap, xPart, yPart, partWidth, partHeight, memoryStream);
+                WithPath.SaveMazeAsImageDeluxePngWithParts(maze.InnerMap, maze.PathMap, xPart, yPart, partWidth, partHeight, memoryStream);
                 var toImageTime = w.Elapsed;
 
                 Console.WriteLine($"Maze generation time: {mazeGenerationTime} To image time: {toImageTime}");
