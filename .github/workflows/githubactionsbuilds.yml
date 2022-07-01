@@ -81,6 +81,22 @@ jobs:
     - name: Test
       run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
 
+  build_windows2:
+    needs: generate_version_number
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    - name: Install dependencies
+      run: dotnet restore DeveMazeGeneratorCore.sln
+    - name: Build
+      run: dotnet build DeveMazeGeneratorCore.sln -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+    - name: Test
+      run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
+
   build_windows:
     needs: generate_version_number
     runs-on: windows-latest
