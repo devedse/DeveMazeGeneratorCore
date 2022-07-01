@@ -81,33 +81,6 @@ jobs:
     - name: Test
       run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
 
-  build_windows2:
-    needs: generate_version_number
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 6.0.x
-    # - uses: actions/setup-java@v1
-    #   with:
-    #     java-version: '15' # The JDK version to make available on the path.
-    #     java-package: jdk # (jre, jdk, or jdk+fx) - defaults to jdk
-    #     architecture: x64 # (x64 or x86) - defaults to x64
-    - name: Install tools
-      run: |
-        dotnet tool install --global dotnet-sonarscanner
-        dotnet tool install --global dotnet-reportgenerator-globaltool
-    - name: Install dependencies
-      run: dotnet restore DeveMazeGeneratorCore.sln
-    - name: SonarQube begin
-      run: dotnet-sonarscanner begin /k:"DeveMazeGeneratorCore" /o:"devedse-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=${{secrets.SONARQUBETOKEN}} /d:sonar.cs.opencover.reportsPaths=".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml" /d:sonar.coverage.exclusions="DeveMazeGeneratorCore.ConsoleApp/**/*.cs,DeveMazeGeneratorCore.Tests/**/*.cs"
-    - name: Build
-      run: dotnet build DeveMazeGeneratorCore.sln -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-    - name: Test
-      run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
-
   build_windows:
     needs: generate_version_number
     runs-on: windows-latest
@@ -117,6 +90,11 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
+    - uses: actions/setup-java@v1
+      with:
+        java-version: '15' # The JDK version to make available on the path.
+        java-package: jdk # (jre, jdk, or jdk+fx) - defaults to jdk
+        architecture: x64 # (x64 or x86) - defaults to x64
     - name: Install tools
       run: |
         dotnet tool install --global dotnet-sonarscanner
