@@ -1,0 +1,19 @@
+<html>
+	<head>
+		<title>Deve Maze</title>
+		<script src="js/openseadragon.js"></script>
+		<script src="js/tiff.js"></script>
+	</head>
+	<body>
+		<div id="openseadragon1" style="width: 100%; height: 100%;"></div>
+		<script type="text/javascript">
+			var viewer = OpenSeadragon({
+				id: "openseadragon1",
+				prefixUrl: "images/",
+				tileSources: "/divisionmaze/mydz.dzi",
+				maxZoomPixelRatio: 10,
+				animationTime: 0.8
+			});
+		</script>
+	</body>
+</html>

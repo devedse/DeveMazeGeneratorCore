@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System.IO;
 
 namespace DeveMazeGeneratorCore.Web
 {
@@ -21,6 +24,8 @@ namespace DeveMazeGeneratorCore.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddDirectoryBrowser();
 
             services.AddSwaggerGen(c =>
             {
@@ -52,6 +57,30 @@ namespace DeveMazeGeneratorCore.Web
             });
 
             app.UseHttpsRedirection();
+
+
+
+            var fileProvider = new PhysicalFileProvider(Path.Combine(env.WebRootPath, "divisionmaze"));
+            var requestPath = "/divisionmaze";
+
+            var extensionProvider = new FileExtensionContentTypeProvider();
+            extensionProvider.Mappings.Add(".dzi", "text/xml");
+
+            // Enable displaying browser links.
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = fileProvider,
+                RequestPath = requestPath,
+                ContentTypeProvider = extensionProvider
+            });
+
+            app.UseDirectoryBrowser(new DirectoryBrowserOptions
+            {
+                FileProvider = fileProvider,
+                RequestPath = requestPath
+            });
+
+
 
             app.UseRouting();
 

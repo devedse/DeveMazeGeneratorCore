@@ -1,0 +1,75 @@
+Eigenlijk alleen deze code toegevoegd:
+
+Op die manier kan hij dus ook tiffjes inladen.
+
+Je moet dus well even tiff.js includen in je HTML file :)
+
+En for some reason is tiff.js veel sneller dan tiff.min.js :D??? dafuq javascript
+
+ImageJob.prototype = {
+    errorMsg: null,
+    start: function(){
+        var _this = this;
+
+		this.image = new Image();
+		
+		if ( this.crossOriginPolicy !== false ) {
+			this.image.crossOrigin = this.crossOriginPolicy;
+		}
+		
+		var fail = function () {
+			_this.errorMsg = "Image load aborted";
+			_this.finish( false );
+		};
+		
+		var succeed = function () {
+			_this.finish( true );
+		};
+		
+		this.image.onload = succeed;
+		this.image.onabort = this.image.onerror = fail;
+		
+		this.jobId = window.setTimeout( function(){
+            _this.errorMsg = "Image load exceeded timeout";
+            _this.finish( false );
+        }, this.timeout);
+		
+		var src = this.src.toLowerCase();
+		if (src.endsWith(".tif") || src.endsWith(".tiff")) {
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', this.src);
+			xhr.responseType = 'arraybuffer';
+			xhr.onload = function (e) {				
+				if (xhr.status != 200) {
+					fail();
+					return;
+				}
+				
+				var buffer = xhr.response;
+				var tiff = new Tiff({buffer: buffer});
+				
+				var tiffurl = tiff.toDataURL();
+				
+				_this.image.src = tiffurl;
+			};
+			xhr.onabort = xhr.onerror = fail;
+			xhr.send();
+		} else {		    
+			this.image.src = this.src;
+		}
+    },
+
+    finish: function( successful ) {
+        this.image.onload = this.image.onerror = this.image.onabort = null;
+        if (!successful) {
+            this.image = null;
+        }
+
+        if ( this.jobId ) {
+            window.clearTimeout( this.jobId );
+        }
+
+        this.callback( this );
+    }
+
+};
