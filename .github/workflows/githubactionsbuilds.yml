@@ -86,10 +86,9 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core @ Latest
+    - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        source-url: https://nuget.pkg.github.com/<organization>/index.json
         dotnet-version: 6.0.x
       env:
         NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}        
