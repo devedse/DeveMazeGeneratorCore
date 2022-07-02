@@ -102,7 +102,7 @@ jobs:
     - name: Install dependencies
       run: dotnet restore DeveMazeGeneratorCore.sln
     - name: SonarQube begin
-      run: dotnet-sonarscanner begin /k:"DeveMazeGeneratorCore" /o:"devedse-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=${{secrets.SONARQUBETOKEN}} /d:sonar.cs.opencover.reportsPaths=".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml" /d:sonar.coverage.exclusions="DeveMazeGeneratorCore.ConsoleApp/**/*.cs,DeveMazeGeneratorCore.Tests/**/*.cs"
+      run: dotnet-sonarscanner begin /k:"DeveMazeGeneratorCore" /o:"devedse-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=${{secrets.SONARQUBETOKEN}} /d:sonar.cs.opencover.reportsPaths=".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml" /d:sonar.coverage.exclusions="DeveMazeGeneratorCore.ConsoleApp/**/*.cs,DeveMazeGeneratorCore.Tests/**/*.cs,DeveMazeGeneratorCore.Web/wwwroot/divisionmaze/**/*.js"
     - name: Build
       run: dotnet build DeveMazeGeneratorCore.sln -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Test

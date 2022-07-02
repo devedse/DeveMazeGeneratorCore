@@ -25,7 +25,7 @@ namespace DeveMazeGeneratorCore.Web.Controllers
     {
         private FontCollection _fontCollection;
 
-        private ConcurrentDictionary<int, byte[]> _zoomImageCache = new();
+        //private static ConcurrentDictionary<int, byte[]> _zoomImageCache = new();
 
         public MazesController()
         {
@@ -150,16 +150,18 @@ namespace DeveMazeGeneratorCore.Web.Controllers
 
             if (level != deepestLevel)
             {
-                if (_zoomImageCache.TryGetValue(level, out var cachedImage))
-                {
-                    return File(cachedImage, "image/png");
-                }
+                var wZoomImage = Stopwatch.StartNew();
+
+                //if (_zoomImageCache.TryGetValue(level, out var cachedImage))
+                //{
+                //    return File(cachedImage, "image/png");
+                //}
 
                 var image = new Image<Argb32>(partWidth, partHeight);
                 image.Mutate(t => t.Fill(Color.Black));
 
                 _fontCollection.TryGet("Secular One", out var fontFamily);
-                var font = new Font(fontFamily, 40);
+                var font = new Font(fontFamily, 26);
                 var fontSmall = new Font(fontFamily, 12);
 
                 var textOptions = new TextOptions(font)
@@ -178,7 +180,7 @@ namespace DeveMazeGeneratorCore.Web.Controllers
                     Origin = new Point(partWidth / 2, partHeight - 10),
                 };
 
-                image.Mutate(x => x.DrawText(textOptions, $"Zoom\nin\nfurther\n(Level: {level})", Color.White));
+                image.Mutate(x => x.DrawText(textOptions, $"X: {xPartNumber}\nY: {yPartNumber}\nLevel: {level}\n\nZoom in\nfurther", Color.White));
                 image.Mutate(x => x.DrawText(textOptionsSmall, $"Maze will show at level: {deepestLevel}", Color.White));
                 image.Mutate(x => x.Draw(Brushes.ForwardDiagonal(Color.Yellow, Color.Red), 2, new RectangleF(2, 2, partWidth - 5, partHeight - 5)));
 
@@ -194,7 +196,10 @@ namespace DeveMazeGeneratorCore.Web.Controllers
                 using var memstream = new MemoryStream();
                 image.SaveAsPng(memstream);
                 var imageData = memstream.ToArray();
-                _zoomImageCache.TryAdd(level, imageData);
+                //_zoomImageCache.TryAdd(level, imageData);
+
+                wZoomImage.Stop();
+                Console.WriteLine($"Zoom in further image time: {wZoomImage.Elapsed}");
                 return File(imageData, "image/png");
             }
 
