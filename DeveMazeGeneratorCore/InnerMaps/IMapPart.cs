@@ -2,10 +2,10 @@
 {
     public interface IMapPart
     {
-        public int Width { get; }
-        public int Height { get; }
+        int Width { get; }
+        int Height { get; }
 
-        public int StartX { get; }
-        public int StartY { get; }
+        int StartX { get; }
+        int StartY { get; }
     }
 }
