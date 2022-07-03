@@ -7,6 +7,7 @@ using DeveMazeGeneratorCore.Imageification;
 using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.PathFinders;
+using DeveMazeGeneratorCore.Structures;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,6 +19,8 @@ namespace DeveMazeGeneratorCore.ConsoleApp
     {
         public static void Main(string[] args)
         {
+            //TestHilbert();
+
             Console.WriteLine(nameof(TestWithGenerics));
             TestWithGenerics();
 
@@ -36,9 +39,46 @@ namespace DeveMazeGeneratorCore.ConsoleApp
             }
         }
 
+        public static void TestHilbert()
+        {
+            for (int order = 3; order <= 3; order++)
+            {
+                var n = 1 << order;
+                var points = HilbertCurve.GetPointsForCurve(n);
+                Console.WriteLine("Hilbert curve, order={0}", order);
+                var lines = HilbertCurve.DrawCurve(points, n);
+                foreach (var line in lines)
+                {
+                    Console.WriteLine(line);
+                }
+                Console.WriteLine();
+            }
+
+
+            for (int i = 0; i < 1000; i++)
+            {
+                int xxx = 0;
+                int yyy = 0;
+                HilbertCurve.D2xy(8, i, ref xxx, ref yyy);
+                var ppp = new MazePoint(xxx, yyy);
+                var rev = HilbertCurve.Xy2d(8, ppp.X, ppp.Y);
+
+                Console.WriteLine($"i: {i}  -> {ppp} {rev}");
+            }
+
+             
+
+            var maze = MazeGenerator.Generate<AlgorithmBacktrack2Deluxe2, BitArreintjeFastHilbertInnerMap, XorShiftRandom>(16, 16, null);
+
+            using (var fs = new FileStream($"TestHilbert.png", FileMode.Create))
+            {
+                WithPath.SaveMazeAsImageDeluxePng(maze.InnerMap, new List<Structures.MazePointPos>(), fs);
+            }
+        }
+
         public static void TestWithGenerics()
         {
-            var result = MazeGenerator.Generate<AlgorithmBacktrack2Deluxe, BitArreintjeFastInnerMap, XorShiftRandom>(16384, 16384, null);
+            var result = MazeGenerator.Generate<AlgorithmBacktrack2Deluxe2, BitArreintjeFastInnerMap, XorShiftRandom>(16384, 16384, null);
         }
 
         public static void CreateIcons()

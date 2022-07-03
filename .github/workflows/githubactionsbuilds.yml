@@ -59,7 +59,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: 6.0.x
     - name: Build with dotnet
       run: dotnet build DeveMazeGeneratorCore.sln -c Release /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} # Project needs to build before training a model.
     - name: Train Intellicode Model
@@ -73,7 +73,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: 6.0.x
     - name: Install dependencies
       run: dotnet restore DeveMazeGeneratorCore.sln
     - name: Build
@@ -86,13 +86,10 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core @ Latest
+    - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        source-url: https://nuget.pkg.github.com/<organization>/index.json
-        dotnet-version: 5.0.x
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}        
+        dotnet-version: 6.0.x
     - uses: actions/setup-java@v1
       with:
         java-version: '15' # The JDK version to make available on the path.
@@ -105,7 +102,7 @@ jobs:
     - name: Install dependencies
       run: dotnet restore DeveMazeGeneratorCore.sln
     - name: SonarQube begin
-      run: dotnet-sonarscanner begin /k:"DeveMazeGeneratorCore" /o:"devedse-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=${{secrets.SONARQUBETOKEN}} /d:sonar.cs.opencover.reportsPaths=".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml" /d:sonar.coverage.exclusions="DeveMazeGeneratorCore.ConsoleApp/**/*.cs,DeveMazeGeneratorCore.Tests/**/*.cs"
+      run: dotnet-sonarscanner begin /k:"DeveMazeGeneratorCore" /o:"devedse-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=${{secrets.SONARQUBETOKEN}} /d:sonar.cs.opencover.reportsPaths=".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml" /d:sonar.coverage.exclusions="DeveMazeGeneratorCore.ConsoleApp/**/*.cs,DeveMazeGeneratorCore.Tests/**/*.cs,DeveMazeGeneratorCore.Web/wwwroot/divisionmaze/**/*.js"
     - name: Build
       run: dotnet build DeveMazeGeneratorCore.sln -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Test
