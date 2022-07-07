@@ -13,7 +13,8 @@ namespace DeveMazeGeneratorCore.MonoGame.Blazor
 
             var assetFullPath = Path.Combine(asmName, content.RootDirectory, assetName);
             assetFullPath = assetFullPath.Replace('/', '.');
-            Stream stream = asm.GetManifestResourceStream(assetFullPath+ ".xnb");
+
+            Stream stream = asm.GetManifestResourceStream(assetFullPath + ".xnb");
 
             return stream;
         }

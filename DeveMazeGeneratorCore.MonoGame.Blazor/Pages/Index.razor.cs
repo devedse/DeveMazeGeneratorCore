@@ -34,7 +34,7 @@ namespace DeveMazeGeneratorCore.MonoGame.Blazor.Pages
                     BindingFlags.NonPublic);
                 field.SetValue(null, true);
 
-                _game = new TheGame(new CustomEmbeddedResourceLoader(), new IntSize(400, 800), Platform.Desktop);
+                _game = new TheGame(new CustomEmbeddedResourceLoader(), new IntSize(400, 800), Platform.Blazor);
                 _game.Run();
             }
 

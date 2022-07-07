@@ -35,7 +35,7 @@ namespace DeveMazeGeneratorMonoGame
             grasTexture = Content.Load<Texture2D>("gras");
             skyTexture1 = Content.Load<Texture2D>("sky");
             skyTexture2 = Content.Load<Texture2D>("sky2");
-            wallCustomTexture = Content.Load<Texture2D>("wallCustom");
+            wallCustomTexture = Content.Load<Texture2D>("wallcustom");
 
             endTexture = Content.Load<Texture2D>("end");
             startTexture = Content.Load<Texture2D>("start");

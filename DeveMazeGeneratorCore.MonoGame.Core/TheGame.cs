@@ -221,10 +221,24 @@ namespace DeveMazeGeneratorMonoGame
             wallsCount = walls.Count;
 
             vertexBuffer = new VertexBuffer(GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
-            indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
-
             vertexBuffer.SetData(vertices);
-            indexBuffer.SetData(indices);
+
+            if (_platform == Platform.Blazor)
+            {
+                indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
+                if (indices.Any(t => t > short.MaxValue))
+                {
+                    throw new InvalidOperationException("Could not use a maze this big due to the indices being too high");
+                }
+                var indicesConverted = indices.Select(t => (short)t).ToArray();
+                indexBuffer.SetData(indicesConverted);
+            }
+            else
+            {
+                indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
+                indexBuffer.SetData(indices);
+            }
+            
 
             GeneratePath(currentPath);
         }
@@ -259,10 +273,24 @@ namespace DeveMazeGeneratorMonoGame
             pathCount = path.Count;
 
             vertexBufferPath = new VertexBuffer(GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
-            indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
-
             vertexBufferPath.SetData(vertices);
-            indexBufferPath.SetData(indices);
+
+
+            if (_platform == Platform.Blazor)
+            {
+                indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
+                if (indices.Any(t => t > short.MaxValue))
+                {
+                    throw new InvalidOperationException("Could not use a maze this big due to the indices for the path being too high");
+                }
+                var indicesConverted = indices.Select(t => (short)t).ToArray();
+                indexBufferPath.SetData(indicesConverted);
+            }
+            else
+            {
+                indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
+                indexBufferPath.SetData(indices);
+            }
         }
 
         public Vector2 GetPosAtThisNumer(float number)

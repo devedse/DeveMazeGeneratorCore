@@ -16,19 +16,41 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Remove="Content\devedse.xnb" />
+		<None Remove="Content\end.xnb" />
+		<None Remove="Content\floor.xnb" />
+		<None Remove="Content\gras.xnb" />
+		<None Remove="Content\lego.xnb" />
+		<None Remove="Content\roof.xnb" />
 		<None Remove="Content\SecularOne20.xnb" />
 		<None Remove="Content\SecularOne20_Compressed.xnb" />
 		<None Remove="Content\SecularOne72.xnb" />
 		<None Remove="Content\SecularOne72_Compressed.xnb" />
+		<None Remove="Content\sky.xnb" />
+		<None Remove="Content\sky2.xnb" />
 		<None Remove="Content\Square.xnb" />
+		<None Remove="Content\start.xnb" />
+		<None Remove="Content\wall.xnb" />
+		<None Remove="Content\wallcustom.xnb" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<EmbeddedResource Include="Content\devedse.xnb" />
+		<EmbeddedResource Include="Content\end.xnb" />
+		<EmbeddedResource Include="Content\floor.xnb" />
+		<EmbeddedResource Include="Content\gras.xnb" />
+		<EmbeddedResource Include="Content\lego.xnb" />
+		<EmbeddedResource Include="Content\roof.xnb" />
 		<EmbeddedResource Include="Content\SecularOne20.xnb" />
 		<EmbeddedResource Include="Content\SecularOne20_Compressed.xnb" />
 		<EmbeddedResource Include="Content\SecularOne72.xnb" />
 		<EmbeddedResource Include="Content\SecularOne72_Compressed.xnb" />
+		<EmbeddedResource Include="Content\sky.xnb" />
+		<EmbeddedResource Include="Content\sky2.xnb" />
 		<EmbeddedResource Include="Content\Square.xnb" />
+		<EmbeddedResource Include="Content\start.xnb" />
+		<EmbeddedResource Include="Content\wall.xnb" />
+		<EmbeddedResource Include="Content\wallcustom.xnb" />
 	</ItemGroup>
 
 	<ItemGroup>
