@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>disable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DefineConstants>$(DefineConstants)TRACE;OPENGL;BLAZOR</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DefineConstants>$(DefineConstants)TRACE;OPENGL;BLAZOR</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="Content\SecularOne20.xnb" />
+		<None Remove="Content\SecularOne20_Compressed.xnb" />
+		<None Remove="Content\SecularOne72.xnb" />
+		<None Remove="Content\SecularOne72_Compressed.xnb" />
+		<None Remove="Content\Square.xnb" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Content\SecularOne20.xnb" />
+		<EmbeddedResource Include="Content\SecularOne20_Compressed.xnb" />
+		<EmbeddedResource Include="Content\SecularOne72.xnb" />
+		<EmbeddedResource Include="Content\SecularOne72_Compressed.xnb" />
+		<EmbeddedResource Include="Content\Square.xnb" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.2" />
+		<PackageReference Include="tainicom.Xna.Framework.Blazor" Version="3.8.9012.10" />
+		<!-- <PackageReference Include="tainicom.Wasm.Canvas" Version="3.2.10" />
+	  <PackageReference Include="tainicom.Wasm.XHR" Version="3.2.10" />
+	  <PackageReference Include="tainicom.Wasm.Dom" Version="3.2.10" />
+	  <PackageReference Include="tainicom.Xna.Framework" Version="3.8.9012" /> -->
+	</ItemGroup>
+
+</Project>

@@ -1,7 +1,7 @@
 ﻿using DeveMazeGeneratorMonoGame;
 using System;
 
-namespace DeveBlockStacker.DesktopGL
+namespace DeveMazeGeneratorCore.MonoGame.DesktopGL
 {
     public static class Program
     {
