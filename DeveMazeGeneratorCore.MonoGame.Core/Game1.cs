@@ -5,6 +5,7 @@ using DeveMazeGeneratorCore.Generators.Helpers;
 using DeveMazeGeneratorCore.Generators.SpeedOptimization;
 using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Mazes;
+using DeveMazeGeneratorCore.MonoGame.Core;
 using DeveMazeGeneratorCore.PathFinders;
 using DeveMazeGeneratorCore.Structures;
 using DeveMazeGeneratorMonoGame.LineOfSight;
@@ -29,6 +30,7 @@ namespace DeveMazeGeneratorMonoGame
         SpriteBatch spriteBatch;
 
         private Camera camera;
+        private Basic3dExampleCamera newcamera;
 
         private BasicEffect effect;
 
@@ -97,10 +99,10 @@ namespace DeveMazeGeneratorMonoGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            if (false)
+            if (true)
             {
-                graphics.PreferredBackBufferWidth = 3500;
-                graphics.PreferredBackBufferHeight = 1700;
+                graphics.PreferredBackBufferWidth = 3000;
+                graphics.PreferredBackBufferHeight = 1400;
             }
             else
             {
@@ -125,6 +127,9 @@ namespace DeveMazeGeneratorMonoGame
         {
             GenerateMaze();
             camera = new Camera(this);
+            newcamera = new Basic3dExampleCamera(GraphicsDevice, Window);
+            newcamera.Position = new Vector3(7.5f, 7.5f, 7.5f);
+            newcamera.LookAtDirection = Vector3.Forward;
 
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -471,7 +476,8 @@ namespace DeveMazeGeneratorMonoGame
             }
 
 
-            camera.Update(gameTime);
+            //camera.Update(gameTime);
+            newcamera.Update(gameTime);
 
 
             if (InputDing.KeyDownUp(Keys.Up))
@@ -552,9 +558,12 @@ namespace DeveMazeGeneratorMonoGame
             //GraphicsDevice.DepthStencilState = d;
 
             Matrix worldMatrix = Matrix.Identity;
+            //effect.World = worldMatrix;
+            //effect.View = camera.viewMatrix;
+            //effect.Projection = camera.projectionMatrix;
             effect.World = worldMatrix;
-            effect.View = camera.viewMatrix;
-            effect.Projection = camera.projectionMatrix;
+            effect.View = newcamera.View;
+            effect.Projection = newcamera.Projection;
 
             //effect.EnableDefaultLighting();
             effect.LightingEnabled = true;
