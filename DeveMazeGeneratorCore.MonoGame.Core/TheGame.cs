@@ -6,6 +6,8 @@ using DeveMazeGeneratorCore.Generators.SpeedOptimization;
 using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.MonoGame.Core;
+using DeveMazeGeneratorCore.MonoGame.Core.Data;
+using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
 using DeveMazeGeneratorCore.PathFinders;
 using DeveMazeGeneratorCore.Structures;
 using DeveMazeGeneratorMonoGame.LineOfSight;
@@ -26,6 +28,12 @@ namespace DeveMazeGeneratorMonoGame
     /// </summary>
     public class TheGame : Game
     {
+        private readonly Platform _platform;
+
+        private IntSize? _desiredScreenSize = null;
+        private IContentManagerExtension _contentManagerExtension = null;
+
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
@@ -73,9 +81,14 @@ namespace DeveMazeGeneratorMonoGame
         private LineOfSightDeterminer determiner;
         private LineOfSightObject curChaseCameraPoint = null;
 
-        public TheGame()
-            : base()
+
+        public TheGame(IContentManagerExtension contentManagerExtension, IntSize? desiredScreenSize, Platform platform) : base()
         {
+            _contentManagerExtension = contentManagerExtension;
+            _desiredScreenSize = desiredScreenSize;
+            _platform = platform;
+
+
             graphics = new GraphicsDeviceManager(this);
 
             graphics.PreferMultiSampling = true;
@@ -85,9 +98,15 @@ namespace DeveMazeGeneratorMonoGame
 
             //TargetElapsedTime = TimeSpan.FromTicks((long)10000000 / (long)500);
 
-        
 
+            //This is required for Blazor since it loads assets in a custom way
+            Content = new ExtendibleContentManager(this.Services, _contentManagerExtension);
             Content.RootDirectory = "Content";
+        }
+
+        public TheGame() : this(null, null, Platform.Desktop)
+        {
+           
         }
 
         /// <summary>
@@ -98,6 +117,7 @@ namespace DeveMazeGeneratorMonoGame
         /// </summary>
         protected override void Initialize()
         {
+#if !BLAZOR
             // TODO: Add your initialization logic here
             if (true)
             {
@@ -115,7 +135,7 @@ namespace DeveMazeGeneratorMonoGame
 
             Window.AllowUserResizing = true;
             graphics.ApplyChanges();
-
+#endif
             base.Initialize();
         }
 
