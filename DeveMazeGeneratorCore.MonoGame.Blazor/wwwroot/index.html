@@ -24,21 +24,21 @@
     </div>
 
     <script src="_framework/blazor.webassembly.js"></script>
-    <script src="_content/tainicom.Wasm.Dom/js/JSObject.js"></script>
-    <script src="_content/tainicom.Wasm.Dom/js/Window.js"></script>
-    <script src="_content/tainicom.Wasm.Dom/js/Document.js"></script>
-    <script src="_content/tainicom.Wasm.Canvas/js/canvas.js"></script>
-    <script src="_content/tainicom.Wasm.Canvas/js/CanvasGLContext.js"></script>
+    <script src="_content/nkast.Wasm.Dom/js/JSObject.6.0.1.js"></script>
+    <script src="_content/nkast.Wasm.Dom/js/Window.6.0.1.js"></script>
+    <script src="_content/nkast.Wasm.Dom/js/Document.6.0.1.js"></script>
+    <script src="_content/nkast.Wasm.XHR/js/XHR.6.0.1.js"></script>
+    <script src="_content/nkast.Wasm.Canvas/js/Canvas.6.0.1.js"></script>
+    <script src="_content/nkast.Wasm.Canvas/js/CanvasGLContext.6.0.1.js"></script>
+    <script src="_content/nkast.Wasm.Audio/js/Audio.6.0.1.js"></script>
 
     <script>
-        function tickJS()
-        {
+        function tickJS() {
             window.theInstance.invokeMethod('TickDotNet');
             window.requestAnimationFrame(tickJS);
         }
 
-        window.initRenderJS = (instance) =>
-        {
+        window.initRenderJS = (instance) => {
             window.theInstance = instance;
 
             // set initial canvas size
@@ -48,7 +48,7 @@
             canvas.height = holder.clientHeight;
             // disable context menu on right click
             canvas.addEventListener("contextmenu", e => e.preventDefault());
-            
+
 
             // begin game loop
             window.requestAnimationFrame(tickJS);

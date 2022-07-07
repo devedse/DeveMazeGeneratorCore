@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -101,7 +102,15 @@ namespace DeveMazeGeneratorMonoGame
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, vertices, 0, 24, indices, 0, 12);
+
+                if (this.game.Platform == Platform.Blazor)
+                {
+                    game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, vertices, 0, 24, indices.Select(t => (short)t).ToArray(), 0, 12);
+                }
+                else
+                {
+                    game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, vertices, 0, 24, indices, 0, 12);
+                }
             }
         }
     }

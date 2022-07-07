@@ -28,7 +28,7 @@ namespace DeveMazeGeneratorMonoGame
     /// </summary>
     public class TheGame : Game
     {
-        private readonly Platform _platform;
+        public Platform Platform { get; }
 
         private IntSize? _desiredScreenSize = null;
         private IContentManagerExtension _contentManagerExtension = null;
@@ -86,7 +86,7 @@ namespace DeveMazeGeneratorMonoGame
         {
             _contentManagerExtension = contentManagerExtension;
             _desiredScreenSize = desiredScreenSize;
-            _platform = platform;
+            Platform = platform;
 
 
             graphics = new GraphicsDeviceManager(this);
@@ -106,7 +106,7 @@ namespace DeveMazeGeneratorMonoGame
 
         public TheGame() : this(null, null, Platform.Desktop)
         {
-           
+
         }
 
         /// <summary>
@@ -223,7 +223,7 @@ namespace DeveMazeGeneratorMonoGame
             vertexBuffer = new VertexBuffer(GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
             vertexBuffer.SetData(vertices);
 
-            if (_platform == Platform.Blazor)
+            if (Platform == Platform.Blazor)
             {
                 indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
                 if (indices.Any(t => t > short.MaxValue))
@@ -238,7 +238,7 @@ namespace DeveMazeGeneratorMonoGame
                 indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
                 indexBuffer.SetData(indices);
             }
-            
+
 
             GeneratePath(currentPath);
         }
@@ -276,7 +276,7 @@ namespace DeveMazeGeneratorMonoGame
             vertexBufferPath.SetData(vertices);
 
 
-            if (_platform == Platform.Blazor)
+            if (Platform == Platform.Blazor)
             {
                 indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
                 if (indices.Any(t => t > short.MaxValue))
@@ -595,8 +595,13 @@ namespace DeveMazeGeneratorMonoGame
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
-
+            SamplerState newSamplerState = new SamplerState()
+            {
+                AddressU = TextureAddressMode.Clamp,
+                AddressV = TextureAddressMode.Clamp,
+                Filter = TextureFilter.Point
+            };
+            GraphicsDevice.SamplerStates[0] = newSamplerState;
 
 
             //GraphicsDevice.BlendState = BlendState.Opaque;
@@ -641,6 +646,7 @@ namespace DeveMazeGeneratorMonoGame
             //Skybox
             effect.LightingEnabled = false;
             effect.Texture = ContentDing.skyTexture1;
+
             int skyboxSize = 1000000;
             CubeModelInvertedForSkybox skybox = new CubeModelInvertedForSkybox(this, skyboxSize, skyboxSize, skyboxSize, TexturePosInfoGenerator.FullImage);
             Matrix skyboxMatrix = Matrix.CreateTranslation(camera.cameraPosition) * Matrix.CreateTranslation(new Vector3(-skyboxSize / 2, -skyboxSize / 2, -skyboxSize / 2));
@@ -678,8 +684,8 @@ namespace DeveMazeGeneratorMonoGame
 
             SamplerState newSamplerState2 = new SamplerState()
             {
-                AddressU = TextureAddressMode.Wrap,
-                AddressV = TextureAddressMode.Wrap,
+                AddressU = TextureAddressMode.Clamp,
+                AddressV = TextureAddressMode.Clamp,
                 Filter = TextureFilter.Point
             };
             GraphicsDevice.SamplerStates[0] = newSamplerState2;
