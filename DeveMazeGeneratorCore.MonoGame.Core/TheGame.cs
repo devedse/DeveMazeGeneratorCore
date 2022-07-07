@@ -24,7 +24,7 @@ namespace DeveMazeGeneratorMonoGame
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class Game1 : Game
+    public class TheGame : Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -73,7 +73,7 @@ namespace DeveMazeGeneratorMonoGame
         private LineOfSightDeterminer determiner;
         private LineOfSightObject curChaseCameraPoint = null;
 
-        public Game1()
+        public TheGame()
             : base()
         {
             graphics = new GraphicsDeviceManager(this);

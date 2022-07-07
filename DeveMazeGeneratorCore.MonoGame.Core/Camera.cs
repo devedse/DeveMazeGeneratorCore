@@ -20,13 +20,13 @@ namespace DeveMazeGeneratorMonoGame
 
         private const float rotationSpeed = 0.3f;
         private float moveSpeed = 100.0f;
-        private Game1 game;
+        private TheGame game;
 
         public Matrix viewMatrix;
         public Matrix projectionMatrix;
 
 
-        public Camera(Game1 game)
+        public Camera(TheGame game)
         {
             this.game = game;
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, game.GraphicsDevice.Viewport.AspectRatio, 0.3f, 10000000.0f);

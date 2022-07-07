@@ -8,7 +8,7 @@ namespace DeveBlockStacker.DesktopGL
         [STAThread]
         public static void Main()
         {
-            var game = new Game1();
+            var game = new TheGame();
 
             game.Run();
         }

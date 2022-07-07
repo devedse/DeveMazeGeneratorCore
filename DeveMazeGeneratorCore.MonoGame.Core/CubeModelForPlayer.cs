@@ -10,14 +10,14 @@ namespace DeveMazeGeneratorMonoGame
 {
     class CubeModelForPlayer
     {
-        public Game1 game;
+        public TheGame game;
         public int[] indices = new int[36];
         public VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[24];
 
         public float width;
         public float height;
         public float depth;
-        public CubeModelForPlayer(Game1 game, float width, float height, float depth, TexturePosInfo texturePosInfo)
+        public CubeModelForPlayer(TheGame game, float width, float height, float depth, TexturePosInfo texturePosInfo)
         {
             this.game = game;
             this.width = width;

@@ -9,14 +9,14 @@ namespace DeveMazeGeneratorMonoGame
 {
     class CubeModelInvertedForSkybox
     {
-        public Game1 game;
+        public TheGame game;
         public int[] indices = new int[36];
         public VertexPositionTexture[] vertices = new VertexPositionTexture[24];
 
         public int width;
         public int height;
         public int depth;
-        public CubeModelInvertedForSkybox(Game1 game, int width, int height, int depth, TexturePosInfo texturePosInfo)
+        public CubeModelInvertedForSkybox(TheGame game, int width, int height, int depth, TexturePosInfo texturePosInfo)
         {
             this.game = game;
             this.width = width;

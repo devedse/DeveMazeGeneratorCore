@@ -21,7 +21,7 @@ namespace DeveMazeGeneratorMonoGame
 
 
 
-        public PlayerModel(Game1 game)
+        public PlayerModel(TheGame game)
         {
             headModel = new CubeModelForPlayer(game, 8, 8, 8, TexturePosInfoGenerator.Head);
             bodyModel = new CubeModelForPlayer(game, 8, 12, 4, TexturePosInfoGenerator.Body);
