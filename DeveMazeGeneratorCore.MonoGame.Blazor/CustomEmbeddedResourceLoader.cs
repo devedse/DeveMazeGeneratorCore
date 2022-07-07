@@ -1,4 +1,4 @@
-﻿using DeveMazeGeneratorCore.Core.Data;
+﻿using DeveMazeGeneratorCore.MonoGame.Core.Data;
 using Microsoft.Xna.Framework.Content;
 using System.Reflection;
 

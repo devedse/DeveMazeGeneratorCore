@@ -288,7 +288,8 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
         /// <param name="gameTime"></param>
         private void FpsUiControlsLayout(GameTime gameTime)
         {
-            MouseState state = Mouse.GetState(gameWindow);
+            //MouseState state = Mouse.GetState(gameWindow);
+            MouseState state = Mouse.GetState();
             KeyboardState kstate = Keyboard.GetState();
             if (kstate.IsKeyDown(Keys.W))
             {
@@ -368,7 +369,8 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
         /// <param name="gameTime"></param>
         private void EditingUiControlsLayout(GameTime gameTime)
         {
-            MouseState state = Mouse.GetState(gameWindow);
+            //MouseState state = Mouse.GetState(gameWindow);
+            MouseState state = Mouse.GetState();
             KeyboardState kstate = Keyboard.GetState();
             if (kstate.IsKeyDown(Keys.E))
             {
