@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -17,7 +18,8 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
     {
         private GraphicsDevice graphicsDevice = null;
         private GameWindow gameWindow = null;
-
+        private readonly Game game;
+        private readonly bool allowMouseResets;
         private MouseState mState = default(MouseState);
         private KeyboardState kbState = default(KeyboardState);
 
@@ -32,8 +34,8 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
         private float xMouseAngle = 0f;
         private bool mouseLookIsUsed = true;
 
-        private int fpsKeyboardLayout = 1;
-        private int cameraTypeOption = 1;
+        private int fpsKeyboardLayout = 0;
+        private int cameraTypeOption = 0;
 
         /// <summary>
         /// operates pretty much like a fps camera.
@@ -63,16 +65,33 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
         /// </summary>
         public const int CAM_TYPE_OPTION_FREE = 1;
 
+        private int screenWidth;
+        private int screenHeight;
 
         /// <summary>
         /// Constructs the camera.
         /// </summary>
-        public Basic3dExampleCamera(GraphicsDevice gfxDevice, GameWindow window)
+        public Basic3dExampleCamera(GraphicsDevice gfxDevice, GameWindow window, Game game, bool allowMouseResets)
         {
             graphicsDevice = gfxDevice;
             gameWindow = window;
+            this.game = game;
+            this.allowMouseResets = allowMouseResets;
             ReCreateWorldAndView();
             ReCreateThePerspectiveProjectionMatrix(gfxDevice, fieldOfViewDegrees);
+
+            screenWidth = gameWindow.ClientBounds.Width;
+            screenHeight = gameWindow.ClientBounds.Height;
+
+            ResetMouseToCenter();
+        }
+
+        public void ResetMouseToCenter()
+        {
+            if (allowMouseResets)
+            {
+                Mouse.SetPosition(screenWidth / 2, screenHeight / 2);
+            }
         }
 
         /// <summary>
@@ -351,14 +370,25 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
                 else
                     mouseLookIsUsed = false;
             }
-            if (mouseLookIsUsed)
+            if (mouseLookIsUsed && this.game.IsActive)
             {
-                Vector2 diff = state.Position.ToVector2() - mState.Position.ToVector2();
+                Vector2 diff;
+                if (allowMouseResets)
+                {
+                    diff = state.Position.ToVector2() - new Vector2(screenWidth / 2, screenHeight / 2);
+                }
+                else
+                {
+                    diff = state.Position.ToVector2() - mState.Position.ToVector2();
+                }
+
+                ResetMouseToCenter();
                 if (diff.X != 0f)
                     RotateLeftOrRight(gameTime, diff.X);
                 if (diff.Y != 0f)
                     RotateUpOrDown(gameTime, diff.Y);
             }
+
             mState = state;
             kbState = kstate;
         }
@@ -434,7 +464,17 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
                 mouseLookIsUsed = false;
             if (mouseLookIsUsed)
             {
-                Vector2 diff = state.Position.ToVector2() - mState.Position.ToVector2();
+                Vector2 diff;
+                if (allowMouseResets)
+                {
+                    diff = state.Position.ToVector2() - new Vector2(screenWidth / 2, screenHeight / 2);
+                }
+                else
+                {
+                    diff = state.Position.ToVector2() - mState.Position.ToVector2();
+                }
+
+                ResetMouseToCenter();
                 if (diff.X != 0f)
                     RotateLeftOrRight(gameTime, diff.X);
                 if (diff.Y != 0f)
@@ -533,15 +573,41 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
         public void RotateLeftOrRight(GameTime gameTime, float amount)
         {
             var radians = amount * -RotationRadiansPerSecond * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            Matrix matrix = Matrix.CreateFromAxisAngle(camerasWorld.Up, MathHelper.ToRadians(radians));
-            LookAtDirection = Vector3.TransformNormal(LookAtDirection, matrix);
+
+            Matrix matrix;
+            if (cameraTypeOption == CAM_TYPE_OPTION_FIXED)
+            {
+                matrix = Matrix.CreateRotationY(MathHelper.ToRadians(radians));
+            }
+            else
+            {
+                matrix = Matrix.CreateFromAxisAngle(camerasWorld.Up, MathHelper.ToRadians(radians));
+            }
+            LookAtDirection = Vector3.Transform(LookAtDirection, matrix);
             ReCreateWorldAndView();
         }
+
         public void RotateUpOrDown(GameTime gameTime, float amount)
         {
             var radians = amount * -RotationRadiansPerSecond * (float)gameTime.ElapsedGameTime.TotalSeconds;
             Matrix matrix = Matrix.CreateFromAxisAngle(camerasWorld.Right, MathHelper.ToRadians(radians));
-            LookAtDirection = Vector3.TransformNormal(LookAtDirection, matrix);
+
+            if (cameraTypeOption == CAM_TYPE_OPTION_FIXED)
+            {
+                var newLookAt = Vector3.TransformNormal(LookAtDirection, matrix);
+                if (!CustomMathHelper.SameSign(LookAtDirection.X, newLookAt.X) || !CustomMathHelper.SameSign(LookAtDirection.Z, newLookAt.Z))
+                {
+
+                }
+                else
+                {
+                    LookAtDirection = newLookAt;
+                }
+            }
+            else
+            {
+                LookAtDirection = Vector3.TransformNormal(LookAtDirection, matrix);
+            }
             ReCreateWorldAndView();
         }
 

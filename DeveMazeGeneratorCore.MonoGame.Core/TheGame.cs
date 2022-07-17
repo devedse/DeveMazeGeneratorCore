@@ -56,10 +56,14 @@ namespace DeveMazeGeneratorMonoGame
         private Maze currentMaze = null;
         private List<MazePointPos> currentPath = null;
 
+
+        //Keys.H
         private bool drawRoof = true;
 
+        //Keys.L
         private bool lighting = true;
 
+        //Keys.P
         private bool drawPath = false;
 
         private float numbertje = -1f;
@@ -72,14 +76,21 @@ namespace DeveMazeGeneratorMonoGame
 
         private String lastAlgorithm = "";
 
+        //Keys.T
         private bool fromAboveCamera = false;
 
+        //Keys.F
         private bool followCamera = true;
 
+        //Keys.C
         private Boolean chaseCamera = false;
+        //Keys.B
         private Boolean chaseCameraShowDebugBlocks = false;
         private LineOfSightDeterminer determiner;
         private LineOfSightObject curChaseCameraPoint = null;
+
+        //Keys.O
+        private bool UseNewCamera = false;
 
 
         public TheGame(IContentManagerExtension contentManagerExtension, IntSize? desiredScreenSize, Platform platform) : base()
@@ -94,7 +105,7 @@ namespace DeveMazeGeneratorMonoGame
             graphics.PreferMultiSampling = true;
             //GraphicsDevice.PresentationParameters.MultiSampleCount = 16;
 
-            IsMouseVisible = false;
+            IsMouseVisible = true;
 
             //TargetElapsedTime = TimeSpan.FromTicks((long)10000000 / (long)500);
 
@@ -146,8 +157,8 @@ namespace DeveMazeGeneratorMonoGame
         protected override void LoadContent()
         {
             GenerateMaze();
-            camera = new Camera(this);
-            newcamera = new Basic3dExampleCamera(GraphicsDevice, Window);
+            camera = new Camera(this, Platform != Platform.Blazor);
+            newcamera = new Basic3dExampleCamera(GraphicsDevice, Window, this, Platform != Platform.Blazor);
             newcamera.Position = new Vector3(7.5f, 7.5f, 7.5f);
             newcamera.LookAtDirection = Vector3.Forward;
 
@@ -376,6 +387,10 @@ namespace DeveMazeGeneratorMonoGame
 
 
 
+            if (InputDing.KeyDownUp(Keys.O))
+            {
+                UseNewCamera = !UseNewCamera;
+            }
 
 
             //Line of sight stuff
@@ -481,7 +496,7 @@ namespace DeveMazeGeneratorMonoGame
 
 
 
-            if (InputDing.KeyDownUp(Keys.O))
+            if (InputDing.KeyDownUp(Keys.F))
             {
                 if (!followCamera)
                 {
@@ -523,9 +538,14 @@ namespace DeveMazeGeneratorMonoGame
                 GenerateMaze();
             }
 
-
-            //camera.Update(gameTime);
-            newcamera.Update(gameTime);
+            if (UseNewCamera)
+            {
+                newcamera.Update(gameTime);
+            }
+            else
+            {
+                camera.Update(gameTime);
+            }
 
 
             if (InputDing.KeyDownUp(Keys.Up))
@@ -611,12 +631,20 @@ namespace DeveMazeGeneratorMonoGame
             //GraphicsDevice.DepthStencilState = d;
 
             Matrix worldMatrix = Matrix.Identity;
-            //effect.World = worldMatrix;
-            //effect.View = camera.viewMatrix;
-            //effect.Projection = camera.projectionMatrix;
-            effect.World = worldMatrix;
-            effect.View = newcamera.View;
-            effect.Projection = newcamera.Projection;
+
+            if (UseNewCamera)
+            {
+                effect.World = worldMatrix;
+                effect.View = newcamera.View;
+                effect.Projection = newcamera.Projection;
+            }
+            else
+            {
+                effect.World = worldMatrix;
+                effect.View = camera.viewMatrix;
+                effect.Projection = camera.projectionMatrix;
+            }
+
 
             //effect.EnableDefaultLighting();
             effect.LightingEnabled = true;

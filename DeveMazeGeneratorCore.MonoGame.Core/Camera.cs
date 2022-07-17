@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -18,56 +19,59 @@ namespace DeveMazeGeneratorMonoGame
         //private float updownRot = -0.33f;
         public float updownRot = 0;
 
-        private const float rotationSpeed = 0.3f;
+        private const float rotationSpeed = 0.6f;
         private float moveSpeed = 100.0f;
         private TheGame game;
-
+        private readonly bool allowMouseResets;
         public Matrix viewMatrix;
         public Matrix projectionMatrix;
 
+        private int screenWidth;
+        private int screenHeight;
 
-        public Camera(TheGame game)
+        private MouseState mState = default(MouseState);
+
+
+        public Camera(TheGame game, bool allowMouseResets)
         {
             this.game = game;
+            this.allowMouseResets = allowMouseResets;
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, game.GraphicsDevice.Viewport.AspectRatio, 0.3f, 10000000.0f);
 
-            Mouse.SetPosition(game.GraphicsDevice.Viewport.Width / 2, game.GraphicsDevice.Viewport.Height / 2);
+            screenWidth = game.Window.ClientBounds.Width;
+            screenHeight = game.Window.ClientBounds.Height;
+
+            ResetMouseToCenter();
+        }
+
+        public void ResetMouseToCenter()
+        {
+            if (allowMouseResets)
+            {
+                Mouse.SetPosition(screenWidth / 2, screenHeight / 2);
+            }
         }
 
         public void Update(GameTime gameTime)
         {
-            //Console.WriteLine("Leftright: " + leftrightRot);
-            //Console.WriteLine("Updown: " + updownRot);
+
+            MouseState currentMouseState = Mouse.GetState();
 
             float timeDifference = (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000.0f;
-            ProcessInput(timeDifference);
 
-            if (InputDing.CurMouse.LeftButton == ButtonState.Pressed)
-            {
-                moveSpeed = 1000.0f;
-            }
-            else if (InputDing.CurMouse.RightButton == ButtonState.Pressed)
-            {
-                moveSpeed = 30.0f;
-            }
-            else
-            {
-                moveSpeed = 100.0f;
-            }
-        }
 
-        private void ProcessInput(float amount)
-        {
-            MouseState currentMouseState = InputDing.CurMouse;
-            MouseState previousMouseState = InputDing.PreMouse;
             GraphicsDevice device = game.GraphicsDevice;
-            if (currentMouseState != previousMouseState)
+            if (currentMouseState != mState)
             {
-                float xDifference = currentMouseState.X - previousMouseState.X;
-                float yDifference = currentMouseState.Y - previousMouseState.Y;
-                leftrightRot -= rotationSpeed * xDifference * amount;
-                updownRot -= rotationSpeed * yDifference * amount;
-                Mouse.SetPosition(device.Viewport.Width / 2, device.Viewport.Height / 2);
+                float xDifference = currentMouseState.X - (allowMouseResets ? (screenWidth / 2) : mState.X);
+                float yDifference = currentMouseState.Y - (allowMouseResets ? (screenHeight / 2) : mState.Y);
+                ResetMouseToCenter();
+                leftrightRot -= rotationSpeed * xDifference * timeDifference;
+
+                var newUpDownRot = updownRot - (rotationSpeed * yDifference * timeDifference);
+
+                updownRot = MathHelper.Clamp(newUpDownRot, -CustomMathHelper.HalfPi, CustomMathHelper.HalfPi);
+
                 UpdateViewMatrix();
             }
 
@@ -85,7 +89,24 @@ namespace DeveMazeGeneratorMonoGame
                 moveVector += new Vector3(0, 1, 0);
             if (keyState.IsKeyDown(Keys.LeftShift))
                 moveVector += new Vector3(0, -1, 0);
-            AddToCameraPosition(moveVector * amount);
+            AddToCameraPosition(moveVector * timeDifference);
+
+
+            if (InputDing.CurMouse.LeftButton == ButtonState.Pressed)
+            {
+                moveSpeed = 1000.0f;
+            }
+            else if (InputDing.CurMouse.RightButton == ButtonState.Pressed)
+            {
+                moveSpeed = 30.0f;
+            }
+            else
+            {
+                moveSpeed = 100.0f;
+            }
+
+
+            mState = currentMouseState;
         }
 
         private void AddToCameraPosition(Vector3 vectorToAdd)

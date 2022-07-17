@@ -26,10 +26,10 @@
 	<Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmDivisionDynamic.cs" Link="Generators\AlgorithmDivisionDynamic.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmDivisionDynamicOldTestingThing.cs" Link="Generators\AlgorithmDivisionDynamicOldTestingThing.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmDivisionDynamicWithPath.cs" Link="Generators\AlgorithmDivisionDynamicWithPath.cs" />
-	<Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmKruskal.cs" Link="Generators\AlgorithmKruskal.cs" />       
+	<Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmKruskal.cs" Link="Generators\AlgorithmKruskal.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\Generators\IAlgorithm.cs" Link="Generators\IAlgorithm.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\Generators\Helpers\IRandom.cs" Link="Generators\Helpers\IRandom.cs" />
-	<Compile Include="..\DeveMazeGeneratorCore\Generators\Helpers\NetRandom.cs" Link="Generators\Helpers\NetRandom.cs" />     
+	<Compile Include="..\DeveMazeGeneratorCore\Generators\Helpers\NetRandom.cs" Link="Generators\Helpers\NetRandom.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\Generators\Helpers\XorShiftRandom.cs" Link="Generators\Helpers\XorShiftRandom.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\IMazeDirGeneric.cs" Link="Generators\SpeedOptimization\IMazeDirGeneric.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\IProgressAction.cs" Link="Generators\SpeedOptimization\IProgressAction.cs" />
@@ -51,10 +51,10 @@
 	<Compile Include="..\DeveMazeGeneratorCore\InnerMaps\IMapPart.cs" Link="InnerMaps\IMapPart.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\InnerMaps\InnerMap.cs" Link="InnerMaps\InnerMap.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\InnerMaps\InnerMapWithPath.cs" Link="InnerMaps\InnerMapWithPath.cs" />
-	<Compile Include="..\DeveMazeGeneratorCore\InnerMaps\UndefinedInnerMap.cs" Link="InnerMaps\UndefinedInnerMap.cs" />       
+	<Compile Include="..\DeveMazeGeneratorCore\InnerMaps\UndefinedInnerMap.cs" Link="InnerMaps\UndefinedInnerMap.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\InnerMaps\InnerStuff\BitArreintjeFastInnerMapArray.cs" Link="InnerMaps\InnerStuff\BitArreintjeFastInnerMapArray.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\Mazes\Maze.cs" Link="Mazes\Maze.cs" />
-	<Compile Include="..\DeveMazeGeneratorCore\Mazes\MazeWithPathAsInnerMap.cs" Link="Mazes\MazeWithPathAsInnerMap.cs" />     
+	<Compile Include="..\DeveMazeGeneratorCore\Mazes\MazeWithPathAsInnerMap.cs" Link="Mazes\MazeWithPathAsInnerMap.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\PathFinders\PathFinderDepthFirstSmart.cs" Link="PathFinders\PathFinderDepthFirstSmart.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\PathFinders\PathFinderDepthFirstSmartWithPos.cs" Link="PathFinders\PathFinderDepthFirstSmartWithPos.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\Structures\KruskalCell.cs" Link="Structures\KruskalCell.cs" />
@@ -64,8 +64,8 @@
 	<Compile Include="..\DeveMazeGeneratorCore\Structures\MazePointPos.cs" Link="Structures\MazePointPos.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\Structures\MazeWall.cs" Link="Structures\MazeWall.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore\Structures\Rectangle.cs" Link="Structures\Rectangle.cs" />
-	<Compile Include="..\DeveMazeGeneratorCore\Structures\RectangleWithPath.cs" Link="Structures\RectangleWithPath.cs" />     
-	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\Basic3dExampleCamera.cs" Link="Basic3dExampleCamera.cs" />       
+	<Compile Include="..\DeveMazeGeneratorCore\Structures\RectangleWithPath.cs" Link="Structures\RectangleWithPath.cs" />
+	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\Basic3dExampleCamera.cs" Link="Basic3dExampleCamera.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\Camera.cs" Link="Camera.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\ContentDing.cs" Link="ContentDing.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\CubeModel.cs" Link="CubeModel.cs" />
@@ -77,14 +77,15 @@
 	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\Program.cs" Link="Program.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\RectangleExtensions.cs" Link="RectangleExtensions.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\TexturePosInfo.cs" Link="TexturePosInfo.cs" />
-	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\TexturePosInfoGenerator.cs" Link="TexturePosInfoGenerator.cs" /> 
+	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\TexturePosInfoGenerator.cs" Link="TexturePosInfoGenerator.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\TheGame.cs" Link="TheGame.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\VierkantjeModel.cs" Link="VierkantjeModel.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\WallModel.cs" Link="WallModel.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\Data\ExtendibleContentManager.cs" Link="Data\ExtendibleContentManager.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\Data\IContentManagerExtension.cs" Link="Data\IContentManagerExtension.cs" />
-	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\HelperObjects\IntSize.cs" Link="HelperObjects\IntSize.cs" />     
-	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\HelperObjects\Platform.cs" Link="HelperObjects\Platform.cs" />   
+	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\HelperObjects\CustomMathHelper.cs" Link="HelperObjects\CustomMathHelper.cs" />
+	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\HelperObjects\IntSize.cs" Link="HelperObjects\IntSize.cs" />
+	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\HelperObjects\Platform.cs" Link="HelperObjects\Platform.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\LineOfSight\LineOfSightDeterminer.cs" Link="LineOfSight\LineOfSightDeterminer.cs" />
 	<Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\LineOfSight\LineOfSightObject.cs" Link="LineOfSight\LineOfSightObject.cs" />
  </ItemGroup>
