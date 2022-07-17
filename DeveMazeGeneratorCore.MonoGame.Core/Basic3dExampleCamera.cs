@@ -65,9 +65,6 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
         /// </summary>
         public const int CAM_TYPE_OPTION_FREE = 1;
 
-        private int screenWidth;
-        private int screenHeight;
-
         /// <summary>
         /// Constructs the camera.
         /// </summary>
@@ -79,9 +76,6 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
 
             ReCreateWorldAndView();
             ReCreateThePerspectiveProjectionMatrix(gfxDevice, fieldOfViewDegrees);
-
-            screenWidth = gameWindow.ClientBounds.Width;
-            screenHeight = gameWindow.ClientBounds.Height;
         }
 
         /// <summary>
@@ -365,7 +359,7 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
                 Vector2 diff;
                 if (game.AllowMouseResets)
                 {
-                    diff = state.Position.ToVector2() - new Vector2(screenWidth / 2, screenHeight / 2);
+                    diff = state.Position.ToVector2() - new Vector2(game.ScreenWidth/ 2, game.ScreenHeight / 2);
                 }
                 else
                 {
@@ -457,7 +451,7 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
                 Vector2 diff;
                 if (game.AllowMouseResets)
                 {
-                    diff = state.Position.ToVector2() - new Vector2(screenWidth / 2, screenHeight / 2);
+                    diff = state.Position.ToVector2() - new Vector2(game.ScreenWidth / 2, game.ScreenHeight / 2);
                 }
                 else
                 {

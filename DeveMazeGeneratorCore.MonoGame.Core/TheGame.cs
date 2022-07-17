@@ -463,6 +463,21 @@ namespace DeveMazeGeneratorMonoGame
                 chaseCameraShowDebugBlocks = !chaseCameraShowDebugBlocks;
             }
 
+
+
+
+            if (UseNewCamera)
+            {
+                newcamera.Update(gameTime);
+            }
+            else
+            {
+                camera.Update(gameTime);
+            }
+
+
+
+
             if (chaseCamera || chaseCameraShowDebugBlocks)
             {
                 if (curChaseCameraPoint == null)
@@ -508,6 +523,7 @@ namespace DeveMazeGeneratorMonoGame
 
                 camera.updownRot = 0;
                 camera.leftrightRot = newRot;
+                camera.UpdateViewMatrix();
             }
 
 
@@ -538,6 +554,7 @@ namespace DeveMazeGeneratorMonoGame
                 var now = GetPosAtThisNumer(numbertje);
 
                 camera.cameraPosition = new Vector3((now.X + 1.9f) * 10.0f, (7.0f) * 10.0f, (now.Y + 7.0f) * 10.0f);
+                camera.UpdateViewMatrix();
             }
 
 
@@ -574,6 +591,7 @@ namespace DeveMazeGeneratorMonoGame
 
                 //camera.leftrightRot = (9.0f * oldRot + 1.0f * newRot) / 10.0f;
                 camera.leftrightRot = newRot;
+                camera.UpdateViewMatrix();
             }
 
 
@@ -588,15 +606,6 @@ namespace DeveMazeGeneratorMonoGame
             {
                 numbertje = 0;
                 GenerateMaze();
-            }
-
-            if (UseNewCamera)
-            {
-                newcamera.Update(gameTime);
-            }
-            else
-            {
-                camera.Update(gameTime);
             }
 
 
@@ -883,7 +892,7 @@ namespace DeveMazeGeneratorMonoGame
             spriteBatch.DrawString(ContentDing.spriteFont, stringToDraw, new Vector2(10, 10), Color.White);
 
             var n = Environment.NewLine;
-            string helpStringToDraw = $"{ScreenWidth}x{ScreenHeight}{n}{n}F: Follow Camera ({followCamera}){n}T: Top Camera ({fromAboveCamera}){n}C: Chase Camera ({chaseCamera}){n}   B: Chase Debug ({chaseCameraShowDebugBlocks}){n}{n}H: Roof ({drawRoof}){n}P: Path ({drawPath}){n}{n}Down/Up: Maze Size{n}Left/Right: Algorithm{n}Num-+: Speed{n}R: New Maze{n}{n}L: Lighting ({lighting}){n}O: Other Camera ({UseNewCamera})";
+            string helpStringToDraw = $"{ScreenWidth}x{ScreenHeight}{n}{n}F: Follow Camera ({followCamera}){n}T: Top Camera ({fromAboveCamera}){n}C: Chase Camera ({chaseCamera}){n}   B: Chase Debug ({chaseCameraShowDebugBlocks}){n}{n}H: Roof ({drawRoof}){n}P: Path ({drawPath}){n}{n}Down/Up: Maze Size{n}Left/Right: Algorithm{n}Num-+: Speed{n}R: New Maze{n}G: Restart this maze{n}{n}L: Lighting ({lighting}){n}O: Other Camera ({UseNewCamera})";
             var meassuredHelpString = ContentDing.spriteFont.MeasureString(helpStringToDraw);
             spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle(ScreenWidth - (int)meassuredHelpString.X - 30, 5, (int)meassuredHelpString.X + 20, (int)meassuredHelpString.Y + 10), Color.White);
             spriteBatch.DrawString(ContentDing.spriteFont, helpStringToDraw, new Vector2(ScreenWidth - (int)meassuredHelpString.X - 20, 10), Color.White);

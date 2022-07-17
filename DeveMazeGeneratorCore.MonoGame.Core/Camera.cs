@@ -106,7 +106,7 @@ namespace DeveMazeGeneratorMonoGame
             UpdateViewMatrix();
         }
 
-        private void UpdateViewMatrix()
+        public void UpdateViewMatrix()
         {
             Matrix cameraRotation = Matrix.CreateRotationX(updownRot) * Matrix.CreateRotationY(leftrightRot);
 
