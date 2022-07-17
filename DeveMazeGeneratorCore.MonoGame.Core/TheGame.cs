@@ -411,6 +411,90 @@ namespace DeveMazeGeneratorMonoGame
             if (InputDing.CurKey.IsKeyDown(Keys.Escape))
                 Exit();
 
+            //Reset when done
+            if ((numbertje * speedFactor) > pathCount + speedFactor)
+            {
+                numbertje = 0;
+                GenerateMaze();
+            }
+
+
+            if (InputDing.KeyDownUp(Keys.Up))
+            {
+                numbertje = 0;
+                curMazeWidth *= 2;
+                curMazeHeight *= 2;
+                GenerateMaze();
+            }
+
+            if (InputDing.KeyDownUp(Keys.Down))
+            {
+                if (curMazeWidth > 4 && curMazeHeight > 4)
+                {
+                    numbertje = 0;
+                    curMazeWidth /= 2;
+                    curMazeHeight /= 2;
+                    if (curMazeWidth < 1)
+                        curMazeWidth = 1;
+                    if (curMazeHeight < 1)
+                        curMazeHeight = 1;
+                    GenerateMaze();
+                }
+            }
+
+            if (InputDing.KeyDownUp(Keys.Left))
+            {
+                currentAlgorithm--;
+                if (currentAlgorithm < 0)
+                {
+                    currentAlgorithm = algorithms.Count - 1;
+                }
+                numbertje = 0;
+                GenerateMaze();
+            }
+            if (InputDing.KeyDownUp(Keys.Right))
+            {
+                currentAlgorithm++;
+                if (currentAlgorithm >= algorithms.Count)
+                {
+                    currentAlgorithm = 0;
+                }
+                numbertje = 0;
+                GenerateMaze();
+            }
+
+            if (InputDing.CurKey.IsKeyDown(Keys.D0))
+            {
+                GenerateMaze();
+            }
+
+            if (InputDing.KeyDownUp(Keys.H))
+            {
+                drawRoof = !drawRoof;
+            }
+
+            if (InputDing.KeyDownUp(Keys.L))
+            {
+                lighting = !lighting;
+            }
+
+            if (InputDing.KeyDownUp(Keys.P))
+            {
+                drawPath = !drawPath;
+            }
+
+
+            if (InputDing.CurKey.IsKeyDown(Keys.G))
+            {
+                numbertje = 0;
+            }
+
+            if (InputDing.KeyDownUp(Keys.R))
+            {
+                numbertje = 0;
+                GenerateMaze();
+            }
+
             if (InputDing.KeyDownUp(Keys.OemPlus) || InputDing.KeyDownUp(Keys.Add))
             {
                 speedFactor *= 2;
@@ -445,6 +529,17 @@ namespace DeveMazeGeneratorMonoGame
             }
 
 
+            if (UseNewCamera)
+            {
+                newcamera.Update(gameTime);
+            }
+            else
+            {
+                camera.Update(gameTime);
+            }
+
+
+
             //Line of sight stuff
             //Should happen when player runs out of range
 
@@ -462,21 +557,6 @@ namespace DeveMazeGeneratorMonoGame
             {
                 chaseCameraShowDebugBlocks = !chaseCameraShowDebugBlocks;
             }
-
-
-
-
-            if (UseNewCamera)
-            {
-                newcamera.Update(gameTime);
-            }
-            else
-            {
-                camera.Update(gameTime);
-            }
-
-
-
 
             if (chaseCamera || chaseCameraShowDebugBlocks)
             {
@@ -597,95 +677,7 @@ namespace DeveMazeGeneratorMonoGame
 
 
 
-
-
-
-
-            //Reset when done
-            if ((numbertje * speedFactor) > pathCount + speedFactor)
-            {
-                numbertje = 0;
-                GenerateMaze();
-            }
-
-
-            if (InputDing.KeyDownUp(Keys.Up))
-            {
-                numbertje = 0;
-                curMazeWidth *= 2;
-                curMazeHeight *= 2;
-                GenerateMaze();
-            }
-
-            if (InputDing.KeyDownUp(Keys.Down))
-            {
-                if (curMazeWidth > 4 && curMazeHeight > 4)
-                {
-                    numbertje = 0;
-                    curMazeWidth /= 2;
-                    curMazeHeight /= 2;
-                    if (curMazeWidth < 1)
-                        curMazeWidth = 1;
-                    if (curMazeHeight < 1)
-                        curMazeHeight = 1;
-                    GenerateMaze();
-                }
-            }
-
-            if (InputDing.KeyDownUp(Keys.Left))
-            {
-                currentAlgorithm--;
-                if (currentAlgorithm < 0)
-                {
-                    currentAlgorithm = algorithms.Count - 1;
-                }
-                numbertje = 0;
-                GenerateMaze();
-            }
-            if (InputDing.KeyDownUp(Keys.Right))
-            {
-                currentAlgorithm++;
-                if (currentAlgorithm >= algorithms.Count)
-                {
-                    currentAlgorithm = 0;
-                }
-                numbertje = 0;
-                GenerateMaze();
-            }
-
-            if (InputDing.CurKey.IsKeyDown(Keys.D0))
-            {
-                GenerateMaze();
-            }
-
-            if (InputDing.KeyDownUp(Keys.H))
-            {
-                drawRoof = !drawRoof;
-            }
-
-            if (InputDing.KeyDownUp(Keys.L))
-            {
-                lighting = !lighting;
-            }
-
-            if (InputDing.KeyDownUp(Keys.P))
-            {
-                drawPath = !drawPath;
-            }
-
             numbertje += (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            if (InputDing.CurKey.IsKeyDown(Keys.G))
-            {
-                numbertje = 0;
-            }
-
-            if (InputDing.KeyDownUp(Keys.R))
-            {
-                numbertje = 0;
-                GenerateMaze();
-            }
-
             InputDing.AfterUpdate();
             base.Update(gameTime);
         }
