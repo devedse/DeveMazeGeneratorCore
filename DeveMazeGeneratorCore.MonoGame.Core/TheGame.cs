@@ -408,8 +408,10 @@ namespace DeveMazeGeneratorMonoGame
         {
             InputDing.PreUpdate();
 
-            if (InputDing.CurKey.IsKeyDown(Keys.Escape))
+            if (InputDing.CurKey.IsKeyDown(Keys.Escape) && Platform != Platform.Blazor)
+            {
                 Exit();
+            }
 
             //Reset when done
             if ((numbertje * speedFactor) > pathCount + speedFactor)
