@@ -73,7 +73,6 @@ namespace DeveMazeGeneratorMonoGame
         private Random random = new Random();
 
         private PlayerModel playerModel;
-        private String lastAlgorithm = "";
 
         //Keys.T
         private bool fromAboveCamera = false;
@@ -105,6 +104,14 @@ namespace DeveMazeGeneratorMonoGame
         public bool AllowMouseResets { get; }
         public int ScreenWidth { get; private set; }
         public int ScreenHeight { get; private set; }
+
+        private List<IAlgorithm<Maze>> algorithms = new List<IAlgorithm<Maze>>()
+        {
+            new AlgorithmBacktrack2Deluxe2(),
+            new AlgorithmDivisionDynamic(),
+            new AlgorithmKruskal()
+        };
+        private int currentAlgorithm = 0;
 
         public TheGame(IContentManagerExtension contentManagerExtension, IntSize? desiredScreenSize, Platform platform) : base()
         {
@@ -237,7 +244,7 @@ namespace DeveMazeGeneratorMonoGame
             roofModel = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
 
 
-            var alg = new AlgorithmBacktrack2Deluxe2();
+            var alg = algorithms[currentAlgorithm];
             //int randomnumber = curMazeWidth < 2048 ? random.Next(3) : random.Next(2);
             //if (randomnumber == 0)
             //    alg = new AlgorithmBacktrack();
@@ -248,8 +255,6 @@ namespace DeveMazeGeneratorMonoGame
 
             var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
             var randomFactory = new RandomFactory<XorShiftRandom>();
-
-            lastAlgorithm = alg.GetType().Name;
 
             currentMaze = alg.GoGenerate(curMazeWidth, curMazeHeight, Environment.TickCount, innerMapFactory, randomFactory, new NoAction());
             var walls = currentMaze.InnerMap.GenerateListOfMazeWalls();
@@ -615,6 +620,27 @@ namespace DeveMazeGeneratorMonoGame
                 }
             }
 
+            if (InputDing.KeyDownUp(Keys.Left))
+            {
+                currentAlgorithm--;
+                if (currentAlgorithm < 0)
+                {
+                    currentAlgorithm = algorithms.Count - 1;
+                }
+                numbertje = 0;
+                GenerateMaze();
+            }
+            if (InputDing.KeyDownUp(Keys.Right))
+            {
+                currentAlgorithm++;
+                if (currentAlgorithm >= algorithms.Count)
+                {
+                    currentAlgorithm = 0;
+                }
+                numbertje = 0;
+                GenerateMaze();
+            }
+
             if (InputDing.CurKey.IsKeyDown(Keys.D0))
             {
                 GenerateMaze();
@@ -848,7 +874,7 @@ namespace DeveMazeGeneratorMonoGame
 
             spriteBatch.Begin();
 
-            string stringToDraw = "Size: " + curMazeWidth + ", Walls: " + wallsCount + ", Path length: " + pathCount + ", Speed: " + speedFactor + ", Current: " + (int)Math.Max((numbertje - 1f) * speedFactor, 0) + ", Algorithm: " + lastAlgorithm;
+            string stringToDraw = $"Size: {curMazeWidth}, Walls: {wallsCount}, Path length: {pathCount}, Speed: {speedFactor}, Current: {(int)Math.Max((numbertje - 1f) * speedFactor, 0)}, Algorithm: ({currentAlgorithm}: {algorithms[currentAlgorithm].GetType().Name})";
 
             var meassured = ContentDing.spriteFont.MeasureString(stringToDraw);
 
