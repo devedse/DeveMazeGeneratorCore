@@ -423,7 +423,7 @@ namespace DeveMazeGeneratorMonoGame
                 }
             }
 
-            if (InputDing.KeyDownUp(Keys.OemMinus))
+            if (InputDing.KeyDownUp(Keys.OemMinus) || InputDing.KeyDownUp(Keys.Subtract))
             {
                 if (speedFactor >= 2)
                 {
@@ -433,7 +433,10 @@ namespace DeveMazeGeneratorMonoGame
             }
 
 
-
+            if (InputDing.KeyDownUp(Keys.Enter) && (InputDing.CurKey.IsKeyDown(Keys.LeftAlt) || InputDing.CurKey.IsKeyDown(Keys.RightAlt)))
+            {
+                graphics.ToggleFullScreen();
+            }
 
 
             if (InputDing.KeyDownUp(Keys.O))
@@ -875,11 +878,15 @@ namespace DeveMazeGeneratorMonoGame
             spriteBatch.Begin();
 
             string stringToDraw = $"Size: {curMazeWidth}, Walls: {wallsCount}, Path length: {pathCount}, Speed: {speedFactor}, Current: {(int)Math.Max((numbertje - 1f) * speedFactor, 0)}, Algorithm: ({currentAlgorithm}: {algorithms[currentAlgorithm].GetType().Name})";
-
             var meassured = ContentDing.spriteFont.MeasureString(stringToDraw);
-
             spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle(5, 5, (int)meassured.X + 10, (int)meassured.Y + 10), Color.White);
             spriteBatch.DrawString(ContentDing.spriteFont, stringToDraw, new Vector2(10, 10), Color.White);
+
+            var n = Environment.NewLine;
+            string helpStringToDraw = $"{ScreenWidth}x{ScreenHeight}{n}{n}F: Follow Camera ({followCamera}){n}T: Top Camera ({fromAboveCamera}){n}C: Chase Camera ({chaseCamera}){n}   B: Chase Debug ({chaseCameraShowDebugBlocks}){n}{n}H: Roof ({drawRoof}){n}P: Path ({drawPath}){n}{n}Down/Up: Maze Size{n}Left/Right: Algorithm{n}Num-+: Speed{n}R: New Maze{n}{n}L: Lighting ({lighting}){n}O: Other Camera ({UseNewCamera})";
+            var meassuredHelpString = ContentDing.spriteFont.MeasureString(helpStringToDraw);
+            spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle(ScreenWidth - (int)meassuredHelpString.X - 30, 5, (int)meassuredHelpString.X + 20, (int)meassuredHelpString.Y + 10), Color.White);
+            spriteBatch.DrawString(ContentDing.spriteFont, helpStringToDraw, new Vector2(ScreenWidth - (int)meassuredHelpString.X - 20, 10), Color.White);
 
             spriteBatch.End();
 
