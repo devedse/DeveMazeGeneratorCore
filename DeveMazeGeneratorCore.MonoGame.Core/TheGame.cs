@@ -73,7 +73,6 @@ namespace DeveMazeGeneratorMonoGame
         private Random random = new Random();
 
         private PlayerModel playerModel;
-
         private String lastAlgorithm = "";
 
         //Keys.T
@@ -92,6 +91,20 @@ namespace DeveMazeGeneratorMonoGame
         //Keys.O
         private bool UseNewCamera = false;
 
+        private int skyboxSize = 1000000;
+        private CubeModelInvertedForSkybox skyboxModel;
+        private CubeModel groundModel;
+        private CubeModel roofModel;
+        private CubeModel startModel;
+        private CubeModel finishModel;
+        private CubeModel possibleCubejeModel;
+        private CubeModel losPointCubeModel;
+
+
+
+        public bool AllowMouseResets { get; }
+        public int ScreenWidth { get; private set; }
+        public int ScreenHeight { get; private set; }
 
         public TheGame(IContentManagerExtension contentManagerExtension, IntSize? desiredScreenSize, Platform platform) : base()
         {
@@ -99,7 +112,7 @@ namespace DeveMazeGeneratorMonoGame
             _desiredScreenSize = desiredScreenSize;
             Platform = platform;
 
-
+            AllowMouseResets = Platform != Platform.Blazor;
             graphics = new GraphicsDeviceManager(this);
 
             graphics.PreferMultiSampling = true;
@@ -147,7 +160,32 @@ namespace DeveMazeGeneratorMonoGame
             Window.AllowUserResizing = true;
             graphics.ApplyChanges();
 #endif
+
+            this.Window.ClientSizeChanged += Window_ClientSizeChanged;
+            Window_ClientSizeChanged(null, null);
+
+            Activated += TheGame_Activated;
             base.Initialize();
+        }
+
+        private void TheGame_Activated(object sender, EventArgs e)
+        {
+            //Console.WriteLine($"{DateTime.Now}: ACTIVATED");
+            ResetMouseToCenter();
+        }
+
+        public void ResetMouseToCenter()
+        {
+            if (AllowMouseResets)
+            {
+                Mouse.SetPosition(ScreenWidth / 2, ScreenHeight / 2);
+            }
+        }
+
+        private void Window_ClientSizeChanged(object sender, EventArgs e)
+        {
+            ScreenWidth = Window.ClientBounds.Width;
+            ScreenHeight = Window.ClientBounds.Height;
         }
 
         /// <summary>
@@ -157,8 +195,8 @@ namespace DeveMazeGeneratorMonoGame
         protected override void LoadContent()
         {
             GenerateMaze();
-            camera = new Camera(this, Platform != Platform.Blazor);
-            newcamera = new Basic3dExampleCamera(GraphicsDevice, Window, this, Platform != Platform.Blazor);
+            camera = new Camera(this);
+            newcamera = new Basic3dExampleCamera(GraphicsDevice, Window, this);
             newcamera.Position = new Vector3(7.5f, 7.5f, 7.5f);
             newcamera.LookAtDirection = Vector3.Forward;
 
@@ -169,6 +207,16 @@ namespace DeveMazeGeneratorMonoGame
             ContentDing.GoLoadContent(GraphicsDevice, Content);
 
             playerModel = new PlayerModel(this);
+
+            skyboxModel = new CubeModelInvertedForSkybox(this, skyboxSize, skyboxSize, skyboxSize, TexturePosInfoGenerator.FullImage);
+            groundModel = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
+            roofModel = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
+
+            startModel = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
+            finishModel = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
+
+            possibleCubejeModel = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
+            losPointCubeModel = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
         }
 
         /// <summary>
@@ -674,29 +722,8 @@ namespace DeveMazeGeneratorMonoGame
             //Skybox
             effect.LightingEnabled = false;
             effect.Texture = ContentDing.skyTexture1;
-
-            int skyboxSize = 1000000;
-            CubeModelInvertedForSkybox skybox = new CubeModelInvertedForSkybox(this, skyboxSize, skyboxSize, skyboxSize, TexturePosInfoGenerator.FullImage);
             Matrix skyboxMatrix = Matrix.CreateTranslation(camera.cameraPosition) * Matrix.CreateTranslation(new Vector3(-skyboxSize / 2, -skyboxSize / 2, -skyboxSize / 2));
-            skybox.Draw(skyboxMatrix, effect);
-
-
-            //effect.Texture = ContentDing.wallTexture;
-
-
-            //SamplerState newSamplerState = new SamplerState()
-            //{
-            //    AddressU = TextureAddressMode.Wrap,
-            //    AddressV = TextureAddressMode.Wrap,
-            //    Filter = TextureFilter.Point
-            //};
-            //GraphicsDevice.SamplerStates[0] = newSamplerState;
-
-            //foreach (WallModel wallModel in wallModels)
-            //{
-            //    GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-            //    wallModel.Draw(Matrix.Identity, effect);
-            //}
+            skyboxModel.Draw(skyboxMatrix, effect);
 
 
             effect.LightingEnabled = false;
@@ -705,58 +732,27 @@ namespace DeveMazeGeneratorMonoGame
             int mazeScale = 10;
             Matrix scaleMatrix = Matrix.CreateScale(mazeScale);
             Matrix growingScaleMatrix = scaleMatrix * Matrix.CreateScale(1, (float)Math.Max(Math.Min(numbertje / 1.0f, 1), 0), 1);
-
             effect.World = scaleMatrix;
-
-            //effect.Texture = ContentDing.grasTexture;
-
-            SamplerState newSamplerState2 = new SamplerState()
-            {
-                AddressU = Platform == Platform.Blazor ? TextureAddressMode.Clamp : TextureAddressMode.Wrap,
-                AddressV = Platform == Platform.Blazor ? TextureAddressMode.Clamp : TextureAddressMode.Wrap,
-                Filter = TextureFilter.Point
-            };
-            GraphicsDevice.SamplerStates[0] = newSamplerState2;
-
-
-
-            //int curmazeheight = 100;
-
-            //WallModel wallmodel = new WallModel(this, curmazeheight * 10, curmazeheight * 10, TexturePosInfoGenerator.FullImageWithSize(15), Matrix.Identity);
-            //wallmodel.Draw(Matrix.CreateRotationX(-MathHelper.PiOver2) * Matrix.CreateTranslation(0, 0, curmazeheight * 10), effect);
-
             effect.Texture = ContentDing.win98FloorTexture;
+            groundModel.Draw(Matrix.CreateTranslation(0, -0.1f, 0) * scaleMatrix, effect);
 
-
-
-
-
-
-
-            CubeModel ground = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
-            ground.Draw(Matrix.CreateTranslation(0, -0.1f, 0) * scaleMatrix, effect);
-
-
+            //Roof
             if (drawRoof)
             {
                 effect.Texture = ContentDing.win98RoofTexture;
-
-                CubeModel roof = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
-                roof.Draw(Matrix.CreateTranslation(0, 4f / 3f, 0) * scaleMatrix, effect);
+                roofModel.Draw(Matrix.CreateTranslation(0, 4f / 3f, 0) * scaleMatrix, effect);
             }
 
             effect.LightingEnabled = lighting;
 
             //Start
             effect.Texture = ContentDing.startTexture;
-            CubeModel start = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
-            start.Draw(Matrix.CreateTranslation(0.625f, 0.375f, 0.625f) * growingScaleMatrix, effect);
+            startModel.Draw(Matrix.CreateTranslation(0.625f, 0.375f, 0.625f) * growingScaleMatrix, effect);
 
 
             //Finish
             effect.Texture = ContentDing.endTexture;
-            CubeModel finish = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
-            finish.Draw(Matrix.CreateTranslation(0.625f, 0.375f, 0.625f) * Matrix.CreateTranslation(curMazeWidth - 4, 0, curMazeHeight - 4) * growingScaleMatrix, effect);
+            finishModel.Draw(Matrix.CreateTranslation(0.625f, 0.375f, 0.625f) * Matrix.CreateTranslation(curMazeWidth - 4, 0, curMazeHeight - 4) * growingScaleMatrix, effect);
 
 
             //Me
@@ -810,7 +806,8 @@ namespace DeveMazeGeneratorMonoGame
                 foreach (EffectPass pass in effect.CurrentTechnique.Passes)
                 {
                     pass.Apply();
-                    GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexBuffer.VertexCount, 0, indexBuffer.IndexCount / 3);
+                    //GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexBuffer.VertexCount, 0, indexBuffer.IndexCount / 3);
+                    GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, indexBuffer.IndexCount / 3);
                 }
 
             }
@@ -828,7 +825,8 @@ namespace DeveMazeGeneratorMonoGame
                 foreach (EffectPass pass in effect.CurrentTechnique.Passes)
                 {
                     pass.Apply();
-                    GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexBufferPath.VertexCount, 0, indexBufferPath.IndexCount / 3);
+                    //GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexBufferPath.VertexCount, 0, indexBufferPath.IndexCount / 3);
+                    GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, indexBufferPath.IndexCount / 3);
                 }
 
             }
@@ -839,53 +837,22 @@ namespace DeveMazeGeneratorMonoGame
             if (chaseCameraShowDebugBlocks && curChaseCameraPoint != null)
             {
                 effect.Texture = ContentDing.redTexture;
-                CubeModel possibleCubeje = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
-                possibleCubeje.Draw(Matrix.CreateTranslation(0.625f, 0.375f, 0.625f) * Matrix.CreateTranslation(curChaseCameraPoint.CameraPoint.X - 1, 0, curChaseCameraPoint.CameraPoint.Y - 1) * growingScaleMatrix, effect);
+                possibleCubejeModel.Draw(Matrix.CreateTranslation(0.625f, 0.375f, 0.625f) * Matrix.CreateTranslation(curChaseCameraPoint.CameraPoint.X - 1, 0, curChaseCameraPoint.CameraPoint.Y - 1) * growingScaleMatrix, effect);
 
                 if (curChaseCameraPoint.LosPoints != null)
                 {
+                    effect.Texture = ContentDing.startTexture;
                     foreach (var losPoint in curChaseCameraPoint.LosPoints)
                     {
-                        effect.Texture = ContentDing.startTexture;
-                        CubeModel losPointCube = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
-                        losPointCube.Draw(Matrix.CreateTranslation(0.625f, 0.375f, 0.625f) * Matrix.CreateTranslation(losPoint.X - 1, 0, losPoint.Y - 1) * growingScaleMatrix, effect);
+                        losPointCubeModel.Draw(Matrix.CreateTranslation(0.625f, 0.375f, 0.625f) * Matrix.CreateTranslation(losPoint.X - 1, 0, losPoint.Y - 1) * growingScaleMatrix, effect);
                     }
                 }
             }
 
-            //var possible = determiner.GetAdjacentPoints(GetPosAtThisNumerMazePoint(numbertje));
-
-            //foreach (var poss in possible)
-            //{
-            //    effect.Texture = ContentDing.startTexture;
-            //    CubeModel possibleCubeje = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
-            //    possibleCubeje.Draw(Matrix.CreateTranslation(0.625f, 0.375f, 0.625f) * Matrix.CreateTranslation(poss.X - 1, 0, poss.Y - 1) * growingScaleMatrix, effect);
-            //}
-
-            //foreach (var pathnode in currentPath)
-            //{
-            //    effect.Texture = ContentDing.redTexture;
-            //    CubeModel possibleCubeje = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
-            //    possibleCubeje.Draw(Matrix.CreateTranslation(0.625f, 0.375f, 0.625f) * Matrix.CreateTranslation(pathnode.X - 1, 0, pathnode.Y - 1) * growingScaleMatrix, effect);
-
-            //}
-
-
-
-
-            //CubeModel redCube = new CubeModel(this, 5, 5, 5, TexturePosInfoGenerator.FullImage);
-            //effect.Texture = textureRed;
-
-            //foreach (var node in currentPath)
-            //{
-            //    Matrix m = Matrix.CreateTranslation(2.5f + 10f * node.X, 2.5f, 2.5f + 10f * node.Y);
-            //    redCube.Draw(m, effect);
-            //}
-
 
             spriteBatch.Begin();
 
-            String stringToDraw = "Size: " + curMazeWidth + ", Walls: " + wallsCount + ", Path length: " + pathCount + ", Speed: " + speedFactor + ", Current: " + (int)Math.Max((numbertje - 1f) * speedFactor, 0) + ", Algorithm: " + lastAlgorithm;
+            string stringToDraw = "Size: " + curMazeWidth + ", Walls: " + wallsCount + ", Path length: " + pathCount + ", Speed: " + speedFactor + ", Current: " + (int)Math.Max((numbertje - 1f) * speedFactor, 0) + ", Algorithm: " + lastAlgorithm;
 
             var meassured = ContentDing.spriteFont.MeasureString(stringToDraw);
 

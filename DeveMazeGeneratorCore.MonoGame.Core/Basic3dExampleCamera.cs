@@ -1,4 +1,5 @@
 ﻿using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
+using DeveMazeGeneratorMonoGame;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -18,8 +19,7 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
     {
         private GraphicsDevice graphicsDevice = null;
         private GameWindow gameWindow = null;
-        private readonly Game game;
-        private readonly bool allowMouseResets;
+        private readonly TheGame game;
         private MouseState mState = default(MouseState);
         private KeyboardState kbState = default(KeyboardState);
 
@@ -71,27 +71,17 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
         /// <summary>
         /// Constructs the camera.
         /// </summary>
-        public Basic3dExampleCamera(GraphicsDevice gfxDevice, GameWindow window, Game game, bool allowMouseResets)
+        public Basic3dExampleCamera(GraphicsDevice gfxDevice, GameWindow window, TheGame game)
         {
             graphicsDevice = gfxDevice;
             gameWindow = window;
             this.game = game;
-            this.allowMouseResets = allowMouseResets;
+
             ReCreateWorldAndView();
             ReCreateThePerspectiveProjectionMatrix(gfxDevice, fieldOfViewDegrees);
 
             screenWidth = gameWindow.ClientBounds.Width;
             screenHeight = gameWindow.ClientBounds.Height;
-
-            ResetMouseToCenter();
-        }
-
-        public void ResetMouseToCenter()
-        {
-            if (allowMouseResets)
-            {
-                Mouse.SetPosition(screenWidth / 2, screenHeight / 2);
-            }
         }
 
         /// <summary>
@@ -363,17 +353,17 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
             }
 
 
-            if (state.LeftButton == ButtonState.Pressed)
-            {
-                if (mouseLookIsUsed == false)
-                    mouseLookIsUsed = true;
-                else
-                    mouseLookIsUsed = false;
-            }
+            //if (state.LeftButton == ButtonState.Pressed)
+            //{
+            //    if (mouseLookIsUsed == false)
+            //        mouseLookIsUsed = true;
+            //    else
+            //        mouseLookIsUsed = false;
+            //}
             if (mouseLookIsUsed && this.game.IsActive)
             {
                 Vector2 diff;
-                if (allowMouseResets)
+                if (game.AllowMouseResets)
                 {
                     diff = state.Position.ToVector2() - new Vector2(screenWidth / 2, screenHeight / 2);
                 }
@@ -382,7 +372,7 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
                     diff = state.Position.ToVector2() - mState.Position.ToVector2();
                 }
 
-                ResetMouseToCenter();
+                game.ResetMouseToCenter();
                 if (diff.X != 0f)
                     RotateLeftOrRight(gameTime, diff.X);
                 if (diff.Y != 0f)
@@ -465,7 +455,7 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
             if (mouseLookIsUsed)
             {
                 Vector2 diff;
-                if (allowMouseResets)
+                if (game.AllowMouseResets)
                 {
                     diff = state.Position.ToVector2() - new Vector2(screenWidth / 2, screenHeight / 2);
                 }
@@ -474,7 +464,7 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
                     diff = state.Position.ToVector2() - mState.Position.ToVector2();
                 }
 
-                ResetMouseToCenter();
+                game.ResetMouseToCenter();
                 if (diff.X != 0f)
                     RotateLeftOrRight(gameTime, diff.X);
                 if (diff.Y != 0f)

@@ -22,35 +22,22 @@ namespace DeveMazeGeneratorMonoGame
         private const float rotationSpeed = 0.6f;
         private float moveSpeed = 100.0f;
         private TheGame game;
-        private readonly bool allowMouseResets;
         public Matrix viewMatrix;
         public Matrix projectionMatrix;
-
-        private int screenWidth;
-        private int screenHeight;
 
         private MouseState mState = default(MouseState);
 
 
-        public Camera(TheGame game, bool allowMouseResets)
+        public Camera(TheGame game)
         {
             this.game = game;
-            this.allowMouseResets = allowMouseResets;
+
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, game.GraphicsDevice.Viewport.AspectRatio, 0.3f, 10000000.0f);
 
-            screenWidth = game.Window.ClientBounds.Width;
-            screenHeight = game.Window.ClientBounds.Height;
-
-            ResetMouseToCenter();
+            game.ResetMouseToCenter();
         }
 
-        public void ResetMouseToCenter()
-        {
-            if (allowMouseResets)
-            {
-                Mouse.SetPosition(screenWidth / 2, screenHeight / 2);
-            }
-        }
+
 
         public void Update(GameTime gameTime)
         {
@@ -61,16 +48,18 @@ namespace DeveMazeGeneratorMonoGame
 
 
             GraphicsDevice device = game.GraphicsDevice;
-            if (currentMouseState != mState)
+
+            //Console.WriteLine($"Game active: {game.IsActive}, {currentMouseState.X}   {currentMouseState.Y}");
+            if (game.IsActive)
             {
-                float xDifference = currentMouseState.X - (allowMouseResets ? (screenWidth / 2) : mState.X);
-                float yDifference = currentMouseState.Y - (allowMouseResets ? (screenHeight / 2) : mState.Y);
-                ResetMouseToCenter();
+                float xDifference = currentMouseState.X - (game.AllowMouseResets ? (game.ScreenWidth / 2) : mState.X);
+                float yDifference = currentMouseState.Y - (game.AllowMouseResets ? (game.ScreenHeight / 2) : mState.Y);
+                game.ResetMouseToCenter();
                 leftrightRot -= rotationSpeed * xDifference * timeDifference;
 
                 var newUpDownRot = updownRot - (rotationSpeed * yDifference * timeDifference);
 
-                updownRot = MathHelper.Clamp(newUpDownRot, -CustomMathHelper.HalfPi, CustomMathHelper.HalfPi);
+                updownRot = MathHelper.Clamp(newUpDownRot, -MathHelper.PiOver2, MathHelper.PiOver2);
 
                 UpdateViewMatrix();
             }
