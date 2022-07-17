@@ -209,8 +209,6 @@ namespace DeveMazeGeneratorMonoGame
             playerModel = new PlayerModel(this);
 
             skyboxModel = new CubeModelInvertedForSkybox(this, skyboxSize, skyboxSize, skyboxSize, TexturePosInfoGenerator.FullImage);
-            groundModel = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
-            roofModel = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
 
             startModel = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
             finishModel = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
@@ -230,10 +228,21 @@ namespace DeveMazeGeneratorMonoGame
 
         public void GenerateMaze()
         {
-            if (indexBuffer != null)
-                indexBuffer.Dispose();
-            if (vertexBuffer != null)
-                vertexBuffer.Dispose();
+            //Temporary workaround since Blazor and Disposing buffers seems to be broken right now.
+            if (Platform != Platform.Blazor)
+            {
+                if (indexBuffer != null)
+                {
+                    indexBuffer.Dispose();
+                }
+                if (vertexBuffer != null)
+                {
+                    vertexBuffer.Dispose();
+                }
+            }
+
+            groundModel = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
+            roofModel = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
 
 
             var alg = new AlgorithmBacktrack2Deluxe2();
@@ -253,7 +262,6 @@ namespace DeveMazeGeneratorMonoGame
             currentMaze = alg.GoGenerate(curMazeWidth, curMazeHeight, Environment.TickCount, innerMapFactory, randomFactory, new NoAction());
             var walls = currentMaze.InnerMap.GenerateListOfMazeWalls();
             currentPath = PathFinderDepthFirstSmartWithPos.GoFind(currentMaze.InnerMap, null);
-
 
             determiner = new LineOfSightDeterminer(currentMaze.InnerMap, currentPath);
             curChaseCameraPoint = null;
@@ -298,16 +306,23 @@ namespace DeveMazeGeneratorMonoGame
                 indexBuffer.SetData(indices);
             }
 
-
             GeneratePath(currentPath);
         }
 
         public void GeneratePath(List<MazePointPos> path)
         {
-            if (vertexBufferPath != null)
-                vertexBufferPath.Dispose();
-            if (indexBufferPath != null)
-                indexBufferPath.Dispose();
+            //Temporary workaround since Blazor and Disposing buffers seems to be broken right now.
+            if (Platform != Platform.Blazor)
+            {
+                if (vertexBufferPath != null)
+                {
+                    vertexBufferPath.Dispose();
+                }
+                if (indexBufferPath != null)
+                {
+                    indexBufferPath.Dispose();
+                }
+            }
 
 
             VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[path.Count * 4];

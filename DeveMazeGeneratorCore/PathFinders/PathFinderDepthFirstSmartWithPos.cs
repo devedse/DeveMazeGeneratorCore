@@ -63,10 +63,18 @@ namespace DeveMazeGeneratorCore.PathFinders
 
             while (stackje.Count != 0)
             {
-
                 cur = stackje[stackje.Count - 1];
+
                 var x = cur.X;
                 var y = cur.Y;
+
+                callBack.Invoke(x, y, true);
+
+                if (x == end.X && y == end.Y)
+                {
+                    //Path found
+                    break;
+                }
 
 
                 MazePointPos target = new MazePointPos(-1, -1);
@@ -141,18 +149,9 @@ namespace DeveMazeGeneratorCore.PathFinders
                 lastBackTrackDir = -1;
 
                 //Console.WriteLine("Going to X: " + target.X + " Y: " + target.Y);
-
-                callBack.Invoke(x, y, true);
                 stackje.Add(target);
 
-                if (target.X == end.X && target.Y == end.Y)
-                {
-                    //Path found
-                    break;
-                }
-
                 prev = cur;
-
             }
 
             for (int i = 0; i < stackje.Count; i++)
