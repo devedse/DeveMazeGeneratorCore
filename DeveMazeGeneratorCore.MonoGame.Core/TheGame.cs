@@ -228,20 +228,12 @@ namespace DeveMazeGeneratorMonoGame
 
         public void GenerateMaze()
         {
-            //Temporary workaround since Blazor and Disposing buffers seems to be broken right now.
-            if (Platform != Platform.Blazor)
-            {
-                if (indexBuffer != null)
-                {
-                    indexBuffer.Dispose();
-                }
-                if (vertexBuffer != null)
-                {
-                    vertexBuffer.Dispose();
-                }
-            }
+            indexBuffer?.Dispose();
+            vertexBuffer?.Dispose();
 
+            groundModel?.Dispose();
             groundModel = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
+            roofModel?.Dispose();
             roofModel = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
 
 
@@ -311,19 +303,8 @@ namespace DeveMazeGeneratorMonoGame
 
         public void GeneratePath(List<MazePointPos> path)
         {
-            //Temporary workaround since Blazor and Disposing buffers seems to be broken right now.
-            if (Platform != Platform.Blazor)
-            {
-                if (vertexBufferPath != null)
-                {
-                    vertexBufferPath.Dispose();
-                }
-                if (indexBufferPath != null)
-                {
-                    indexBufferPath.Dispose();
-                }
-            }
-
+            vertexBufferPath?.Dispose();
+            indexBufferPath?.Dispose();
 
             VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[path.Count * 4];
             int[] indices = new int[path.Count * 6];

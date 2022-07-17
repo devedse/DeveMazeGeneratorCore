@@ -2,14 +2,11 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DeveMazeGeneratorMonoGame
 {
-    class CubeModelForPlayer
+    class CubeModelForPlayer : IDisposable
     {
         public TheGame game;
         public int[] indices = new int[36];
@@ -18,6 +15,10 @@ namespace DeveMazeGeneratorMonoGame
         public float width;
         public float height;
         public float depth;
+
+        private VertexBuffer vertexBuffer;
+        private IndexBuffer indexBuffer;
+
         public CubeModelForPlayer(TheGame game, float width, float height, float depth, TexturePosInfo texturePosInfo)
         {
             this.game = game;
@@ -78,6 +79,23 @@ namespace DeveMazeGeneratorMonoGame
                 cur += 6;
             }
 
+            vertexBuffer = new VertexBuffer(game.GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
+            vertexBuffer.SetData(vertices);
+            if (game.Platform == Platform.Blazor)
+            {
+                indexBuffer = new IndexBuffer(game.GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
+                if (indices.Any(t => t > short.MaxValue))
+                {
+                    throw new InvalidOperationException("Could not use a maze this big due to the indices being too high");
+                }
+                var indicesConverted = indices.Select(t => (short)t).ToArray();
+                indexBuffer.SetData(indicesConverted);
+            }
+            else
+            {
+                indexBuffer = new IndexBuffer(game.GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
+                indexBuffer.SetData(indices);
+            }
         }
 
         public void Update(GameTime gameTime)
@@ -89,17 +107,27 @@ namespace DeveMazeGeneratorMonoGame
         {
             effect.World = parentMatrix;
 
+            game.GraphicsDevice.Indices = indexBuffer;
+            game.GraphicsDevice.SetVertexBuffer(vertexBuffer);
+
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
+                game.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, indices.Length / 3);
+            }
+        }
 
-                if (this.game.Platform == Platform.Blazor)
+        public void Dispose()
+        {
+            if (game.Platform != Platform.Blazor)
+            {
+                if (vertexBuffer != null)
                 {
-                    game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, vertices, 0, 24, indices.Select(t => (short)t).ToArray(), 0, 12);
+                    vertexBuffer.Dispose();
                 }
-                else
+                if (indexBuffer != null)
                 {
-                    game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, vertices, 0, 24, indices, 0, 12);
+                    indexBuffer.Dispose();
                 }
             }
         }
