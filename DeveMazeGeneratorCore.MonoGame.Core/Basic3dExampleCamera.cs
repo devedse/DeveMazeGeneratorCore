@@ -3,9 +3,6 @@ using DeveMazeGeneratorMonoGame;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DeveMazeGeneratorCore.MonoGame.Core
 {
@@ -17,11 +14,10 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
     /// </summary>
     public class Basic3dExampleCamera
     {
-        private GraphicsDevice graphicsDevice = null;
-        private GameWindow gameWindow = null;
+        private readonly GraphicsDevice graphicsDevice = null;
         private readonly TheGame game;
-        private MouseState mState = default(MouseState);
-        private KeyboardState kbState = default(KeyboardState);
+        private MouseState mState = default;
+        private KeyboardState kbState = default;
 
         public float MovementUnitsPerSecond { get; set; } = 30f;
         public float RotationRadiansPerSecond { get; set; } = 60f;
@@ -29,9 +25,6 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
         public float fieldOfViewDegrees = 80f;
         public float nearClipPlane = .05f;
         public float farClipPlane = 2000f;
-
-        private float yMouseAngle = 0f;
-        private float xMouseAngle = 0f;
         private bool mouseLookIsUsed = true;
 
         private int fpsKeyboardLayout = 0;
@@ -68,10 +61,9 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
         /// <summary>
         /// Constructs the camera.
         /// </summary>
-        public Basic3dExampleCamera(GraphicsDevice gfxDevice, GameWindow window, TheGame game)
+        public Basic3dExampleCamera(GraphicsDevice gfxDevice, TheGame game)
         {
             graphicsDevice = gfxDevice;
-            gameWindow = window;
             this.game = game;
 
             ReCreateWorldAndView();
@@ -359,7 +351,7 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
                 Vector2 diff;
                 if (game.AllowMouseResets)
                 {
-                    diff = state.Position.ToVector2() - new Vector2(game.ScreenWidth/ 2, game.ScreenHeight / 2);
+                    diff = state.Position.ToVector2() - new Vector2(game.ScreenWidth / 2, game.ScreenHeight / 2);
                 }
                 else
                 {

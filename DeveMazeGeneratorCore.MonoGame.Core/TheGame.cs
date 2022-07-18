@@ -203,7 +203,7 @@ namespace DeveMazeGeneratorMonoGame
         {
             GenerateMaze();
             camera = new Camera(this);
-            newcamera = new Basic3dExampleCamera(GraphicsDevice, Window, this);
+            newcamera = new Basic3dExampleCamera(GraphicsDevice, this);
             newcamera.Position = new Vector3(7.5f, 7.5f, 7.5f);
             newcamera.LookAtDirection = Vector3.Forward;
 
