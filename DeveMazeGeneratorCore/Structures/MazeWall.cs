@@ -2,17 +2,17 @@
 {
     public class MazeWall
     {
-        public int xstart;
-        public int ystart;
-        public int xend;
-        public int yend;
+        public int Xstart { get; }
+        public int Ystart { get; }
+        public int Xend { get; }
+        public int Yend { get; }
 
         public MazeWall(int xstart, int ystart, int xend, int yend)
         {
-            this.xstart = xstart;
-            this.ystart = ystart;
-            this.xend = xend;
-            this.yend = yend;
+            Xstart = xstart;
+            Ystart = ystart;
+            Xend = xend;
+            Yend = yend;
         }
     }
 }
