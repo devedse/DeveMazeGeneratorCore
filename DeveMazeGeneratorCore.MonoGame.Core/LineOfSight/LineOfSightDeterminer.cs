@@ -208,7 +208,7 @@ namespace DeveMazeGeneratorMonoGame.LineOfSight
         }
 
 
-        private bool AreEqual(MazePoint first, MazePoint second)
+        private static bool AreEqual(MazePoint first, MazePoint second)
         {
             return first.X == second.X && first.Y == second.Y;
         }
@@ -226,7 +226,7 @@ namespace DeveMazeGeneratorMonoGame.LineOfSight
         //public delegate bool PlotFunction(int x, int y);
 
         /// <summary>
-        /// Plot the line from (x0, y0) to (x1, y10
+        /// Plot the line from (x0, y0) to (x1, y1)
         /// </summary>
         /// <param name="x0">The start x</param>
         /// <param name="y0">The start y</param>
