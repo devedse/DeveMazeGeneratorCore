@@ -113,6 +113,22 @@ namespace DeveMazeGeneratorMonoGame
         };
         private int currentAlgorithm = 0;
 
+
+
+        public TheGame() : this(Platform.Desktop)
+        {
+
+        }
+
+        public TheGame(Platform platform) : this(null, platform)
+        {
+
+        }
+
+        public TheGame(IntSize? desiredScreenSize, Platform platform) : this(null, desiredScreenSize, platform)
+        {
+        }
+
         public TheGame(IContentManagerExtension contentManagerExtension, IntSize? desiredScreenSize, Platform platform) : base()
         {
             _contentManagerExtension = contentManagerExtension;
@@ -135,50 +151,67 @@ namespace DeveMazeGeneratorMonoGame
             Content.RootDirectory = "Content";
         }
 
-        public TheGame() : this(null, null, Platform.Desktop)
-        {
-
-        }
-
-        /// <summary>
-        /// Allows the game to perform any initialization it needs to before starting to run.
-        /// This is where it can query for any required services and load any non-graphic
-        /// related content.  Calling base.Initialize will enumerate through any components
-        /// and initialize them as well.
-        /// </summary>
-        protected override void Initialize()
-        {
-#if !BLAZOR
-            // TODO: Add your initialization logic here
-            if (true)
-            {
-                graphics.PreferredBackBufferWidth = 3000;
-                graphics.PreferredBackBufferHeight = 1400;
-            }
-            else
-            {
-                graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-                graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-                graphics.IsFullScreen = true;
-            }
-
-            this.TargetElapsedTime = TimeSpan.FromMilliseconds(1000d / 240);
-
-            Window.AllowUserResizing = true;
-            graphics.ApplyChanges();
-#endif
-
-            this.Window.ClientSizeChanged += Window_ClientSizeChanged;
-            Window_ClientSizeChanged(null, null);
-
-            Activated += TheGame_Activated;
-            base.Initialize();
-        }
-
         private void TheGame_Activated(object sender, EventArgs e)
         {
             //Console.WriteLine($"{DateTime.Now}: ACTIVATED");
             ResetMouseToCenter();
+        }
+
+
+        protected override void Initialize()
+        {
+#if !BLAZOR
+            Window.ClientSizeChanged += Window_ClientSizeChanged;
+            Window.OrientationChanged += Window_OrientationChanged;
+
+            FixScreenSize();
+#endif
+            this.TargetElapsedTime = TimeSpan.FromMilliseconds(1000d / 240);
+            graphics.ApplyChanges();
+
+            Activated += TheGame_Activated;
+
+            base.Initialize();
+        }
+
+        private void FixScreenSize()
+        {
+            if (_desiredScreenSize != null)
+            {
+                graphics.PreferredBackBufferWidth = _desiredScreenSize.Value.Width;
+                graphics.PreferredBackBufferHeight = _desiredScreenSize.Value.Height;
+
+                //Ensure this only happens once
+                _desiredScreenSize = null;
+            }
+            else
+            {
+                //graphics.PreferredBackBufferWidth = Window.ClientBounds.Width;
+                //graphics.PreferredBackBufferHeight = Window.ClientBounds.Height;
+            }
+
+            if (Platform == Platform.Android || Platform == Platform.UWP) // && Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Mobile"
+            {
+                //To remove the Battery bar
+                graphics.IsFullScreen = true;
+            }
+
+            Window.AllowUserResizing = true;
+
+            ScreenWidth = graphics.PreferredBackBufferWidth;
+            ScreenHeight = graphics.PreferredBackBufferHeight;
+
+            graphics.ApplyChanges();
+        }
+
+        private void Window_OrientationChanged(object sender, System.EventArgs e)
+        {
+            FixScreenSize();
+        }
+
+        private void Window_ClientSizeChanged(object sender, System.EventArgs e)
+        {
+            FixScreenSize();
         }
 
         public void ResetMouseToCenter()
@@ -187,12 +220,6 @@ namespace DeveMazeGeneratorMonoGame
             {
                 Mouse.SetPosition(ScreenWidth / 2, ScreenHeight / 2);
             }
-        }
-
-        private void Window_ClientSizeChanged(object sender, EventArgs e)
-        {
-            ScreenWidth = Window.ClientBounds.Width;
-            ScreenHeight = Window.ClientBounds.Height;
         }
 
         /// <summary>
@@ -877,6 +904,26 @@ namespace DeveMazeGeneratorMonoGame
                 }
             }
 
+            var a = 0;
+
+            var w = Stopwatch.StartNew();
+            for (int i = 0; i < 1000; i++)
+            {
+                a += graphics.PreferredBackBufferWidth + graphics.PreferredBackBufferHeight;
+            }
+            w.Stop();
+
+            var w2 = Stopwatch.StartNew();
+            for (int i =0; i <1000; i++)
+            {
+                a += GraphicsDevice.Viewport.Width + GraphicsDevice.Viewport.Height;
+            }
+            w2.Stop();
+
+            Console.WriteLine(w.Elapsed + "   " + w2.Elapsed);
+
+
+
 
             spriteBatch.Begin();
 
@@ -886,7 +933,8 @@ namespace DeveMazeGeneratorMonoGame
             spriteBatch.DrawString(ContentDing.spriteFont, stringToDraw, new Vector2(10, 10), Color.White);
 
             var n = Environment.NewLine;
-            string helpStringToDraw = $"{ScreenWidth}x{ScreenHeight}{n}{n}F: Follow Camera ({followCamera}){n}T: Top Camera ({fromAboveCamera}){n}C: Chase Camera ({chaseCamera}){n}   B: Chase Debug ({chaseCameraShowDebugBlocks}){n}{n}H: Roof ({drawRoof}){n}P: Path ({drawPath}){n}{n}Down/Up: Maze Size{n}Left/Right: Algorithm{n}Num-+: Speed{n}R: New Maze{n}G: Restart this maze{n}{n}L: Lighting ({lighting}){n}O: Other Camera ({UseNewCamera})";
+
+            string helpStringToDraw = $"{ScreenWidth}x{ScreenHeight}{n}{graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}{n}{Window.ClientBounds.Width}x{Window.ClientBounds.Height}{n}{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height}{n}{GraphicsDevice.Viewport.Width}x{GraphicsDevice.Viewport.Height}{n}{n}F: Follow Camera ({followCamera}){n}T: Top Camera ({fromAboveCamera}){n}C: Chase Camera ({chaseCamera}){n}   B: Chase Debug ({chaseCameraShowDebugBlocks}){n}{n}H: Roof ({drawRoof}){n}P: Path ({drawPath}){n}{n}Down/Up: Maze Size{n}Left/Right: Algorithm{n}Num-+: Speed{n}R: New Maze{n}G: Restart this maze{n}{n}L: Lighting ({lighting}){n}O: Other Camera ({UseNewCamera})";
             var meassuredHelpString = ContentDing.spriteFont.MeasureString(helpStringToDraw);
             spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle(ScreenWidth - (int)meassuredHelpString.X - 30, 5, (int)meassuredHelpString.X + 20, (int)meassuredHelpString.Y + 10), Color.White);
             spriteBatch.DrawString(ContentDing.spriteFont, helpStringToDraw, new Vector2(ScreenWidth - (int)meassuredHelpString.X - 20, 10), Color.White);

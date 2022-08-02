@@ -1,4 +1,5 @@
-﻿using DeveMazeGeneratorMonoGame;
+﻿using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
+using DeveMazeGeneratorMonoGame;
 using System;
 
 namespace DeveMazeGeneratorCore.MonoGame.DesktopGL
@@ -8,9 +9,10 @@ namespace DeveMazeGeneratorCore.MonoGame.DesktopGL
         [STAThread]
         public static void Main()
         {
-            var game = new TheGame();
-
-            game.Run();
+            using (var game = new TheGame(new(2460, 1340), Platform.Desktop))
+            {
+                game.Run();
+            }
         }
     }
 }
