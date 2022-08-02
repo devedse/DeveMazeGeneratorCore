@@ -206,12 +206,12 @@ namespace DeveMazeGeneratorMonoGame
 
         private void Window_OrientationChanged(object sender, System.EventArgs e)
         {
-            FixScreenSize();
+            //FixScreenSize();
         }
 
         private void Window_ClientSizeChanged(object sender, System.EventArgs e)
         {
-            FixScreenSize();
+            //FixScreenSize();
         }
 
         public void ResetMouseToCenter()
@@ -548,6 +548,9 @@ namespace DeveMazeGeneratorMonoGame
 
             if (InputDing.KeyDownUp(Keys.Enter) && (InputDing.CurKey.IsKeyDown(Keys.LeftAlt) || InputDing.CurKey.IsKeyDown(Keys.RightAlt)))
             {
+                //graphics.PreferredBackBufferWidth = 3840;
+                //graphics.PreferredBackBufferHeight = 2160;
+                graphics.ApplyChanges();
                 graphics.ToggleFullScreen();
             }
 
@@ -903,20 +906,28 @@ namespace DeveMazeGeneratorMonoGame
                     }
                 }
             }
+            //Duration:
+
+            //0000285: a += Window.ClientBounds.Width + Window.ClientBounds.Height;
+            //0000005: a += graphics.PreferredBackBufferWidth + graphics.PreferredBackBufferHeight;
+            //0000005: a += ScreenWidth + ScreenHeight;
+            //0001104: a += GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width + GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            //0000032: a += GraphicsDevice.Viewport.Width + GraphicsDevice.Viewport.Height;
+            //0000031: a += GraphicsDevice.PresentationParameters.BackBufferWidth + GraphicsDevice.PresentationParameters.BackBufferHeight;
 
             var a = 0;
 
             var w = Stopwatch.StartNew();
             for (int i = 0; i < 1000; i++)
             {
-                a += graphics.PreferredBackBufferWidth + graphics.PreferredBackBufferHeight;
+                a += GraphicsDevice.PresentationParameters.BackBufferWidth + GraphicsDevice.PresentationParameters.BackBufferHeight;
             }
             w.Stop();
 
             var w2 = Stopwatch.StartNew();
-            for (int i =0; i <1000; i++)
+            for (int i = 0; i < 1000; i++)
             {
-                a += GraphicsDevice.Viewport.Width + GraphicsDevice.Viewport.Height;
+                a += graphics.PreferredBackBufferWidth + graphics.PreferredBackBufferHeight;
             }
             w2.Stop();
 
@@ -934,7 +945,8 @@ namespace DeveMazeGeneratorMonoGame
 
             var n = Environment.NewLine;
 
-            string helpStringToDraw = $"{ScreenWidth}x{ScreenHeight}{n}{graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}{n}{Window.ClientBounds.Width}x{Window.ClientBounds.Height}{n}{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height}{n}{GraphicsDevice.Viewport.Width}x{GraphicsDevice.Viewport.Height}{n}{n}F: Follow Camera ({followCamera}){n}T: Top Camera ({fromAboveCamera}){n}C: Chase Camera ({chaseCamera}){n}   B: Chase Debug ({chaseCameraShowDebugBlocks}){n}{n}H: Roof ({drawRoof}){n}P: Path ({drawPath}){n}{n}Down/Up: Maze Size{n}Left/Right: Algorithm{n}Num-+: Speed{n}R: New Maze{n}G: Restart this maze{n}{n}L: Lighting ({lighting}){n}O: Other Camera ({UseNewCamera})";
+            string helpStringToDraw = $"{ScreenWidth}x{ScreenHeight}{n}{graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}{n}{Window.ClientBounds.Width}x{Window.ClientBounds.Height}{n}{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height}{n}{GraphicsDevice.Viewport.Width}x{GraphicsDevice.Viewport.Height}{n}{GraphicsDevice.PresentationParameters.BackBufferWidth}x{GraphicsDevice.PresentationParameters.BackBufferHeight}{n}{n}F: Follow Camera ({followCamera}){n}T: Top Camera ({fromAboveCamera}){n}C: Chase Camera ({chaseCamera}){n}   B: Chase Debug ({chaseCameraShowDebugBlocks}){n}{n}H: Roof ({drawRoof}){n}P: Path ({drawPath}){n}{n}Down/Up: Maze Size{n}Left/Right: Algorithm{n}Num-+: Speed{n}R: New Maze{n}G: Restart this maze{n}{n}L: Lighting ({lighting}){n}O: Other Camera ({UseNewCamera})";
+            //Console.WriteLine($"{DateTime.Now}: {ScreenWidth}x{ScreenHeight}  {graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}  {Window.ClientBounds.Width}x{Window.ClientBounds.Height}  {GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height}  {GraphicsDevice.Viewport.Width}x{GraphicsDevice.Viewport.Height}  {GraphicsDevice.PresentationParameters.BackBufferWidth}x{GraphicsDevice.PresentationParameters.BackBufferHeight}");
             var meassuredHelpString = ContentDing.spriteFont.MeasureString(helpStringToDraw);
             spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle(ScreenWidth - (int)meassuredHelpString.X - 30, 5, (int)meassuredHelpString.X + 20, (int)meassuredHelpString.Y + 10), Color.White);
             spriteBatch.DrawString(ContentDing.spriteFont, helpStringToDraw, new Vector2(ScreenWidth - (int)meassuredHelpString.X - 20, 10), Color.White);
