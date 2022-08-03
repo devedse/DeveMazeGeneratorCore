@@ -130,17 +130,14 @@ namespace DeveMazeGeneratorMonoGame
         }
 
         public void Dispose()
-        {
-            if (game.Platform != Platform.Blazor)
+        {            
+            if (vertexBuffer != null)
             {
-                if (vertexBuffer != null)
-                {
-                    vertexBuffer.Dispose();
-                }
-                if (indexBuffer != null)
-                {
-                    indexBuffer.Dispose();
-                }
+                vertexBuffer.Dispose();
+            }
+            if (indexBuffer != null)
+            {
+                indexBuffer.Dispose();
             }
         }
     }

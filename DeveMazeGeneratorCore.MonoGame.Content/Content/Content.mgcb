@@ -48,7 +48,7 @@
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
+/processorParam:ResizeToPowerOfTwo=True
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Square.png
@@ -60,7 +60,7 @@
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
+/processorParam:ResizeToPowerOfTwo=True
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:devedse.png
@@ -72,7 +72,7 @@
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
+/processorParam:ResizeToPowerOfTwo=True
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:end.png
@@ -84,7 +84,7 @@
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
+/processorParam:ResizeToPowerOfTwo=True
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:floor.png
@@ -96,7 +96,7 @@
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
+/processorParam:ResizeToPowerOfTwo=True
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:gras.png
@@ -108,7 +108,7 @@
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
+/processorParam:ResizeToPowerOfTwo=True
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:lego.png
@@ -120,7 +120,7 @@
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
+/processorParam:ResizeToPowerOfTwo=True
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:roof.png
@@ -132,7 +132,7 @@
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
+/processorParam:ResizeToPowerOfTwo=True
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:sky.png
@@ -144,7 +144,7 @@
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
+/processorParam:ResizeToPowerOfTwo=True
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:sky2.png
@@ -156,7 +156,7 @@
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
+/processorParam:ResizeToPowerOfTwo=True
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:start.png
@@ -168,7 +168,7 @@
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
+/processorParam:ResizeToPowerOfTwo=True
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:wall.png
@@ -180,7 +180,7 @@
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
+/processorParam:ResizeToPowerOfTwo=True
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:wallcustom.png
