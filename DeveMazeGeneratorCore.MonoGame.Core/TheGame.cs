@@ -693,8 +693,8 @@ namespace DeveMazeGeneratorMonoGame
             GraphicsDevice.Clear(Color.CornflowerBlue);
             SamplerState newSamplerState = new SamplerState()
             {
-                AddressU = Platform == Platform.Blazor ? TextureAddressMode.Clamp : TextureAddressMode.Wrap,
-                AddressV = Platform == Platform.Blazor ? TextureAddressMode.Clamp : TextureAddressMode.Wrap,
+                AddressU = TextureAddressMode.Wrap,
+                AddressV = TextureAddressMode.Wrap,
                 Filter = TextureFilter.Point
             };
             GraphicsDevice.SamplerStates[0] = newSamplerState;
