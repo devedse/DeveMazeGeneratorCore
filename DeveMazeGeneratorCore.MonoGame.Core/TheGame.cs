@@ -164,31 +164,20 @@ namespace DeveMazeGeneratorMonoGame
             Window.ClientSizeChanged += Window_ClientSizeChanged;
             Window.OrientationChanged += Window_OrientationChanged;
 
-            FixScreenSize();
-#endif
-            this.TargetElapsedTime = TimeSpan.FromMilliseconds(1000d / 240);
-            graphics.ApplyChanges();
-
-            Activated += TheGame_Activated;
-
-            base.Initialize();
-        }
-
-        private void FixScreenSize()
-        {
             if (_desiredScreenSize != null)
             {
                 graphics.PreferredBackBufferWidth = _desiredScreenSize.Value.Width;
                 graphics.PreferredBackBufferHeight = _desiredScreenSize.Value.Height;
-
-                //Ensure this only happens once
-                _desiredScreenSize = null;
             }
             else
             {
                 //graphics.PreferredBackBufferWidth = Window.ClientBounds.Width;
                 //graphics.PreferredBackBufferHeight = Window.ClientBounds.Height;
             }
+#endif
+
+
+            Window.AllowUserResizing = true;
 
             if (Platform == Platform.Android || Platform == Platform.UWP) // && Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Mobile"
             {
@@ -196,27 +185,43 @@ namespace DeveMazeGeneratorMonoGame
                 graphics.IsFullScreen = true;
             }
 
-            Window.AllowUserResizing = true;
-
-            ScreenWidth = graphics.PreferredBackBufferWidth;
-            ScreenHeight = graphics.PreferredBackBufferHeight;
-
+            this.TargetElapsedTime = TimeSpan.FromMilliseconds(1000d / 240);
             graphics.ApplyChanges();
+
+            Activated += TheGame_Activated;
+
+            FixScreenSize();
+
+            base.Initialize();
+        }
+
+        private void FixScreenSize()
+        {
+
+
+            Console.WriteLine($"{DateTime.Now} fiscreensize");
+
+
+
+            ScreenWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
+            ScreenHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
+
         }
 
         private void Window_OrientationChanged(object sender, System.EventArgs e)
         {
-            //FixScreenSize();
+            FixScreenSize();
+
         }
 
         private void Window_ClientSizeChanged(object sender, System.EventArgs e)
         {
-            //FixScreenSize();
+            FixScreenSize();
         }
 
         public void ResetMouseToCenter()
         {
-            if (AllowMouseResets)
+            if (AllowMouseResets && false)
             {
                 Mouse.SetPosition(ScreenWidth / 2, ScreenHeight / 2);
             }
@@ -931,7 +936,7 @@ namespace DeveMazeGeneratorMonoGame
             }
             w2.Stop();
 
-            Console.WriteLine(w.Elapsed + "   " + w2.Elapsed);
+            //Console.WriteLine(w.Elapsed + "   " + w2.Elapsed);
 
 
 
