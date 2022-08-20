@@ -54,15 +54,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.7" />
-		<PackageReference Include="nkast.Xna.Framework.Blazor" Version="3.8.9014.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.8" />
+		<PackageReference Include="nkast.Xna.Framework.Blazor" Version="3.8.9100" />
 		<!-- <PackageReference Include="tainicom.Wasm.Canvas" Version="3.2.10" />
 	  <PackageReference Include="tainicom.Wasm.XHR" Version="3.2.10" />
 	  <PackageReference Include="tainicom.Wasm.Dom" Version="3.2.10" />
 	  <PackageReference Include="tainicom.Xna.Framework" Version="3.8.9012" /> -->
 	</ItemGroup>
-
-	<Import Project="..\DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.projitems" Label="Shared" />
 
 </Project>

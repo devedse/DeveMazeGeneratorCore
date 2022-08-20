@@ -1,25 +1,26 @@
+using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using Android.Views;
+using DeveMazeGeneratorCore.MonoGame.Core;
 using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
-using DeveMazeGeneratorMonoGame;
 
 namespace DeveMazeGeneratorCore.MonoGame.Android
 {
     [Activity(Label = "DeveBlockStacker"
-    , MainLauncher = true
-    , Theme = "@style/Theme.Splash"
-    , AlwaysRetainTaskState = true
-    , LaunchMode = LaunchMode.SingleInstance
-    , ScreenOrientation = ScreenOrientation.FullSensor
-    , ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden | ConfigChanges.ScreenSize)]
+        , MainLauncher = true
+        , Theme = "@style/Theme.Splash"
+        , AlwaysRetainTaskState = true
+        , LaunchMode = LaunchMode.SingleInstance
+        , ScreenOrientation = ScreenOrientation.FullSensor
+        , ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden | ConfigChanges.ScreenSize)]
     [IntentFilter(
-    new[] { "android.intent.action.MAIN" },
-    AutoVerify = true,
-    Categories = new[] {
-            "android.intent.category.LAUNCHER",
-            "android.intent.category.LEANBACK_LAUNCHER"
-    })]
+        new[] { "android.intent.action.MAIN" }, 
+        AutoVerify = true,
+        Categories = new[] { 
+            "android.intent.category.LAUNCHER", 
+            "android.intent.category.LEANBACK_LAUNCHER" 
+        })]
     public class MainActivity : Microsoft.Xna.Framework.AndroidGameActivity
     {
         private void FixUiOptions()
@@ -43,3 +44,4 @@ namespace DeveMazeGeneratorCore.MonoGame.Android
         }
     }
 }
+

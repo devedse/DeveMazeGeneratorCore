@@ -19,13 +19,16 @@
 		</MonoGameContentReference>
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
-	  <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
+	  <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
+	  <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
 	</ItemGroup>
 	<ItemGroup>
 		<TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\DeveMazeGeneratorCore.MonoGame.Core\DeveMazeGeneratorCore.MonoGame.Core.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Properties\" />
 	</ItemGroup>
 </Project>
