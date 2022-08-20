@@ -63,4 +63,6 @@
 	  <PackageReference Include="tainicom.Xna.Framework" Version="3.8.9012" /> -->
 	</ItemGroup>
 
+	<Import Project="..\DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.projitems" Label="Shared" />
+
 </Project>
