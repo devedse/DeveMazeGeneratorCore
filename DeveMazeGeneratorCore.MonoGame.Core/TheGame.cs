@@ -221,7 +221,7 @@ namespace DeveMazeGeneratorMonoGame
 
         public void ResetMouseToCenter()
         {
-            if (AllowMouseResets && false)
+            if (AllowMouseResets)
             {
                 Mouse.SetPosition(ScreenWidth / 2, ScreenHeight / 2);
             }
