@@ -12,7 +12,8 @@ namespace DeveMazeGeneratorCore.MonoGame.Android
     , AlwaysRetainTaskState = true
     , LaunchMode = LaunchMode.SingleInstance
     , ScreenOrientation = ScreenOrientation.FullSensor
-    , ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden | ConfigChanges.ScreenSize)]
+    , ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden | ConfigChanges.ScreenSize
+    , Exported = true)]
     [IntentFilter(
     new[] { "android.intent.action.MAIN" },
     AutoVerify = true,
