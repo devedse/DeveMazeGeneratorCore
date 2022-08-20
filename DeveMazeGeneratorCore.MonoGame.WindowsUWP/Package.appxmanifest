@@ -4,10 +4,10 @@
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   IgnorableNamespaces="uap mp">
-  <Identity Name="38851Devedse.DeveBlockStacker" Publisher="CN=FEF47EF8-0E95-4FA4-B95A-48C4F75A8DE3" Version="1.0.0.0" />
+  <Identity Name="38851Devedse.DeveMazeGeneratorCoreMonoGame" Publisher="CN=FEF47EF8-0E95-4FA4-B95A-48C4F75A8DE3" Version="1.0.0.0" />
   <mp:PhoneIdentity PhoneProductId="512cf69b-ebb6-43bc-a75a-d9c038e778f3" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>DeveBlockStacker</DisplayName>
+    <DisplayName>DeveMazeGeneratorCoreMonoGame</DisplayName>
     <PublisherDisplayName>Devedse</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>

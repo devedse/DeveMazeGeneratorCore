@@ -7,7 +7,7 @@ using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
 
 namespace DeveMazeGeneratorCore.MonoGame.Android
 {
-    [Activity(Label = "DeveBlockStacker"
+    [Activity(Label = "DeveMazeGeneratorCoreMonoGame"
         , MainLauncher = true
         , Theme = "@style/Theme.Splash"
         , AlwaysRetainTaskState = true

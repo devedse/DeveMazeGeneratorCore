@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	package="deveblockstacker_android.deveblockstacker_android"
+	package="devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android"
 	android:installLocation="auto"
 	android:versionName="1.4"
 	android:versionCode="4">
