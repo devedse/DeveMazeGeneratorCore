@@ -190,29 +190,16 @@ jobs:
     - name: Test
       run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
     - name: Publish
-      run: dotnet publish .\DeveMazeGeneratorCore.MonoGame.DesktopGL\DeveMazeGeneratorCore.MonoGame.DesktopGL.csproj -r win-x64 -c Release /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=true /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-    - name: Publish (Without Trim)
-      run: dotnet publish .\DeveMazeGeneratorCore.MonoGame.DesktopGL\DeveMazeGeneratorCore.MonoGame.DesktopGL.csproj -r win-x64 -c Release -o "DeveMazeGeneratorCore.MonoGame.DesktopGL\bin\Release\net6.0-windows\win-x64\publishuntrimmed\" /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-    - name: Publish
-      run: dotnet publish .\DeveMazeGeneratorCore.MonoGame.DesktopGL\DeveMazeGeneratorCore.MonoGame.DesktopGL.csproj -r win-x64 -c Release -o "DeveMazeGeneratorCore.MonoGame.DesktopGL\bin\Release\net6.0-windows\win-x64\publishtrimmedlink\" /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=true /p:TrimMode=Link /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-    - name: Publish
-      run: dotnet publish .\DeveMazeGeneratorCore.MonoGame.DesktopGL\DeveMazeGeneratorCore.MonoGame.DesktopGL.csproj -r win-x64 -c Release -o "DeveMazeGeneratorCore.MonoGame.DesktopGL\bin\Release\net6.0-windows\win-x64\publishtrimmedcopyused\" /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=true /p:TrimMode=CopyUsed /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+      run: dotnet publish .\DeveMazeGeneratorCore.MonoGame.DesktopGL\DeveMazeGeneratorCore.MonoGame.DesktopGL.csproj -r win-x64 -c Release /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=false /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+    - name: Copy files that are missing for some reason
+      run: |
+        cp DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/SDL2.dll DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/
+        cp -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/Content/. DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/Content/
+      shell: bash
     - uses: actions/upload-artifact@v1
       with:
         name: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64
         path: DeveMazeGeneratorCore.MonoGame.DesktopGL\bin\Release\net6.0-windows\win-x64\publish\DeveMazeGeneratorCore.MonoGame.DesktopGL.exe
-    - uses: actions/upload-artifact@v1
-      with:
-        name: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_untrimmed
-        path: DeveMazeGeneratorCore.MonoGame.DesktopGL.MonoGame.DesktopGL\bin\Release\net6.0-windows\win-x64\publishuntrimmed\DeveMazeGeneratorCore.MonoGame.DesktopGL.exe
-    - uses: actions/upload-artifact@v1
-      with:
-        name: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_trimlink
-        path: DeveMazeGeneratorCore.MonoGame.DesktopGL\bin\Release\net6.0-windows\win-x64\publishtrimmedlink\DeveMazeGeneratorCore.MonoGame.DesktopGL.exe
-    - uses: actions/upload-artifact@v1
-      with:
-        name: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_trimcopyused
-        path: DeveMazeGeneratorCore.MonoGame.DesktopGL\bin\Release\net6.0-windows\win-x64\publishtrimmedcopyused\DeveMazeGeneratorCore.MonoGame.DesktopGL.exe
 
   build_windows_monogame_windowsdx:
     needs: generate_version_number
