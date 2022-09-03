@@ -138,7 +138,7 @@ namespace DeveMazeGeneratorMonoGame
             AllowMouseResets = Platform != Platform.Blazor;
             graphics = new GraphicsDeviceManager(this);
 
-            graphics.PreferMultiSampling = true;
+            graphics.PreferMultiSampling = false;
             //GraphicsDevice.PresentationParameters.MultiSampleCount = 16;
 
             IsMouseVisible = true;
@@ -950,7 +950,15 @@ namespace DeveMazeGeneratorMonoGame
 
             var n = Environment.NewLine;
 
-            string helpStringToDraw = $"{ScreenWidth}x{ScreenHeight}{n}{graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}{n}{Window.ClientBounds.Width}x{Window.ClientBounds.Height}{n}{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height}{n}{GraphicsDevice.Viewport.Width}x{GraphicsDevice.Viewport.Height}{n}{GraphicsDevice.PresentationParameters.BackBufferWidth}x{GraphicsDevice.PresentationParameters.BackBufferHeight}{n}{n}F: Follow Camera ({followCamera}){n}T: Top Camera ({fromAboveCamera}){n}C: Chase Camera ({chaseCamera}){n}   B: Chase Debug ({chaseCameraShowDebugBlocks}){n}{n}H: Roof ({drawRoof}){n}P: Path ({drawPath}){n}{n}Down/Up: Maze Size{n}Left/Right: Algorithm{n}Num-+: Speed{n}R: New Maze{n}G: Restart this maze{n}{n}L: Lighting ({lighting}){n}O: Other Camera ({UseNewCamera})";
+            string helpStringToDraw =
+                $"{ScreenWidth}x{ScreenHeight}{n}" +
+                $"{graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}{n}" +
+                $"{Window.ClientBounds.Width}x{Window.ClientBounds.Height}{n}" +
+                $"{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height} <-- Android Right One{n}" +
+                $"{GraphicsDevice.Viewport.Width}x{GraphicsDevice.Viewport.Height}{n}" +
+                $"{GraphicsDevice.PresentationParameters.BackBufferWidth}x{GraphicsDevice.PresentationParameters.BackBufferHeight}{n}" +
+                $"Aspect: {GraphicsDevice.Viewport.AspectRatio}{n}" +
+                $"{n}F: Follow Camera ({followCamera}){n}T: Top Camera ({fromAboveCamera}){n}C: Chase Camera ({chaseCamera}){n}   B: Chase Debug ({chaseCameraShowDebugBlocks}){n}{n}H: Roof ({drawRoof}){n}P: Path ({drawPath}){n}{n}Down/Up: Maze Size{n}Left/Right: Algorithm{n}Num-+: Speed{n}R: New Maze{n}G: Restart this maze{n}{n}L: Lighting ({lighting}){n}O: Other Camera ({UseNewCamera})";
             //Console.WriteLine($"{DateTime.Now}: {ScreenWidth}x{ScreenHeight}  {graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}  {Window.ClientBounds.Width}x{Window.ClientBounds.Height}  {GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height}  {GraphicsDevice.Viewport.Width}x{GraphicsDevice.Viewport.Height}  {GraphicsDevice.PresentationParameters.BackBufferWidth}x{GraphicsDevice.PresentationParameters.BackBufferHeight}");
             var meassuredHelpString = ContentDing.spriteFont.MeasureString(helpStringToDraw);
             spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle(ScreenWidth - (int)meassuredHelpString.X - 30, 5, (int)meassuredHelpString.X + 20, (int)meassuredHelpString.Y + 10), Color.White);

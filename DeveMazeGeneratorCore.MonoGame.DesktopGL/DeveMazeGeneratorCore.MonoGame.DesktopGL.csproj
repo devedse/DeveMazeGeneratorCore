@@ -11,7 +11,6 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Icon.ico" />
-		<EmbeddedResource Include="Icon.bmp" />
 	</ItemGroup>
 	<ItemGroup>
 		<MonoGameContentReference Include="..\DeveMazeGeneratorCore.MonoGame.Content\Content\Content.mgcb">
