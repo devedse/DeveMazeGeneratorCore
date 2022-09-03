@@ -1,6 +1,7 @@
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
+using Android.Util;
 using Android.Views;
 using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
 using DeveMazeGeneratorMonoGame;
@@ -28,8 +29,18 @@ namespace DeveMazeGeneratorCore.MonoGame.Android
         {
             if (Build.VERSION.SdkInt >= BuildVersionCodes.R)
             {
+                //Hide top bar
                 Window.InsetsController.Hide(WindowInsets.Type.StatusBars());
+                //Hide bottom bar
                 Window.InsetsController.Hide(WindowInsets.Type.SystemBars());
+            }
+
+            //Draw over notch
+            Window.SetFlags(WindowManagerFlags.Fullscreen, WindowManagerFlags.Fullscreen);
+            Window.SetFlags(WindowManagerFlags.LayoutNoLimits, WindowManagerFlags.LayoutNoLimits);
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.P && Window.Attributes != null)
+            {
+                Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
             }
         }
 

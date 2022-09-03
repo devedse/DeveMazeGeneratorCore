@@ -138,6 +138,7 @@ namespace DeveMazeGeneratorMonoGame
             AllowMouseResets = Platform != Platform.Blazor;
             graphics = new GraphicsDeviceManager(this);
 
+            //This is bugged in MonoGame 3.8.1 and creates a white wash over everything
             graphics.PreferMultiSampling = false;
             //GraphicsDevice.PresentationParameters.MultiSampleCount = 16;
 
@@ -160,6 +161,11 @@ namespace DeveMazeGeneratorMonoGame
 
         protected override void Initialize()
         {
+            camera = new Camera(this);
+            newcamera = new Basic3dExampleCamera(GraphicsDevice, this);
+            newcamera.Position = new Vector3(7.5f, 7.5f, 7.5f);
+            newcamera.LookAtDirection = Vector3.Forward;
+
 #if !BLAZOR
             Window.ClientSizeChanged += Window_ClientSizeChanged;
             Window.OrientationChanged += Window_OrientationChanged;
@@ -169,6 +175,15 @@ namespace DeveMazeGeneratorMonoGame
                 graphics.PreferredBackBufferWidth = _desiredScreenSize.Value.Width;
                 graphics.PreferredBackBufferHeight = _desiredScreenSize.Value.Height;
             }
+            else if (Platform == Platform.Android)
+            {
+                //For android I haven't been able to find the "FULL" screen size in the AndroidActivity
+                //Whenever I tried it it would only give me the size of everything excluding system bars.
+                //Unless I did GetRealMetrics but then it would always grab the full size, I want this to be dynamic.
+                //So the value that is actually dynamic and correct is this:
+                graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+                graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            }
             else
             {
                 //graphics.PreferredBackBufferWidth = Window.ClientBounds.Width;
@@ -176,10 +191,9 @@ namespace DeveMazeGeneratorMonoGame
             }
 #endif
 
-
             Window.AllowUserResizing = true;
 
-            if (Platform == Platform.Android || Platform == Platform.UWP) // && Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Mobile"
+            if (Platform == Platform.UWP) // && Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Mobile"
             {
                 //To remove the Battery bar
                 graphics.IsFullScreen = true;
@@ -195,38 +209,6 @@ namespace DeveMazeGeneratorMonoGame
             base.Initialize();
         }
 
-        private void FixScreenSize()
-        {
-
-
-            Console.WriteLine($"{DateTime.Now} fiscreensize");
-
-
-
-            ScreenWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
-            ScreenHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
-
-        }
-
-        private void Window_OrientationChanged(object sender, System.EventArgs e)
-        {
-            FixScreenSize();
-
-        }
-
-        private void Window_ClientSizeChanged(object sender, System.EventArgs e)
-        {
-            FixScreenSize();
-        }
-
-        public void ResetMouseToCenter()
-        {
-            if (AllowMouseResets)
-            {
-                Mouse.SetPosition(ScreenWidth / 2, ScreenHeight / 2);
-            }
-        }
-
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.
@@ -234,10 +216,6 @@ namespace DeveMazeGeneratorMonoGame
         protected override void LoadContent()
         {
             GenerateMaze();
-            camera = new Camera(this);
-            newcamera = new Basic3dExampleCamera(GraphicsDevice, this);
-            newcamera.Position = new Vector3(7.5f, 7.5f, 7.5f);
-            newcamera.LookAtDirection = Vector3.Forward;
 
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -254,6 +232,53 @@ namespace DeveMazeGeneratorMonoGame
 
             possibleCubejeModel = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
             losPointCubeModel = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
+        }
+
+        private void Window_OrientationChanged(object sender, System.EventArgs e)
+        {
+            FixScreenSize();
+        }
+
+        private void Window_ClientSizeChanged(object sender, System.EventArgs e)
+        {
+            FixScreenSize();
+        }
+
+        private void FixScreenSize()
+        {
+            Console.WriteLine($"{DateTime.Now} fixscreensize");
+
+            ScreenWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
+            ScreenHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
+
+            camera.TriggerScreenSizeChanged();
+        }
+
+        public void ResetMouseToCenter()
+        {
+            if (AllowMouseResets)
+            {
+                Mouse.SetPosition(ScreenWidth / 2, ScreenHeight / 2);
+            }
+        }
+
+        public void ToggleFullScreenBetter()
+        {
+            if (graphics.IsFullScreen)
+            {
+                if (_desiredScreenSize != null)
+                {
+                    graphics.PreferredBackBufferWidth = _desiredScreenSize.Value.Width;
+                    graphics.PreferredBackBufferHeight = _desiredScreenSize.Value.Height;
+                }
+            }
+            else
+            {
+                graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+                graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            }
+            graphics.IsFullScreen = !graphics.IsFullScreen;
+            graphics.ApplyChanges();
         }
 
         /// <summary>
@@ -555,8 +580,9 @@ namespace DeveMazeGeneratorMonoGame
             {
                 //graphics.PreferredBackBufferWidth = 3840;
                 //graphics.PreferredBackBufferHeight = 2160;
-                graphics.ApplyChanges();
-                graphics.ToggleFullScreen();
+                //graphics.ApplyChanges();
+                //graphics.ToggleFullScreen();
+                ToggleFullScreenBetter();
             }
 
 
@@ -951,6 +977,7 @@ namespace DeveMazeGeneratorMonoGame
             var n = Environment.NewLine;
 
             string helpStringToDraw =
+                $"Fullscreen: {graphics.IsFullScreen}{n}" +
                 $"{ScreenWidth}x{ScreenHeight}{n}" +
                 $"{graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}{n}" +
                 $"{Window.ClientBounds.Width}x{Window.ClientBounds.Height}{n}" +

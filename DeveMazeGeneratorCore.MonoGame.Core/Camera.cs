@@ -32,9 +32,14 @@ namespace DeveMazeGeneratorMonoGame
         {
             this.game = game;
 
-            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, game.GraphicsDevice.Viewport.AspectRatio, 0.3f, 10000000.0f);
-
             game.ResetMouseToCenter();
+
+            TriggerScreenSizeChanged();
+        }
+
+        public void TriggerScreenSizeChanged()
+        {
+            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, game.GraphicsDevice.Viewport.AspectRatio, 0.3f, 10000000.0f);
         }
 
 
