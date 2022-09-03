@@ -197,12 +197,15 @@ jobs:
         cp -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/Content/. DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/Content/
         ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/Publish
       shell: bash
+    - name: 7zip output
+      run: |
+        7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64.7z" "DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/Publish" '-x!*.pdb'
     - uses: actions/upload-artifact@v1
       with:
         name: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64
-        path: DeveMazeGeneratorCore.MonoGame.DesktopGL\bin\Release\net6.0-windows\win-x64\publish\DeveMazeGeneratorCore.MonoGame.DesktopGL.exe
+        path: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64.7z
 
-  build_windows_monogame_windowsdx:
+  build_windows_monogame_desktopgl:
     needs: generate_version_number
     runs-on: windows-latest
     steps:
@@ -218,29 +221,20 @@ jobs:
     - name: Test
       run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
     - name: Publish
-      run: dotnet publish .\DeveMazeGeneratorCore.MonoGame.WindowsDX\DeveMazeGeneratorCore.MonoGame.WindowsDX.csproj -r win-x64 -c Release /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=true /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-    - name: Publish (Without Trim)
-      run: dotnet publish .\DeveMazeGeneratorCore.MonoGame.WindowsDX\DeveMazeGeneratorCore.MonoGame.WindowsDX.csproj -r win-x64 -c Release -o "DeveMazeGeneratorCore.MonoGame.WindowsDX\bin\Release\net6.0-windows\win-x64\publishuntrimmed\" /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-    - name: Publish
-      run: dotnet publish .\DeveMazeGeneratorCore.MonoGame.WindowsDX\DeveMazeGeneratorCore.MonoGame.WindowsDX.csproj -r win-x64 -c Release -o "DeveMazeGeneratorCore.MonoGame.WindowsDX\bin\Release\net6.0-windows\win-x64\publishtrimmedlink\" /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=true /p:TrimMode=Link /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-    - name: Publish
-      run: dotnet publish .\DeveMazeGeneratorCore.MonoGame.WindowsDX\DeveMazeGeneratorCore.MonoGame.WindowsDX.csproj -r win-x64 -c Release -o "DeveMazeGeneratorCore.MonoGame.WindowsDX\bin\Release\net6.0-windows\win-x64\publishtrimmedcopyused\" /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=true /p:TrimMode=CopyUsed /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+      run: dotnet publish .\DeveMazeGeneratorCore.MonoGame.WindowsDX\DeveMazeGeneratorCore.MonoGame.WindowsDX.csproj -r win-x64 -c Release /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=false /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+    - name: Copy files that are missing for some reason
+      run: |
+        cp DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0/win-x64/SDL2.dll DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0/win-x64/publish/
+        cp -R DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0/win-x64/Content/. DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0/win-x64/publish/Content/
+        ls -R DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0/win-x64/Publish
+      shell: bash
+    - name: 7zip output
+      run: |
+        7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64.7z" "DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0/win-x64/Publish" '-x!*.pdb'
     - uses: actions/upload-artifact@v1
       with:
         name: DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64
-        path: DeveMazeGeneratorCore.MonoGame.WindowsDX\bin\Release\net6.0-windows\win-x64\publish\DeveMazeGeneratorCore.MonoGame.WindowsDX.exe
-    - uses: actions/upload-artifact@v1
-      with:
-        name: DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64_untrimmed
-        path: DeveMazeGeneratorCore.MonoGame.WindowsDX.MonoGame.WindowsDX\bin\Release\net6.0-windows\win-x64\publishuntrimmed\DeveMazeGeneratorCore.MonoGame.WindowsDX.exe
-    - uses: actions/upload-artifact@v1
-      with:
-        name: DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64_trimlink
-        path: DeveMazeGeneratorCore.MonoGame.WindowsDX\bin\Release\net6.0-windows\win-x64\publishtrimmedlink\DeveMazeGeneratorCore.MonoGame.WindowsDX.exe
-    - uses: actions/upload-artifact@v1
-      with:
-        name: DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64_trimcopyused
-        path: DeveMazeGeneratorCore.MonoGame.WindowsDX\bin\Release\net6.0-windows\win-x64\publishtrimmedcopyused\DeveMazeGeneratorCore.MonoGame.WindowsDX.exe
+        path: DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64.7z
 
 
   release_github:
