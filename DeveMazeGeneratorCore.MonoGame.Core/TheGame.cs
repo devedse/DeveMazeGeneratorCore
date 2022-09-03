@@ -74,16 +74,8 @@ namespace DeveMazeGeneratorMonoGame
 
         private PlayerModel playerModel;
 
-        //Keys.T
-        private bool fromAboveCamera = false;
-
-        //Keys.F
-        private bool followCamera = true;
-
-        //Keys.C
-        private Boolean chaseCamera = false;
         //Keys.B
-        private Boolean chaseCameraShowDebugBlocks = false;
+        private bool chaseCameraShowDebugBlocks = false;
         private LineOfSightDeterminer determiner;
         private LineOfSightObject curChaseCameraPoint = null;
 
@@ -112,6 +104,8 @@ namespace DeveMazeGeneratorMonoGame
             new AlgorithmKruskal()
         };
         private int currentAlgorithm = 0;
+
+
 
 
 
@@ -592,28 +586,28 @@ namespace DeveMazeGeneratorMonoGame
             }
 
 
-            if (UseNewCamera)
-            {
-                newcamera.Update(gameTime);
-            }
-            else
-            {
-                camera.Update(gameTime);
-            }
-
-
-
             //Line of sight stuff
             //Should happen when player runs out of range
 
-            if (InputDing.KeyDownUp(Keys.C))
+            if (InputDing.KeyDownUp(Keys.D1))
             {
-                if (chaseCamera == false)
-                {
-                    fromAboveCamera = false;
-                    followCamera = false;
-                }
-                chaseCamera = !chaseCamera;
+                camera.ActiveCameraMode = ActiveCameraMode.FollowCamera;
+            }
+            else if (InputDing.KeyDownUp(Keys.D2))
+            {
+                camera.ActiveCameraMode = ActiveCameraMode.FreeCamera;
+            }
+            else if (InputDing.KeyDownUp(Keys.D3))
+            {
+                camera.ActiveCameraMode = ActiveCameraMode.FromAboveCamera;
+
+                camera.leftrightRot = 0.15f;
+                camera.updownRot = -0.72f;
+                drawRoof = false;
+            }
+            else if (InputDing.KeyDownUp(Keys.D4))
+            {
+                camera.ActiveCameraMode = ActiveCameraMode.ChaseCamera;
             }
 
             if (InputDing.KeyDownUp(Keys.B))
@@ -621,7 +615,7 @@ namespace DeveMazeGeneratorMonoGame
                 chaseCameraShowDebugBlocks = !chaseCameraShowDebugBlocks;
             }
 
-            if (chaseCamera || chaseCameraShowDebugBlocks)
+            if (camera.ActiveCameraMode == ActiveCameraMode.ChaseCamera || chaseCameraShowDebugBlocks)
             {
                 if (curChaseCameraPoint == null)
                 {
@@ -655,7 +649,7 @@ namespace DeveMazeGeneratorMonoGame
                 }
             }
 
-            if (chaseCamera && curChaseCameraPoint != null)
+            if (camera.ActiveCameraMode == ActiveCameraMode.ChaseCamera && curChaseCameraPoint != null)
             {
                 camera.cameraPosition = new Vector3(curChaseCameraPoint.CameraPoint.X * 10.0f, 7.5f, curChaseCameraPoint.CameraPoint.Y * 10.0f);
 
@@ -666,30 +660,10 @@ namespace DeveMazeGeneratorMonoGame
 
                 camera.updownRot = 0;
                 camera.leftrightRot = newRot;
-                camera.UpdateViewMatrix();
+                //camera.UpdateViewMatrix();
             }
 
-
-
-
-
-
-            if (InputDing.KeyDownUp(Keys.T))
-            {
-                if (!fromAboveCamera)
-                {
-                    chaseCamera = false;
-                    followCamera = false;
-                    drawRoof = false;
-
-                    camera.leftrightRot = 0.15f;
-                    camera.updownRot = -0.72f;
-                }
-                fromAboveCamera = !fromAboveCamera;
-            }
-
-
-            if (fromAboveCamera)
+            if (camera.ActiveCameraMode == ActiveCameraMode.FromAboveCamera)
             {
                 //float prenumbertje = numbertje - (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -697,28 +671,12 @@ namespace DeveMazeGeneratorMonoGame
                 var now = GetPosAtThisNumer(numbertje);
 
                 camera.cameraPosition = new Vector3((now.X + 1.9f) * 10.0f, (7.0f) * 10.0f, (now.Y + 7.0f) * 10.0f);
-                camera.UpdateViewMatrix();
+                //camera.UpdateViewMatrix();
             }
 
 
 
-
-
-
-
-
-
-            if (InputDing.KeyDownUp(Keys.F))
-            {
-                if (!followCamera)
-                {
-                    fromAboveCamera = false;
-                    chaseCamera = false;
-                }
-                followCamera = !followCamera;
-            }
-
-            if (followCamera)
+            if (camera.ActiveCameraMode == ActiveCameraMode.FollowCamera)
             {
                 var pospos = GetPosAtThisNumer(numbertje);
                 var posposbefore = GetPosAtThisNumer(numbertje - (0.5f / (float)speedFactor));
@@ -734,9 +692,20 @@ namespace DeveMazeGeneratorMonoGame
 
                 //camera.leftrightRot = (9.0f * oldRot + 1.0f * newRot) / 10.0f;
                 camera.leftrightRot = newRot;
-                camera.UpdateViewMatrix();
+                //camera.UpdateViewMatrix();
             }
 
+
+
+
+            if (UseNewCamera)
+            {
+                newcamera.Update(gameTime);
+            }
+            else
+            {
+                camera.Update(gameTime);
+            }
 
 
 
@@ -845,7 +814,7 @@ namespace DeveMazeGeneratorMonoGame
 
 
             //Me
-            if (!followCamera)
+            if (camera.ActiveCameraMode != ActiveCameraMode.FollowCamera)
             {
 
                 var vvv = GetPosAtThisNumer(numbertje);
@@ -976,6 +945,8 @@ namespace DeveMazeGeneratorMonoGame
 
             var n = Environment.NewLine;
 
+            var activeString = "<-- active";
+
             string helpStringToDraw =
                 $"Fullscreen: {graphics.IsFullScreen}{n}" +
                 $"{ScreenWidth}x{ScreenHeight}{n}" +
@@ -985,7 +956,8 @@ namespace DeveMazeGeneratorMonoGame
                 $"{GraphicsDevice.Viewport.Width}x{GraphicsDevice.Viewport.Height}{n}" +
                 $"{GraphicsDevice.PresentationParameters.BackBufferWidth}x{GraphicsDevice.PresentationParameters.BackBufferHeight}{n}" +
                 $"Aspect: {GraphicsDevice.Viewport.AspectRatio}{n}" +
-                $"{n}F: Follow Camera ({followCamera}){n}T: Top Camera ({fromAboveCamera}){n}C: Chase Camera ({chaseCamera}){n}   B: Chase Debug ({chaseCameraShowDebugBlocks}){n}{n}H: Roof ({drawRoof}){n}P: Path ({drawPath}){n}{n}Down/Up: Maze Size{n}Left/Right: Algorithm{n}Num-+: Speed{n}R: New Maze{n}G: Restart this maze{n}{n}L: Lighting ({lighting}){n}O: Other Camera ({UseNewCamera})";
+                $"{n}Camera modes:{n}1: Follow Camera {(camera.ActiveCameraMode == ActiveCameraMode.FollowCamera ? activeString : "")}{n}2: Free Camera {(camera.ActiveCameraMode == ActiveCameraMode.FreeCamera ? activeString : "")}{n}3: Top Camera {(camera.ActiveCameraMode == ActiveCameraMode.FromAboveCamera ? activeString : "")}{n}4: Chase Camera {(camera.ActiveCameraMode == ActiveCameraMode.ChaseCamera ? activeString : "")}{n}   B: Chase Debug ({chaseCameraShowDebugBlocks}){n}{n}" +
+                $"H: Roof ({drawRoof}){n}P: Path ({drawPath}){n}{n}Down/Up: Maze Size{n}Left/Right: Algorithm{n}Num-+: Speed{n}R: New Maze{n}G: Restart this maze{n}{n}L: Lighting ({lighting}){n}O: Other Camera ({UseNewCamera})";
             //Console.WriteLine($"{DateTime.Now}: {ScreenWidth}x{ScreenHeight}  {graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}  {Window.ClientBounds.Width}x{Window.ClientBounds.Height}  {GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height}  {GraphicsDevice.Viewport.Width}x{GraphicsDevice.Viewport.Height}  {GraphicsDevice.PresentationParameters.BackBufferWidth}x{GraphicsDevice.PresentationParameters.BackBufferHeight}");
             var meassuredHelpString = ContentDing.spriteFont.MeasureString(helpStringToDraw);
             spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle(ScreenWidth - (int)meassuredHelpString.X - 30, 5, (int)meassuredHelpString.X + 20, (int)meassuredHelpString.Y + 10), Color.White);

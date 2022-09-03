@@ -1,4 +1,5 @@
-﻿using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
+﻿using DeveMazeGeneratorCore.MonoGame.Core;
+using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -27,6 +28,8 @@ namespace DeveMazeGeneratorMonoGame
 
         private MouseState mState = default(MouseState);
 
+        public ActiveCameraMode ActiveCameraMode { get; set; } = ActiveCameraMode.FollowCamera;
+
 
         public Camera(TheGame game)
         {
@@ -46,59 +49,62 @@ namespace DeveMazeGeneratorMonoGame
 
         public void Update(GameTime gameTime)
         {
-
             MouseState currentMouseState = Mouse.GetState();
 
             float timeDifference = (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000.0f;
 
-
-            GraphicsDevice device = game.GraphicsDevice;
-
             //Console.WriteLine($"Game active: {game.IsActive}, {currentMouseState.X}   {currentMouseState.Y}");
             if (game.IsActive)
             {
-                float xDifference = currentMouseState.X - (game.AllowMouseResets ? (game.ScreenWidth / 2) : mState.X);
-                float yDifference = currentMouseState.Y - (game.AllowMouseResets ? (game.ScreenHeight / 2) : mState.Y);
-                game.ResetMouseToCenter();
-                leftrightRot -= rotationSpeed * xDifference * timeDifference;
+                if (ActiveCameraMode == ActiveCameraMode.FreeCamera || ActiveCameraMode == ActiveCameraMode.FromAboveCamera)
+                {
+                    float xDifference = currentMouseState.X - (game.AllowMouseResets ? (game.ScreenWidth / 2) : mState.X);
+                    float yDifference = currentMouseState.Y - (game.AllowMouseResets ? (game.ScreenHeight / 2) : mState.Y);
+                    game.ResetMouseToCenter();
+                    leftrightRot -= rotationSpeed * xDifference * timeDifference;
 
-                var newUpDownRot = updownRot - (rotationSpeed * yDifference * timeDifference);
+                    var newUpDownRot = updownRot - (rotationSpeed * yDifference * timeDifference);
 
-                updownRot = MathHelper.Clamp(newUpDownRot, -MathHelper.PiOver2, MathHelper.PiOver2);
-
-                UpdateViewMatrix();
+                    updownRot = MathHelper.Clamp(newUpDownRot, -MathHelper.PiOver2, MathHelper.PiOver2);
+                }
             }
 
-            Vector3 moveVector = new Vector3(0, 0, 0);
-            KeyboardState keyState = Keyboard.GetState();
-            if (keyState.IsKeyDown(Keys.W))
-                moveVector += new Vector3(0, 0, -1);
-            if (keyState.IsKeyDown(Keys.S))
-                moveVector += new Vector3(0, 0, 1);
-            if (keyState.IsKeyDown(Keys.D))
-                moveVector += new Vector3(1, 0, 0);
-            if (keyState.IsKeyDown(Keys.A))
-                moveVector += new Vector3(-1, 0, 0);
-            if (keyState.IsKeyDown(Keys.Space))
-                moveVector += new Vector3(0, 1, 0);
-            if (keyState.IsKeyDown(Keys.LeftShift))
-                moveVector += new Vector3(0, -1, 0);
-            AddToCameraPosition(moveVector * timeDifference);
-
-
-            if (InputDing.CurMouse.LeftButton == ButtonState.Pressed)
+            if (ActiveCameraMode == ActiveCameraMode.FreeCamera)
             {
-                moveSpeed = 1000.0f;
-            }
-            else if (InputDing.CurMouse.RightButton == ButtonState.Pressed)
-            {
-                moveSpeed = 30.0f;
-            }
-            else
-            {
-                moveSpeed = 100.0f;
+                Vector3 moveVector = new Vector3(0, 0, 0);
+                KeyboardState keyState = Keyboard.GetState();
+                if (keyState.IsKeyDown(Keys.W))
+                    moveVector += new Vector3(0, 0, -1);
+                if (keyState.IsKeyDown(Keys.S))
+                    moveVector += new Vector3(0, 0, 1);
+                if (keyState.IsKeyDown(Keys.D))
+                    moveVector += new Vector3(1, 0, 0);
+                if (keyState.IsKeyDown(Keys.A))
+                    moveVector += new Vector3(-1, 0, 0);
+                if (keyState.IsKeyDown(Keys.Space))
+                    moveVector += new Vector3(0, 1, 0);
+                if (keyState.IsKeyDown(Keys.LeftShift))
+                    moveVector += new Vector3(0, -1, 0);
+
+
+                if (InputDing.CurMouse.LeftButton == ButtonState.Pressed)
+                {
+                    moveSpeed = 1000.0f;
+                }
+                else if (InputDing.CurMouse.RightButton == ButtonState.Pressed)
+                {
+                    moveSpeed = 30.0f;
+                }
+                else
+                {
+                    moveSpeed = 100.0f;
+                }
+                AddToCameraPosition(moveVector * timeDifference);
             }
 
+
+
+            UpdateViewMatrix();
 
             mState = currentMouseState;
         }
