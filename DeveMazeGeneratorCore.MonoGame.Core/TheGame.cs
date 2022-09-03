@@ -160,10 +160,10 @@ namespace DeveMazeGeneratorMonoGame
             newcamera.Position = new Vector3(7.5f, 7.5f, 7.5f);
             newcamera.LookAtDirection = Vector3.Forward;
 
-#if !BLAZOR
             Window.ClientSizeChanged += Window_ClientSizeChanged;
             Window.OrientationChanged += Window_OrientationChanged;
 
+#if !BLAZOR
             if (_desiredScreenSize != null)
             {
                 graphics.PreferredBackBufferWidth = _desiredScreenSize.Value.Width;
