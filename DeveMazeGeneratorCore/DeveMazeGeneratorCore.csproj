@@ -12,18 +12,18 @@
 
     <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
- 
+
     <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>false</EmbedUntrackedSources>
-  
+
     <!-- Optional: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-	<PackageIcon>IconBig.png</PackageIcon>
+    <PackageIcon>IconBig.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
-	  <None Include="..\Icon\IconBig.png" Pack="true" PackagePath="\" />
+    <None Include="..\Icon\IconBig.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>

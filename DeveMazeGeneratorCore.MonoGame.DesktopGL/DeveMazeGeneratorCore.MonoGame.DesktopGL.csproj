@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<PublishReadyToRun>false</PublishReadyToRun>
+		<TieredCompilation>false</TieredCompilation>
+	</PropertyGroup>
+	<PropertyGroup>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<ApplicationIcon>Icon.ico</ApplicationIcon>
+	</PropertyGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Icon.ico" />
+	</ItemGroup>
+	<ItemGroup>
+		<MonoGameContentReference Include="..\DeveMazeGeneratorCore.MonoGame.Content\Content\Content.mgcb">
+			<Link>Content\Content.mgcb</Link>
+		</MonoGameContentReference>
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
+	  <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
+	</ItemGroup>
+	<ItemGroup>
+		<TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\DeveMazeGeneratorCore.MonoGame.Core\DeveMazeGeneratorCore.MonoGame.Core.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Properties\" />
+	</ItemGroup>
+</Project>

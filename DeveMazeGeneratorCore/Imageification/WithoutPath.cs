@@ -1,4 +1,6 @@
 ﻿using DeveMazeGeneratorCore.InnerMaps;
+
+#if !BLAZOR
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
@@ -48,3 +50,4 @@ namespace DeveMazeGeneratorCore.Imageification
         }
     }
 }
+#endif

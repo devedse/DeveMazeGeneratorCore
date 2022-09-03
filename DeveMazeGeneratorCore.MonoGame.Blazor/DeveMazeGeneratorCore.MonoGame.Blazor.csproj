@@ -1,0 +1,68 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>disable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DefineConstants>$(DefineConstants)TRACE;OPENGL;BLAZOR</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DefineConstants>$(DefineConstants)TRACE;OPENGL;BLAZOR</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="Content\devedse.xnb" />
+		<None Remove="Content\end.xnb" />
+		<None Remove="Content\floor.xnb" />
+		<None Remove="Content\gras.xnb" />
+		<None Remove="Content\lego.xnb" />
+		<None Remove="Content\roof.xnb" />
+		<None Remove="Content\SecularOne20.xnb" />
+		<None Remove="Content\SecularOne20_Compressed.xnb" />
+		<None Remove="Content\SecularOne72.xnb" />
+		<None Remove="Content\SecularOne72_Compressed.xnb" />
+		<None Remove="Content\sky.xnb" />
+		<None Remove="Content\sky2.xnb" />
+		<None Remove="Content\Square.xnb" />
+		<None Remove="Content\start.xnb" />
+		<None Remove="Content\wall.xnb" />
+		<None Remove="Content\wallcustom.xnb" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Content\devedse.xnb" />
+		<EmbeddedResource Include="Content\end.xnb" />
+		<EmbeddedResource Include="Content\floor.xnb" />
+		<EmbeddedResource Include="Content\gras.xnb" />
+		<EmbeddedResource Include="Content\lego.xnb" />
+		<EmbeddedResource Include="Content\roof.xnb" />
+		<EmbeddedResource Include="Content\SecularOne20.xnb" />
+		<EmbeddedResource Include="Content\SecularOne20_Compressed.xnb" />
+		<EmbeddedResource Include="Content\SecularOne72.xnb" />
+		<EmbeddedResource Include="Content\SecularOne72_Compressed.xnb" />
+		<EmbeddedResource Include="Content\sky.xnb" />
+		<EmbeddedResource Include="Content\sky2.xnb" />
+		<EmbeddedResource Include="Content\Square.xnb" />
+		<EmbeddedResource Include="Content\start.xnb" />
+		<EmbeddedResource Include="Content\wall.xnb" />
+		<EmbeddedResource Include="Content\wallcustom.xnb" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.8" />
+		<PackageReference Include="nkast.Xna.Framework.Blazor" Version="3.8.9100" />
+		<!-- <PackageReference Include="tainicom.Wasm.Canvas" Version="3.2.10" />
+	  <PackageReference Include="tainicom.Wasm.XHR" Version="3.2.10" />
+	  <PackageReference Include="tainicom.Wasm.Dom" Version="3.2.10" />
+	  <PackageReference Include="tainicom.Xna.Framework" Version="3.8.9012" /> -->
+	</ItemGroup>
+
+	<Import Project="..\DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.projitems" Label="Shared" />
+
+</Project>

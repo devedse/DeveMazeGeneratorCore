@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>eb1b33bf-3f31-40b3-8643-83f4285cabd2</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>DeveMazeGeneratorCore.MonoGame.Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\DeveMazeGeneratorCore\MazeGenerator.cs" Link="MazeGenerator.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\ExtensionMethods\ListRandomizer.cs" Link="ExtensionMethods\ListRandomizer.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Factories\IInnerMapFactory.cs" Link="Factories\IInnerMapFactory.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Factories\InnerMapFactory.cs" Link="Factories\InnerMapFactory.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Factories\InnerMapFactoryCustom.cs" Link="Factories\InnerMapFactoryCustom.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Factories\IRandomFactory.cs" Link="Factories\IRandomFactory.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Factories\RandomFactory.cs" Link="Factories\RandomFactory.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Factories\TypeSwitch.cs" Link="Factories\TypeSwitch.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack.cs" Link="Generators\AlgorithmBacktrack.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2.cs" Link="Generators\AlgorithmBacktrack2.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2Deluxe.cs" Link="Generators\AlgorithmBacktrack2Deluxe.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2Deluxe2.cs" Link="Generators\AlgorithmBacktrack2Deluxe2.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack3.cs" Link="Generators\AlgorithmBacktrack3.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack4.cs" Link="Generators\AlgorithmBacktrack4.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmDivisionDynamic.cs" Link="Generators\AlgorithmDivisionDynamic.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmDivisionDynamicOldTestingThing.cs" Link="Generators\AlgorithmDivisionDynamicOldTestingThing.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmDivisionDynamicWithPath.cs" Link="Generators\AlgorithmDivisionDynamicWithPath.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmKruskal.cs" Link="Generators\AlgorithmKruskal.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\IAlgorithm.cs" Link="Generators\IAlgorithm.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\Helpers\IRandom.cs" Link="Generators\Helpers\IRandom.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\Helpers\NetRandom.cs" Link="Generators\Helpers\NetRandom.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\Helpers\XorShiftRandom.cs" Link="Generators\Helpers\XorShiftRandom.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\IMazeDirGeneric.cs" Link="Generators\SpeedOptimization\IMazeDirGeneric.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\IProgressAction.cs" Link="Generators\SpeedOptimization\IProgressAction.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\MazeDir.cs" Link="Generators\SpeedOptimization\MazeDir.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\MazeDirGeneric.cs" Link="Generators\SpeedOptimization\MazeDirGeneric.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\NoAction.cs" Link="Generators\SpeedOptimization\NoAction.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\ProgressAction.cs" Link="Generators\SpeedOptimization\ProgressAction.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Helpers\HilbertCurve.cs" Link="Helpers\HilbertCurve.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Helpers\MazeVerifier.cs" Link="Helpers\MazeVerifier.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Helpers\UnevenHelper.cs" Link="Helpers\UnevenHelper.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Imageification\WithoutPath.cs" Link="Imageification\WithoutPath.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Imageification\WithPath.cs" Link="Imageification\WithPath.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\BitArreintjeFastHilbertInnerMap.cs" Link="InnerMaps\BitArreintjeFastHilbertInnerMap.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\BitArreintjeFastInnerMap.cs" Link="InnerMaps\BitArreintjeFastInnerMap.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\BoolInnerMap.cs" Link="InnerMaps\BoolInnerMap.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\CachedInnerMap.cs" Link="InnerMaps\CachedInnerMap.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\CachedInnerMap2.cs" Link="InnerMaps\CachedInnerMap2.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\ForwardingInnerMap.cs" Link="InnerMaps\ForwardingInnerMap.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\IMapPart.cs" Link="InnerMaps\IMapPart.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\InnerMap.cs" Link="InnerMaps\InnerMap.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\InnerMapWithPath.cs" Link="InnerMaps\InnerMapWithPath.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\UndefinedInnerMap.cs" Link="InnerMaps\UndefinedInnerMap.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\InnerStuff\BitArreintjeFastInnerMapArray.cs" Link="InnerMaps\InnerStuff\BitArreintjeFastInnerMapArray.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Mazes\Maze.cs" Link="Mazes\Maze.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Mazes\MazeWithPathAsInnerMap.cs" Link="Mazes\MazeWithPathAsInnerMap.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\PathFinders\PathFinderDepthFirstSmart.cs" Link="PathFinders\PathFinderDepthFirstSmart.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\PathFinders\PathFinderDepthFirstSmartWithPos.cs" Link="PathFinders\PathFinderDepthFirstSmartWithPos.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Structures\KruskalCell.cs" Link="Structures\KruskalCell.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Structures\MazePoint.cs" Link="Structures\MazePoint.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Structures\MazePointClass.cs" Link="Structures\MazePointClass.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Structures\MazePointClassLinkedList.cs" Link="Structures\MazePointClassLinkedList.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Structures\MazePointPos.cs" Link="Structures\MazePointPos.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Structures\MazeWall.cs" Link="Structures\MazeWall.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Structures\Rectangle.cs" Link="Structures\Rectangle.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Structures\RectangleWithPath.cs" Link="Structures\RectangleWithPath.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\ActiveCameraMode.cs" Link="ActiveCameraMode.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\Basic3dExampleCamera.cs" Link="Basic3dExampleCamera.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\Camera.cs" Link="Camera.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\ContentDing.cs" Link="ContentDing.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\CubeModel.cs" Link="CubeModel.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\CubeModelForPlayer.cs" Link="CubeModelForPlayer.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\CubeModelInvertedForSkybox.cs" Link="CubeModelInvertedForSkybox.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\InputDing.cs" Link="InputDing.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\MatrixExtensions.cs" Link="MatrixExtensions.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\PlayerModel.cs" Link="PlayerModel.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\Program.cs" Link="Program.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\RectangleExtensions.cs" Link="RectangleExtensions.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\TexturePosInfo.cs" Link="TexturePosInfo.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\TexturePosInfoGenerator.cs" Link="TexturePosInfoGenerator.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\TheGame.cs" Link="TheGame.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\VierkantjeModel.cs" Link="VierkantjeModel.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\WallModel.cs" Link="WallModel.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\Data\ExtendibleContentManager.cs" Link="Data\ExtendibleContentManager.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\Data\IContentManagerExtension.cs" Link="Data\IContentManagerExtension.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\HelperObjects\CustomMathHelper.cs" Link="HelperObjects\CustomMathHelper.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\HelperObjects\IntSize.cs" Link="HelperObjects\IntSize.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\HelperObjects\Platform.cs" Link="HelperObjects\Platform.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\LineOfSight\LineOfSightDeterminer.cs" Link="LineOfSight\LineOfSightDeterminer.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\LineOfSight\LineOfSightObject.cs" Link="LineOfSight\LineOfSightObject.cs" />
+  </ItemGroup>
+</Project>

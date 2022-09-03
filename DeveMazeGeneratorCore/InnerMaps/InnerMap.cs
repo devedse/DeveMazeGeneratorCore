@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DeveMazeGeneratorCore.Structures;
+using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace DeveMazeGeneratorCore.InnerMaps
@@ -95,6 +97,73 @@ namespace DeveMazeGeneratorCore.InnerMaps
                 stringBuilder.AppendLine();
             }
             return stringBuilder.ToString();
+        }
+
+        public List<MazeWall> GenerateListOfMazeWalls()
+        {
+            List<MazeWall> walls = new List<MazeWall>();
+            for (int y = 0; y < Height - 1; y++)
+            {
+                for (int x = 0; x < Width - 1; x++)
+                {
+                    //Horizontal
+                    if (this[x, y] == false)
+                    {
+                        Boolean done = false;
+                        int xx = x;
+                        while (!done)
+                        {
+                            if (xx >= Width - 1 || this[xx, y] == true)
+                            {
+                                AddToWallList(walls, x, y, xx - 1, y);
+                                done = true;
+                            }
+                            xx++;
+                        }
+                        x = xx - 1;
+                    }
+                }
+            }
+
+
+            for (int x = 0; x < Width - 1; x++)
+            {
+                for (int y = 0; y < Height - 1; y++)
+                {
+                    //Vertical
+                    if (this[x, y] == false)
+                    {
+
+                        Boolean done = false;
+                        int yy = y;
+                        while (!done)
+                        {
+                            if (yy >= Height - 1 || this[x, yy] == true)
+                            {
+                                AddToWallList(walls, x, y, x, yy - 1);
+                                done = true;
+                            }
+                            yy++;
+                        }
+                        y = yy - 1;
+                    }
+                }
+            }
+
+            return walls;
+        }
+
+        private void AddToWallList(List<MazeWall> walls, int xstart, int ystart, int xend, int yend)
+        {
+            if (xend - xstart <= 1 && yend - ystart <= 1)
+            {
+                return;
+            }
+
+            MazeWall wall = new MazeWall(xstart, ystart, xend, yend);
+            walls.Add(wall);
+
+            //Console.WriteLine("New wall found: " + xstart + ":" + ystart + "  " + xend + ":" + yend);
         }
 
         //abstract must be overidden
