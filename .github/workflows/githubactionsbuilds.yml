@@ -205,7 +205,7 @@ jobs:
         name: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64
         path: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64.7z
 
-  build_windows_monogame_desktopgl:
+  build_windows_monogame_windowsdx:
     needs: generate_version_number
     runs-on: windows-latest
     steps:
