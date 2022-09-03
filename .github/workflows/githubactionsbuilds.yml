@@ -195,6 +195,7 @@ jobs:
       run: |
         cp DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/SDL2.dll DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/
         cp -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/Content/. DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/Content/
+        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/Publish
       shell: bash
     - uses: actions/upload-artifact@v1
       with:
