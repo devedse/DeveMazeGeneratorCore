@@ -224,13 +224,12 @@ jobs:
       run: dotnet publish .\DeveMazeGeneratorCore.MonoGame.WindowsDX\DeveMazeGeneratorCore.MonoGame.WindowsDX.csproj -r win-x64 -c Release /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=false /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Copy files that are missing for some reason
       run: |
-        cp DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0/win-x64/SDL2.dll DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0/win-x64/publish/
-        cp -R DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0/win-x64/Content/. DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0/win-x64/publish/Content/
-        ls -R DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0/win-x64/Publish
+        cp -R DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0-windows/win-x64/Content/. DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0-windows/win-x64/publish/Content/
+        ls -R DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0-windows/win-x64/Publish
       shell: bash
     - name: 7zip output
       run: |
-        7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64.7z" "DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0/win-x64/Publish" '-x!*.pdb'
+        7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64.7z" "DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0-windows/win-x64/Publish" '-x!*.pdb'
     - uses: actions/upload-artifact@v1
       with:
         name: DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64
