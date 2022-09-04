@@ -192,9 +192,7 @@ jobs:
       run: dotnet publish ./DeveMazeGeneratorCore.MonoGame.DesktopGL/DeveMazeGeneratorCore.MonoGame.DesktopGL.csproj -r linux-x64 -c Release /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=false /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Copy files that are missing for some reason
       run: |
-        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64
-        cp DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/SDL2.dll DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/publish/
-        cp -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/Content/. DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/publish/Content/
+        # not needed on linux as it seems
         ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/Publish
       shell: bash
     - name: targz output
@@ -228,6 +226,7 @@ jobs:
       run: dotnet publish ./DeveMazeGeneratorCore.MonoGame.DesktopGL/DeveMazeGeneratorCore.MonoGame.DesktopGL.csproj -r win-x64 -c Release /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=false /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Copy files that are missing for some reason
       run: |
+        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64
         cp DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/SDL2.dll DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/
         cp -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/Content/. DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/Content/
         ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/Publish
@@ -259,6 +258,7 @@ jobs:
       run: dotnet publish ./DeveMazeGeneratorCore.MonoGame.WindowsDX\DeveMazeGeneratorCore.MonoGame.WindowsDX.csproj -r win-x64 -c Release /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=false /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Copy files that are missing for some reason
       run: |
+        ls -R DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0-windows/win-x64
         cp -R DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0-windows/win-x64/Content/. DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0-windows/win-x64/publish/Content/
         ls -R DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0-windows/win-x64/Publish
       shell: bash
