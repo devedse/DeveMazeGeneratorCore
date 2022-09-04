@@ -234,7 +234,7 @@ jobs:
     - name: targz output
       run: |
         export GZIP=-9
-        tar cvzf DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64.tar.gz DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish
+        tar cvzf DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux.tar.gz DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish
     - name: 7zip output
       run: |
         7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux.7z" "./DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/*" '-x!*.pdb'
