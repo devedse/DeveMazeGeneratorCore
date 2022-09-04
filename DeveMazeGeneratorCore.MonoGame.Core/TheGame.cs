@@ -948,6 +948,7 @@ namespace DeveMazeGeneratorMonoGame
             var activeString = "<-- active";
 
             string helpStringToDraw =
+                $"Version: {_version}{n}" +
                 $"Fullscreen: {graphics.IsFullScreen}{n}" +
                 $"{ScreenWidth}x{ScreenHeight}{n}" +
                 $"{graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}{n}" +
@@ -957,8 +958,7 @@ namespace DeveMazeGeneratorMonoGame
                 $"{GraphicsDevice.PresentationParameters.BackBufferWidth}x{GraphicsDevice.PresentationParameters.BackBufferHeight}{n}" +
                 $"Aspect: {GraphicsDevice.Viewport.AspectRatio}{n}" +
                 $"{n}Camera modes:{n}1: Follow Camera {(camera.ActiveCameraMode == ActiveCameraMode.FollowCamera ? activeString : "")}{n}2: Free Camera {(camera.ActiveCameraMode == ActiveCameraMode.FreeCamera ? activeString : "")}{n}3: Top Camera {(camera.ActiveCameraMode == ActiveCameraMode.FromAboveCamera ? activeString : "")}{n}4: Chase Camera {(camera.ActiveCameraMode == ActiveCameraMode.ChaseCamera ? activeString : "")}{n}   B: Chase Debug ({chaseCameraShowDebugBlocks}){n}{n}" +
-                $"H: Roof ({drawRoof}){n}P: Path ({drawPath}){n}{n}Down/Up: Maze Size{n}Left/Right: Algorithm{n}Num-+: Speed{n}R: New Maze{n}G: Restart this maze{n}{n}L: Lighting ({lighting}){n}O: Other Camera ({UseNewCamera}){n}{n}" +
-                $"Version: {_version}";
+                $"H: Roof ({drawRoof}){n}P: Path ({drawPath}){n}{n}Down/Up: Maze Size{n}Left/Right: Algorithm{n}Num-+: Speed{n}R: New Maze{n}G: Restart this maze{n}{n}L: Lighting ({lighting}){n}O: Other Camera ({UseNewCamera})";
             //Console.WriteLine($"{DateTime.Now}: {ScreenWidth}x{ScreenHeight}  {graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}  {Window.ClientBounds.Width}x{Window.ClientBounds.Height}  {GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height}  {GraphicsDevice.Viewport.Width}x{GraphicsDevice.Viewport.Height}  {GraphicsDevice.PresentationParameters.BackBufferWidth}x{GraphicsDevice.PresentationParameters.BackBufferHeight}");
             var meassuredHelpString = ContentDing.spriteFont.MeasureString(helpStringToDraw);
             spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle(ScreenWidth - (int)meassuredHelpString.X - 30, 5, (int)meassuredHelpString.X + 20, (int)meassuredHelpString.Y + 10), Color.White);
