@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 #endregion
 
@@ -99,7 +100,7 @@ namespace DeveMazeGeneratorMonoGame
 
         private List<IAlgorithm<Maze>> algorithms = new List<IAlgorithm<Maze>>()
         {
-            new AlgorithmBacktrack2Deluxe2(),
+            new AlgorithmBacktrack2Deluxe2_AsByte(),
             new AlgorithmDivisionDynamic(),
             new AlgorithmKruskal()
         };
@@ -304,7 +305,7 @@ namespace DeveMazeGeneratorMonoGame
             //else
             //    alg = new AlgorithmKruskal();
 
-            var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
+            var innerMapFactory = new InnerMapFactory<BoolInnerMap>();
             var randomFactory = new RandomFactory<XorShiftRandom>();
 
             currentMaze = alg.GoGenerate(curMazeWidth, curMazeHeight, Environment.TickCount, innerMapFactory, randomFactory, new NoAction());
@@ -947,7 +948,14 @@ namespace DeveMazeGeneratorMonoGame
 
             var activeString = "<-- active";
 
+            bool test1 = true;
+            bool test2 = false;
+
+            var res1 = Unsafe.As<bool, byte>(ref test1);
+            var res2 = Unsafe.As<bool, byte>(ref test2);
+
             string helpStringToDraw =
+                $"{n}{n}1: {test1} -> {res1} , 2: {test2} -> {res2}{n}" +
                 $"Version: {_version}{n}" +
                 $"Fullscreen: {graphics.IsFullScreen}{n}" +
                 $"{ScreenWidth}x{ScreenHeight}{n}" +

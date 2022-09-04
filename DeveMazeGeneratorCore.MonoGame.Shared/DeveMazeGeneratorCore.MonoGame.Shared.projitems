@@ -21,6 +21,8 @@
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2.cs" Link="Generators\AlgorithmBacktrack2.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2Deluxe.cs" Link="Generators\AlgorithmBacktrack2Deluxe.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2Deluxe2.cs" Link="Generators\AlgorithmBacktrack2Deluxe2.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2Deluxe2_AsByte.cs" Link="Generators\AlgorithmBacktrack2Deluxe2_AsByte.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2Deluxe3.cs" Link="Generators\AlgorithmBacktrack2Deluxe3.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack3.cs" Link="Generators\AlgorithmBacktrack3.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack4.cs" Link="Generators\AlgorithmBacktrack4.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmDivisionDynamic.cs" Link="Generators\AlgorithmDivisionDynamic.cs" />
