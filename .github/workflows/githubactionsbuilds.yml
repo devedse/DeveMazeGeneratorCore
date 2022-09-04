@@ -208,6 +208,9 @@ jobs:
         name: DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64
         path: DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64.tar.gz
 
+  # AppIcon is missing when building windows application on linux
+  # So don't use this build
+  # See: https://github.com/dotnet/runtime/issues/3828
   build_windows_monogame_desktopgl_onlinux:
     needs: generate_version_number
     runs-on: ubuntu-latest
