@@ -229,6 +229,8 @@ jobs:
       run: |
         # not needed on linux as it seems
         ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64
+        cp DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/SDL2.dll DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/
+        cp -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/Content/. DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/Content/
         ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish
       shell: bash
     - name: targz output
