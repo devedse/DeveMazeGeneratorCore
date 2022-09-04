@@ -193,7 +193,8 @@ jobs:
     - name: Copy files that are missing for some reason
       run: |
         # not needed on linux as it seems
-        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/Publish
+        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64
+        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/publish
       shell: bash
     - name: targz output
       run: |
