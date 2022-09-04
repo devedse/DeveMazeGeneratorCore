@@ -24,11 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Icon.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\Icon\IconBig.png" Pack="true" PackagePath="\" />
+    <None Include="IconBig.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
