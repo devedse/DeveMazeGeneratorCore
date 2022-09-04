@@ -173,6 +173,40 @@ jobs:
           ./DeveMazeGeneratorCore/bin/Release/*.nupkg
           ./DeveMazeGeneratorCore/bin/Release/*.snupkg
 
+  build_linux_monogame_desktopgl:
+    needs: generate_version_number
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    - name: Install dependencies
+      run: dotnet restore DeveMazeGeneratorCore.sln
+    - name: Build
+      run: dotnet build DeveMazeGeneratorCore.sln -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+    - name: Test
+      run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
+    - name: Publish
+      run: dotnet publish .\DeveMazeGeneratorCore.MonoGame.DesktopGL\DeveMazeGeneratorCore.MonoGame.DesktopGL.csproj -r linux-x64 -c Release /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=false /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+    - name: Copy files that are missing for some reason
+      run: |
+        cp DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/SDL2.dll DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/publish/
+        cp -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/Content/. DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/publish/Content/
+        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/Publish
+      shell: bash
+    - name: targz output
+      run: |
+      export GZIP=-9
+      tar cvzf DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64.tar.gz DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/Publish
+    - name: 7zip output
+      run: |
+        7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64.7z" "DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/Publish" '-x!*.pdb'
+    - uses: actions/upload-artifact@v1
+      with:
+        name: DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64
+        path: DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64.tar.gz
 
   build_windows_monogame_desktopgl:
     needs: generate_version_number
