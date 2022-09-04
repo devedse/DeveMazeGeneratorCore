@@ -240,6 +240,10 @@ jobs:
         7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux.7z" "./DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/*" '-x!*.pdb'
     - uses: actions/upload-artifact@v1
       with:
+        name: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinuxtargz
+        path: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux.tar.gz
+    - uses: actions/upload-artifact@v1
+      with:
         name: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux
         path: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux.7z
 
