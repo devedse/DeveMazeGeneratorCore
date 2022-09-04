@@ -241,7 +241,7 @@ jobs:
     - uses: actions/upload-artifact@v1
       with:
         name: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux
-        path: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux.tar.gz
+        path: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux.7z
 
   build_windows_monogame_desktopgl:
     needs: generate_version_number
