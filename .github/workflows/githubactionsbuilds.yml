@@ -399,7 +399,18 @@ jobs:
 
 
   release_github:
-    needs: [generate_version_number, intellicode, build_windows, build_linux, build_docker]
+    needs: [
+      generate_version_number,
+      intellicode,
+      build_windows,
+      build_linux,
+      build_docker,
+      build_linux_monogame_desktopgl,
+      build_windows_monogame_desktopgl_onlinux,
+      build_windows_monogame_desktopgl,
+      build_windows_monogame_windowsdx,
+      build_windows_Android,
+      build_windows_AndroidForFireStick]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
@@ -433,12 +444,18 @@ jobs:
           ./artifacts/DeveMazeGeneratorCoreZip/DeveMazeGeneratorCore.zip
           ./artifacts/DeveMazeGeneratorCoreNuGet/*.nupkg
           ./artifacts/DeveMazeGeneratorCoreNuGet/*.snupkg
+          ./artifacts/DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64/DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64.tar.gz
+          ./artifacts/DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux/DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux.7z
+          ./artifacts/DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64/DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64.7z
+          ./artifacts/DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64/DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64.7z
+          ./artifacts/DeveMazeGeneratorCore.MonoGame.Android_aab/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.aab
+          ./artifacts/DeveMazeGeneratorCore.MonoGame.Android_apk/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
   release_nuget:
-    needs: [generate_version_number, intellicode, build_windows, build_linux, build_docker, release_github]
+    needs: [generate_version_number, intellicode, build_windows, build_linux, build_docker]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
