@@ -316,6 +316,88 @@ jobs:
         path: DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64.7z
 
 
+  build_windows_Android:
+    needs: generate_version_number
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: |
+          3.1.x
+          6.0.x
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
+    - name: Set Android version
+      uses: damienaicheh/update-android-version-manifest-action@v1.0.0
+      with:
+        android-manifest-path: ./DeveMazeGeneratorCore.MonoGame.Android/AndroidManifest.xml
+        version-name: 1.0.${{needs.generate_version_number.outputs.build_number}}
+        version-code: ${{needs.generate_version_number.outputs.build_number}}
+        print-file: true
+    - name: Restore NuGet packages
+      run: |
+        nuget restore DeveMazeGeneratorCore/DeveMazeGeneratorCore.csproj
+        nuget restore DeveMazeGeneratorCore.MonoGame.Core/DeveMazeGeneratorCore.MonoGame.Core.csproj
+        nuget restore DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj
+    - name: Build Android
+      run: |
+        #dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=aab /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{secrets.ANDROIDKEYSTOREPASSWORD}} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{secrets.ANDROIDKEYSTOREPASSWORD}} DeveBlockStacker.Android\DeveBlockStacker.Android.csproj
+    - name: dotnet test
+      run: dotnet test DeveMazeGeneratorCore.Tests/DeveMazeGeneratorCore.Tests.csproj -c Release --verbosity normal
+    # - name: Package sources
+    #   run: |
+    #     7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "./Scripts/Output/DeveMazeGeneratorCore.MonoGame.Android.7z" "DeveMazeGeneratorCore.MonoGame.Android\*" '-x!*.pdb'
+    #   shell: powershell
+    - uses: actions/upload-artifact@v2
+      with:
+        name: DeveMazeGeneratorCore.MonoGame.Android_aab
+        path: ./DeveMazeGeneratorCore.MonoGame.Android/bin/AnyCPU/Release/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.aab
+
+
+  build_windows_AndroidForFireStick:
+    needs: generate_version_number
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: |
+          3.1.x
+          6.0.x
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
+    - name: Set Android version
+      uses: damienaicheh/update-android-version-manifest-action@v1.0.0
+      with:
+        android-manifest-path: ./DeveMazeGeneratorCore.MonoGame.Android/AndroidManifest.xml
+        version-name: 1.0.${{needs.generate_version_number.outputs.build_number}}
+        version-code: ${{needs.generate_version_number.outputs.build_number}}
+        print-file: true
+    - name: Restore NuGet packages
+      run: |
+        nuget restore DeveMazeGeneratorCore/DeveMazeGeneratorCore.csproj
+        nuget restore DeveMazeGeneratorCore.MonoGame.Core/DeveMazeGeneratorCore.MonoGame.Core.csproj
+        nuget restore DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj
+    - name: Build Android
+      run: |
+        #dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{secrets.ANDROIDKEYSTOREPASSWORD}} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{secrets.ANDROIDKEYSTOREPASSWORD}} DeveBlockStacker.Android\DeveBlockStacker.Android.csproj
+    - name: dotnet test
+      run: dotnet test DeveMazeGeneratorCore.Tests/DeveMazeGeneratorCore.Tests.csproj -c Release --verbosity normal
+    # - name: Package sources
+    #   run: |
+    #     7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "./Scripts/Output/DeveMazeGeneratorCore.MonoGame.Android.7z" "DeveMazeGeneratorCore.MonoGame.Android\*" '-x!*.pdb'
+    #   shell: powershell
+    - uses: actions/upload-artifact@v2
+      with:
+        name: DeveMazeGeneratorCore.MonoGame.Android_apk
+        path: ./DeveMazeGeneratorCore.MonoGame.Android/bin/AnyCPU/Release/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.apk
+
+
   release_github:
     needs: [generate_version_number, intellicode, build_windows, build_linux, build_docker]
     runs-on: ubuntu-latest
