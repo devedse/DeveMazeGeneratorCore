@@ -356,7 +356,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: DeveMazeGeneratorCore.MonoGame.Android_aab
-        path: ./DeveMazeGeneratorCore.MonoGame.Android/bin/AnyCPU/Release/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.aab
+        path: ./DeveMazeGeneratorCore.MonoGame.Android/bin/Release/net6.0-android/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android.apk
 
 
   build_windows_AndroidForFireStick:
@@ -399,7 +399,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: DeveMazeGeneratorCore.MonoGame.Android_apk
-        path: ./DeveMazeGeneratorCore.MonoGame.Android/bin/AnyCPU/Release/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.apk
+        path: ./DeveMazeGeneratorCore.MonoGame.Android/bin/Release/net6.0-android/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android.apk
 
 
   release_github:
