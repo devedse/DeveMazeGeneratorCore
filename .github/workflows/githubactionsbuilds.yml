@@ -326,7 +326,7 @@ jobs:
       with:
         dotnet-version: |
           6.0.x
-    - name: Restore workload android
+    - name: Install workload android
       run: |
         dotnet workload install android
     - name: Add msbuild to PATH
@@ -346,7 +346,7 @@ jobs:
     - name: Build Android
       run: |
         #dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=aab /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{secrets.ANDROIDKEYSTOREPASSWORD}} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{secrets.ANDROIDKEYSTOREPASSWORD}} DeveBlockStacker.Android\DeveBlockStacker.Android.csproj
+        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=aab /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{secrets.ANDROIDKEYSTOREPASSWORD}} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{secrets.ANDROIDKEYSTOREPASSWORD}} DeveMazeGeneratorCore.MonoGame.Android\DeveMazeGeneratorCore.MonoGame.Android.csproj
     - name: dotnet test
       run: dotnet test DeveMazeGeneratorCore.Tests/DeveMazeGeneratorCore.Tests.csproj -c Release --verbosity normal
     # - name: Package sources
@@ -369,9 +369,9 @@ jobs:
       with:
         dotnet-version: |
           6.0.x
-    - name: Restore workload android
+    - name: Install workload android
       run: |
-        dotnet workload install maui
+        dotnet workload install android
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.1
     - name: Set Android version
@@ -389,7 +389,7 @@ jobs:
     - name: Build Android
       run: |
         #dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{secrets.ANDROIDKEYSTOREPASSWORD}} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{secrets.ANDROIDKEYSTOREPASSWORD}} DeveBlockStacker.Android\DeveBlockStacker.Android.csproj
+        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{secrets.ANDROIDKEYSTOREPASSWORD}} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{secrets.ANDROIDKEYSTOREPASSWORD}} DeveMazeGeneratorCore.MonoGame.Android\DeveMazeGeneratorCore.MonoGame.Android.csproj
     - name: dotnet test
       run: dotnet test DeveMazeGeneratorCore.Tests/DeveMazeGeneratorCore.Tests.csproj -c Release --verbosity normal
     # - name: Package sources
