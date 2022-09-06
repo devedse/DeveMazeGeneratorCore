@@ -14,11 +14,14 @@ using DeveMazeGeneratorMonoGame.LineOfSight;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SixLabors.ImageSharp.Formats;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 #endregion
 
@@ -67,6 +70,9 @@ namespace DeveMazeGeneratorMonoGame
         //Keys.P
         private bool drawPath = false;
 
+        //Keys.U
+        private bool showUi = true;
+
         private float numbertje = -1f;
 
         private int speedFactor = 2;
@@ -91,7 +97,6 @@ namespace DeveMazeGeneratorMonoGame
         private CubeModel finishModel;
         private CubeModel possibleCubejeModel;
         private CubeModel losPointCubeModel;
-
 
 
         public bool AllowMouseResets { get; }
@@ -537,6 +542,11 @@ namespace DeveMazeGeneratorMonoGame
                 drawPath = !drawPath;
             }
 
+            if (InputDing.KeyDownUp(Keys.U))
+            {
+                showUi = !showUi;
+            }
+
 
             if (InputDing.CurKey.IsKeyDown(Keys.G))
             {
@@ -939,39 +949,41 @@ namespace DeveMazeGeneratorMonoGame
 
             spriteBatch.Begin();
 
-            string stringToDraw = $"Size: {curMazeWidth}, Walls: {wallsCount}, Path length: {pathCount}, Speed: {speedFactor}, Current: {(int)Math.Max((numbertje - 1f) * speedFactor, 0)}, Algorithm: ({currentAlgorithm}: {algorithms[currentAlgorithm].GetType().Name})";
-            var meassured = ContentDing.spriteFont.MeasureString(stringToDraw);
-            spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle(5, 5, (int)meassured.X + 10, (int)meassured.Y + 10), Color.White);
-            spriteBatch.DrawString(ContentDing.spriteFont, stringToDraw, new Vector2(10, 10), Color.White);
+            if (showUi)
+            {
+                string stringToDraw = $"Size: {curMazeWidth}, Walls: {wallsCount}, Path length: {pathCount}, Speed: {speedFactor}, Current: {(int)Math.Max((numbertje - 1f) * speedFactor, 0)}, Algorithm: ({currentAlgorithm}: {algorithms[currentAlgorithm].GetType().Name})";
+                var meassured = ContentDing.spriteFont.MeasureString(stringToDraw);
+                spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle(5, 5, (int)meassured.X + 10, (int)meassured.Y + 10), Color.White);
+                spriteBatch.DrawString(ContentDing.spriteFont, stringToDraw, new Vector2(10, 10), Color.White);
 
-            var n = Environment.NewLine;
+                var n = Environment.NewLine;
 
-            var activeString = "<-- active";
+                var activeString = "<-- active";
 
-            bool test1 = true;
-            bool test2 = false;
+                bool test1 = true;
+                bool test2 = false;
 
-            var res1 = Unsafe.As<bool, byte>(ref test1);
-            var res2 = Unsafe.As<bool, byte>(ref test2);
+                var res1 = Unsafe.As<bool, byte>(ref test1);
+                var res2 = Unsafe.As<bool, byte>(ref test2);
 
-            string helpStringToDraw =
-                $"{n}{n}1: {test1} -> {res1} , 2: {test2} -> {res2}{n}" +
-                $"Version: {_version}{n}" +
-                $"Fullscreen: {graphics.IsFullScreen}{n}" +
-                $"{ScreenWidth}x{ScreenHeight}{n}" +
-                $"{graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}{n}" +
-                $"{Window.ClientBounds.Width}x{Window.ClientBounds.Height}{n}" +
-                $"{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height} <-- Android Right One{n}" +
-                $"{GraphicsDevice.Viewport.Width}x{GraphicsDevice.Viewport.Height}{n}" +
-                $"{GraphicsDevice.PresentationParameters.BackBufferWidth}x{GraphicsDevice.PresentationParameters.BackBufferHeight}{n}" +
-                $"Aspect: {GraphicsDevice.Viewport.AspectRatio}{n}" +
-                $"{n}Camera modes:{n}1: Follow Camera {(camera.ActiveCameraMode == ActiveCameraMode.FollowCamera ? activeString : "")}{n}2: Free Camera {(camera.ActiveCameraMode == ActiveCameraMode.FreeCamera ? activeString : "")}{n}3: Top Camera {(camera.ActiveCameraMode == ActiveCameraMode.FromAboveCamera ? activeString : "")}{n}4: Chase Camera {(camera.ActiveCameraMode == ActiveCameraMode.ChaseCamera ? activeString : "")}{n}   B: Chase Debug ({chaseCameraShowDebugBlocks}){n}{n}" +
-                $"H: Roof ({drawRoof}){n}P: Path ({drawPath}){n}{n}Down/Up: Maze Size{n}Left/Right: Algorithm{n}Num-+: Speed{n}R: New Maze{n}G: Restart this maze{n}{n}L: Lighting ({lighting}){n}O: Other Camera ({UseNewCamera})";
-            //Console.WriteLine($"{DateTime.Now}: {ScreenWidth}x{ScreenHeight}  {graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}  {Window.ClientBounds.Width}x{Window.ClientBounds.Height}  {GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height}  {GraphicsDevice.Viewport.Width}x{GraphicsDevice.Viewport.Height}  {GraphicsDevice.PresentationParameters.BackBufferWidth}x{GraphicsDevice.PresentationParameters.BackBufferHeight}");
-            var meassuredHelpString = ContentDing.spriteFont.MeasureString(helpStringToDraw);
-            spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle(ScreenWidth - (int)meassuredHelpString.X - 30, 5, (int)meassuredHelpString.X + 20, (int)meassuredHelpString.Y + 10), Color.White);
-            spriteBatch.DrawString(ContentDing.spriteFont, helpStringToDraw, new Vector2(ScreenWidth - (int)meassuredHelpString.X - 20, 10), Color.White);
-
+                string helpStringToDraw =
+                    $"{n}{n}1: {test1} -> {res1} , 2: {test2} -> {res2}{n}" +
+                    $"Version: {_version}{n}" +
+                    $"Fullscreen: {graphics.IsFullScreen}{n}" +
+                    $"{ScreenWidth}x{ScreenHeight}{n}" +
+                    $"{graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}{n}" +
+                    $"{Window.ClientBounds.Width}x{Window.ClientBounds.Height}{n}" +
+                    $"{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height} <-- Android Right One{n}" +
+                    $"{GraphicsDevice.Viewport.Width}x{GraphicsDevice.Viewport.Height}{n}" +
+                    $"{GraphicsDevice.PresentationParameters.BackBufferWidth}x{GraphicsDevice.PresentationParameters.BackBufferHeight}{n}" +
+                    $"Aspect: {GraphicsDevice.Viewport.AspectRatio}{n}" +
+                    $"{n}Camera modes:{n}1: Follow Camera {(camera.ActiveCameraMode == ActiveCameraMode.FollowCamera ? activeString : "")}{n}2: Free Camera {(camera.ActiveCameraMode == ActiveCameraMode.FreeCamera ? activeString : "")}{n}3: Top Camera {(camera.ActiveCameraMode == ActiveCameraMode.FromAboveCamera ? activeString : "")}{n}4: Chase Camera {(camera.ActiveCameraMode == ActiveCameraMode.ChaseCamera ? activeString : "")}{n}   B: Chase Debug ({chaseCameraShowDebugBlocks}){n}{n}" +
+                    $"U: Show UI({showUi}){n}H: Roof ({drawRoof}){n}P: Path ({drawPath}){n}{n}Down/Up: Maze Size{n}Left/Right: Algorithm{n}Num-+: Speed{n}R: New Maze{n}G: Restart this maze{n}{n}L: Lighting ({lighting}){n}O: Other Camera ({UseNewCamera})";
+                //Console.WriteLine($"{DateTime.Now}: {ScreenWidth}x{ScreenHeight}  {graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}  {Window.ClientBounds.Width}x{Window.ClientBounds.Height}  {GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height}  {GraphicsDevice.Viewport.Width}x{GraphicsDevice.Viewport.Height}  {GraphicsDevice.PresentationParameters.BackBufferWidth}x{GraphicsDevice.PresentationParameters.BackBufferHeight}");
+                var meassuredHelpString = ContentDing.spriteFont.MeasureString(helpStringToDraw);
+                spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle(ScreenWidth - (int)meassuredHelpString.X - 30, 5, (int)meassuredHelpString.X + 20, (int)meassuredHelpString.Y + 10), Color.White);
+                spriteBatch.DrawString(ContentDing.spriteFont, helpStringToDraw, new Vector2(ScreenWidth - (int)meassuredHelpString.X - 20, 10), Color.White);
+            }
             spriteBatch.End();
 
 
