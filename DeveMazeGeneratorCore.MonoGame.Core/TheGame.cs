@@ -141,6 +141,11 @@ namespace DeveMazeGeneratorMonoGame
 
             IsMouseVisible = true;
 
+            if (platform == Platform.Android)
+            {
+                showUi = false;
+            }
+
             //TargetElapsedTime = TimeSpan.FromTicks((long)10000000 / (long)500);
 
 
@@ -946,20 +951,20 @@ namespace DeveMazeGeneratorMonoGame
 
             spriteBatch.Begin();
 
+            int defaultDistanceBetweenComponents = (int)(0.007f * ScreenHeight);
+            int extraSizeForBackground = (int)(0.0035f * ScreenHeight);
+
+            string stringToDraw = $"Size: {curMazeWidth}, Walls: {wallsCount}, Path length: {pathCount}, Speed: {speedFactor}, Current: {(int)Math.Max((numbertje - 1f) * speedFactor, 0)}, Algorithm: ({currentAlgorithm}: {algorithms[currentAlgorithm].GetType().Name})";
+            var measuredTopString = ContentDing.spriteFont.MeasureString(stringToDraw);
+            float maxSizeTopScreenWidth = ScreenWidth * 0.95f;
+            float topStringScale = MathF.Min(maxSizeTopScreenWidth, measuredTopString.X) / measuredTopString.X;
+            var measuredTopStringScaled = measuredTopString * topStringScale;
+            int distanceFromTopTopString = defaultDistanceBetweenComponents;
+            spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle((int)((ScreenWidth / 2) - (measuredTopStringScaled.X / 2) - extraSizeForBackground), distanceFromTopTopString, (int)(measuredTopStringScaled.X + (2 * extraSizeForBackground)), (int)measuredTopStringScaled.Y + (2 * extraSizeForBackground)), Color.White);
+            spriteBatch.DrawString(ContentDing.spriteFont, stringToDraw, new Vector2((ScreenWidth / 2) - (measuredTopStringScaled.X / 2), distanceFromTopTopString + extraSizeForBackground), Color.White, 0, Vector2.Zero, topStringScale, SpriteEffects.None, 0);
+
             if (showUi)
             {
-                int defaultDistanceBetweenComponents = (int)(0.007f * ScreenHeight);
-
-                string stringToDraw = $"Size: {curMazeWidth}, Walls: {wallsCount}, Path length: {pathCount}, Speed: {speedFactor}, Current: {(int)Math.Max((numbertje - 1f) * speedFactor, 0)}, Algorithm: ({currentAlgorithm}: {algorithms[currentAlgorithm].GetType().Name})";
-                var measuredTopString = ContentDing.spriteFont.MeasureString(stringToDraw);
-                float maxSizeTopScreenWidth = ScreenWidth * 0.95f;
-                float topStringScale = MathF.Min(maxSizeTopScreenWidth, measuredTopString.X) / measuredTopString.X;
-                var measuredTopStringScaled = measuredTopString * topStringScale;
-                int extraSizeForBackground = (int)(0.0035f * ScreenHeight);
-                int distanceFromTopTopString = defaultDistanceBetweenComponents;
-                spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle(0, distanceFromTopTopString, (int)ScreenWidth, (int)measuredTopStringScaled.Y + (2 * extraSizeForBackground)), Color.White);
-                spriteBatch.DrawString(ContentDing.spriteFont, stringToDraw, new Vector2((ScreenWidth / 2) - (measuredTopStringScaled.X / 2), distanceFromTopTopString + extraSizeForBackground), Color.White, 0, Vector2.Zero, topStringScale, SpriteEffects.None, 0);
-
                 var n = Environment.NewLine;
 
                 var activeString = "<-- active";

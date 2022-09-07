@@ -42,6 +42,8 @@ namespace DeveMazeGeneratorCore.MonoGame.Android
             {
                 Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
             }
+
+            Window.SetFlags(WindowManagerFlags.KeepScreenOn, WindowManagerFlags.KeepScreenOn);
         }
 
         protected override void OnCreate(Bundle bundle)
