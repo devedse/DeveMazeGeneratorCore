@@ -544,7 +544,8 @@ namespace DeveMazeGeneratorMonoGame
                 drawPath = !drawPath;
             }
 
-            if (InputDing.KeyDownUp(Keys.U))
+
+            if (InputDing.TouchedOrMouseClickedInRect(new Rectangle((int)(ScreenWidth / 2 - (0.1 * ScreenWidth)), (int)(ScreenHeight - (0.1 * ScreenHeight)), (int)(0.1 * ScreenWidth), (int)(0.1 * ScreenHeight + 1))) || InputDing.KeyDownUp(Keys.U))
             {
                 showUi = !showUi;
             }
@@ -1001,6 +1002,10 @@ namespace DeveMazeGeneratorMonoGame
                 spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle(ScreenWidth - (int)measuredHelpStringScaled.X - distanceBetweenHelpStringAndRight - (2 * extraSizeForBackground), (int)distanceFromTopHelpString, (int)measuredHelpStringScaled.X + (2 * extraSizeForBackground), (int)measuredHelpStringScaled.Y + (2 * extraSizeForBackground)), Color.White);
                 spriteBatch.DrawString(ContentDing.spriteFont, helpStringToDraw, new Vector2(ScreenWidth - (int)measuredHelpStringScaled.X - distanceBetweenHelpStringAndRight - (1 * extraSizeForBackground), distanceFromTopHelpString + extraSizeForBackground), Color.White, 0, Vector2.Zero, scaleHelpString, SpriteEffects.None, 0);
             }
+
+            //Draw rectangle to click to open secret help screen
+            spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle((int)(ScreenWidth / 2 - (0.1 * ScreenWidth)), (int)(ScreenHeight - (0.1 * ScreenHeight)), (int)(0.1 * ScreenWidth), (int)(0.1 * ScreenHeight) + 1), Color.White);
+
             spriteBatch.End();
 
 
