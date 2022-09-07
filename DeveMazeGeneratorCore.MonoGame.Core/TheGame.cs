@@ -1004,7 +1004,7 @@ namespace DeveMazeGeneratorMonoGame
             }
 
             //Draw rectangle to click to open secret help screen
-            spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle((int)(ScreenWidth / 2 - (0.1 * ScreenWidth)), (int)(ScreenHeight - (0.1 * ScreenHeight)), (int)(0.1 * ScreenWidth), (int)(0.1 * ScreenHeight) + 1), Color.White);
+            //spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle((int)(ScreenWidth / 2 - (0.1 * ScreenWidth)), (int)(ScreenHeight - (0.1 * ScreenHeight)), (int)(0.1 * ScreenWidth), (int)(0.1 * ScreenHeight) + 1), Color.White);
 
             spriteBatch.End();
 
