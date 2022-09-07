@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-	xmlns:android="http://schemas.android.com/apk/res/android">
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:installLocation="auto"
+	android:versionName="0.1"
+	android:versionCode="1">
 	<uses-sdk android:minSdkVersion="23" android:targetSdkVersion="31" />
 	<application
 		android:allowBackup="true"
