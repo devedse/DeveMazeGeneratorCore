@@ -110,7 +110,8 @@ namespace DeveMazeGeneratorMonoGame
 
         private readonly string _version = typeof(TheGame).Assembly.GetName().Version.ToString();
 
-
+        private readonly Stopwatch _fpsMeasureStopwatch = Stopwatch.StartNew();
+        private TimeSpan _lastFpsMeasure = TimeSpan.Zero;
 
         public TheGame() : this(Platform.Desktop)
         {
@@ -146,9 +147,6 @@ namespace DeveMazeGeneratorMonoGame
                 showUi = false;
             }
 
-            //TargetElapsedTime = TimeSpan.FromTicks((long)10000000 / (long)500);
-
-
             //This is required for Blazor since it loads assets in a custom way
             Content = new ExtendibleContentManager(this.Services, _contentManagerExtension);
             Content.RootDirectory = "Content";
@@ -163,6 +161,10 @@ namespace DeveMazeGeneratorMonoGame
 
         protected override void Initialize()
         {
+            graphics.SynchronizeWithVerticalRetrace = true;
+            TargetElapsedTime = TimeSpan.FromTicks(1);
+            IsFixedTimeStep = false;
+
             camera = new Camera(this);
             newcamera = new Basic3dExampleCamera(GraphicsDevice, this);
             newcamera.Position = new Vector3(7.5f, 7.5f, 7.5f);
@@ -201,7 +203,6 @@ namespace DeveMazeGeneratorMonoGame
                 graphics.IsFullScreen = true;
             }
 
-            this.TargetElapsedTime = TimeSpan.FromMilliseconds(1000d / 240);
             graphics.ApplyChanges();
 
             Activated += TheGame_Activated;
@@ -593,6 +594,12 @@ namespace DeveMazeGeneratorMonoGame
                 ToggleFullScreenBetter();
             }
 
+            if (InputDing.KeyDownUp(Keys.V))
+            {
+                graphics.SynchronizeWithVerticalRetrace = !graphics.SynchronizeWithVerticalRetrace;
+                graphics.ApplyChanges();
+            }
+
 
             if (InputDing.KeyDownUp(Keys.O))
             {
@@ -955,6 +962,10 @@ namespace DeveMazeGeneratorMonoGame
             int defaultDistanceBetweenComponents = (int)(0.007f * ScreenHeight);
             int extraSizeForBackground = (int)(0.0035f * ScreenHeight);
 
+            var curFpsMeasure = _fpsMeasureStopwatch.Elapsed;
+            var timePerFrame = curFpsMeasure - _lastFpsMeasure;
+            _lastFpsMeasure = curFpsMeasure;
+
             string stringToDraw = $"Size: {curMazeWidth}, Walls: {wallsCount}, Path length: {pathCount}, Speed: {speedFactor}, Current: {(int)Math.Max((numbertje - 1f) * speedFactor, 0)}, Algorithm: ({currentAlgorithm}: {algorithms[currentAlgorithm].GetType().Name})";
             var measuredTopString = ContentDing.spriteFont.MeasureString(stringToDraw);
             float maxSizeTopScreenWidth = ScreenWidth * 0.95f;
@@ -972,6 +983,9 @@ namespace DeveMazeGeneratorMonoGame
 
                 string helpStringToDraw =
                     $"Version: {_version}{n}" +
+                    $"FPS: {Math.Round(1.0 / timePerFrame.TotalSeconds, 0)}{n}" +
+                    $"Vsync: {graphics.SynchronizeWithVerticalRetrace}{n}" +
+                    $"TargetFps: {1 / TargetElapsedTime.TotalSeconds}{n}" +
                     $"Fullscreen: {graphics.IsFullScreen}{n}" +
                     $"{ScreenWidth}x{ScreenHeight}{n}" +
                     $"{graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}{n}" +
