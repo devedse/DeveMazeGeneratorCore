@@ -13,7 +13,7 @@
 		android:supportsRtl="true"
 		android:theme="@style/Theme.Splash"
 		android:banner="@drawable/googletvbanner"
-		android:isGame="true">
+		android:isGame="false">
 	</application>
 	<!--<uses-permission android:name="android.permission.INTERNET" />-->
 	<uses-feature android:glEsVersion="0x00020000" android:required="true" />
