@@ -111,7 +111,10 @@ namespace DeveMazeGeneratorMonoGame
         private readonly string _version = typeof(TheGame).Assembly.GetName().Version.ToString();
 
         private readonly Stopwatch _fpsMeasureStopwatch = Stopwatch.StartNew();
+        private readonly Stopwatch _fpsMeasureStopwatchForUpdate = Stopwatch.StartNew();
         private TimeSpan _lastFpsMeasure = TimeSpan.Zero;
+        private TimeSpan _lastFpsMeasureForUpdate = TimeSpan.Zero;
+        private TimeSpan _timePerFrameUpdate = TimeSpan.Zero;
 
         public TheGame() : this(Platform.Desktop)
         {
@@ -162,8 +165,9 @@ namespace DeveMazeGeneratorMonoGame
         protected override void Initialize()
         {
             graphics.SynchronizeWithVerticalRetrace = true;
-            TargetElapsedTime = TimeSpan.FromTicks(1);
-            IsFixedTimeStep = false;
+            //TargetElapsedTime = TimeSpan.FromTicks(1);
+            TargetElapsedTime = TimeSpan.FromSeconds(1d / 240d);
+            IsFixedTimeStep = true;
 
             camera = new Camera(this);
             newcamera = new Basic3dExampleCamera(GraphicsDevice, this);
@@ -467,6 +471,10 @@ namespace DeveMazeGeneratorMonoGame
         protected override void Update(GameTime gameTime)
         {
             InputDing.PreUpdate();
+
+            var curFpsMeasure = _fpsMeasureStopwatch.Elapsed;
+            _timePerFrameUpdate = curFpsMeasure - _lastFpsMeasure;
+            _lastFpsMeasure = curFpsMeasure;
 
             if (InputDing.CurKey.IsKeyDown(Keys.Escape) && Platform != Platform.Blazor)
             {
@@ -984,6 +992,7 @@ namespace DeveMazeGeneratorMonoGame
                 string helpStringToDraw =
                     $"Version: {_version}{n}" +
                     $"FPS: {Math.Round(1.0 / timePerFrame.TotalSeconds, 0)}{n}" +
+                    $"UpdateFPS: {Math.Round(1.0 / _timePerFrameUpdate.TotalSeconds, 0)}{n}" +
                     $"Vsync: {graphics.SynchronizeWithVerticalRetrace}{n}" +
                     $"TargetFps: {1 / TargetElapsedTime.TotalSeconds}{n}" +
                     $"Fullscreen: {graphics.IsFullScreen}{n}" +
