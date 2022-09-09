@@ -174,7 +174,7 @@ namespace DeveMazeGeneratorMonoGame
             graphics.SynchronizeWithVerticalRetrace = true;
             //TargetElapsedTime = TimeSpan.FromTicks(1);
             TargetElapsedTime = TimeSpan.FromSeconds(1d / 240d);
-            IsFixedTimeStep = true;
+            IsFixedTimeStep = false;
 
             camera = new Camera(this);
             newcamera = new Basic3dExampleCamera(GraphicsDevice, this);
