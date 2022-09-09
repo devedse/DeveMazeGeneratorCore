@@ -111,10 +111,17 @@ namespace DeveMazeGeneratorMonoGame
         private readonly string _version = typeof(TheGame).Assembly.GetName().Version.ToString();
 
         private readonly Stopwatch _fpsMeasureStopwatch = Stopwatch.StartNew();
-        private readonly Stopwatch _fpsMeasureStopwatchForUpdate = Stopwatch.StartNew();
-        private TimeSpan _lastFpsMeasure = TimeSpan.Zero;
-        private TimeSpan _lastFpsMeasureForUpdate = TimeSpan.Zero;
-        private TimeSpan _timePerFrameUpdate = TimeSpan.Zero;
+        private TimeSpan _drawLastFpsMeasure = TimeSpan.Zero;
+        private TimeSpan _updateLastFpsMeasure = TimeSpan.Zero;
+        private TimeSpan _updateTimePerFrame = TimeSpan.Zero;
+
+
+        private int _updateCallsCounter = 0;
+        private int _updateCallsCounterLastSecond = 0;
+        private TimeSpan _updateCallsCounterLastRecordedTime = TimeSpan.Zero;
+        private int _drawCallsCounter = 0;
+        private int _drawCallsCounterLastSecond = 0;
+        private TimeSpan _drawCallsCounterLastRecordedTime = TimeSpan.Zero;
 
         public TheGame() : this(Platform.Desktop)
         {
@@ -253,8 +260,6 @@ namespace DeveMazeGeneratorMonoGame
 
         private void FixScreenSize()
         {
-            Console.WriteLine($"{DateTime.Now} fixscreensize");
-
             ScreenWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
             ScreenHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
 
@@ -473,8 +478,17 @@ namespace DeveMazeGeneratorMonoGame
             InputDing.PreUpdate();
 
             var curFpsMeasure = _fpsMeasureStopwatch.Elapsed;
-            _timePerFrameUpdate = curFpsMeasure - _lastFpsMeasure;
-            _lastFpsMeasure = curFpsMeasure;
+            _updateTimePerFrame = curFpsMeasure - _updateLastFpsMeasure;
+            _updateLastFpsMeasure = curFpsMeasure;
+
+            _updateCallsCounter++;
+            if (_updateCallsCounterLastRecordedTime < _fpsMeasureStopwatch.Elapsed)
+            {
+                _updateCallsCounterLastRecordedTime = _updateCallsCounterLastRecordedTime.Add(TimeSpan.FromSeconds(1));
+                _updateCallsCounterLastSecond = _updateCallsCounter;
+                _updateCallsCounter = 0;
+            }
+            
 
             if (InputDing.CurKey.IsKeyDown(Keys.Escape) && Platform != Platform.Blazor)
             {
@@ -606,6 +620,11 @@ namespace DeveMazeGeneratorMonoGame
             {
                 graphics.SynchronizeWithVerticalRetrace = !graphics.SynchronizeWithVerticalRetrace;
                 graphics.ApplyChanges();
+            }
+
+            if (InputDing.KeyDownUp(Keys.F))
+            {
+                IsFixedTimeStep = !IsFixedTimeStep;
             }
 
 
@@ -749,6 +768,18 @@ namespace DeveMazeGeneratorMonoGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
+            var curFpsMeasure = _fpsMeasureStopwatch.Elapsed;
+            var drawTimePerFrame = curFpsMeasure - _drawLastFpsMeasure;
+            _drawLastFpsMeasure = curFpsMeasure;
+
+            _drawCallsCounter++;
+            if (_drawCallsCounterLastRecordedTime < _fpsMeasureStopwatch.Elapsed)
+            {
+                _drawCallsCounterLastRecordedTime = _drawCallsCounterLastRecordedTime.Add(TimeSpan.FromSeconds(1));
+                _drawCallsCounterLastSecond = _drawCallsCounter;
+                _drawCallsCounter = 0;
+            }
+
             GraphicsDevice.Clear(Color.CornflowerBlue);
             SamplerState newSamplerState = new SamplerState()
             {
@@ -970,10 +1001,6 @@ namespace DeveMazeGeneratorMonoGame
             int defaultDistanceBetweenComponents = (int)(0.007f * ScreenHeight);
             int extraSizeForBackground = (int)(0.0035f * ScreenHeight);
 
-            var curFpsMeasure = _fpsMeasureStopwatch.Elapsed;
-            var timePerFrame = curFpsMeasure - _lastFpsMeasure;
-            _lastFpsMeasure = curFpsMeasure;
-
             string stringToDraw = $"Size: {curMazeWidth}, Walls: {wallsCount}, Path length: {pathCount}, Speed: {speedFactor}, Current: {(int)Math.Max((numbertje - 1f) * speedFactor, 0)}, Algorithm: ({currentAlgorithm}: {algorithms[currentAlgorithm].GetType().Name})";
             var measuredTopString = ContentDing.spriteFont.MeasureString(stringToDraw);
             float maxSizeTopScreenWidth = ScreenWidth * 0.95f;
@@ -991,9 +1018,11 @@ namespace DeveMazeGeneratorMonoGame
 
                 string helpStringToDraw =
                     $"Version: {_version}{n}" +
-                    $"FPS: {Math.Round(1.0 / timePerFrame.TotalSeconds, 0)}{n}" +
-                    $"UpdateFPS: {Math.Round(1.0 / _timePerFrameUpdate.TotalSeconds, 0)}{n}" +
-                    $"Vsync: {graphics.SynchronizeWithVerticalRetrace}{n}" +
+                    $"FPS: {Math.Round(1.0 / drawTimePerFrame.TotalSeconds, 0)}{n}" +
+                    $"UpdateFPS: {Math.Round(1.0 / _updateTimePerFrame.TotalSeconds, 0)}{n}" +
+                    $"Updates: {_updateCallsCounterLastSecond}, Draws: {_drawCallsCounterLastSecond}{n}" +
+                    $"Vsync (V): {graphics.SynchronizeWithVerticalRetrace}{n}" +
+                    $"FixedTimeStep (F): {IsFixedTimeStep}{n}" +
                     $"TargetFps: {1 / TargetElapsedTime.TotalSeconds}{n}" +
                     $"Fullscreen: {graphics.IsFullScreen}{n}" +
                     $"{ScreenWidth}x{ScreenHeight}{n}" +
