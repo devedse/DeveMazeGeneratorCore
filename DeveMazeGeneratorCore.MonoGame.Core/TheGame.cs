@@ -171,10 +171,10 @@ namespace DeveMazeGeneratorMonoGame
 
         protected override void Initialize()
         {
-            graphics.SynchronizeWithVerticalRetrace = true;
-            //TargetElapsedTime = TimeSpan.FromTicks(1);
-            TargetElapsedTime = TimeSpan.FromSeconds(1d / 240d);
-            IsFixedTimeStep = false;
+            //graphics.SynchronizeWithVerticalRetrace = true;
+            ////TargetElapsedTime = TimeSpan.FromTicks(1);
+            //TargetElapsedTime = TimeSpan.FromSeconds(1d / 240d);
+            //IsFixedTimeStep = false;
 
             camera = new Camera(this);
             newcamera = new Basic3dExampleCamera(GraphicsDevice, this);
@@ -206,7 +206,7 @@ namespace DeveMazeGeneratorMonoGame
             }
 #endif
 
-            Window.AllowUserResizing = true;
+            //Window.AllowUserResizing = true;
 
             if (Platform == Platform.UWP) // && Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Mobile"
             {
@@ -270,7 +270,7 @@ namespace DeveMazeGeneratorMonoGame
         {
             if (AllowMouseResets)
             {
-                Mouse.SetPosition(ScreenWidth / 2, ScreenHeight / 2);
+                //Mouse.SetPosition(ScreenWidth / 2, ScreenHeight / 2);
             }
         }
 
