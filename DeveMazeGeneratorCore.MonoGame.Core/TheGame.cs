@@ -839,7 +839,7 @@ namespace DeveMazeGeneratorMonoGame
 
             //Skybox
             effect.LightingEnabled = false;
-            effect.Texture = ContentDing.skyTexture1;
+            effect.Texture = ContentDing.skyTexture;
             Matrix skyboxMatrix = Matrix.CreateTranslation(camera.cameraPosition) * Matrix.CreateTranslation(new Vector3(-skyboxSize / 2, -skyboxSize / 2, -skyboxSize / 2));
             skyboxModel.Draw(skyboxMatrix, effect);
 
@@ -904,7 +904,7 @@ namespace DeveMazeGeneratorMonoGame
                 var newHeadTurn = (float)Math.Atan2(posposnextHeadTurn.Y - posposHeadTurn.Y, posposnextHeadTurn.X - posposHeadTurn.X) * -1f + (MathHelper.Pi / 2.0f);
 
 
-                effect.Texture = ContentDing.minecraftTexture;
+                effect.Texture = ContentDing.characterTexture;
 
 
                 playerModel.Draw(totMatrix, effect, numbertje / 2.0f * speedFactor, newHeadTurn - newRot);

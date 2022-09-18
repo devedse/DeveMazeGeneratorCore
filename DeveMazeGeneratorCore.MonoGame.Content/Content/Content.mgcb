@@ -41,18 +41,6 @@
 /processorParam:TextureFormat=Compressed
 /build:SecularOne72_Compressed.spritefont
 
-#begin Square.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=True
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Square.png
-
 #begin devedse.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -88,18 +76,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:floor.png
-
-#begin gras.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=True
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:gras.png
 
 #begin lego.png
 /importer:TextureImporter
@@ -137,18 +113,6 @@
 /processorParam:TextureFormat=Color
 /build:sky.png
 
-#begin sky2.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=True
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:sky2.png
-
 #begin start.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -172,15 +136,3 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:wall.png
-
-#begin wallcustom.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=True
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:wallcustom.png
