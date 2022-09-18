@@ -1,10 +1,6 @@
 name: GitHubActionsBuilds
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: push
 
 jobs:
   generate_version_number:
