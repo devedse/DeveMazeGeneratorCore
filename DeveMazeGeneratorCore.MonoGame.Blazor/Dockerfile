@@ -10,7 +10,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["DeveMazeGeneratorCore.MonoGame.Blazor/DeveMazeGeneratorCore.MonoGame.Blazor.csproj", "DeveMazeGeneratorCore.MonoGame.Blazor/"]
 RUN dotnet restore "DeveMazeGeneratorCore.MonoGame.Blazor/DeveMazeGeneratorCore.MonoGame.Blazor.csproj"
