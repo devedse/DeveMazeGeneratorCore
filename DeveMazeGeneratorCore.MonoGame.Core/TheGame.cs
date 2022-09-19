@@ -310,7 +310,6 @@ namespace DeveMazeGeneratorMonoGame
         {
             var w = Stopwatch.StartNew();
             GenerateMaze();
-            _appInsightsClient.TrackTrace($"Time for GenerateMaze: {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
 
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -387,14 +386,8 @@ namespace DeveMazeGeneratorMonoGame
 
         public void GenerateMaze()
         {
-            try
-            {
-                throw new Exception("Test");
-            }
-            catch
-            {
-
-            }
+            var w = Stopwatch.StartNew();
+            _appInsightsClient.TrackTrace($"Creating maze of size: {curMazeWidth}x{curMazeHeight}", SeverityLevel.Warning);
 
             indexBuffer?.Dispose();
             vertexBuffer?.Dispose();
@@ -418,6 +411,8 @@ namespace DeveMazeGeneratorMonoGame
             var randomFactory = new RandomFactory<XorShiftRandom>();
 
             currentMaze = alg.GoGenerate(curMazeWidth, curMazeHeight, Environment.TickCount, innerMapFactory, randomFactory, new NoAction());
+
+            _appInsightsClient.TrackTrace($"Time for GenerateMaze: {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
             var walls = currentMaze.InnerMap.GenerateListOfMazeWalls();
             currentPath = PathFinderDepthFirstSmartWithPos.GoFind(currentMaze.InnerMap, null);
 
@@ -443,6 +438,9 @@ namespace DeveMazeGeneratorMonoGame
 
             }
 
+
+            _appInsightsClient.TrackTrace($"Time for GenerateMaze (Walls): {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
+
             wallsCount = walls.Count;
 
             vertexBuffer = new VertexBuffer(GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
@@ -463,8 +461,11 @@ namespace DeveMazeGeneratorMonoGame
                 indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
                 indexBuffer.SetData(indices);
             }
+            _appInsightsClient.TrackTrace($"Time for GenerateMaze (Buffers): {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
 
             GeneratePath(currentPath);
+
+            _appInsightsClient.TrackTrace($"Time for GenerateMaze (And Path): {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
         }
 
         public void GeneratePath(List<MazePointPos> path)
@@ -584,12 +585,14 @@ namespace DeveMazeGeneratorMonoGame
 
             if (InputDing.CurKey.IsKeyDown(Keys.Escape) && Platform != Platform.Blazor)
             {
+                _appInsightsClient.TrackTrace("Action: Exit", SeverityLevel.Warning);
                 Exit();
             }
 
             //Reset when done
             if ((numbertje * speedFactor) > pathCount + speedFactor)
             {
+                _appInsightsClient.TrackTrace("Action: Auto Reset", SeverityLevel.Warning);
                 numbertje = 0;
                 GenerateMaze();
             }
@@ -600,11 +603,13 @@ namespace DeveMazeGeneratorMonoGame
                 numbertje = 0;
                 curMazeWidth *= 2;
                 curMazeHeight *= 2;
+                _appInsightsClient.TrackTrace($"Action: key up, maze size: {curMazeWidth}", SeverityLevel.Warning);
                 GenerateMaze();
             }
 
             if (InputDing.KeyDownUp(Keys.Down))
             {
+                _appInsightsClient.TrackTrace($"Action: key down", SeverityLevel.Warning);
                 if (curMazeWidth > 4 && curMazeHeight > 4)
                 {
                     numbertje = 0;
@@ -614,6 +619,8 @@ namespace DeveMazeGeneratorMonoGame
                         curMazeWidth = 1;
                     if (curMazeHeight < 1)
                         curMazeHeight = 1;
+
+                    _appInsightsClient.TrackTrace($"Action: key down, maze size: {curMazeWidth}", SeverityLevel.Warning);
                     GenerateMaze();
                 }
             }
@@ -625,6 +632,9 @@ namespace DeveMazeGeneratorMonoGame
                 {
                     currentAlgorithm = algorithms.Count - 1;
                 }
+
+                _appInsightsClient.TrackTrace($"Action: key left, alg: {currentAlgorithm}", SeverityLevel.Warning);
+
                 numbertje = 0;
                 GenerateMaze();
             }
@@ -635,44 +645,54 @@ namespace DeveMazeGeneratorMonoGame
                 {
                     currentAlgorithm = 0;
                 }
+
+                _appInsightsClient.TrackTrace($"Action: key right, alg: {currentAlgorithm}", SeverityLevel.Warning);
+
                 numbertje = 0;
                 GenerateMaze();
             }
 
             if (InputDing.CurKey.IsKeyDown(Keys.D0))
             {
+                _appInsightsClient.TrackTrace($"Action: D0", SeverityLevel.Warning);
                 GenerateMaze();
             }
 
             if (InputDing.KeyDownUp(Keys.H))
             {
+                _appInsightsClient.TrackTrace($"Action: H", SeverityLevel.Warning);
                 drawRoof = !drawRoof;
             }
 
             if (InputDing.KeyDownUp(Keys.L))
             {
+                _appInsightsClient.TrackTrace($"Action: L", SeverityLevel.Warning);
                 lighting = !lighting;
             }
 
             if (InputDing.KeyDownUp(Keys.P))
             {
+                _appInsightsClient.TrackTrace($"Action: P", SeverityLevel.Warning);
                 drawPath = !drawPath;
             }
 
 
             if (InputDing.TouchedOrMouseClickedInRect(new Rectangle((int)(ScreenWidth / 2 - (0.1 * ScreenWidth)), (int)(ScreenHeight - (0.1 * ScreenHeight)), (int)(0.1 * ScreenWidth), (int)(0.1 * ScreenHeight + 1))) || InputDing.KeyDownUp(Keys.U))
             {
+                _appInsightsClient.TrackTrace($"Action: ShowUi", SeverityLevel.Warning);
                 showUi = !showUi;
             }
 
 
             if (InputDing.CurKey.IsKeyDown(Keys.G))
             {
+                _appInsightsClient.TrackTrace($"Action: G", SeverityLevel.Warning);
                 numbertje = 0;
             }
 
             if (InputDing.KeyDownUp(Keys.R))
             {
+                _appInsightsClient.TrackTrace($"Action: R", SeverityLevel.Warning);
                 numbertje = 0;
                 GenerateMaze();
             }
@@ -680,6 +700,7 @@ namespace DeveMazeGeneratorMonoGame
             if (InputDing.KeyDownUp(Keys.OemPlus) || InputDing.KeyDownUp(Keys.Add))
             {
                 speedFactor *= 2;
+                _appInsightsClient.TrackTrace($"Action: Speed x2 {speedFactor}", SeverityLevel.Warning);
                 numbertje = (numbertje - 1f) / 2f + 1f;
 
                 if (speedFactor <= 0)
@@ -691,6 +712,7 @@ namespace DeveMazeGeneratorMonoGame
 
             if (InputDing.KeyDownUp(Keys.OemMinus) || InputDing.KeyDownUp(Keys.Subtract))
             {
+                _appInsightsClient.TrackTrace($"Action: Speed /2 {speedFactor}", SeverityLevel.Warning);
                 if (speedFactor >= 2)
                 {
                     speedFactor /= 2;
@@ -701,6 +723,7 @@ namespace DeveMazeGeneratorMonoGame
 
             if (InputDing.KeyDownUp(Keys.Enter) && (InputDing.CurKey.IsKeyDown(Keys.LeftAlt) || InputDing.CurKey.IsKeyDown(Keys.RightAlt)))
             {
+                _appInsightsClient.TrackTrace($"Action: alt enter", SeverityLevel.Warning);
                 //graphics.PreferredBackBufferWidth = 3840;
                 //graphics.PreferredBackBufferHeight = 2160;
                 //graphics.ApplyChanges();
@@ -710,18 +733,21 @@ namespace DeveMazeGeneratorMonoGame
 
             if (InputDing.KeyDownUp(Keys.V))
             {
+                _appInsightsClient.TrackTrace($"Action: V", SeverityLevel.Warning);
                 graphics.SynchronizeWithVerticalRetrace = !graphics.SynchronizeWithVerticalRetrace;
                 graphics.ApplyChanges();
             }
 
             if (InputDing.KeyDownUp(Keys.F))
             {
+                _appInsightsClient.TrackTrace($"Action: F", SeverityLevel.Warning);
                 IsFixedTimeStep = !IsFixedTimeStep;
             }
 
 
             if (InputDing.KeyDownUp(Keys.O))
             {
+                _appInsightsClient.TrackTrace($"Action: O", SeverityLevel.Warning);
                 UseNewCamera = !UseNewCamera;
             }
 
@@ -731,14 +757,17 @@ namespace DeveMazeGeneratorMonoGame
 
             if (InputDing.KeyDownUp(Keys.D1))
             {
+                _appInsightsClient.TrackTrace($"Action: D1", SeverityLevel.Warning);
                 camera.ActiveCameraMode = ActiveCameraMode.FollowCamera;
             }
             else if (InputDing.KeyDownUp(Keys.D2))
             {
+                _appInsightsClient.TrackTrace($"Action: D2", SeverityLevel.Warning);
                 camera.ActiveCameraMode = ActiveCameraMode.FreeCamera;
             }
             else if (InputDing.KeyDownUp(Keys.D3))
             {
+                _appInsightsClient.TrackTrace($"Action: D3", SeverityLevel.Warning);
                 camera.ActiveCameraMode = ActiveCameraMode.FromAboveCamera;
 
                 camera.leftrightRot = 0.15f;
@@ -747,11 +776,13 @@ namespace DeveMazeGeneratorMonoGame
             }
             else if (InputDing.KeyDownUp(Keys.D4))
             {
+                _appInsightsClient.TrackTrace($"Action: D4", SeverityLevel.Warning);
                 camera.ActiveCameraMode = ActiveCameraMode.ChaseCamera;
             }
 
             if (InputDing.KeyDownUp(Keys.B))
             {
+                _appInsightsClient.TrackTrace($"Action: B", SeverityLevel.Warning);
                 chaseCameraShowDebugBlocks = !chaseCameraShowDebugBlocks;
             }
 
