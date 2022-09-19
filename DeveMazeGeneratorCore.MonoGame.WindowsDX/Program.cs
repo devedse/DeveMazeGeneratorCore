@@ -2,6 +2,7 @@
 using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
 using DeveMazeGeneratorMonoGame;
 using System;
+using System.Diagnostics;
 
 namespace DeveMazeGeneratorCore.MonoGame.WindowsDX
 {

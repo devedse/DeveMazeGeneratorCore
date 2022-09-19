@@ -11,6 +11,9 @@ using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
 using DeveMazeGeneratorCore.PathFinders;
 using DeveMazeGeneratorCore.Structures;
 using DeveMazeGeneratorMonoGame.LineOfSight;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -19,6 +22,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 #endregion
 
@@ -102,7 +106,7 @@ namespace DeveMazeGeneratorMonoGame
 
         private List<IAlgorithm<Maze>> algorithms = new List<IAlgorithm<Maze>>()
         {
-            new AlgorithmBacktrack2Deluxe2_AsByte(),
+            new AlgorithmBacktrack(),
             new AlgorithmDivisionDynamic(),
             new AlgorithmKruskal()
         };
@@ -122,6 +126,7 @@ namespace DeveMazeGeneratorMonoGame
         private int _drawCallsCounter = 0;
         private int _drawCallsCounterLastSecond = 0;
         private TimeSpan _drawCallsCounterLastRecordedTime = TimeSpan.Zero;
+        private TelemetryClient _appInsightsClient;
 
         public TheGame() : this(Platform.Desktop)
         {
@@ -139,15 +144,71 @@ namespace DeveMazeGeneratorMonoGame
 
         public TheGame(IContentManagerExtension contentManagerExtension, IntSize? desiredScreenSize, Platform platform) : base()
         {
+            var w = Stopwatch.StartNew();
+
+            // you may use different options to create configuration as shown later in this article
+            TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
+            configuration.TelemetryChannel.DeveloperMode = true;
+            configuration.ConnectionString = @"InstrumentationKey=5e5beda5-a69b-4a06-b052-dd1bcc4f5fdb;IngestionEndpoint=https://westeurope-5.in.applicationinsights.azure.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.com/";
+            _appInsightsClient = new TelemetryClient(configuration);
+            _appInsightsClient.TrackTrace($"Starting Client at {DateTime.UtcNow}", SeverityLevel.Warning);
+
+
+            try
+            {
+                //Log data about system:
+                _appInsightsClient.TrackTrace($"Platform: {platform}", SeverityLevel.Warning);
+                _appInsightsClient.TrackTrace($"DesiredScreenSize: {desiredScreenSize}", SeverityLevel.Warning);
+
+                var n = Environment.NewLine;
+
+                var dataStringResolution = $"Constructor data {n}" +
+                    $"{Window.ClientBounds.Width}x{Window.ClientBounds.Height}{n}" +
+                    $"{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height} <-- Android Right One{n}";
+
+                _appInsightsClient.TrackTrace(dataStringResolution, SeverityLevel.Warning);
+
+                _appInsightsClient.TrackTrace($"Environment osversion: {Environment.OSVersion}", SeverityLevel.Warning);
+                _appInsightsClient.TrackTrace($"Environment proccount: {Environment.ProcessorCount}", SeverityLevel.Warning);
+                _appInsightsClient.TrackTrace($"Environment curdir: {Environment.CurrentDirectory}", SeverityLevel.Warning);
+                _appInsightsClient.TrackTrace($"Environment cmldline: {Environment.CommandLine}", SeverityLevel.Warning);
+                _appInsightsClient.TrackTrace($"Environment machinename: {Environment.MachineName}", SeverityLevel.Warning);
+                _appInsightsClient.TrackTrace($"Environment is64bitop: {Environment.Is64BitOperatingSystem}", SeverityLevel.Warning);
+                _appInsightsClient.TrackTrace($"Environment is64bitproc: {Environment.Is64BitProcess}", SeverityLevel.Warning);
+                _appInsightsClient.TrackTrace($"Environment username: {Environment.UserName}", SeverityLevel.Warning);
+                _appInsightsClient.TrackTrace($"Environment UserDomainName: {Environment.UserDomainName}", SeverityLevel.Warning);
+            }
+            catch
+            {
+
+            }
+
+
+            AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
+            {
+                Debug.WriteLine(eventArgs.Exception.ToString());
+                _appInsightsClient.TrackTrace(eventArgs.Exception.ToString(), SeverityLevel.Error);
+            };
+
+            AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
+            {
+                var str = $"Application exiting at {DateTime.UtcNow}, eventargs: {eventArgs}";
+                Debug.WriteLine(str);
+                _appInsightsClient.TrackTrace(str, SeverityLevel.Warning);
+                Thread.Sleep(5000);
+            };
+
+
             _contentManagerExtension = contentManagerExtension;
             _desiredScreenSize = desiredScreenSize;
             Platform = platform;
 
             AllowMouseResets = Platform != Platform.Blazor;
+            AllowMouseResets = false;
             graphics = new GraphicsDeviceManager(this);
 
             //This is bugged in MonoGame 3.8.1 and creates a white wash over everything
-            graphics.PreferMultiSampling = false;
+            //graphics.PreferMultiSampling = false;
             //GraphicsDevice.PresentationParameters.MultiSampleCount = 16;
 
             IsMouseVisible = true;
@@ -160,6 +221,8 @@ namespace DeveMazeGeneratorMonoGame
             //This is required for Blazor since it loads assets in a custom way
             Content = new ExtendibleContentManager(this.Services, _contentManagerExtension);
             Content.RootDirectory = "Content";
+
+            _appInsightsClient.TrackTrace($"Time for constructor: {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
         }
 
         private void TheGame_Activated(object sender, EventArgs e)
@@ -171,6 +234,7 @@ namespace DeveMazeGeneratorMonoGame
 
         protected override void Initialize()
         {
+            var w = Stopwatch.StartNew();
             //graphics.SynchronizeWithVerticalRetrace = true;
             ////TargetElapsedTime = TimeSpan.FromTicks(1);
             //TargetElapsedTime = TimeSpan.FromSeconds(1d / 240d);
@@ -221,6 +285,21 @@ namespace DeveMazeGeneratorMonoGame
             FixScreenSize();
 
             base.Initialize();
+
+            _appInsightsClient.TrackTrace($"Time for initialize: {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
+
+
+            var n = Environment.NewLine;
+            var dataStringResolution = $"AFTER INITIALIZE DATA{n}" +
+                $"{ScreenWidth}x{ScreenHeight}{n}" +
+                $"{graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}{n}" +
+                $"{Window.ClientBounds.Width}x{Window.ClientBounds.Height}{n}" +
+                $"{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height} <-- Android Right One{n}" +
+                $"{GraphicsDevice.Viewport.Width}x{GraphicsDevice.Viewport.Height}{n}" +
+                $"{GraphicsDevice.PresentationParameters.BackBufferWidth}x{GraphicsDevice.PresentationParameters.BackBufferHeight}{n}" +
+                $"Aspect: {GraphicsDevice.Viewport.AspectRatio}{n}";
+
+            _appInsightsClient.TrackTrace(dataStringResolution, SeverityLevel.Warning);
         }
 
         /// <summary>
@@ -229,7 +308,9 @@ namespace DeveMazeGeneratorMonoGame
         /// </summary>
         protected override void LoadContent()
         {
+            var w = Stopwatch.StartNew();
             GenerateMaze();
+            _appInsightsClient.TrackTrace($"Time for GenerateMaze: {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
 
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -246,6 +327,8 @@ namespace DeveMazeGeneratorMonoGame
 
             possibleCubejeModel = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
             losPointCubeModel = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
+
+            _appInsightsClient.TrackTrace($"Time for LoadContent: {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
         }
 
         private void Window_OrientationChanged(object sender, System.EventArgs e)
@@ -304,6 +387,15 @@ namespace DeveMazeGeneratorMonoGame
 
         public void GenerateMaze()
         {
+            try
+            {
+                throw new Exception("Test");
+            }
+            catch
+            {
+
+            }
+
             indexBuffer?.Dispose();
             vertexBuffer?.Dispose();
 
@@ -488,7 +580,7 @@ namespace DeveMazeGeneratorMonoGame
                 _updateCallsCounterLastSecond = _updateCallsCounter;
                 _updateCallsCounter = 0;
             }
-            
+
 
             if (InputDing.CurKey.IsKeyDown(Keys.Escape) && Platform != Platform.Blazor)
             {
