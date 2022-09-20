@@ -126,7 +126,7 @@ namespace DeveMazeGeneratorMonoGame
         private int _drawCallsCounter = 0;
         private int _drawCallsCounterLastSecond = 0;
         private TimeSpan _drawCallsCounterLastRecordedTime = TimeSpan.Zero;
-        private TelemetryClient _appInsightsClient;
+        public TelemetryClient AppInsightsClient { get; }
 
         public TheGame() : this(Platform.Desktop)
         {
@@ -150,15 +150,15 @@ namespace DeveMazeGeneratorMonoGame
             TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryChannel.DeveloperMode = true;
             configuration.ConnectionString = @"InstrumentationKey=5e5beda5-a69b-4a06-b052-dd1bcc4f5fdb;IngestionEndpoint=https://westeurope-5.in.applicationinsights.azure.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.com/";
-            _appInsightsClient = new TelemetryClient(configuration);
-            _appInsightsClient.TrackTrace($"Starting Client at {DateTime.UtcNow}", SeverityLevel.Warning);
+            AppInsightsClient = new TelemetryClient(configuration);
+            AppInsightsClient.TrackTrace($"Starting Client at {DateTime.UtcNow}", SeverityLevel.Warning);
 
 
             try
             {
                 //Log data about system:
-                _appInsightsClient.TrackTrace($"Platform: {platform}", SeverityLevel.Warning);
-                _appInsightsClient.TrackTrace($"DesiredScreenSize: {desiredScreenSize}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Platform: {platform}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"DesiredScreenSize: {desiredScreenSize}", SeverityLevel.Warning);
 
                 var n = Environment.NewLine;
 
@@ -166,35 +166,34 @@ namespace DeveMazeGeneratorMonoGame
                     $"{Window.ClientBounds.Width}x{Window.ClientBounds.Height}{n}" +
                     $"{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width}x{GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height} <-- Android Right One{n}";
 
-                _appInsightsClient.TrackTrace(dataStringResolution, SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace(dataStringResolution, SeverityLevel.Warning);
 
-                _appInsightsClient.TrackTrace($"Environment osversion: {Environment.OSVersion}", SeverityLevel.Warning);
-                _appInsightsClient.TrackTrace($"Environment proccount: {Environment.ProcessorCount}", SeverityLevel.Warning);
-                _appInsightsClient.TrackTrace($"Environment curdir: {Environment.CurrentDirectory}", SeverityLevel.Warning);
-                _appInsightsClient.TrackTrace($"Environment cmldline: {Environment.CommandLine}", SeverityLevel.Warning);
-                _appInsightsClient.TrackTrace($"Environment machinename: {Environment.MachineName}", SeverityLevel.Warning);
-                _appInsightsClient.TrackTrace($"Environment is64bitop: {Environment.Is64BitOperatingSystem}", SeverityLevel.Warning);
-                _appInsightsClient.TrackTrace($"Environment is64bitproc: {Environment.Is64BitProcess}", SeverityLevel.Warning);
-                _appInsightsClient.TrackTrace($"Environment username: {Environment.UserName}", SeverityLevel.Warning);
-                _appInsightsClient.TrackTrace($"Environment UserDomainName: {Environment.UserDomainName}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Environment osversion: {Environment.OSVersion}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Environment proccount: {Environment.ProcessorCount}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Environment curdir: {Environment.CurrentDirectory}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Environment cmldline: {Environment.CommandLine}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Environment machinename: {Environment.MachineName}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Environment is64bitop: {Environment.Is64BitOperatingSystem}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Environment is64bitproc: {Environment.Is64BitProcess}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Environment username: {Environment.UserName}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Environment UserDomainName: {Environment.UserDomainName}", SeverityLevel.Warning);
             }
             catch
             {
-
             }
 
 
             AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
             {
                 Debug.WriteLine(eventArgs.Exception.ToString());
-                _appInsightsClient.TrackTrace(eventArgs.Exception.ToString(), SeverityLevel.Error);
+                AppInsightsClient.TrackTrace(eventArgs.Exception.ToString(), SeverityLevel.Error);
             };
 
             AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
             {
                 var str = $"Application exiting at {DateTime.UtcNow}, eventargs: {eventArgs}";
                 Debug.WriteLine(str);
-                _appInsightsClient.TrackTrace(str, SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace(str, SeverityLevel.Warning);
                 Thread.Sleep(5000);
             };
 
@@ -222,7 +221,7 @@ namespace DeveMazeGeneratorMonoGame
             Content = new ExtendibleContentManager(this.Services, _contentManagerExtension);
             Content.RootDirectory = "Content";
 
-            _appInsightsClient.TrackTrace($"Time for constructor: {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
+            AppInsightsClient.TrackTrace($"Time for constructor: {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
         }
 
         private void TheGame_Activated(object sender, EventArgs e)
@@ -234,6 +233,8 @@ namespace DeveMazeGeneratorMonoGame
 
         protected override void Initialize()
         {
+            AppInsightsClient.TrackTrace($"TheGame: Start Initialize...", SeverityLevel.Warning);
+
             var w = Stopwatch.StartNew();
             //graphics.SynchronizeWithVerticalRetrace = true;
             ////TargetElapsedTime = TimeSpan.FromTicks(1);
@@ -286,7 +287,7 @@ namespace DeveMazeGeneratorMonoGame
 
             base.Initialize();
 
-            _appInsightsClient.TrackTrace($"Time for initialize: {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
+            AppInsightsClient.TrackTrace($"Time for initialize: {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
 
 
             var n = Environment.NewLine;
@@ -299,7 +300,7 @@ namespace DeveMazeGeneratorMonoGame
                 $"{GraphicsDevice.PresentationParameters.BackBufferWidth}x{GraphicsDevice.PresentationParameters.BackBufferHeight}{n}" +
                 $"Aspect: {GraphicsDevice.Viewport.AspectRatio}{n}";
 
-            _appInsightsClient.TrackTrace(dataStringResolution, SeverityLevel.Warning);
+            AppInsightsClient.TrackTrace(dataStringResolution, SeverityLevel.Warning);
         }
 
         /// <summary>
@@ -308,6 +309,8 @@ namespace DeveMazeGeneratorMonoGame
         /// </summary>
         protected override void LoadContent()
         {
+            AppInsightsClient.TrackTrace($"TheGame: Start LoadContent...", SeverityLevel.Warning);
+
             var w = Stopwatch.StartNew();
             GenerateMaze();
 
@@ -327,7 +330,7 @@ namespace DeveMazeGeneratorMonoGame
             possibleCubejeModel = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
             losPointCubeModel = new CubeModel(this, 0.75f, 0.75f, 0.75f, TexturePosInfoGenerator.FullImage, 0.75f);
 
-            _appInsightsClient.TrackTrace($"Time for LoadContent: {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
+            AppInsightsClient.TrackTrace($"Time for LoadContent: {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
         }
 
         private void Window_OrientationChanged(object sender, System.EventArgs e)
@@ -387,7 +390,7 @@ namespace DeveMazeGeneratorMonoGame
         public void GenerateMaze()
         {
             var w = Stopwatch.StartNew();
-            _appInsightsClient.TrackTrace($"Creating maze of size: {curMazeWidth}x{curMazeHeight}", SeverityLevel.Warning);
+            AppInsightsClient.TrackTrace($"Creating maze of size: {curMazeWidth}x{curMazeHeight}", SeverityLevel.Warning);
 
             indexBuffer?.Dispose();
             vertexBuffer?.Dispose();
@@ -412,7 +415,7 @@ namespace DeveMazeGeneratorMonoGame
 
             currentMaze = alg.GoGenerate(curMazeWidth, curMazeHeight, Environment.TickCount, innerMapFactory, randomFactory, new NoAction());
 
-            _appInsightsClient.TrackTrace($"Time for GenerateMaze: {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
+            AppInsightsClient.TrackTrace($"Time for GenerateMaze: {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
             var walls = currentMaze.InnerMap.GenerateListOfMazeWalls();
             currentPath = PathFinderDepthFirstSmartWithPos.GoFind(currentMaze.InnerMap, null);
 
@@ -439,7 +442,7 @@ namespace DeveMazeGeneratorMonoGame
             }
 
 
-            _appInsightsClient.TrackTrace($"Time for GenerateMaze (Walls): {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
+            AppInsightsClient.TrackTrace($"Time for GenerateMaze (Walls): {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
 
             wallsCount = walls.Count;
 
@@ -461,11 +464,11 @@ namespace DeveMazeGeneratorMonoGame
                 indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
                 indexBuffer.SetData(indices);
             }
-            _appInsightsClient.TrackTrace($"Time for GenerateMaze (Buffers): {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
+            AppInsightsClient.TrackTrace($"Time for GenerateMaze (Buffers): {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
 
             GeneratePath(currentPath);
 
-            _appInsightsClient.TrackTrace($"Time for GenerateMaze (And Path): {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
+            AppInsightsClient.TrackTrace($"Time for GenerateMaze (And Path): {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
         }
 
         public void GeneratePath(List<MazePointPos> path)
@@ -568,6 +571,11 @@ namespace DeveMazeGeneratorMonoGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            if (_updateCallsCounter % 1000 == 0)
+            {
+                AppInsightsClient.TrackTrace($"TheGame: Update: {_updateCallsCounter}", SeverityLevel.Warning);
+            }
+
             InputDing.PreUpdate();
 
             var curFpsMeasure = _fpsMeasureStopwatch.Elapsed;
@@ -585,14 +593,14 @@ namespace DeveMazeGeneratorMonoGame
 
             if (InputDing.CurKey.IsKeyDown(Keys.Escape) && Platform != Platform.Blazor)
             {
-                _appInsightsClient.TrackTrace("Action: Exit", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace("Action: Exit", SeverityLevel.Warning);
                 Exit();
             }
 
             //Reset when done
             if ((numbertje * speedFactor) > pathCount + speedFactor)
             {
-                _appInsightsClient.TrackTrace("Action: Auto Reset", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace("Action: Auto Reset", SeverityLevel.Warning);
                 numbertje = 0;
                 GenerateMaze();
             }
@@ -603,13 +611,13 @@ namespace DeveMazeGeneratorMonoGame
                 numbertje = 0;
                 curMazeWidth *= 2;
                 curMazeHeight *= 2;
-                _appInsightsClient.TrackTrace($"Action: key up, maze size: {curMazeWidth}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: key up, maze size: {curMazeWidth}", SeverityLevel.Warning);
                 GenerateMaze();
             }
 
             if (InputDing.KeyDownUp(Keys.Down))
             {
-                _appInsightsClient.TrackTrace($"Action: key down", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: key down", SeverityLevel.Warning);
                 if (curMazeWidth > 4 && curMazeHeight > 4)
                 {
                     numbertje = 0;
@@ -620,7 +628,7 @@ namespace DeveMazeGeneratorMonoGame
                     if (curMazeHeight < 1)
                         curMazeHeight = 1;
 
-                    _appInsightsClient.TrackTrace($"Action: key down, maze size: {curMazeWidth}", SeverityLevel.Warning);
+                    AppInsightsClient.TrackTrace($"Action: key down, maze size: {curMazeWidth}", SeverityLevel.Warning);
                     GenerateMaze();
                 }
             }
@@ -633,7 +641,7 @@ namespace DeveMazeGeneratorMonoGame
                     currentAlgorithm = algorithms.Count - 1;
                 }
 
-                _appInsightsClient.TrackTrace($"Action: key left, alg: {currentAlgorithm}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: key left, alg: {currentAlgorithm}", SeverityLevel.Warning);
 
                 numbertje = 0;
                 GenerateMaze();
@@ -646,7 +654,7 @@ namespace DeveMazeGeneratorMonoGame
                     currentAlgorithm = 0;
                 }
 
-                _appInsightsClient.TrackTrace($"Action: key right, alg: {currentAlgorithm}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: key right, alg: {currentAlgorithm}", SeverityLevel.Warning);
 
                 numbertje = 0;
                 GenerateMaze();
@@ -654,45 +662,45 @@ namespace DeveMazeGeneratorMonoGame
 
             if (InputDing.CurKey.IsKeyDown(Keys.D0))
             {
-                _appInsightsClient.TrackTrace($"Action: D0", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: D0", SeverityLevel.Warning);
                 GenerateMaze();
             }
 
             if (InputDing.KeyDownUp(Keys.H))
             {
-                _appInsightsClient.TrackTrace($"Action: H", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: H", SeverityLevel.Warning);
                 drawRoof = !drawRoof;
             }
 
             if (InputDing.KeyDownUp(Keys.L))
             {
-                _appInsightsClient.TrackTrace($"Action: L", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: L", SeverityLevel.Warning);
                 lighting = !lighting;
             }
 
             if (InputDing.KeyDownUp(Keys.P))
             {
-                _appInsightsClient.TrackTrace($"Action: P", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: P", SeverityLevel.Warning);
                 drawPath = !drawPath;
             }
 
 
             if (InputDing.TouchedOrMouseClickedInRect(new Rectangle((int)(ScreenWidth / 2 - (0.1 * ScreenWidth)), (int)(ScreenHeight - (0.1 * ScreenHeight)), (int)(0.1 * ScreenWidth), (int)(0.1 * ScreenHeight + 1))) || InputDing.KeyDownUp(Keys.U))
             {
-                _appInsightsClient.TrackTrace($"Action: ShowUi", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: ShowUi", SeverityLevel.Warning);
                 showUi = !showUi;
             }
 
 
             if (InputDing.CurKey.IsKeyDown(Keys.G))
             {
-                _appInsightsClient.TrackTrace($"Action: G", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: G", SeverityLevel.Warning);
                 numbertje = 0;
             }
 
             if (InputDing.KeyDownUp(Keys.R))
             {
-                _appInsightsClient.TrackTrace($"Action: R", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: R", SeverityLevel.Warning);
                 numbertje = 0;
                 GenerateMaze();
             }
@@ -700,7 +708,7 @@ namespace DeveMazeGeneratorMonoGame
             if (InputDing.KeyDownUp(Keys.OemPlus) || InputDing.KeyDownUp(Keys.Add))
             {
                 speedFactor *= 2;
-                _appInsightsClient.TrackTrace($"Action: Speed x2 {speedFactor}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: Speed x2 {speedFactor}", SeverityLevel.Warning);
                 numbertje = (numbertje - 1f) / 2f + 1f;
 
                 if (speedFactor <= 0)
@@ -712,7 +720,7 @@ namespace DeveMazeGeneratorMonoGame
 
             if (InputDing.KeyDownUp(Keys.OemMinus) || InputDing.KeyDownUp(Keys.Subtract))
             {
-                _appInsightsClient.TrackTrace($"Action: Speed /2 {speedFactor}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: Speed /2 {speedFactor}", SeverityLevel.Warning);
                 if (speedFactor >= 2)
                 {
                     speedFactor /= 2;
@@ -723,7 +731,7 @@ namespace DeveMazeGeneratorMonoGame
 
             if (InputDing.KeyDownUp(Keys.Enter) && (InputDing.CurKey.IsKeyDown(Keys.LeftAlt) || InputDing.CurKey.IsKeyDown(Keys.RightAlt)))
             {
-                _appInsightsClient.TrackTrace($"Action: alt enter", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: alt enter", SeverityLevel.Warning);
                 //graphics.PreferredBackBufferWidth = 3840;
                 //graphics.PreferredBackBufferHeight = 2160;
                 //graphics.ApplyChanges();
@@ -733,21 +741,21 @@ namespace DeveMazeGeneratorMonoGame
 
             if (InputDing.KeyDownUp(Keys.V))
             {
-                _appInsightsClient.TrackTrace($"Action: V", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: V", SeverityLevel.Warning);
                 graphics.SynchronizeWithVerticalRetrace = !graphics.SynchronizeWithVerticalRetrace;
                 graphics.ApplyChanges();
             }
 
             if (InputDing.KeyDownUp(Keys.F))
             {
-                _appInsightsClient.TrackTrace($"Action: F", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: F", SeverityLevel.Warning);
                 IsFixedTimeStep = !IsFixedTimeStep;
             }
 
 
             if (InputDing.KeyDownUp(Keys.O))
             {
-                _appInsightsClient.TrackTrace($"Action: O", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: O", SeverityLevel.Warning);
                 UseNewCamera = !UseNewCamera;
             }
 
@@ -757,17 +765,17 @@ namespace DeveMazeGeneratorMonoGame
 
             if (InputDing.KeyDownUp(Keys.D1))
             {
-                _appInsightsClient.TrackTrace($"Action: D1", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: D1", SeverityLevel.Warning);
                 camera.ActiveCameraMode = ActiveCameraMode.FollowCamera;
             }
             else if (InputDing.KeyDownUp(Keys.D2))
             {
-                _appInsightsClient.TrackTrace($"Action: D2", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: D2", SeverityLevel.Warning);
                 camera.ActiveCameraMode = ActiveCameraMode.FreeCamera;
             }
             else if (InputDing.KeyDownUp(Keys.D3))
             {
-                _appInsightsClient.TrackTrace($"Action: D3", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: D3", SeverityLevel.Warning);
                 camera.ActiveCameraMode = ActiveCameraMode.FromAboveCamera;
 
                 camera.leftrightRot = 0.15f;
@@ -776,13 +784,13 @@ namespace DeveMazeGeneratorMonoGame
             }
             else if (InputDing.KeyDownUp(Keys.D4))
             {
-                _appInsightsClient.TrackTrace($"Action: D4", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: D4", SeverityLevel.Warning);
                 camera.ActiveCameraMode = ActiveCameraMode.ChaseCamera;
             }
 
             if (InputDing.KeyDownUp(Keys.B))
             {
-                _appInsightsClient.TrackTrace($"Action: B", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Action: B", SeverityLevel.Warning);
                 chaseCameraShowDebugBlocks = !chaseCameraShowDebugBlocks;
             }
 
@@ -891,6 +899,11 @@ namespace DeveMazeGeneratorMonoGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
+            if (_drawCallsCounter % 1000 == 0)
+            {
+                AppInsightsClient.TrackTrace($"TheGame: Draw: {_drawCallsCounter}", SeverityLevel.Warning);
+            }
+
             var curFpsMeasure = _fpsMeasureStopwatch.Elapsed;
             var drawTimePerFrame = curFpsMeasure - _drawLastFpsMeasure;
             _drawLastFpsMeasure = curFpsMeasure;

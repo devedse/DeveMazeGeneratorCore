@@ -5,6 +5,8 @@ using Android.Util;
 using Android.Views;
 using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
 using DeveMazeGeneratorMonoGame;
+using Microsoft.ApplicationInsights.DataContracts;
+using System;
 
 namespace DeveMazeGeneratorCore.MonoGame.Android
 {
@@ -51,10 +53,16 @@ namespace DeveMazeGeneratorCore.MonoGame.Android
             base.OnCreate(bundle);
 
             var g = new TheGame(Platform.Android);
+            g.AppInsightsClient.TrackTrace($"Android Activity: Constructor done", SeverityLevel.Warning);
+
             SetContentView((View)g.Services.GetService(typeof(View)));
+            g.AppInsightsClient.TrackTrace($"Android Activity: Set content view done", SeverityLevel.Warning);
 
             FixUiOptions();
+            g.AppInsightsClient.TrackTrace($"Android Activity: Fix ui options done", SeverityLevel.Warning);
+
             g.Run();
+            g.AppInsightsClient.TrackTrace($"Android Activity: G.run done", SeverityLevel.Warning);
         }
     }
 }
