@@ -17,11 +17,17 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SixLabors.ImageSharp.Formats;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 #endregion
@@ -128,6 +134,13 @@ namespace DeveMazeGeneratorMonoGame
         private TimeSpan _drawCallsCounterLastRecordedTime = TimeSpan.Zero;
         public TelemetryClient AppInsightsClient { get; }
 
+
+
+        private int ultradraw = 0;
+        private int ultraupdate = 0;
+
+        private GameTime _lastUpdatedGameTime;
+
         public TheGame() : this(Platform.Desktop)
         {
 
@@ -177,6 +190,7 @@ namespace DeveMazeGeneratorMonoGame
                 AppInsightsClient.TrackTrace($"Environment is64bitproc: {Environment.Is64BitProcess}", SeverityLevel.Warning);
                 AppInsightsClient.TrackTrace($"Environment username: {Environment.UserName}", SeverityLevel.Warning);
                 AppInsightsClient.TrackTrace($"Environment UserDomainName: {Environment.UserDomainName}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Version: {_version}", SeverityLevel.Warning);
             }
             catch
             {
@@ -571,10 +585,21 @@ namespace DeveMazeGeneratorMonoGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (_updateCallsCounter % 1000 == 0)
+            _lastUpdatedGameTime = gameTime;
+
+            if (ultraupdate % 1000 == 0)
             {
-                AppInsightsClient.TrackTrace($"TheGame: Update: {_updateCallsCounter}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"TheGame: Update: {ultraupdate}", SeverityLevel.Warning);
             }
+
+            if (ultraupdate == 500)
+            {
+                AppInsightsClient.TrackTrace($"Taking screenshot...", SeverityLevel.Warning);
+                TakeScreenshot();
+                AppInsightsClient.TrackTrace($"Done taking screenshot...", SeverityLevel.Warning);
+            }
+
+            ultraupdate++;
 
             InputDing.PreUpdate();
 
@@ -893,16 +918,42 @@ namespace DeveMazeGeneratorMonoGame
             base.Update(gameTime);
         }
 
+        public void TakeScreenshot()
+        {
+            //int w, h;
+            //w = GraphicsDevice.PresentationParameters.BackBufferWidth;
+            //h = GraphicsDevice.PresentationParameters.BackBufferHeight;
+            //RenderTarget2D screenshot;
+            //screenshot = new RenderTarget2D(GraphicsDevice, w, h, false, SurfaceFormat.Bgra32, DepthFormat.None);
+            //GraphicsDevice.SetRenderTarget(screenshot);
+            //// _lastUpdatedGameTime is a variable typed GameTime, used to record the time last updated and create a common time standard for some game components
+            //Draw(_lastUpdatedGameTime != null ? _lastUpdatedGameTime : new GameTime());
+            //GraphicsDevice.Present();
+            //GraphicsDevice.SetRenderTarget(null);
+
+            //using (var memStream = new MemoryStream())
+            //{
+            //    screenshot.SaveAsPng(memStream, w, h);
+            //    memStream.Position = 0;
+
+            //    var base64string = Convert.ToBase64String(memStream.ToArray());
+
+            //    AppInsightsClient.TrackTrace($"Image: {base64string}", SeverityLevel.Warning);
+            //}
+        }
+
+
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            if (_drawCallsCounter % 1000 == 0)
+            if (ultradraw % 1000 == 0)
             {
-                AppInsightsClient.TrackTrace($"TheGame: Draw: {_drawCallsCounter}", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"TheGame: Draw: {ultradraw}", SeverityLevel.Warning);
             }
+            ultradraw++;
 
             var curFpsMeasure = _fpsMeasureStopwatch.Elapsed;
             var drawTimePerFrame = curFpsMeasure - _drawLastFpsMeasure;
@@ -916,7 +967,7 @@ namespace DeveMazeGeneratorMonoGame
                 _drawCallsCounter = 0;
             }
 
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Red);
             SamplerState newSamplerState = new SamplerState()
             {
                 AddressU = TextureAddressMode.Wrap,
