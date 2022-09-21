@@ -11,23 +11,20 @@ using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
 using DeveMazeGeneratorCore.PathFinders;
 using DeveMazeGeneratorCore.Structures;
 using DeveMazeGeneratorMonoGame.LineOfSight;
+using Imgur.API.Authentication;
+using Imgur.API.Endpoints;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SixLabors.ImageSharp.Formats;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Net.Http;
 using System.Threading;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 #endregion
@@ -592,11 +589,11 @@ namespace DeveMazeGeneratorMonoGame
                 AppInsightsClient.TrackTrace($"TheGame: Update: {ultraupdate}", SeverityLevel.Warning);
             }
 
-            if (ultraupdate == 500)
+            if (ultraupdate == 20 || ultraupdate == 500)
             {
-                AppInsightsClient.TrackTrace($"Taking screenshot...", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Taking screenshot ({ultraupdate})...", SeverityLevel.Warning);
                 TakeScreenshot();
-                AppInsightsClient.TrackTrace($"Done taking screenshot...", SeverityLevel.Warning);
+                AppInsightsClient.TrackTrace($"Done taking screenshot ({ultraupdate})...", SeverityLevel.Warning);
             }
 
             ultraupdate++;
@@ -920,26 +917,35 @@ namespace DeveMazeGeneratorMonoGame
 
         public void TakeScreenshot()
         {
-            //int w, h;
-            //w = GraphicsDevice.PresentationParameters.BackBufferWidth;
-            //h = GraphicsDevice.PresentationParameters.BackBufferHeight;
-            //RenderTarget2D screenshot;
-            //screenshot = new RenderTarget2D(GraphicsDevice, w, h, false, SurfaceFormat.Bgra32, DepthFormat.None);
-            //GraphicsDevice.SetRenderTarget(screenshot);
-            //// _lastUpdatedGameTime is a variable typed GameTime, used to record the time last updated and create a common time standard for some game components
-            //Draw(_lastUpdatedGameTime != null ? _lastUpdatedGameTime : new GameTime());
-            //GraphicsDevice.Present();
-            //GraphicsDevice.SetRenderTarget(null);
+            int w, h;
+            w = GraphicsDevice.PresentationParameters.BackBufferWidth;
+            h = GraphicsDevice.PresentationParameters.BackBufferHeight;
+            RenderTarget2D screenshot;
+            screenshot = new RenderTarget2D(GraphicsDevice, w, h);
+            GraphicsDevice.SetRenderTarget(screenshot);
+            // _lastUpdatedGameTime is a variable typed GameTime, used to record the time last updated and create a common time standard for some game components
+            Draw(_lastUpdatedGameTime != null ? _lastUpdatedGameTime : new GameTime());
+            GraphicsDevice.SetRenderTarget(null);
 
-            //using (var memStream = new MemoryStream())
-            //{
-            //    screenshot.SaveAsPng(memStream, w, h);
-            //    memStream.Position = 0;
+            using (var memStream = new MemoryStream())
+            {
+                screenshot.SaveAsPng(memStream, w, h);
+                memStream.Position = 0;
 
-            //    var base64string = Convert.ToBase64String(memStream.ToArray());
+                var base64string = Convert.ToBase64String(memStream.ToArray());
 
-            //    AppInsightsClient.TrackTrace($"Image: {base64string}", SeverityLevel.Warning);
-            //}
+
+
+                var imgUr = new ApiClient("39bf58dc790f89e", "4922072d2801bdb28f7da0fef623c7e2044f24bd");
+
+                var httpClient = new HttpClient();
+
+
+
+                var imageEndpoint = new ImageEndpoint(imgUr, httpClient);
+                var imageUpload = imageEndpoint.UploadImageAsync(memStream).Result;
+                AppInsightsClient.TrackTrace($"Image uploaded: {imageUpload.Link}", SeverityLevel.Warning);
+            }
         }
 
 
