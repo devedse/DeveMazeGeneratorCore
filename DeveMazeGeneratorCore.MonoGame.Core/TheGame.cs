@@ -22,6 +22,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -154,6 +155,9 @@ namespace DeveMazeGeneratorMonoGame
 
         public TheGame(IContentManagerExtension contentManagerExtension, IntSize? desiredScreenSize, Platform platform) : base()
         {
+            //Disable all 32 bit hidef profile stuff.
+            platform = Platform.Blazor;
+
             var w = Stopwatch.StartNew();
 
             // you may use different options to create configuration as shown later in this article
@@ -216,6 +220,21 @@ namespace DeveMazeGeneratorMonoGame
             AllowMouseResets = Platform != Platform.Blazor;
             AllowMouseResets = false;
             graphics = new GraphicsDeviceManager(this);
+
+            // Profile
+            graphics.PreparingDeviceSettings += (sender, e) =>
+            {
+                AppInsightsClient.TrackTrace($"PreparingDeviceSettings, current: {e.GraphicsDeviceInformation.GraphicsProfile}", SeverityLevel.Warning);
+                if (e.GraphicsDeviceInformation.Adapter.IsProfileSupported(GraphicsProfile.HiDef))
+                {
+                    AppInsightsClient.TrackTrace($"PreparingDeviceSettings, OHYEAH, HiDef is supported :)", SeverityLevel.Warning);
+                    e.GraphicsDeviceInformation.GraphicsProfile = GraphicsProfile.HiDef;
+                }
+                else
+                {
+                    AppInsightsClient.TrackTrace($"PreparingDeviceSettings, HiDef is not supported :(", SeverityLevel.Warning);
+                }
+            };
 
             //This is bugged in MonoGame 3.8.1 and creates a white wash over everything
             //graphics.PreferMultiSampling = false;
