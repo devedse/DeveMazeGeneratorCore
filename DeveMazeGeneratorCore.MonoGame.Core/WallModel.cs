@@ -30,19 +30,20 @@ namespace DeveMazeGeneratorMonoGame
             float hhh = height;
             float www = mazeWall.Yend - mazeWall.Ystart + mazeWall.Xend - mazeWall.Xstart;
 
+            var textureScaleVector = new Vector2(www / 2f, hhh / height);
 
             drawable3DObject.AddObject(
                 //Front
-                new VertexPositionNormalTexture(new Vector3(mazeWall.Xstart, height, mazeWall.Ystart), new Vector3(0, 0, 1), texturePosInfo.front.First()),
-                new VertexPositionNormalTexture(new Vector3(mazeWall.Xend, height, mazeWall.Yend), new Vector3(0, 0, 1), texturePosInfo.front.Second()),
-                new VertexPositionNormalTexture(new Vector3(mazeWall.Xstart, 0, mazeWall.Ystart), new Vector3(0, 0, 1), texturePosInfo.front.Third()),
-                new VertexPositionNormalTexture(new Vector3(mazeWall.Xend, 0, mazeWall.Yend), new Vector3(0, 0, 1), texturePosInfo.front.Fourth()),
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xstart, height, mazeWall.Ystart), new Vector3(0, 0, 1), texturePosInfo.front.First() * textureScaleVector),
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xend, height, mazeWall.Yend), new Vector3(0, 0, 1), texturePosInfo.front.Second() * textureScaleVector),
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xstart, 0, mazeWall.Ystart), new Vector3(0, 0, 1), texturePosInfo.front.Third() * textureScaleVector),
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xend, 0, mazeWall.Yend), new Vector3(0, 0, 1), texturePosInfo.front.Fourth() * textureScaleVector),
 
                 //Rear
-                new VertexPositionNormalTexture(new Vector3(mazeWall.Xstart, height, mazeWall.Ystart), new Vector3(0, 0, -1), texturePosInfo.rear.Second()),
-                new VertexPositionNormalTexture(new Vector3(mazeWall.Xstart, 0, mazeWall.Ystart), new Vector3(0, 0, -1), texturePosInfo.rear.Fourth()),
-                new VertexPositionNormalTexture(new Vector3(mazeWall.Xend, height, mazeWall.Yend), new Vector3(0, 0, -1), texturePosInfo.rear.First()),
-                new VertexPositionNormalTexture(new Vector3(mazeWall.Xend, 0, mazeWall.Yend), new Vector3(0, 0, -1), texturePosInfo.rear.Third())
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xstart, height, mazeWall.Ystart), new Vector3(0, 0, -1), texturePosInfo.rear.Second() * textureScaleVector),
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xstart, 0, mazeWall.Ystart), new Vector3(0, 0, -1), texturePosInfo.rear.Fourth() * textureScaleVector),
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xend, height, mazeWall.Yend), new Vector3(0, 0, -1), texturePosInfo.rear.First() * textureScaleVector),
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xend, 0, mazeWall.Yend), new Vector3(0, 0, -1), texturePosInfo.rear.Third() * textureScaleVector)
             );
 
 
