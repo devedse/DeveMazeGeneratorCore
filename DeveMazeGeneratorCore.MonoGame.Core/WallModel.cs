@@ -26,6 +26,11 @@ namespace DeveMazeGeneratorMonoGame
             float height = 4f / 3f;
 
 
+
+            float hhh = height;
+            float www = mazeWall.Yend - mazeWall.Ystart + mazeWall.Xend - mazeWall.Xstart;
+
+
             drawable3DObject.AddObject(
                 //Front
                 new VertexPositionNormalTexture(new Vector3(mazeWall.Xstart, height, mazeWall.Ystart), new Vector3(0, 0, 1), texturePosInfo.front.First()),
@@ -42,8 +47,6 @@ namespace DeveMazeGeneratorMonoGame
 
 
 
-            //float hhh = height;
-            //float www = mazeWall.Yend - mazeWall.Ystart + mazeWall.Xend - mazeWall.Xstart;
 
             //////This stuff is for repeating the texture
             //for (int i = curVertice; i < curVertice + howmuchvertices; i++)

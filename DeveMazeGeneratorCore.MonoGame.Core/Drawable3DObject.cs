@@ -88,7 +88,7 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
         {
             if (vertices.Length != _verticesPerOperation)
             {
-                throw new InvalidOperationException("Mag niet");
+                throw new InvalidOperationException($"This {this.GetType().Name} is configured to be used with sets of {_verticesPerOperation} vertices per operation. But you are passing in: {vertices.Length}");
             }
 
             if (_curVertI + vertices.Length > _maxCountVerticesPerBuffer)

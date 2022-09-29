@@ -46,8 +46,8 @@ namespace DeveMazeGeneratorMonoGame
         //private VertexBuffer vertexBuffer;
         //private IndexBuffer indexBuffer;
 
-        private VertexBuffer vertexBufferPath;
-        private IndexBuffer indexBufferPath;
+        //private VertexBuffer vertexBufferPath;
+        //private IndexBuffer indexBufferPath;
 
         private int curMazeWidth = 32;
         private int curMazeHeight = 32;
@@ -125,6 +125,7 @@ namespace DeveMazeGeneratorMonoGame
 
 
         private Drawable3DObject<VertexPositionNormalTexture> _maze3dObject;
+        private Drawable3DObject<VertexPositionNormalTexture> _path3dObject;
 
 
         public TheGame() : this(Platform.Desktop)
@@ -342,8 +343,6 @@ namespace DeveMazeGeneratorMonoGame
 
 
             _maze3dObject?.Dispose();
-
-
             var indexList = new int[]
             {
                 0, 1, 2,
@@ -407,49 +406,66 @@ namespace DeveMazeGeneratorMonoGame
 
         public void GeneratePath(List<MazePointPos> path)
         {
-            vertexBufferPath?.Dispose();
-            indexBufferPath?.Dispose();
-
-            VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[path.Count * 4];
-            int[] indices = new int[path.Count * 6];
-
-            int curVertice = 0;
-            int curIndice = 0;
-
-
-
-            foreach (var pathNode in path)
-            {
-                //int factorHeight = 10;
-                //int factorWidth = 10;
-
-                VierkantjeModel model = new VierkantjeModel();
-
-                model.GoGenerateVertices(pathNode.X, pathNode.Y, vertices, indices, ref curVertice, ref curIndice);
-
-            }
+            //vertexBufferPath?.Dispose();
+            //indexBufferPath?.Dispose();
 
             pathCount = path.Count;
 
-            vertexBufferPath = new VertexBuffer(GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
-            vertexBufferPath.SetData(vertices);
+            _path3dObject?.Dispose();
+            var indexList = new int[]
+            {
+                0, 1, 2,
+                1, 3, 2
+            };
+            _path3dObject = new Drawable3DObject<VertexPositionNormalTexture>(GraphicsDevice, path.Count * 4, path.Count * 6, 4, indexList, IndexElementSize.SixteenBits);
+
+            foreach (var pathNode in path)
+            {
+                VierkantjeModel model = new VierkantjeModel();
+                model.GoGenerateVerticesv2(pathNode.X, pathNode.Y, _path3dObject);
+            }
 
 
-            if (Platform == Platform.Blazor)
-            {
-                indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
-                if (indices.Any(t => t > short.MaxValue))
-                {
-                    throw new InvalidOperationException("Could not use a maze this big due to the indices for the path being too high");
-                }
-                var indicesConverted = indices.Select(t => (short)t).ToArray();
-                indexBufferPath.SetData(indicesConverted);
-            }
-            else
-            {
-                indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
-                indexBufferPath.SetData(indices);
-            }
+            //VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[path.Count * 4];
+            //int[] indices = new int[path.Count * 6];
+
+            //int curVertice = 0;
+            //int curIndice = 0;
+
+
+
+            //foreach (var pathNode in path)
+            //{
+            //    //int factorHeight = 10;
+            //    //int factorWidth = 10;
+
+            //    VierkantjeModel model = new VierkantjeModel();
+
+            //    model.GoGenerateVertices(pathNode.X, pathNode.Y, vertices, indices, ref curVertice, ref curIndice);
+
+            //}
+
+    
+
+            //vertexBufferPath = new VertexBuffer(GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
+            //vertexBufferPath.SetData(vertices);
+
+
+            //if (Platform == Platform.Blazor)
+            //{
+            //    indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
+            //    if (indices.Any(t => t > short.MaxValue))
+            //    {
+            //        throw new InvalidOperationException("Could not use a maze this big due to the indices for the path being too high");
+            //    }
+            //    var indicesConverted = indices.Select(t => (short)t).ToArray();
+            //    indexBufferPath.SetData(indicesConverted);
+            //}
+            //else
+            //{
+            //    indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
+            //    indexBufferPath.SetData(indices);
+            //}
         }
 
         public Vector2 GetPosAtThisNumer(float number)
@@ -968,21 +984,27 @@ namespace DeveMazeGeneratorMonoGame
             effect.World = scaleMatrix * Matrix.CreateTranslation(0, 0.5f, 0); //Put it slightly above ground level
 
             //Path
-            if (drawPath && vertexBufferPath != null && vertexBufferPath != null)
+            if (drawPath && _path3dObject != null)
             {
-                GraphicsDevice.Indices = indexBufferPath;
-                GraphicsDevice.SetVertexBuffer(vertexBufferPath);
-
                 effect.Texture = ContentDing.win98LegoTexture;
-
-                foreach (EffectPass pass in effect.CurrentTechnique.Passes)
-                {
-                    pass.Apply();
-                    //GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexBufferPath.VertexCount, 0, indexBufferPath.IndexCount / 3);
-                    GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, indexBufferPath.IndexCount / 3);
-                }
-
+                _path3dObject.Draw(effect);
             }
+
+            //if (drawPath && vertexBufferPath != null && vertexBufferPath != null)
+            //{
+            //    GraphicsDevice.Indices = indexBufferPath;
+            //    GraphicsDevice.SetVertexBuffer(vertexBufferPath);
+
+            //    effect.Texture = ContentDing.win98LegoTexture;
+
+            //    foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            //    {
+            //        pass.Apply();
+            //        //GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexBufferPath.VertexCount, 0, indexBufferPath.IndexCount / 3);
+            //        GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, indexBufferPath.IndexCount / 3);
+            //    }
+
+            //}
 
 
 
