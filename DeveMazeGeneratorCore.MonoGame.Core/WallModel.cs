@@ -1,4 +1,5 @@
-﻿using DeveMazeGeneratorCore.Structures;
+﻿using DeveMazeGeneratorCore.MonoGame.Core;
+using DeveMazeGeneratorCore.Structures;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -16,6 +17,52 @@ namespace DeveMazeGeneratorMonoGame
 
             //GoGenerateVertices(TexturePosInfoGenerator.FullImage);
         }
+
+
+        public void GoGenerateVerticesv2(Drawable3DObject<VertexPositionNormalTexture> drawable3DObject)
+        {
+            TexturePosInfo texturePosInfo = TexturePosInfoGenerator.FullImage;
+
+            float height = 4f / 3f;
+
+
+            drawable3DObject.AddObject(
+                //Front
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xstart, height, mazeWall.Ystart), new Vector3(0, 0, 1), texturePosInfo.front.First()),
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xend, height, mazeWall.Yend), new Vector3(0, 0, 1), texturePosInfo.front.Second()),
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xstart, 0, mazeWall.Ystart), new Vector3(0, 0, 1), texturePosInfo.front.Third()),
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xend, 0, mazeWall.Yend), new Vector3(0, 0, 1), texturePosInfo.front.Fourth()),
+
+                //Rear
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xstart, height, mazeWall.Ystart), new Vector3(0, 0, -1), texturePosInfo.rear.Second()),
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xstart, 0, mazeWall.Ystart), new Vector3(0, 0, -1), texturePosInfo.rear.Fourth()),
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xend, height, mazeWall.Yend), new Vector3(0, 0, -1), texturePosInfo.rear.First()),
+                new VertexPositionNormalTexture(new Vector3(mazeWall.Xend, 0, mazeWall.Yend), new Vector3(0, 0, -1), texturePosInfo.rear.Third())
+            );
+
+
+
+            //float hhh = height;
+            //float www = mazeWall.Yend - mazeWall.Ystart + mazeWall.Xend - mazeWall.Xstart;
+
+            //////This stuff is for repeating the texture
+            //for (int i = curVertice; i < curVertice + howmuchvertices; i++)
+            //{
+            //    var vert = vertices[i];
+            //    vert.TextureCoordinate.X *= (www / 2f);
+            //    vert.TextureCoordinate.Y *= (hhh / height);
+            //    vertices[i] = vert;
+            //}
+
+            //curVertice += howmuchvertices;
+
+
+        }
+
+
+
+
+
 
         public void GoGenerateVertices(VertexPositionNormalTexture[] vertices, int[] indices, ref int curVertice, ref int curIndice)
         {
