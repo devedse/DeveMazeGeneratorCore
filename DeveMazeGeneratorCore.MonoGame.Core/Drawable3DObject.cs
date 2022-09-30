@@ -42,7 +42,7 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
             _graphicsDevice = graphicsDevice;
 
             _vertexCount = vertexCount;
-            _indexCount = indexCount;
+            _indexCount = indexCount; //This field is actually not used but we keep it here to verify incoming data
 
             _verticesPerOperation = verticesPerOperation;
             _relativeIndexPointers = relativeIndexPointers;
