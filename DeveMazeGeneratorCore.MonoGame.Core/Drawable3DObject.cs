@@ -28,6 +28,15 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
         //The actual number if we look at operations (e.g. 8 if we have vertices per operation)
         private int _maxActualCountVerticesPerBuffer;
 
+        /// <summary>
+        /// Create a new Drawable3DOBject
+        /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice from game.GraphicsDevice</param>
+        /// <param name="vertexCount">The total amount of vertices of the object</param>
+        /// <param name="indexCount">The total amount of indices of the object</param>
+        /// <param name="verticesPerOperation">The amount of vertices to add per "AddObject" call</param>
+        /// <param name="relativeIndexPointers"></param>
+        /// <param name="indexElementSize"></param>
         public Drawable3DObject(GraphicsDevice graphicsDevice, int vertexCount, int indexCount, int verticesPerOperation, int[] relativeIndexPointers, IndexElementSize? indexElementSize = null)
         {
             _graphicsDevice = graphicsDevice;
@@ -37,6 +46,21 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
 
             _verticesPerOperation = verticesPerOperation;
             _relativeIndexPointers = relativeIndexPointers;
+
+            if (_vertexCount % _verticesPerOperation != 0)
+            {
+                throw new ArgumentException($"`_vertexCount % _verticesPerOperation == 0` needs to be true. It's not :(");
+            }
+
+            if (_indexCount % _relativeIndexPointers.Length != 0)
+            {
+                throw new ArgumentException($"`_indexCount % _relativeIndexPointers.Length != 0` needs to be true. It's not :(");
+            }
+
+            if (_vertexCount / _verticesPerOperation != _indexCount / _relativeIndexPointers.Length)
+            {
+                throw new ArgumentException($"`_vertexCount / _verticesPerOperation != _indexCount / _relativeIndexPointers.Length` needs to be true. It's not :(");
+            }
 
             _relativeIndexPointersShort = relativeIndexPointers.Select(t => (short)t).ToArray();
 
