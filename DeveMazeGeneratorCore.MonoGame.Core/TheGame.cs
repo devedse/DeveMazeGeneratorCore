@@ -157,6 +157,7 @@ namespace DeveMazeGeneratorMonoGame
                 if (e.GraphicsDeviceInformation.Adapter.IsProfileSupported(GraphicsProfile.HiDef))
                 {
                     e.GraphicsDeviceInformation.GraphicsProfile = GraphicsProfile.HiDef;
+                    graphics.GraphicsProfile = GraphicsProfile.HiDef;
                 }
 
                 Console.WriteLine($"Graphics profile is now: {e.GraphicsDeviceInformation.GraphicsProfile}");
