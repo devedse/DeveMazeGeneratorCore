@@ -87,6 +87,7 @@
     <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\WallModel.cs" Link="WallModel.cs" />
     <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\Data\ExtendibleContentManager.cs" Link="Data\ExtendibleContentManager.cs" />
     <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\Data\IContentManagerExtension.cs" Link="Data\IContentManagerExtension.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\ExtensionMethods\GraphicsExtensionMethods.cs" Link="ExtensionMethods\GraphicsExtensionMethods.cs" />
     <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\HelperObjects\CustomMathHelper.cs" Link="HelperObjects\CustomMathHelper.cs" />
     <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\HelperObjects\IntSize.cs" Link="HelperObjects\IntSize.cs" />
     <Compile Include="..\DeveMazeGeneratorCore.MonoGame.Core\HelperObjects\Platform.cs" Link="HelperObjects\Platform.cs" />

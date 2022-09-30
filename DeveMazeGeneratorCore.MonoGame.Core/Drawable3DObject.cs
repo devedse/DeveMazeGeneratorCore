@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using DeveMazeGeneratorCore.MonoGame.Core.ExtensionMethods;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
         private readonly IndexElementSize _indexElementSize;
         private int _maxCountVerticesPerBuffer = int.MaxValue;
 
-        public Drawable3DObject(GraphicsDevice graphicsDevice, int vertexCount, int indexCount, int verticesPerOperation, int[] relativeIndexPointers, IndexElementSize indexElementSize)
+        public Drawable3DObject(GraphicsDevice graphicsDevice, int vertexCount, int indexCount, int verticesPerOperation, int[] relativeIndexPointers, IndexElementSize? indexElementSize = null)
         {
             _graphicsDevice = graphicsDevice;
 
@@ -37,7 +38,7 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
 
             _relativeIndexPointersShort = relativeIndexPointers.Select(t => (short)t).ToArray();
 
-            _indexElementSize = indexElementSize;
+            _indexElementSize = indexElementSize ?? graphicsDevice.GetPreferedIndexElementSize();
 
             _maxCountVerticesPerBuffer = _indexElementSize == IndexElementSize.ThirtyTwoBits ? int.MaxValue : short.MaxValue;
 
@@ -122,6 +123,8 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
             if (_curVertI + (_vertexBuffers.Count * _maxCountVerticesPerBuffer) >= _vertexCount)
             {
                 StoreArraysInBuffers();
+
+                Console.WriteLine($"Created a total of {_vertexBuffers.Count} vertex buffers and {_indexBuffers.Count} indexbuffers for this {this.GetType().Name}");
             }
         }
 

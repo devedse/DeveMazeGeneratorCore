@@ -7,6 +7,7 @@ using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.MonoGame.Core;
 using DeveMazeGeneratorCore.MonoGame.Core.Data;
+using DeveMazeGeneratorCore.MonoGame.Core.ExtensionMethods;
 using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
 using DeveMazeGeneratorCore.PathFinders;
 using DeveMazeGeneratorCore.Structures;
@@ -18,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 #endregion
 
@@ -150,6 +150,17 @@ namespace DeveMazeGeneratorMonoGame
 
             AllowMouseResets = Platform != Platform.Blazor;
             graphics = new GraphicsDeviceManager(this);
+
+            // Profile
+            graphics.PreparingDeviceSettings += (sender, e) =>
+            {
+                if (e.GraphicsDeviceInformation.Adapter.IsProfileSupported(GraphicsProfile.HiDef))
+                {
+                    e.GraphicsDeviceInformation.GraphicsProfile = GraphicsProfile.HiDef;
+                }
+
+                Console.WriteLine($"Graphics profile is now: {e.GraphicsDeviceInformation.GraphicsProfile}");
+            };
 
             //This is bugged in MonoGame 3.8.1 and creates a white wash over everything
             graphics.PreferMultiSampling = false;
@@ -350,7 +361,7 @@ namespace DeveMazeGeneratorMonoGame
                 4, 5, 6,
                 5, 7, 6
             };
-            _maze3dObject = new Drawable3DObject<VertexPositionNormalTexture>(GraphicsDevice, walls.Count * 8, walls.Count * 12, 8, indexList, IndexElementSize.SixteenBits);
+            _maze3dObject = new Drawable3DObject<VertexPositionNormalTexture>(GraphicsDevice, walls.Count * 8, walls.Count * 12, 8, indexList);
 
             foreach (var wall in walls)
             {
@@ -417,7 +428,7 @@ namespace DeveMazeGeneratorMonoGame
                 0, 1, 2,
                 1, 3, 2
             };
-            _path3dObject = new Drawable3DObject<VertexPositionNormalTexture>(GraphicsDevice, path.Count * 4, path.Count * 6, 4, indexList, IndexElementSize.SixteenBits);
+            _path3dObject = new Drawable3DObject<VertexPositionNormalTexture>(GraphicsDevice, path.Count * 4, path.Count * 6, 4, indexList);
 
             foreach (var pathNode in path)
             {
@@ -445,7 +456,7 @@ namespace DeveMazeGeneratorMonoGame
 
             //}
 
-    
+
 
             //vertexBufferPath = new VertexBuffer(GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
             //vertexBufferPath.SetData(vertices);
@@ -1082,6 +1093,8 @@ namespace DeveMazeGeneratorMonoGame
                     $"FixedTimeStep (F): {IsFixedTimeStep}{n}" +
                     $"TargetFps: {1 / TargetElapsedTime.TotalSeconds}{n}" +
                     $"Fullscreen: {graphics.IsFullScreen}{n}" +
+                    $"GraphicsProfile: {graphics.GraphicsProfile} / {GraphicsDevice.GraphicsProfile}{n}" +
+                    $"IndexElementSize: {GraphicsDevice.GetPreferedIndexElementSize()}{n}" +
                     $"{ScreenWidth}x{ScreenHeight}{n}" +
                     $"{graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}{n}" +
                     $"{Window.ClientBounds.Width}x{Window.ClientBounds.Height}{n}" +
