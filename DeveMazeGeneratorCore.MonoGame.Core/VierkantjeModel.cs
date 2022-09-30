@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using DeveMazeGeneratorCore.MonoGame.Core;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace DeveMazeGeneratorMonoGame
@@ -13,6 +14,23 @@ namespace DeveMazeGeneratorMonoGame
 
 
             //GoGenerateVertices(TexturePosInfoGenerator.FullImage);
+        }
+
+        public void GoGenerateVerticesv2(float posx, float posy, Drawable3DObject<VertexPositionNormalTexture> drawable3DObject)
+        {
+            TexturePosInfo texturePosInfo = TexturePosInfoGenerator.FullImage;
+
+            float height = 0.0f;
+
+            float amount = 0.4f;
+
+            drawable3DObject.AddObject(
+                //Front
+                new VertexPositionNormalTexture(new Vector3(posx - amount, height, posy - amount), new Vector3(0, 0, 1), texturePosInfo.front.First()),
+                new VertexPositionNormalTexture(new Vector3(posx + amount, height, posy - amount), new Vector3(0, 0, 1), texturePosInfo.front.Second()),
+                new VertexPositionNormalTexture(new Vector3(posx - amount, height, posy + amount), new Vector3(0, 0, 1), texturePosInfo.front.Third()),
+                new VertexPositionNormalTexture(new Vector3(posx + amount, height, posy + amount), new Vector3(0, 0, 1), texturePosInfo.front.Fourth())
+            );
         }
 
         public void GoGenerateVertices(float posx, float posy, VertexPositionNormalTexture[] vertices, int[] indices, ref int curVertice, ref int curIndice)

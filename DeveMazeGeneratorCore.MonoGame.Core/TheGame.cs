@@ -7,6 +7,7 @@ using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.MonoGame.Core;
 using DeveMazeGeneratorCore.MonoGame.Core.Data;
+using DeveMazeGeneratorCore.MonoGame.Core.ExtensionMethods;
 using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
 using DeveMazeGeneratorCore.PathFinders;
 using DeveMazeGeneratorCore.Structures;
@@ -51,11 +52,11 @@ namespace DeveMazeGeneratorMonoGame
 
         private BasicEffect effect;
 
-        private VertexBuffer vertexBuffer;
-        private IndexBuffer indexBuffer;
+        //private VertexBuffer vertexBuffer;
+        //private IndexBuffer indexBuffer;
 
-        private VertexBuffer vertexBufferPath;
-        private IndexBuffer indexBufferPath;
+        //private VertexBuffer vertexBufferPath;
+        //private IndexBuffer indexBufferPath;
 
         private int curMazeWidth = 32;
         private int curMazeHeight = 32;
@@ -131,6 +132,11 @@ namespace DeveMazeGeneratorMonoGame
         private int _drawCallsCounterLastSecond = 0;
         private TimeSpan _drawCallsCounterLastRecordedTime = TimeSpan.Zero;
         public TelemetryClient AppInsightsClient { get; }
+
+
+        private Drawable3DObject<VertexPositionNormalTexture> _maze3dObject;
+        private Drawable3DObject<VertexPositionNormalTexture> _path3dObject;
+
 
 
 
@@ -234,6 +240,8 @@ namespace DeveMazeGeneratorMonoGame
                 {
                     AppInsightsClient.TrackTrace($"PreparingDeviceSettings, HiDef is not supported :(", SeverityLevel.Warning);
                 }
+
+                Console.WriteLine($"Graphics profile is now: {e.GraphicsDeviceInformation.GraphicsProfile}");
             };
 
             //This is bugged in MonoGame 3.8.1 and creates a white wash over everything
@@ -422,8 +430,8 @@ namespace DeveMazeGeneratorMonoGame
             var w = Stopwatch.StartNew();
             AppInsightsClient.TrackTrace($"Creating maze of size: {curMazeWidth}x{curMazeHeight}", SeverityLevel.Warning);
 
-            indexBuffer?.Dispose();
-            vertexBuffer?.Dispose();
+            //indexBuffer?.Dispose();
+            //vertexBuffer?.Dispose();
 
             groundModel?.Dispose();
             groundModel = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
@@ -447,105 +455,142 @@ namespace DeveMazeGeneratorMonoGame
 
             AppInsightsClient.TrackTrace($"Time for GenerateMaze: {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
             var walls = currentMaze.InnerMap.GenerateListOfMazeWalls();
+            wallsCount = walls.Count;
+
             currentPath = PathFinderDepthFirstSmartWithPos.GoFind(currentMaze.InnerMap, null);
 
             determiner = new LineOfSightDeterminer(currentMaze.InnerMap, currentPath);
             curChaseCameraPoint = null;
 
-            VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[walls.Count * 8];
-            int[] indices = new int[walls.Count * 12];
-
-            int curVertice = 0;
-            int curIndice = 0;
 
 
+
+            _maze3dObject?.Dispose();
+            var indexList = new int[]
+            {
+                0, 1, 2,
+                1, 3, 2,
+                4, 5, 6,
+                5, 7, 6
+            };
+            _maze3dObject = new Drawable3DObject<VertexPositionNormalTexture>(GraphicsDevice, walls.Count * 8, walls.Count * 12, 8, indexList);
 
             foreach (var wall in walls)
             {
-                //int factorHeight = 10;
-                //int factorWidth = 10;
-
                 WallModel model = new WallModel(wall);
 
-                model.GoGenerateVertices(vertices, indices, ref curVertice, ref curIndice);
-
+                model.GoGenerateVerticesv2(_maze3dObject);
             }
 
 
-            AppInsightsClient.TrackTrace($"Time for GenerateMaze (Walls): {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
 
-            wallsCount = walls.Count;
 
-            vertexBuffer = new VertexBuffer(GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
-            vertexBuffer.SetData(vertices);
 
-            if (Platform == Platform.Blazor)
-            {
-                indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
-                if (indices.Any(t => t > short.MaxValue))
-                {
-                    throw new InvalidOperationException("Could not use a maze this big due to the indices being too high");
-                }
-                var indicesConverted = indices.Select(t => (short)t).ToArray();
-                indexBuffer.SetData(indicesConverted);
-            }
-            else
-            {
-                indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
-                indexBuffer.SetData(indices);
-            }
+            //VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[walls.Count * 8];
+            //int[] indices = new int[walls.Count * 12];
+
+            //int curVertice = 0;
+            //int curIndice = 0;
+
+
+
+            //foreach (var wall in walls)
+            //{
+            //    //int factorHeight = 10;
+            //    //int factorWidth = 10;
+
+            //    WallModel model = new WallModel(wall);
+
+            //    model.GoGenerateVertices(vertices, indices, ref curVertice, ref curIndice);
+
+            //}
+
+            //vertexBuffer = new VertexBuffer(GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
+            //vertexBuffer.SetData(vertices);
+
+            //if (Platform == Platform.Blazor)
+            //{
+            //    indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
+            //    if (indices.Any(t => t > short.MaxValue))
+            //    {
+            //        throw new InvalidOperationException("Could not use a maze this big due to the indices being too high");
+            //    }
+            //    var indicesConverted = indices.Select(t => (short)t).ToArray();
+            //    indexBuffer.SetData(indicesConverted);
+            //}
+            //else
+            //{
+            //    indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
+            //    indexBuffer.SetData(indices);
+            //}
+
             AppInsightsClient.TrackTrace($"Time for GenerateMaze (Buffers): {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
-
             GeneratePath(currentPath);
-
             AppInsightsClient.TrackTrace($"Time for GenerateMaze (And Path): {w.Elapsed.TotalSeconds}", SeverityLevel.Warning);
         }
 
         public void GeneratePath(List<MazePointPos> path)
         {
-            vertexBufferPath?.Dispose();
-            indexBufferPath?.Dispose();
-
-            VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[path.Count * 4];
-            int[] indices = new int[path.Count * 6];
-
-            int curVertice = 0;
-            int curIndice = 0;
-
-
-
-            foreach (var pathNode in path)
-            {
-                //int factorHeight = 10;
-                //int factorWidth = 10;
-
-                VierkantjeModel model = new VierkantjeModel();
-
-                model.GoGenerateVertices(pathNode.X, pathNode.Y, vertices, indices, ref curVertice, ref curIndice);
-
-            }
+            //vertexBufferPath?.Dispose();
+            //indexBufferPath?.Dispose();
 
             pathCount = path.Count;
 
-            vertexBufferPath = new VertexBuffer(GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
-            vertexBufferPath.SetData(vertices);
+            _path3dObject?.Dispose();
+            var indexList = new int[]
+            {
+                0, 1, 2,
+                1, 3, 2
+            };
+            _path3dObject = new Drawable3DObject<VertexPositionNormalTexture>(GraphicsDevice, path.Count * 4, path.Count * 6, 4, indexList);
+
+            foreach (var pathNode in path)
+            {
+                VierkantjeModel model = new VierkantjeModel();
+                model.GoGenerateVerticesv2(pathNode.X, pathNode.Y, _path3dObject);
+            }
 
 
-            if (Platform == Platform.Blazor)
-            {
-                indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
-                if (indices.Any(t => t > short.MaxValue))
-                {
-                    throw new InvalidOperationException("Could not use a maze this big due to the indices for the path being too high");
-                }
-                var indicesConverted = indices.Select(t => (short)t).ToArray();
-                indexBufferPath.SetData(indicesConverted);
-            }
-            else
-            {
-                indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
-                indexBufferPath.SetData(indices);
-            }
+            //VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[path.Count * 4];
+            //int[] indices = new int[path.Count * 6];
+
+            //int curVertice = 0;
+            //int curIndice = 0;
+
+
+
+            //foreach (var pathNode in path)
+            //{
+            //    //int factorHeight = 10;
+            //    //int factorWidth = 10;
+
+            //    VierkantjeModel model = new VierkantjeModel();
+
+            //    model.GoGenerateVertices(pathNode.X, pathNode.Y, vertices, indices, ref curVertice, ref curIndice);
+
+            //}
+
+
+
+            //vertexBufferPath = new VertexBuffer(GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
+            //vertexBufferPath.SetData(vertices);
+
+
+            //if (Platform == Platform.Blazor)
+            //{
+            //    indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
+            //    if (indices.Any(t => t > short.MaxValue))
+            //    {
+            //        throw new InvalidOperationException("Could not use a maze this big due to the indices for the path being too high");
+            //    }
+            //    var indicesConverted = indices.Select(t => (short)t).ToArray();
+            //    indexBufferPath.SetData(indicesConverted);
+            //}
+            //else
+            //{
+            //    indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
+            //    indexBufferPath.SetData(indices);
+            //}
         }
 
         public Vector2 GetPosAtThisNumer(float number)
@@ -1126,40 +1171,51 @@ namespace DeveMazeGeneratorMonoGame
             //Maze
             effect.World = growingScaleMatrix;
 
-            if (vertexBuffer != null && indexBuffer != null)
+            if (_maze3dObject != null)
             {
-                GraphicsDevice.Indices = indexBuffer;
-                GraphicsDevice.SetVertexBuffer(vertexBuffer);
-
                 effect.Texture = ContentDing.win98WallTexture;
-
-                foreach (EffectPass pass in effect.CurrentTechnique.Passes)
-                {
-                    pass.Apply();
-                    //GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexBuffer.VertexCount, 0, indexBuffer.IndexCount / 3);
-                    GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, indexBuffer.IndexCount / 3);
-                }
-
+                _maze3dObject.Draw(effect);
             }
+
+            //if (vertexBuffer != null && indexBuffer != null)
+            //{
+
+            //    GraphicsDevice.Indices = indexBuffer;
+            //    GraphicsDevice.SetVertexBuffer(vertexBuffer);
+
+            //    foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            //    {
+            //        pass.Apply();
+            //        //GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexBuffer.VertexCount, 0, indexBuffer.IndexCount / 3);
+            //        GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, indexBuffer.IndexCount / 3);
+            //    }
+
+            //}
 
             effect.World = scaleMatrix * Matrix.CreateTranslation(0, 0.5f, 0); //Put it slightly above ground level
 
             //Path
-            if (drawPath && vertexBufferPath != null && vertexBufferPath != null)
+            if (drawPath && _path3dObject != null)
             {
-                GraphicsDevice.Indices = indexBufferPath;
-                GraphicsDevice.SetVertexBuffer(vertexBufferPath);
-
                 effect.Texture = ContentDing.win98LegoTexture;
-
-                foreach (EffectPass pass in effect.CurrentTechnique.Passes)
-                {
-                    pass.Apply();
-                    //GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexBufferPath.VertexCount, 0, indexBufferPath.IndexCount / 3);
-                    GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, indexBufferPath.IndexCount / 3);
-                }
-
+                _path3dObject.Draw(effect);
             }
+
+            //if (drawPath && vertexBufferPath != null && vertexBufferPath != null)
+            //{
+            //    GraphicsDevice.Indices = indexBufferPath;
+            //    GraphicsDevice.SetVertexBuffer(vertexBufferPath);
+
+            //    effect.Texture = ContentDing.win98LegoTexture;
+
+            //    foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            //    {
+            //        pass.Apply();
+            //        //GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexBufferPath.VertexCount, 0, indexBufferPath.IndexCount / 3);
+            //        GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, indexBufferPath.IndexCount / 3);
+            //    }
+
+            //}
 
 
 
@@ -1237,6 +1293,8 @@ namespace DeveMazeGeneratorMonoGame
                     $"FixedTimeStep (F): {IsFixedTimeStep}{n}" +
                     $"TargetFps: {1 / TargetElapsedTime.TotalSeconds}{n}" +
                     $"Fullscreen: {graphics.IsFullScreen}{n}" +
+                    $"GraphicsProfile: {graphics.GraphicsProfile} / {GraphicsDevice.GraphicsProfile}{n}" +
+                    $"IndexElementSize: {GraphicsDevice.GetPreferedIndexElementSize()}{n}" +
                     $"{ScreenWidth}x{ScreenHeight}{n}" +
                     $"{graphics.PreferredBackBufferWidth}x{graphics.PreferredBackBufferHeight}{n}" +
                     $"{Window.ClientBounds.Width}x{Window.ClientBounds.Height}{n}" +
