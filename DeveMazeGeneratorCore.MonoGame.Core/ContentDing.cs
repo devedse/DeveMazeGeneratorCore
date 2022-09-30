@@ -36,7 +36,7 @@ namespace DeveMazeGeneratorMonoGame
             startTexture = Content.Load<Texture2D>("start");
 
             win98FloorTexture = Content.Load<Texture2D>("floor");
-            //win98LegoTexture = Content.Load<Texture2D>("lego");
+            win98LegoTexture = Content.Load<Texture2D>("lego");
             win98RoofTexture = Content.Load<Texture2D>("roof");
             win98WallTexture = Content.Load<Texture2D>("wall");
 
