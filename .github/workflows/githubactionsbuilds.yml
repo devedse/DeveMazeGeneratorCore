@@ -321,7 +321,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: |
-          3.1.x
           6.0.x
     - name: Install workload android
       run: |
@@ -339,7 +338,7 @@ jobs:
       run: |
         nuget restore DeveMazeGeneratorCore/DeveMazeGeneratorCore.csproj
         nuget restore DeveMazeGeneratorCore.MonoGame.Core/DeveMazeGeneratorCore.MonoGame.Core.csproj
-        nuget restore DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj
+        nuget restore DeveMazeGeneratorCore.MonoGame.AndroidOld/DeveMazeGeneratorCore.MonoGame.AndroidOld.csproj
     - name: Build Android
       run: |
         #dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
@@ -353,7 +352,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: DeveMazeGeneratorCore.MonoGame.Android_aab
-        path: ./DeveMazeGeneratorCore.MonoGame.Android/bin/AnyCPU/Release/deveblockstacker_android.deveblockstacker_android-Signed.aab
+        path: ./DeveMazeGeneratorCore.MonoGame.AndroidOld/bin/AnyCPU/Release/deveblockstacker_android.deveblockstacker_android-Signed.aab
 
 
   build_windows_AndroidForFireStick:
@@ -382,7 +381,7 @@ jobs:
       run: |
         nuget restore DeveMazeGeneratorCore/DeveMazeGeneratorCore.csproj
         nuget restore DeveMazeGeneratorCore.MonoGame.Core/DeveMazeGeneratorCore.MonoGame.Core.csproj
-        nuget restore DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj
+        nuget restore DeveMazeGeneratorCore.MonoGame.AndroidOld/DeveMazeGeneratorCore.MonoGame.AndroidOld.csproj
     - name: Build Android
       run: |
         #dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
@@ -396,7 +395,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: DeveMazeGeneratorCore.MonoGame.Android_apk
-        path: ./DeveMazeGeneratorCore.MonoGame.Android/bin/AnyCPU/Release/deveblockstacker_android.deveblockstacker_android-Signed.aab
+        path: ./DeveMazeGeneratorCore.MonoGame.AndroidOld/bin/AnyCPU/Release/deveblockstacker_android.deveblockstacker_android-Signed.aab
 
 
   release_github:
