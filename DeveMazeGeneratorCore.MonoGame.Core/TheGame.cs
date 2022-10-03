@@ -1073,7 +1073,7 @@ namespace DeveMazeGeneratorMonoGame
             string stringToDraw = $"Size: {curMazeWidth}, Walls: {wallsCount}, Path length: {pathCount}, Speed: {speedFactor}, Current: {(int)Math.Max((numbertje - 1f) * speedFactor, 0)}, Algorithm: ({currentAlgorithm}: {algorithms[currentAlgorithm].GetType().Name})";
             var measuredTopString = ContentDing.spriteFont.MeasureString(stringToDraw);
             float maxSizeTopScreenWidth = ScreenWidth * 0.95f;
-            float topStringScale = MathF.Min(maxSizeTopScreenWidth, measuredTopString.X) / measuredTopString.X;
+            float topStringScale = Math.Min(maxSizeTopScreenWidth, measuredTopString.X) / measuredTopString.X;
             var measuredTopStringScaled = measuredTopString * topStringScale;
             int distanceFromTopTopString = defaultDistanceBetweenComponents;
             spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle((int)((ScreenWidth / 2) - (measuredTopStringScaled.X / 2) - extraSizeForBackground), distanceFromTopTopString, (int)(measuredTopStringScaled.X + (2 * extraSizeForBackground)), (int)measuredTopStringScaled.Y + (2 * extraSizeForBackground)), Color.White);
@@ -1116,8 +1116,8 @@ namespace DeveMazeGeneratorMonoGame
 
                 float maxWidthHelpString = ScreenWidth * 0.33f;
                 float maxHeightHelpString = ScreenHeight - distanceFromTopHelpString - distanceBetweenHelpStringAndBottomVertical - (2 * extraSizeForBackground);
-                float scaleHelpString = MathF.Min(maxWidthHelpString / measuredHelpString.X, maxHeightHelpString / measuredHelpString.Y);
-                scaleHelpString = MathF.Min(1, scaleHelpString);
+                float scaleHelpString = Math.Min(maxWidthHelpString / measuredHelpString.X, maxHeightHelpString / measuredHelpString.Y);
+                scaleHelpString = Math.Min(1, scaleHelpString);
 
                 var measuredHelpStringScaled = measuredHelpString * scaleHelpString;
 
