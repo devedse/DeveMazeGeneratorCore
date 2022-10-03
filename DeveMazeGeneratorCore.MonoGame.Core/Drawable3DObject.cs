@@ -111,7 +111,6 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
             _curIndexI = 0;
         }
 
-
         public void AddObject(params T[] vertices)
         {
             if (vertices.Length != _verticesPerOperation)
