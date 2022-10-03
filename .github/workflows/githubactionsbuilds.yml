@@ -339,11 +339,11 @@ jobs:
       run: |
         nuget restore DeveMazeGeneratorCore/DeveMazeGeneratorCore.csproj
         nuget restore DeveMazeGeneratorCore.MonoGame.Core/DeveMazeGeneratorCore.MonoGame.Core.csproj
-        nuget restore DeveMazeGeneratorCore.MonoGame.AndroidOld/DeveMazeGeneratorCore.MonoGame.AndroidOld.csproj
+        nuget restore DMGC.AndroidOld/DeveMazeGeneratorCore.MonoGame.AndroidOld.csproj
     - name: Build Android
       run: |
         #dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=aab /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{ secrets.ANDROIDKEYSTOREPASSWORD }} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{ secrets.ANDROIDKEYSTOREPASSWORD }} ./DeveMazeGeneratorCore.MonoGame.AndroidOld/DeveMazeGeneratorCore.MonoGame.AndroidOld.csproj
+        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=aab /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{ secrets.ANDROIDKEYSTOREPASSWORD }} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{ secrets.ANDROIDKEYSTOREPASSWORD }} ./DMGC.AndroidOld/DeveMazeGeneratorCore.MonoGame.AndroidOld.csproj
     - name: dotnet test
       run: dotnet test DeveMazeGeneratorCore.Tests/DeveMazeGeneratorCore.Tests.csproj -c Release --verbosity normal
     # - name: Package sources
@@ -353,7 +353,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: DeveMazeGeneratorCore.MonoGame.Android_aab
-        path: ./DeveMazeGeneratorCore.MonoGame.AndroidOld/bin/AnyCPU/Release/deveblockstacker_android.deveblockstacker_android-Signed.aab
+        path: ./DMGC.AndroidOld/bin/AnyCPU/Release/deveblockstacker_android.deveblockstacker_android-Signed.aab
 
 
   build_windows_AndroidForFireStick:
@@ -383,11 +383,11 @@ jobs:
       run: |
         nuget restore DeveMazeGeneratorCore/DeveMazeGeneratorCore.csproj
         nuget restore DeveMazeGeneratorCore.MonoGame.Core/DeveMazeGeneratorCore.MonoGame.Core.csproj
-        nuget restore DeveMazeGeneratorCore.MonoGame.AndroidOld/DeveMazeGeneratorCore.MonoGame.AndroidOld.csproj
+        nuget restore DMGC.AndroidOld/DeveMazeGeneratorCore.MonoGame.AndroidOld.csproj
     - name: Build Android
       run: |
         #dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=aab /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{ secrets.ANDROIDKEYSTOREPASSWORD }} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{ secrets.ANDROIDKEYSTOREPASSWORD }} ./DeveMazeGeneratorCore.MonoGame.AndroidOld/DeveMazeGeneratorCore.MonoGame.AndroidOld.csproj
+        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=aab /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{ secrets.ANDROIDKEYSTOREPASSWORD }} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{ secrets.ANDROIDKEYSTOREPASSWORD }} ./DMGC.AndroidOld/DeveMazeGeneratorCore.MonoGame.AndroidOld.csproj
     - name: dotnet test
       run: dotnet test DeveMazeGeneratorCore.Tests/DeveMazeGeneratorCore.Tests.csproj -c Release --verbosity normal
     # - name: Package sources
@@ -397,7 +397,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: DeveMazeGeneratorCore.MonoGame.Android_apk
-        path: ./DeveMazeGeneratorCore.MonoGame.AndroidOld/bin/AnyCPU/Release/deveblockstacker_android.deveblockstacker_android-Signed.aab
+        path: ./DMGC.AndroidOld/bin/AnyCPU/Release/deveblockstacker_android.deveblockstacker_android-Signed.aab
 
 
   release_github:

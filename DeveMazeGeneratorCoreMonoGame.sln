@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorCore.MonoG
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DeveMazeGeneratorCore.MonoGame.Shared", "DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.shproj", "{EB1B33BF-3F31-40B3-8643-83F4285CABD2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveMazeGeneratorCore.MonoGame.AndroidOld", "DeveMazeGeneratorCore.MonoGame.AndroidOld\DeveMazeGeneratorCore.MonoGame.AndroidOld.csproj", "{AA2BD1CD-9589-41F1-A306-629A674F302F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveMazeGeneratorCore.MonoGame.AndroidOld", "DMGC.AndroidOld\DeveMazeGeneratorCore.MonoGame.AndroidOld.csproj", "{AA2BD1CD-9589-41F1-A306-629A674F302F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
