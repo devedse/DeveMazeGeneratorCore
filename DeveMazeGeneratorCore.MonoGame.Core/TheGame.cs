@@ -838,7 +838,7 @@ namespace DeveMazeGeneratorMonoGame
             //    _drawCallsCounter = 0;
             //}
 
-            //GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.CornflowerBlue);
             //SamplerState newSamplerState = new SamplerState()
             //{
             //    AddressU = TextureAddressMode.Wrap,
