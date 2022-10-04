@@ -331,7 +331,7 @@ jobs:
     - name: Set Android version
       uses: damienaicheh/update-android-version-manifest-action@v1.0.0
       with:
-        android-manifest-path: ./DeveMazeGeneratorCore.MonoGame.Android/AndroidManifest.xml
+        android-manifest-path: ./DMGC.AndroidOld/Properties/AndroidManifest.xml
         version-name: 1.0.${{needs.generate_version_number.outputs.build_number}}
         version-code: ${{needs.generate_version_number.outputs.build_number}}
         print-file: true
@@ -375,7 +375,7 @@ jobs:
     - name: Set Android version
       uses: damienaicheh/update-android-version-manifest-action@v1.0.0
       with:
-        android-manifest-path: ./DeveMazeGeneratorCore.MonoGame.Android/AndroidManifest.xml
+        android-manifest-path: ./DMGC.AndroidOld/Properties/AndroidManifest.xml
         version-name: 1.0.${{needs.generate_version_number.outputs.build_number}}
         version-code: ${{needs.generate_version_number.outputs.build_number}}
         print-file: true
