@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorCore.MonoG
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DeveMazeGeneratorCore.MonoGame.Shared", "DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.shproj", "{EB1B33BF-3F31-40B3-8643-83F4285CABD2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorCore.MonoGame.Android", "DeveMazeGeneratorCore.MonoGame.Android\DeveMazeGeneratorCore.MonoGame.Android.csproj", "{DE5ACA0D-D621-4707-942F-AE67EE7B1CA1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveMazeGeneratorCore.MonoGame.AndroidOld", "DMGC.AndroidOld\DeveMazeGeneratorCore.MonoGame.AndroidOld.csproj", "{AA2BD1CD-9589-41F1-A306-629A674F302F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,12 +67,12 @@ Global
 		{CABCA8E7-DCC3-43CC-8ABD-F9E707F188A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CABCA8E7-DCC3-43CC-8ABD-F9E707F188A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CABCA8E7-DCC3-43CC-8ABD-F9E707F188A8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DE5ACA0D-D621-4707-942F-AE67EE7B1CA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DE5ACA0D-D621-4707-942F-AE67EE7B1CA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DE5ACA0D-D621-4707-942F-AE67EE7B1CA1}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{DE5ACA0D-D621-4707-942F-AE67EE7B1CA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DE5ACA0D-D621-4707-942F-AE67EE7B1CA1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DE5ACA0D-D621-4707-942F-AE67EE7B1CA1}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{AA2BD1CD-9589-41F1-A306-629A674F302F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA2BD1CD-9589-41F1-A306-629A674F302F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA2BD1CD-9589-41F1-A306-629A674F302F}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{AA2BD1CD-9589-41F1-A306-629A674F302F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA2BD1CD-9589-41F1-A306-629A674F302F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA2BD1CD-9589-41F1-A306-629A674F302F}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
