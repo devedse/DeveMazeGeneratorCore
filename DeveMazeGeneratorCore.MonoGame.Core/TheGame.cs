@@ -7,19 +7,15 @@ using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.MonoGame.Core;
 using DeveMazeGeneratorCore.MonoGame.Core.Data;
-using DeveMazeGeneratorCore.MonoGame.Core.ExtensionMethods;
 using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
 using DeveMazeGeneratorCore.PathFinders;
 using DeveMazeGeneratorCore.Structures;
 using DeveMazeGeneratorMonoGame.LineOfSight;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
 #endregion
 
 namespace DeveMazeGeneratorMonoGame
