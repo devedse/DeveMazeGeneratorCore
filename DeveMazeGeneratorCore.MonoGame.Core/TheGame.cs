@@ -92,9 +92,9 @@ namespace DeveMazeGeneratorMonoGame
         //private CubeModel losPointCubeModel;
 
 
-        //public bool AllowMouseResets { get; }
-        //public int ScreenWidth { get; private set; }
-        //public int ScreenHeight { get; private set; }
+        public bool AllowMouseResets { get; }
+        public int ScreenWidth { get; private set; }
+        public int ScreenHeight { get; private set; }
 
         //private List<IAlgorithm<Maze>> algorithms = new List<IAlgorithm<Maze>>()
         //{
