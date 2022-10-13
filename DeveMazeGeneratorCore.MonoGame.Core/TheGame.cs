@@ -34,94 +34,94 @@ namespace DeveMazeGeneratorMonoGame
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        private Camera camera;
-        private Basic3dExampleCamera newcamera;
+        //private Camera camera;
+        //private Basic3dExampleCamera newcamera;
 
-        private BasicEffect effect;
+        //private BasicEffect effect;
 
-        //private VertexBuffer vertexBuffer;
-        //private IndexBuffer indexBuffer;
+        ////private VertexBuffer vertexBuffer;
+        ////private IndexBuffer indexBuffer;
 
-        //private VertexBuffer vertexBufferPath;
-        //private IndexBuffer indexBufferPath;
+        ////private VertexBuffer vertexBufferPath;
+        ////private IndexBuffer indexBufferPath;
 
-        private int curMazeWidth = 32;
-        private int curMazeHeight = 32;
-        private int wallsCount = 0;
-        private int pathCount = 0;
+        //private int curMazeWidth = 32;
+        //private int curMazeHeight = 32;
+        //private int wallsCount = 0;
+        //private int pathCount = 0;
 
-        private Maze currentMaze = null;
-        private List<MazePointPos> currentPath = null;
-
-
-        //Keys.H
-        private bool drawRoof = true;
-
-        //Keys.L
-        private bool lighting = true;
-
-        //Keys.P
-        private bool drawPath = false;
-
-        //Keys.U
-        private bool showUi = true;
-
-        private float numbertje = -1f;
-
-        private int speedFactor = 2;
-
-        private Random random = new Random();
-
-        private PlayerModel playerModel;
-
-        //Keys.B
-        private bool chaseCameraShowDebugBlocks = false;
-        private LineOfSightDeterminer determiner;
-        private LineOfSightObject curChaseCameraPoint = null;
-
-        //Keys.O
-        private bool UseNewCamera = false;
-
-        private int skyboxSize = 1000000;
-        private CubeModelInvertedForSkybox skyboxModel;
-        private CubeModel groundModel;
-        private CubeModel roofModel;
-        private CubeModel startModel;
-        private CubeModel finishModel;
-        private CubeModel possibleCubejeModel;
-        private CubeModel losPointCubeModel;
+        //private Maze currentMaze = null;
+        //private List<MazePointPos> currentPath = null;
 
 
-        public bool AllowMouseResets { get; }
-        public int ScreenWidth { get; private set; }
-        public int ScreenHeight { get; private set; }
+        ////Keys.H
+        //private bool drawRoof = true;
 
-        private List<IAlgorithm<Maze>> algorithms = new List<IAlgorithm<Maze>>()
-        {
-            new AlgorithmBacktrack2Deluxe2_AsByte(),
-            new AlgorithmDivisionDynamic(),
-            new AlgorithmKruskal()
-        };
-        private int currentAlgorithm = 0;
+        ////Keys.L
+        //private bool lighting = true;
 
-        private readonly string _version = typeof(TheGame).Assembly.GetName().Version.ToString();
+        ////Keys.P
+        //private bool drawPath = false;
 
-        private readonly Stopwatch _fpsMeasureStopwatch = Stopwatch.StartNew();
-        private TimeSpan _drawLastFpsMeasure = TimeSpan.Zero;
-        private TimeSpan _updateLastFpsMeasure = TimeSpan.Zero;
-        private TimeSpan _updateTimePerFrame = TimeSpan.Zero;
+        ////Keys.U
+        //private bool showUi = true;
+
+        //private float numbertje = -1f;
+
+        //private int speedFactor = 2;
+
+        //private Random random = new Random();
+
+        //private PlayerModel playerModel;
+
+        ////Keys.B
+        //private bool chaseCameraShowDebugBlocks = false;
+        //private LineOfSightDeterminer determiner;
+        //private LineOfSightObject curChaseCameraPoint = null;
+
+        ////Keys.O
+        //private bool UseNewCamera = false;
+
+        //private int skyboxSize = 1000000;
+        //private CubeModelInvertedForSkybox skyboxModel;
+        //private CubeModel groundModel;
+        //private CubeModel roofModel;
+        //private CubeModel startModel;
+        //private CubeModel finishModel;
+        //private CubeModel possibleCubejeModel;
+        //private CubeModel losPointCubeModel;
 
 
-        private int _updateCallsCounter = 0;
-        private int _updateCallsCounterLastSecond = 0;
-        private TimeSpan _updateCallsCounterLastRecordedTime = TimeSpan.Zero;
-        private int _drawCallsCounter = 0;
-        private int _drawCallsCounterLastSecond = 0;
-        private TimeSpan _drawCallsCounterLastRecordedTime = TimeSpan.Zero;
+        //public bool AllowMouseResets { get; }
+        //public int ScreenWidth { get; private set; }
+        //public int ScreenHeight { get; private set; }
+
+        //private List<IAlgorithm<Maze>> algorithms = new List<IAlgorithm<Maze>>()
+        //{
+        //    new AlgorithmBacktrack2Deluxe2_AsByte(),
+        //    new AlgorithmDivisionDynamic(),
+        //    new AlgorithmKruskal()
+        //};
+        //private int currentAlgorithm = 0;
+
+        //private readonly string _version = typeof(TheGame).Assembly.GetName().Version.ToString();
+
+        //private readonly Stopwatch _fpsMeasureStopwatch = Stopwatch.StartNew();
+        //private TimeSpan _drawLastFpsMeasure = TimeSpan.Zero;
+        //private TimeSpan _updateLastFpsMeasure = TimeSpan.Zero;
+        //private TimeSpan _updateTimePerFrame = TimeSpan.Zero;
 
 
-        private Drawable3DObject<VertexPositionNormalTexture> _maze3dObject;
-        private Drawable3DObject<VertexPositionNormalTexture> _path3dObject;
+        //private int _updateCallsCounter = 0;
+        //private int _updateCallsCounterLastSecond = 0;
+        //private TimeSpan _updateCallsCounterLastRecordedTime = TimeSpan.Zero;
+        //private int _drawCallsCounter = 0;
+        //private int _drawCallsCounterLastSecond = 0;
+        //private TimeSpan _drawCallsCounterLastRecordedTime = TimeSpan.Zero;
+
+
+        //private Drawable3DObject<VertexPositionNormalTexture> _maze3dObject;
+        //private Drawable3DObject<VertexPositionNormalTexture> _path3dObject;
 
 
         public TheGame() : this(Platform.Desktop)
@@ -144,7 +144,7 @@ namespace DeveMazeGeneratorMonoGame
             _desiredScreenSize = desiredScreenSize;
             Platform = platform;
 
-            AllowMouseResets = Platform != Platform.Blazor;
+            //AllowMouseResets = Platform != Platform.Blazor;
             graphics = new GraphicsDeviceManager(this);
 
             //// Profile
@@ -167,7 +167,7 @@ namespace DeveMazeGeneratorMonoGame
 
             if (platform == Platform.Android)
             {
-                showUi = false;
+                //showUi = false;
             }
 
             //This is required for Blazor since it loads assets in a custom way
@@ -263,21 +263,21 @@ namespace DeveMazeGeneratorMonoGame
 
         private void Window_OrientationChanged(object sender, System.EventArgs e)
         {
-            FixScreenSize();
+            //FixScreenSize();
         }
 
         private void Window_ClientSizeChanged(object sender, System.EventArgs e)
         {
-            FixScreenSize();
+            //FixScreenSize();
         }
 
-        private void FixScreenSize()
-        {
-            ScreenWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
-            ScreenHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
+        //private void FixScreenSize()
+        //{
+        //    ScreenWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
+        //    ScreenHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
 
-            camera.TriggerScreenSizeChanged();
-        }
+        //    camera.TriggerScreenSizeChanged();
+        //}
 
         public void ResetMouseToCenter()
         {
@@ -315,212 +315,212 @@ namespace DeveMazeGeneratorMonoGame
             // TODO: Unload any non ContentManager content here
         }
 
-        public void GenerateMaze()
-        {
-            //indexBuffer?.Dispose();
-            //vertexBuffer?.Dispose();
+        //public void GenerateMaze()
+        //{
+        //    //indexBuffer?.Dispose();
+        //    //vertexBuffer?.Dispose();
 
-            groundModel?.Dispose();
-            groundModel = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
-            roofModel?.Dispose();
-            roofModel = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
-
-
-            var alg = algorithms[currentAlgorithm];
-            //int randomnumber = curMazeWidth < 2048 ? random.Next(3) : random.Next(2);
-            //if (randomnumber == 0)
-            //    alg = new AlgorithmBacktrack();
-            //else if (randomnumber == 1)
-            //    alg = new AlgorithmDivision();
-            //else
-            //    alg = new AlgorithmKruskal();
-
-            var innerMapFactory = new InnerMapFactory<BoolInnerMap>();
-            var randomFactory = new RandomFactory<XorShiftRandom>();
-
-            currentMaze = alg.GoGenerate(curMazeWidth, curMazeHeight, Environment.TickCount, innerMapFactory, randomFactory, new NoAction());
-            var walls = currentMaze.InnerMap.GenerateListOfMazeWalls();
-            wallsCount = walls.Count;
-
-            currentPath = PathFinderDepthFirstSmartWithPos.GoFind(currentMaze.InnerMap, null);
-
-            determiner = new LineOfSightDeterminer(currentMaze.InnerMap, currentPath);
-            curChaseCameraPoint = null;
+        //    groundModel?.Dispose();
+        //    groundModel = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
+        //    roofModel?.Dispose();
+        //    roofModel = new CubeModel(this, curMazeWidth - 2, 0.1f, curMazeHeight - 2, TexturePosInfoGenerator.FullImage, 2f / 3f);
 
 
+        //    var alg = algorithms[currentAlgorithm];
+        //    //int randomnumber = curMazeWidth < 2048 ? random.Next(3) : random.Next(2);
+        //    //if (randomnumber == 0)
+        //    //    alg = new AlgorithmBacktrack();
+        //    //else if (randomnumber == 1)
+        //    //    alg = new AlgorithmDivision();
+        //    //else
+        //    //    alg = new AlgorithmKruskal();
 
+        //    var innerMapFactory = new InnerMapFactory<BoolInnerMap>();
+        //    var randomFactory = new RandomFactory<XorShiftRandom>();
 
-            _maze3dObject?.Dispose();
-            var indexList = new int[]
-            {
-                0, 1, 2,
-                1, 3, 2,
-                4, 5, 6,
-                5, 7, 6
-            };
-            _maze3dObject = new Drawable3DObject<VertexPositionNormalTexture>(GraphicsDevice, walls.Count * 8, walls.Count * 12, 8, indexList);
+        //    currentMaze = alg.GoGenerate(curMazeWidth, curMazeHeight, Environment.TickCount, innerMapFactory, randomFactory, new NoAction());
+        //    var walls = currentMaze.InnerMap.GenerateListOfMazeWalls();
+        //    wallsCount = walls.Count;
 
-            foreach (var wall in walls)
-            {
-                WallModel model = new WallModel(wall);
+        //    currentPath = PathFinderDepthFirstSmartWithPos.GoFind(currentMaze.InnerMap, null);
 
-                model.GoGenerateVerticesv2(_maze3dObject);
-            }
+        //    determiner = new LineOfSightDeterminer(currentMaze.InnerMap, currentPath);
+        //    curChaseCameraPoint = null;
 
 
 
 
+        //    _maze3dObject?.Dispose();
+        //    var indexList = new int[]
+        //    {
+        //        0, 1, 2,
+        //        1, 3, 2,
+        //        4, 5, 6,
+        //        5, 7, 6
+        //    };
+        //    _maze3dObject = new Drawable3DObject<VertexPositionNormalTexture>(GraphicsDevice, walls.Count * 8, walls.Count * 12, 8, indexList);
 
-            //VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[walls.Count * 8];
-            //int[] indices = new int[walls.Count * 12];
+        //    foreach (var wall in walls)
+        //    {
+        //        WallModel model = new WallModel(wall);
 
-            //int curVertice = 0;
-            //int curIndice = 0;
-
-
-
-            //foreach (var wall in walls)
-            //{
-            //    //int factorHeight = 10;
-            //    //int factorWidth = 10;
-
-            //    WallModel model = new WallModel(wall);
-
-            //    model.GoGenerateVertices(vertices, indices, ref curVertice, ref curIndice);
-
-            //}
-
-            //vertexBuffer = new VertexBuffer(GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
-            //vertexBuffer.SetData(vertices);
-
-            //if (Platform == Platform.Blazor)
-            //{
-            //    indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
-            //    if (indices.Any(t => t > short.MaxValue))
-            //    {
-            //        throw new InvalidOperationException("Could not use a maze this big due to the indices being too high");
-            //    }
-            //    var indicesConverted = indices.Select(t => (short)t).ToArray();
-            //    indexBuffer.SetData(indicesConverted);
-            //}
-            //else
-            //{
-            //    indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
-            //    indexBuffer.SetData(indices);
-            //}
-
-            GeneratePath(currentPath);
-        }
-
-        public void GeneratePath(List<MazePointPos> path)
-        {
-            //vertexBufferPath?.Dispose();
-            //indexBufferPath?.Dispose();
-
-            pathCount = path.Count;
-
-            _path3dObject?.Dispose();
-            var indexList = new int[]
-            {
-                0, 1, 2,
-                1, 3, 2
-            };
-            _path3dObject = new Drawable3DObject<VertexPositionNormalTexture>(GraphicsDevice, path.Count * 4, path.Count * 6, 4, indexList);
-
-            foreach (var pathNode in path)
-            {
-                VierkantjeModel model = new VierkantjeModel();
-                model.GoGenerateVerticesv2(pathNode.X, pathNode.Y, _path3dObject);
-            }
-
-
-            //VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[path.Count * 4];
-            //int[] indices = new int[path.Count * 6];
-
-            //int curVertice = 0;
-            //int curIndice = 0;
+        //        model.GoGenerateVerticesv2(_maze3dObject);
+        //    }
 
 
 
-            //foreach (var pathNode in path)
-            //{
-            //    //int factorHeight = 10;
-            //    //int factorWidth = 10;
 
-            //    VierkantjeModel model = new VierkantjeModel();
 
-            //    model.GoGenerateVertices(pathNode.X, pathNode.Y, vertices, indices, ref curVertice, ref curIndice);
+        //    //VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[walls.Count * 8];
+        //    //int[] indices = new int[walls.Count * 12];
 
-            //}
+        //    //int curVertice = 0;
+        //    //int curIndice = 0;
 
 
 
-            //vertexBufferPath = new VertexBuffer(GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
-            //vertexBufferPath.SetData(vertices);
+        //    //foreach (var wall in walls)
+        //    //{
+        //    //    //int factorHeight = 10;
+        //    //    //int factorWidth = 10;
+
+        //    //    WallModel model = new WallModel(wall);
+
+        //    //    model.GoGenerateVertices(vertices, indices, ref curVertice, ref curIndice);
+
+        //    //}
+
+        //    //vertexBuffer = new VertexBuffer(GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
+        //    //vertexBuffer.SetData(vertices);
+
+        //    //if (Platform == Platform.Blazor)
+        //    //{
+        //    //    indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
+        //    //    if (indices.Any(t => t > short.MaxValue))
+        //    //    {
+        //    //        throw new InvalidOperationException("Could not use a maze this big due to the indices being too high");
+        //    //    }
+        //    //    var indicesConverted = indices.Select(t => (short)t).ToArray();
+        //    //    indexBuffer.SetData(indicesConverted);
+        //    //}
+        //    //else
+        //    //{
+        //    //    indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
+        //    //    indexBuffer.SetData(indices);
+        //    //}
+
+        //    GeneratePath(currentPath);
+        //}
+
+        //public void GeneratePath(List<MazePointPos> path)
+        //{
+        //    //vertexBufferPath?.Dispose();
+        //    //indexBufferPath?.Dispose();
+
+        //    pathCount = path.Count;
+
+        //    _path3dObject?.Dispose();
+        //    var indexList = new int[]
+        //    {
+        //        0, 1, 2,
+        //        1, 3, 2
+        //    };
+        //    _path3dObject = new Drawable3DObject<VertexPositionNormalTexture>(GraphicsDevice, path.Count * 4, path.Count * 6, 4, indexList);
+
+        //    foreach (var pathNode in path)
+        //    {
+        //        VierkantjeModel model = new VierkantjeModel();
+        //        model.GoGenerateVerticesv2(pathNode.X, pathNode.Y, _path3dObject);
+        //    }
 
 
-            //if (Platform == Platform.Blazor)
-            //{
-            //    indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
-            //    if (indices.Any(t => t > short.MaxValue))
-            //    {
-            //        throw new InvalidOperationException("Could not use a maze this big due to the indices for the path being too high");
-            //    }
-            //    var indicesConverted = indices.Select(t => (short)t).ToArray();
-            //    indexBufferPath.SetData(indicesConverted);
-            //}
-            //else
-            //{
-            //    indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
-            //    indexBufferPath.SetData(indices);
-            //}
-        }
+        //    //VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[path.Count * 4];
+        //    //int[] indices = new int[path.Count * 6];
 
-        public Vector2 GetPosAtThisNumer(float number)
-        {
-            number -= 1.0f;
-
-            number *= (float)speedFactor;
-
-            number = Math.Max(0, number);
-
-            int cur = (int)number;
-            int next = cur + 1;
-
-            var curPoint = currentPath[Math.Min(cur, currentPath.Count - 1)];
-            var nextPoint = currentPath[Math.Min(next, currentPath.Count - 1)];
-
-            var curPointVector = new Vector2(curPoint.X, curPoint.Y);
-            var nextPointVector = new Vector2(nextPoint.X, nextPoint.Y);
-
-            float rest = number - cur;
-
-            var retval = curPointVector + ((nextPointVector - curPointVector) * rest);
-            return retval;
-        }
-
-        public MazePointPos GetPosAtThisNumerMazePoint(float number)
-        {
-            number -= 1.0f;
-
-            number *= (float)speedFactor;
-
-            number = Math.Max(0, number);
-
-            int cur = (int)number;
-
-            var curPoint = currentPath[Math.Min(cur, currentPath.Count - 1)];
-
-            return curPoint;
-        }
+        //    //int curVertice = 0;
+        //    //int curIndice = 0;
 
 
-        public static void Meassure(Action a)
-        {
-            var s = Stopwatch.StartNew();
-            a();
-            Debug.WriteLine("Elapsed: " + s.Elapsed.TotalSeconds);
-        }
+
+        //    //foreach (var pathNode in path)
+        //    //{
+        //    //    //int factorHeight = 10;
+        //    //    //int factorWidth = 10;
+
+        //    //    VierkantjeModel model = new VierkantjeModel();
+
+        //    //    model.GoGenerateVertices(pathNode.X, pathNode.Y, vertices, indices, ref curVertice, ref curIndice);
+
+        //    //}
+
+
+
+        //    //vertexBufferPath = new VertexBuffer(GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
+        //    //vertexBufferPath.SetData(vertices);
+
+
+        //    //if (Platform == Platform.Blazor)
+        //    //{
+        //    //    indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.WriteOnly);
+        //    //    if (indices.Any(t => t > short.MaxValue))
+        //    //    {
+        //    //        throw new InvalidOperationException("Could not use a maze this big due to the indices for the path being too high");
+        //    //    }
+        //    //    var indicesConverted = indices.Select(t => (short)t).ToArray();
+        //    //    indexBufferPath.SetData(indicesConverted);
+        //    //}
+        //    //else
+        //    //{
+        //    //    indexBufferPath = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
+        //    //    indexBufferPath.SetData(indices);
+        //    //}
+        //}
+
+        //public Vector2 GetPosAtThisNumer(float number)
+        //{
+        //    number -= 1.0f;
+
+        //    number *= (float)speedFactor;
+
+        //    number = Math.Max(0, number);
+
+        //    int cur = (int)number;
+        //    int next = cur + 1;
+
+        //    var curPoint = currentPath[Math.Min(cur, currentPath.Count - 1)];
+        //    var nextPoint = currentPath[Math.Min(next, currentPath.Count - 1)];
+
+        //    var curPointVector = new Vector2(curPoint.X, curPoint.Y);
+        //    var nextPointVector = new Vector2(nextPoint.X, nextPoint.Y);
+
+        //    float rest = number - cur;
+
+        //    var retval = curPointVector + ((nextPointVector - curPointVector) * rest);
+        //    return retval;
+        //}
+
+        //public MazePointPos GetPosAtThisNumerMazePoint(float number)
+        //{
+        //    number -= 1.0f;
+
+        //    number *= (float)speedFactor;
+
+        //    number = Math.Max(0, number);
+
+        //    int cur = (int)number;
+
+        //    var curPoint = currentPath[Math.Min(cur, currentPath.Count - 1)];
+
+        //    return curPoint;
+        //}
+
+
+        //public static void Meassure(Action a)
+        //{
+        //    var s = Stopwatch.StartNew();
+        //    a();
+        //    Debug.WriteLine("Elapsed: " + s.Elapsed.TotalSeconds);
+        //}
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
