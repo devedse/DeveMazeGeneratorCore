@@ -1061,7 +1061,7 @@ namespace DeveMazeGeneratorMonoGame
             //var measuredTopStringScaled = measuredTopString * topStringScale;
             //int distanceFromTopTopString = defaultDistanceBetweenComponents;
             //spriteBatch.Draw(ContentDing.semiTransparantTexture, new Rectangle((int)((ScreenWidth / 2) - (measuredTopStringScaled.X / 2) - extraSizeForBackground), distanceFromTopTopString, (int)(measuredTopStringScaled.X + (2 * extraSizeForBackground)), (int)measuredTopStringScaled.Y + (2 * extraSizeForBackground)), Color.White);
-            spriteBatch.DrawString(ContentDing.spriteFont, $"IT WORKS: {DateTime.Now}", new Vector2(0, 0), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
+            spriteBatch.DrawString(ContentDing.spriteFont, $"When this text is visible, the game works: {DateTime.Now}", new Vector2(0, 0), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
 
             //if (showUi)
             //{

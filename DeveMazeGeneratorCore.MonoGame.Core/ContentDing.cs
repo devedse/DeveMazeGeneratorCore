@@ -30,26 +30,26 @@ namespace DeveMazeGeneratorMonoGame
 
         public static void GoLoadContent(GraphicsDevice graphicsDevice, ContentManager Content)
         {
-            skyTexture = Content.Load<Texture2D>("sky");
+            // skyTexture = Content.Load<Texture2D>("sky");
 
-            endTexture = Content.Load<Texture2D>("end");
-            startTexture = Content.Load<Texture2D>("start");
+            // endTexture = Content.Load<Texture2D>("end");
+            // startTexture = Content.Load<Texture2D>("start");
 
-            win98FloorTexture = Content.Load<Texture2D>("floor");
-            win98LegoTexture = Content.Load<Texture2D>("lego");
-            win98RoofTexture = Content.Load<Texture2D>("roof");
-            win98WallTexture = Content.Load<Texture2D>("wall");
+            // win98FloorTexture = Content.Load<Texture2D>("floor");
+            // win98LegoTexture = Content.Load<Texture2D>("lego");
+            // win98RoofTexture = Content.Load<Texture2D>("roof");
+            // win98WallTexture = Content.Load<Texture2D>("wall");
 
-            characterTexture = Content.Load<Texture2D>("devedse");
+            // characterTexture = Content.Load<Texture2D>("devedse");
 
-            blankTexture = new Texture2D(graphicsDevice, 1, 1, false, SurfaceFormat.Color);
-            blankTexture.SetData(new[] { Color.White });
+            // blankTexture = new Texture2D(graphicsDevice, 1, 1, false, SurfaceFormat.Color);
+            // blankTexture.SetData(new[] { Color.White });
 
-            redTexture = new Texture2D(graphicsDevice, 1, 1, false, SurfaceFormat.Color);
-            redTexture.SetData(new[] { Color.Red });
+            // redTexture = new Texture2D(graphicsDevice, 1, 1, false, SurfaceFormat.Color);
+            // redTexture.SetData(new[] { Color.Red });
 
-            semiTransparantTexture = new Texture2D(graphicsDevice, 1, 1, false, SurfaceFormat.Color);
-            semiTransparantTexture.SetData(new[] { new Color(0, 0, 0, 128) });
+            // semiTransparantTexture = new Texture2D(graphicsDevice, 1, 1, false, SurfaceFormat.Color);
+            // semiTransparantTexture.SetData(new[] { new Color(0, 0, 0, 128) });
 
             spriteFont = Content.Load<SpriteFont>("SecularOne20");
         }
