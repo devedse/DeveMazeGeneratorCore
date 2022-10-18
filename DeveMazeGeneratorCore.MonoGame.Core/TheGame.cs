@@ -1,21 +1,9 @@
 ﻿#region Using Statements
-using DeveMazeGeneratorCore.Factories;
-using DeveMazeGeneratorCore.Generators;
-using DeveMazeGeneratorCore.Generators.Helpers;
-using DeveMazeGeneratorCore.Generators.SpeedOptimization;
-using DeveMazeGeneratorCore.InnerMaps;
-using DeveMazeGeneratorCore.Mazes;
-using DeveMazeGeneratorCore.MonoGame.Core;
 using DeveMazeGeneratorCore.MonoGame.Core.Data;
 using DeveMazeGeneratorCore.MonoGame.Core.HelperObjects;
-using DeveMazeGeneratorCore.PathFinders;
-using DeveMazeGeneratorCore.Structures;
-using DeveMazeGeneratorMonoGame.LineOfSight;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 #endregion
 
 namespace DeveMazeGeneratorMonoGame
