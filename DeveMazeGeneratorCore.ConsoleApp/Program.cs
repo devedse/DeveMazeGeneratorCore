@@ -144,7 +144,7 @@ namespace DeveMazeGeneratorCore.ConsoleApp
             int size = 16384;
             var fastestElapsed = TimeSpan.MaxValue;
 
-            var alg = new AlgorithmBacktrack2Deluxe2();
+            var alg = new AlgorithmBacktrack2Deluxe2_AsByte();
 
             Console.WriteLine($"Generating mazes using {alg.GetType().Name}...");
 
