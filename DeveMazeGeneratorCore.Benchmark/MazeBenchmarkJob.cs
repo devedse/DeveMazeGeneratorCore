@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 using DeveMazeGeneratorCore.Factories;
 using DeveMazeGeneratorCore.Generators;
 using DeveMazeGeneratorCore.Generators.Helpers;
@@ -15,9 +16,14 @@ namespace DeveMazeGeneratorCore.Benchmark
     //[EtwProfiler]
     //[ConcurrencyVisualizerProfiler]
     //[NativeMemoryProfiler]
-    [ThreadingDiagnoser]
+    //[ThreadingDiagnoser]
     [JsonExporterAttribute.Full]
     [JsonExporterAttribute.FullCompressed]
+    [SimpleJob(RuntimeMoniker.Net60), SimpleJob(RuntimeMoniker.Net70)]
+    [AsciiDocExporter]
+    [HtmlExporter]
+    [MarkdownExporterAttribute.GitHub]
+    [MinColumn, MaxColumn]
     public class MazeBenchmarkJob
     {
         private const int SIZE = 4096;
@@ -32,10 +38,12 @@ namespace DeveMazeGeneratorCore.Benchmark
             yield return new AlgorithmBacktrack();
             yield return new AlgorithmBacktrack2();
             yield return new AlgorithmBacktrack2Deluxe();
+            yield return new AlgorithmBacktrack2Deluxe_AsByte();
             yield return new AlgorithmBacktrack2Deluxe2();
+            yield return new AlgorithmBacktrack2Deluxe2_AsByte();
             yield return new AlgorithmBacktrack3();
             yield return new AlgorithmBacktrack4();
-            yield return new AlgorithmKruskal();
+            //yield return new AlgorithmKruskal();
         }
 
         [Benchmark]

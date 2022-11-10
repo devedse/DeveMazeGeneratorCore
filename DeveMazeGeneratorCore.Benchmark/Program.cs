@@ -1,4 +1,6 @@
-﻿using BenchmarkDotNet.Running;
+﻿using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Reports;
+using BenchmarkDotNet.Running;
 using System;
 
 namespace DeveMazeGeneratorCore.Benchmark
@@ -8,7 +10,9 @@ namespace DeveMazeGeneratorCore.Benchmark
         public static void Main(string[] args)
         {
             Console.WriteLine("Running the Benchmark job");
-            var summary = BenchmarkRunner.Run<MazeBenchmarkJob>();
+
+            var config = DefaultConfig.Instance.WithSummaryStyle(SummaryStyle.Default.WithMaxParameterColumnWidth(200));
+            var summary = BenchmarkRunner.Run<MazeBenchmarkJob>(config);
         }
     }
 }
