@@ -1,5 +1,8 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Columns;
+using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Reports;
 using DeveMazeGeneratorCore.Factories;
 using DeveMazeGeneratorCore.Generators;
 using DeveMazeGeneratorCore.Generators.Helpers;
@@ -19,14 +22,16 @@ namespace DeveMazeGeneratorCore.Benchmark
     //[ThreadingDiagnoser]
     [JsonExporterAttribute.Full]
     [JsonExporterAttribute.FullCompressed]
-    [SimpleJob(RuntimeMoniker.Net60), SimpleJob(RuntimeMoniker.Net70)]
+    [SimpleJob(RuntimeMoniker.Net60, launchCount: 1, warmupCount: 0, targetCount: 5, invocationCount: 1),
+     SimpleJob(RuntimeMoniker.Net70, launchCount: 1, warmupCount: 0, targetCount: 5, invocationCount: 1)]
     [AsciiDocExporter]
     [HtmlExporter]
     [MarkdownExporterAttribute.GitHub]
     [MinColumn, MaxColumn]
+    [Config(typeof(Config))]
     public class MazeBenchmarkJob
     {
-        private const int SIZE = 4096;
+        private const int SIZE = 4096 * 2 * 2;
         private const int SEED = 1337;
 
         private InnerMapFactory<BitArreintjeFastInnerMap> _innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
@@ -51,6 +56,14 @@ namespace DeveMazeGeneratorCore.Benchmark
         public void Simple(IAlgorithm<Maze> algorithm)
         {
             algorithm.GoGenerate(SIZE, SIZE, SEED, _innerMapFactory, _randomFactory, _action);
+        }
+
+        private class Config : ManualConfig
+        {
+            public Config()
+            {
+                SummaryStyle = SummaryStyle.Default.WithMaxParameterColumnWidth(200);
+            }
         }
     }
 }

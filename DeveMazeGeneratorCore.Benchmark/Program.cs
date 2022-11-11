@@ -11,8 +11,8 @@ namespace DeveMazeGeneratorCore.Benchmark
         {
             Console.WriteLine("Running the Benchmark job");
 
-            var config = DefaultConfig.Instance.WithSummaryStyle(SummaryStyle.Default.WithMaxParameterColumnWidth(200));
-            var summary = BenchmarkRunner.Run<MazeBenchmarkJob>(config);
+            //var config = DefaultConfig.Instance.WithSummaryStyle(SummaryStyle.Default.WithMaxParameterColumnWidth(200));
+            var summary = BenchmarkRunner.Run<MazeBenchmarkJob>();
         }
     }
 }
