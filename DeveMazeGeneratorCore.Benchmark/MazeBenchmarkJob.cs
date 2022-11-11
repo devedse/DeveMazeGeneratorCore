@@ -22,8 +22,8 @@ namespace DeveMazeGeneratorCore.Benchmark
     //[ThreadingDiagnoser]
     [JsonExporterAttribute.Full]
     [JsonExporterAttribute.FullCompressed]
-    [SimpleJob(RuntimeMoniker.Net60, launchCount: 1, warmupCount: 0, targetCount: 5, invocationCount: 1),
-     SimpleJob(RuntimeMoniker.Net70, launchCount: 1, warmupCount: 0, targetCount: 5, invocationCount: 1)]
+    [DeveJob(RuntimeMoniker.Net60, launchCount: 1, warmupCount: 0, targetCount: 5, invocationCount: 1),
+     DeveJob(RuntimeMoniker.Net70, launchCount: 1, warmupCount: 0, targetCount: 5, invocationCount: 1)]
     [AsciiDocExporter]
     [HtmlExporter]
     [MarkdownExporterAttribute.GitHub]
@@ -40,14 +40,14 @@ namespace DeveMazeGeneratorCore.Benchmark
 
         public IEnumerable<object> Algorithms()
         {
-            yield return new AlgorithmBacktrack();
-            yield return new AlgorithmBacktrack2();
-            yield return new AlgorithmBacktrack2Deluxe();
-            yield return new AlgorithmBacktrack2Deluxe_AsByte();
-            yield return new AlgorithmBacktrack2Deluxe2();
+            //yield return new AlgorithmBacktrack();
+            //yield return new AlgorithmBacktrack2();
+            //yield return new AlgorithmBacktrack2Deluxe();
+            //yield return new AlgorithmBacktrack2Deluxe_AsByte();
+            //yield return new AlgorithmBacktrack2Deluxe2();
             yield return new AlgorithmBacktrack2Deluxe2_AsByte();
-            yield return new AlgorithmBacktrack3();
-            yield return new AlgorithmBacktrack4();
+            //yield return new AlgorithmBacktrack3();
+            //yield return new AlgorithmBacktrack4();
             //yield return new AlgorithmKruskal();
         }
 
