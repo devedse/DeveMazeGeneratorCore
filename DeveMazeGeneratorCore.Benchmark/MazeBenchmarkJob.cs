@@ -24,8 +24,8 @@ namespace DeveMazeGeneratorCore.Benchmark
     [JsonExporterAttribute.Full]
     [JsonExporterAttribute.FullCompressed]
     [
-        DeveJob(RuntimeMoniker.Net60, launchCount: 1, warmupCount: 0, targetCount: 5, invocationCount: 1),
-        DeveJob(RuntimeMoniker.Net70, launchCount: 1, warmupCount: 0, targetCount: 5, invocationCount: 1),
+        //DeveJob(RuntimeMoniker.Net60, launchCount: 1, warmupCount: 4, targetCount: 50, invocationCount: 1),
+        DeveJob(RuntimeMoniker.Net70, launchCount: 1, warmupCount: 4, targetCount: 50, invocationCount: 1),
     ]
     [AsciiDocExporter]
     [HtmlExporter]
@@ -45,9 +45,7 @@ namespace DeveMazeGeneratorCore.Benchmark
         {
             yield return new AlgorithmBacktrack();
             yield return new AlgorithmBacktrack2();
-            yield return new AlgorithmBacktrack2Deluxe();
             yield return new AlgorithmBacktrack2Deluxe_AsByte();
-            yield return new AlgorithmBacktrack2Deluxe2();
             yield return new AlgorithmBacktrack2Deluxe2_AsByte();
             yield return new AlgorithmBacktrack3();
             yield return new AlgorithmBacktrack4();
