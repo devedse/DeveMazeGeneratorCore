@@ -51,7 +51,7 @@ namespace DeveMazeGeneratorCore.Benchmark
             yield return new AlgorithmBacktrack2Deluxe2_AsByte();
             yield return new AlgorithmBacktrack3();
             yield return new AlgorithmBacktrack4();
-            yield return new AlgorithmKruskal();
+            //yield return new AlgorithmKruskal();
         }
 
         [Benchmark]
