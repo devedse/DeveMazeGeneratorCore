@@ -468,7 +468,7 @@ jobs:
       run: dotnet nuget push ./artifacts/DeveMazeGeneratorCoreNuGet/DeveMazeGeneratorCore.1.0.${{needs.generate_version_number.outputs.build_number}}.nupkg -k ${{ secrets.NUGETTOKEN }} -s https://api.nuget.org/v3/index.json
 
   codeqlanalyze:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: generate_version_number
     permissions:
       actions: read
