@@ -13,25 +13,14 @@
 	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"hostRequirements": {
-		"cpus": 4,
-		"memory": "8gb",
+		"cpus": 2,
+		"memory": "4gb",
 		"storage": "32gb"
 	},
 	// Set *default* container specific settings.json values on container create.
 	"customizations": {
 		"vscode": {
 			"settings": {
-				"mssql.connections": [
-					{
-						"server": "sql",
-						"database": "Beam",
-						"authenticationType": "SqlLogin",
-						"user": "sa",
-						"password": "@#^!fcIen&*asd",
-						"emptyPasswordInput": false,
-						"savePassword": true
-					}
-				]
 			},
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
@@ -44,5 +33,9 @@
 	"forwardPorts": [
 		5000
 	],
-	"onCreateCommand": "bash .devcontainer/on-create.sh ${containerWorkspaceFolder} > on-create.log 2>&1"
+	"onCreateCommand": "bash .devcontainer/on-create.sh ${containerWorkspaceFolder} > on-create.log 2>&1",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:1": {},
+		"ghcr.io/devcontainers/features/dotnet:1": {}
+	}
 }
