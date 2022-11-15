@@ -515,4 +515,4 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: CodeQLAnalysis_${{ matrix.language }}
-        path: ./codeql_databases/${{ matrix.language }}.zip
+        path: ./a/_temp/codeql_databases/${{ matrix.language }}.zip
