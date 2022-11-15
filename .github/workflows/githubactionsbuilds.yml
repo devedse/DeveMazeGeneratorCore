@@ -510,9 +510,11 @@ jobs:
       uses: github/codeql-action/analyze@v2
   
     - name: Run tree2
-      run: tree /A
+      run: |
+        tree /A
+        cd
   
     - uses: actions/upload-artifact@v2
       with:
         name: CodeQLAnalysis_${{ matrix.language }}
-        path: ./a/_temp/codeql_databases/${{ matrix.language }}.zip
+        path: D:/a/_temp/codeql_databases/${{ matrix.language }}.zip
