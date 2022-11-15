@@ -505,3 +505,8 @@ jobs:
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
+  
+    - uses: actions/upload-artifact@v2
+      with:
+        name: CodeQLAnalysis_${{ matrix.language }}
+        path: ./codeql_databases/${{ matrix.language }}.zip
