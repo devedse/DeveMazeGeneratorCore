@@ -68,7 +68,7 @@ namespace DeveMazeGeneratorCore.ConsoleApp
 
              
 
-            var maze = MazeGenerator.Generate<AlgorithmBacktrack2Deluxe2, BitArreintjeFastHilbertInnerMap, XorShiftRandom>(16, 16, null);
+            var maze = MazeGenerator.Generate<AlgorithmBacktrack2Deluxe2_AsByte, BitArreintjeFastHilbertInnerMap, XorShiftRandom>(16, 16, null);
 
             using (var fs = new FileStream($"TestHilbert.png", FileMode.Create))
             {
@@ -78,7 +78,7 @@ namespace DeveMazeGeneratorCore.ConsoleApp
 
         public static void TestWithGenerics()
         {
-            var result = MazeGenerator.Generate<AlgorithmBacktrack2Deluxe2, BitArreintjeFastInnerMap, XorShiftRandom>(16384, 16384, null);
+            var result = MazeGenerator.Generate<AlgorithmBacktrack2Deluxe2_AsByte, BitArreintjeFastInnerMap, XorShiftRandom>(16384, 16384, null);
         }
 
         public static void CreateIcons()
@@ -87,7 +87,7 @@ namespace DeveMazeGeneratorCore.ConsoleApp
 
             for (int i = 0; i < 100; i++)
             {
-                var alg = new AlgorithmBacktrack2Deluxe2();
+                var alg = new AlgorithmBacktrack2Deluxe2_AsByte();
 
                 Console.WriteLine($"Generating maze using {alg.GetType().Name}...");
 
@@ -201,7 +201,7 @@ namespace DeveMazeGeneratorCore.ConsoleApp
             int size = 128;
             var fastestElapsed = TimeSpan.MaxValue;
 
-            var alg = new AlgorithmBacktrack2Deluxe2();
+            var alg = new AlgorithmBacktrack2Deluxe2_AsByte();
 
             Console.WriteLine($"Generating maze using {alg.GetType().Name}...");
 

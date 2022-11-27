@@ -88,7 +88,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 7.0.x
     - name: Build with dotnet
       run: dotnet build DeveMazeGeneratorCore.sln -c Release /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} # Project needs to build before training a model.
     - name: Train Intellicode Model
@@ -102,7 +102,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 7.0.x
     - name: Install dependencies
       run: dotnet restore DeveMazeGeneratorCore.sln
     - name: Build
@@ -118,7 +118,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 7.0.x
     - uses: actions/setup-java@v1
       with:
         java-version: '15' # The JDK version to make available on the path.
@@ -177,7 +177,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 7.0.x
     - name: Install dependencies
       run: dotnet restore DeveMazeGeneratorCore.sln
     - name: Build
@@ -189,16 +189,16 @@ jobs:
     - name: Copy files that are missing for some reason
       run: |
         # not needed on linux as it seems
-        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64
-        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/publish
+        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/linux-x64
+        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/linux-x64/publish
       shell: bash
     - name: targz output
       run: |
         export GZIP=-9
-        tar cvzf DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64.tar.gz -C DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/publish .
+        tar cvzf DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64.tar.gz -C DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/linux-x64/publish .
     - name: 7zip output
       run: |
-        7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64.7z" "./DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/linux-x64/publish/*" '-x!*.pdb'
+        7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64.7z" "./DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/linux-x64/publish/*" '-x!*.pdb'
     - uses: actions/upload-artifact@v1
       with:
         name: DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64
@@ -215,7 +215,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 7.0.x
     - name: Install dependencies
       run: dotnet restore DeveMazeGeneratorCore.sln
     - name: Build
@@ -227,18 +227,18 @@ jobs:
     - name: Copy files that are missing for some reason
       run: |
         # not needed on linux as it seems
-        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64
-        cp DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/SDL2.dll DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/
-        cp -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/Content/. DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/Content/
-        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish
+        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64
+        cp DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64/SDL2.dll DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64/publish/
+        cp -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64/Content/. DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64/publish/Content/
+        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64/publish
       shell: bash
     - name: targz output
       run: |
         export GZIP=-9
-        tar cvzf DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux.tar.gz -C DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish .
+        tar cvzf DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux.tar.gz -C DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64/publish .
     - name: 7zip output
       run: |
-        7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux.7z" "./DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/*" '-x!*.pdb'
+        7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux.7z" "./DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64/publish/*" '-x!*.pdb'
     - uses: actions/upload-artifact@v1
       with:
         name: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinuxtargz
@@ -256,7 +256,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 7.0.x
     - name: Install dependencies
       run: dotnet restore DeveMazeGeneratorCore.sln
     - name: Build
@@ -267,14 +267,14 @@ jobs:
       run: dotnet publish ./DeveMazeGeneratorCore.MonoGame.DesktopGL/DeveMazeGeneratorCore.MonoGame.DesktopGL.csproj -r win-x64 -c Release /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=false /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Copy files that are missing for some reason
       run: |
-        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64
-        cp DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/SDL2.dll DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/
-        cp -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/Content/. DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/publish/Content/
-        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/Publish
+        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64
+        cp DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64/SDL2.dll DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64/publish/
+        cp -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64/Content/. DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64/publish/Content/
+        ls -R DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64/Publish
       shell: bash
     - name: 7zip output
       run: |
-        7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64.7z" "./DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net6.0/win-x64/Publish/*" '-x!*.pdb'
+        7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64.7z" "./DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64/Publish/*" '-x!*.pdb'
     - uses: actions/upload-artifact@v1
       with:
         name: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64
@@ -288,7 +288,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 7.0.x
     - name: Install dependencies
       run: dotnet restore DeveMazeGeneratorCore.sln
     - name: Build
@@ -299,13 +299,13 @@ jobs:
       run: dotnet publish ./DeveMazeGeneratorCore.MonoGame.WindowsDX\DeveMazeGeneratorCore.MonoGame.WindowsDX.csproj -r win-x64 -c Release /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=false /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Copy files that are missing for some reason
       run: |
-        ls -R DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0-windows/win-x64
-        cp -R DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0-windows/win-x64/Content/. DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0-windows/win-x64/publish/Content/
-        ls -R DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0-windows/win-x64/Publish
+        ls -R DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net7.0-windows/win-x64
+        cp -R DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net7.0-windows/win-x64/Content/. DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net7.0-windows/win-x64/publish/Content/
+        ls -R DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net7.0-windows/win-x64/Publish
       shell: bash
     - name: 7zip output
       run: |
-        7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64.7z" "./DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net6.0-windows/win-x64/Publish/*" '-x!*.pdb'
+        7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64.7z" "./DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net7.0-windows/win-x64/Publish/*" '-x!*.pdb'
     - uses: actions/upload-artifact@v1
       with:
         name: DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64
@@ -320,8 +320,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: |
-          6.0.x
+        dotnet-version: 7.0.x
     - name: Install workload android
       run: |
         dotnet workload install android
@@ -352,7 +351,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: DeveMazeGeneratorCore.MonoGame.Android_aab
-        path: ./DeveMazeGeneratorCore.MonoGame.Android/bin/Release/net6.0-android/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.aab
+        path: ./DeveMazeGeneratorCore.MonoGame.Android/bin/Release/net7.0-android/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.aab
 
 
   build_windows_AndroidForFireStick:
@@ -363,8 +362,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: |
-          6.0.x
+        dotnet-version: 7.0.x
     - name: Install workload android
       run: |
         dotnet workload install android
@@ -395,7 +393,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: DeveMazeGeneratorCore.MonoGame.Android_apk
-        path: ./DeveMazeGeneratorCore.MonoGame.Android/bin/Release/net6.0-android/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.apk
+        path: ./DeveMazeGeneratorCore.MonoGame.Android/bin/Release/net7.0-android/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.apk
 
 
   release_github:

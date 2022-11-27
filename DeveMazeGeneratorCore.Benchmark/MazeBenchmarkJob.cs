@@ -1,4 +1,9 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Columns;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Environments;
+using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Reports;
 using DeveMazeGeneratorCore.Factories;
 using DeveMazeGeneratorCore.Generators;
 using DeveMazeGeneratorCore.Generators.Helpers;
@@ -15,12 +20,21 @@ namespace DeveMazeGeneratorCore.Benchmark
     //[EtwProfiler]
     //[ConcurrencyVisualizerProfiler]
     //[NativeMemoryProfiler]
-    [ThreadingDiagnoser]
+    //[ThreadingDiagnoser]
     [JsonExporterAttribute.Full]
     [JsonExporterAttribute.FullCompressed]
+    [
+        //DeveJob(RuntimeMoniker.Net60, launchCount: 1, warmupCount: 4, targetCount: 50, invocationCount: 1),
+        DeveJob(RuntimeMoniker.Net70, launchCount: 1, warmupCount: 4, targetCount: 50, invocationCount: 1),
+    ]
+    [AsciiDocExporter]
+    [HtmlExporter]
+    [MarkdownExporterAttribute.GitHub]
+    [MinColumn, MaxColumn]
+    [Config(typeof(Config))]
     public class MazeBenchmarkJob
     {
-        private const int SIZE = 4096;
+        private const int SIZE = 4096 * 2 * 2;
         private const int SEED = 1337;
 
         private InnerMapFactory<BitArreintjeFastInnerMap> _innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
@@ -31,11 +45,11 @@ namespace DeveMazeGeneratorCore.Benchmark
         {
             yield return new AlgorithmBacktrack();
             yield return new AlgorithmBacktrack2();
-            yield return new AlgorithmBacktrack2Deluxe();
-            yield return new AlgorithmBacktrack2Deluxe2();
+            yield return new AlgorithmBacktrack2Deluxe_AsByte();
+            yield return new AlgorithmBacktrack2Deluxe2_AsByte();
             yield return new AlgorithmBacktrack3();
             yield return new AlgorithmBacktrack4();
-            yield return new AlgorithmKruskal();
+            //yield return new AlgorithmKruskal();
         }
 
         [Benchmark]
@@ -43,6 +57,14 @@ namespace DeveMazeGeneratorCore.Benchmark
         public void Simple(IAlgorithm<Maze> algorithm)
         {
             algorithm.GoGenerate(SIZE, SIZE, SEED, _innerMapFactory, _randomFactory, _action);
+        }
+
+        private class Config : ManualConfig
+        {
+            public Config()
+            {
+                SummaryStyle = SummaryStyle.Default.WithMaxParameterColumnWidth(200);
+            }
         }
     }
 }

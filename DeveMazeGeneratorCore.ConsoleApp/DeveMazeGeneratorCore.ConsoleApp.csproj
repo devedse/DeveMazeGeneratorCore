@@ -4,9 +4,10 @@
     <AssemblyName>DeveMazeGenerator.ConsoleApp</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>DeveMazeGeneratorConsole</PackageId>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
+	<TieredCompilationQuickJitForLoops>false</TieredCompilationQuickJitForLoops>
   </PropertyGroup>
 
   <ItemGroup>

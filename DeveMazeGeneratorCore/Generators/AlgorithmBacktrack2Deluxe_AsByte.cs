@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace DeveMazeGeneratorCore.Generators
 {
-    public class AlgorithmBacktrack2Deluxe2 : IAlgorithm<Maze>
+    public class AlgorithmBacktrack2Deluxe_AsByte : IAlgorithm<Maze>
     {
         public Maze GoGenerate<M, TAction>(int width, int height, int seed, IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, TAction pixelChangedCallback)
             where M : InnerMap
@@ -44,10 +44,10 @@ namespace DeveMazeGeneratorCore.Generators
                 bool validUp = cur.Y - 2 > 0 && !map[cur.X, cur.Y - 2];
                 bool validDown = cur.Y + 2 < height && !map[cur.X, cur.Y + 2];
 
-                int validLeftByte = Unsafe.As<bool, int>(ref validLeft);
-                int validRightByte = Unsafe.As<bool, int>(ref validRight);
-                int validUpByte = Unsafe.As<bool, int>(ref validUp);
-                int validDownByte = Unsafe.As<bool, int>(ref validDown);
+                int validLeftByte = Unsafe.As<bool, byte>(ref validLeft);
+                int validRightByte = Unsafe.As<bool, byte>(ref validRight);
+                int validUpByte = Unsafe.As<bool, byte>(ref validUp);
+                int validDownByte = Unsafe.As<bool, byte>(ref validDown);
 
                 int targetCount = validLeftByte + validRightByte + validUpByte + validDownByte;
 
@@ -60,20 +60,15 @@ namespace DeveMazeGeneratorCore.Generators
                     var chosenDirection = random.Next(targetCount);
                     int countertje = 0;
 
-                    bool actuallyGoingLeft = validLeft & chosenDirection == countertje;
-                    int actuallyGoingLeftByte = Unsafe.As<bool, int>(ref actuallyGoingLeft);
-                    countertje += validLeftByte;
+                    bool actuallyGoingLeft = validLeft && chosenDirection == countertje++;
+                    bool actuallyGoingRight = validRight && chosenDirection == countertje++;
+                    bool actuallyGoingUp = validUp && chosenDirection == countertje++;
+                    bool actuallyGoingDown = validDown && chosenDirection == countertje;
 
-                    bool actuallyGoingRight = validRight & chosenDirection == countertje;
-                    int actuallyGoingRightByte = Unsafe.As<bool, int>(ref actuallyGoingRight);
-                    countertje += validRightByte;
-
-                    bool actuallyGoingUp = validUp & chosenDirection == countertje;
-                    int actuallyGoingUpByte = Unsafe.As<bool, int>(ref actuallyGoingUp);
-                    countertje += validUpByte;
-
-                    bool actuallyGoingDown = validDown & chosenDirection == countertje;
-                    int actuallyGoingDownByte = Unsafe.As<bool, int>(ref actuallyGoingDown);
+                    int actuallyGoingLeftByte = Unsafe.As<bool, byte>(ref actuallyGoingLeft);
+                    int actuallyGoingRightByte = Unsafe.As<bool, byte>(ref actuallyGoingRight);
+                    int actuallyGoingUpByte = Unsafe.As<bool, byte>(ref actuallyGoingUp);
+                    int actuallyGoingDownByte = Unsafe.As<bool, byte>(ref actuallyGoingDown);
 
                     var nextX = cur.X + actuallyGoingLeftByte * -2 + actuallyGoingRightByte * 2;
                     var nextY = cur.Y + actuallyGoingUpByte * -2 + actuallyGoingDownByte * 2;
@@ -89,7 +84,6 @@ namespace DeveMazeGeneratorCore.Generators
                     pixelChangedCallback.Invoke(nextX, nextY, currentStep, totSteps);
                 }
             }
-
 
             return new Maze(map);
         }
