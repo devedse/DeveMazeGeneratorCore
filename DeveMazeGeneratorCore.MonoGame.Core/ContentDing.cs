@@ -52,6 +52,7 @@ namespace DeveMazeGeneratorMonoGame
             semiTransparantTexture.SetData(new[] { new Color(0, 0, 0, 128) });
 
             spriteFont = Content.Load<SpriteFont>("SecularOne20");
+            spriteFont.DefaultCharacter = '?';
         }
     }
 }
