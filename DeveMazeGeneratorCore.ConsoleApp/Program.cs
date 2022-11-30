@@ -12,6 +12,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DeveMazeGeneratorCore.ConsoleApp
 {
@@ -32,8 +34,8 @@ namespace DeveMazeGeneratorCore.ConsoleApp
 
             while (true)
             {
-                Console.WriteLine(nameof(ActualBenchmark2));
-                ActualBenchmark2();
+                Console.WriteLine(nameof(ActualBenchmark2_Parallel));
+                ActualBenchmark2_Parallel();
 
                 Console.ReadKey();
             }
@@ -66,7 +68,7 @@ namespace DeveMazeGeneratorCore.ConsoleApp
                 Console.WriteLine($"i: {i}  -> {ppp} {rev}");
             }
 
-             
+
 
             var maze = MazeGenerator.Generate<AlgorithmBacktrack2Deluxe2_AsByte, BitArreintjeFastHilbertInnerMap, XorShiftRandom>(16, 16, null);
 
@@ -194,6 +196,62 @@ namespace DeveMazeGeneratorCore.ConsoleApp
                 //Console.WriteLine($"Perfect maze verification time: {w.Elapsed}");
                 //Console.WriteLine($"Is our maze perfect?: {result}");
             }
+        }
+
+        public static void ActualBenchmark2_Parallel()
+        {
+            int size = 16384;
+            var fastestElapsed = TimeSpan.MaxValue;
+
+            var alg = new AlgorithmBacktrack2Deluxe2_AsByte();
+
+            Console.WriteLine($"Generating mazes using {alg.GetType().Name}...");
+
+            var wTotal = Stopwatch.StartNew();
+
+            int seed = 1337;
+            int totalMazesCompleted = 0;
+
+            Parallel.For(0, int.MaxValue, new ParallelOptions() { }, (i) =>
+            {
+                var w = Stopwatch.StartNew();
+
+                var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
+                var randomFactory = new RandomFactory<XorShiftRandom>();
+
+                var actionThing = new NoAction();
+
+                var maze = alg.GoGenerate(size, size, seed, innerMapFactory, randomFactory, actionThing);
+                w.Stop();
+
+                var mazesGeneratedHere = Interlocked.Increment(ref totalMazesCompleted);
+
+
+                var strToPrint2 = $"Mazes Generated: {mazesGeneratedHere} Generation time: {w.Elapsed} Total Generation Time: {wTotal.Elapsed} Average Duration: {TimeSpan.FromSeconds(wTotal.Elapsed.TotalSeconds / mazesGeneratedHere)}";
+
+                Console.WriteLine(strToPrint2);
+                Interlocked.Increment(ref seed);
+
+                //using (var fs = new FileStream($"GeneratedMazeNoPath{alg.GetType().Name}.png", FileMode.Create))
+                //{
+                //    WithPath.SaveMazeAsImageDeluxePng(maze, new System.Collections.Generic.List<Structures.MazePointPos>(), fs);
+                //}
+
+                //Console.WriteLine("Finding path");
+
+                //var path = PathFinderDepthFirstSmartWithPos.GoFind(maze, null);
+                //Console.WriteLine("Found path :)");
+
+                //using (var fs = new FileStream($"GeneratedMaze{alg.GetType().Name}.png", FileMode.Create))
+                //{
+                //    WithPath.SaveMazeAsImageDeluxePng(maze, path, fs);
+                //}
+
+                //return;
+                //var result = MazeVerifier.IsPerfectMaze(maze);
+                //Console.WriteLine($"Perfect maze verification time: {w.Elapsed}");
+                //Console.WriteLine($"Is our maze perfect?: {result}");
+            });
         }
 
         public static void TestWithSave()
