@@ -1,4 +1,5 @@
-﻿using DeveMazeGeneratorCore.Factories;
+﻿using DeveCoolLib.DeveConsoleMenu;
+using DeveMazeGeneratorCore.Factories;
 using DeveMazeGeneratorCore.Generators;
 using DeveMazeGeneratorCore.Generators.Helpers;
 using DeveMazeGeneratorCore.Generators.SpeedOptimization;
@@ -32,13 +33,13 @@ namespace DeveMazeGeneratorCore.ConsoleApp
             Console.WriteLine(nameof(Test7));
             Test7();
 
-            while (true)
-            {
-                Console.WriteLine(nameof(ActualBenchmark2_Parallel));
-                ActualBenchmark2_Parallel();
 
-                Console.ReadKey();
-            }
+            var menu = new ConsoleMenu(ConsoleMenuType.KeyPress, 1, 1, 3);
+            menu.MenuOptions.Add(new ConsoleMenuOption("Single Threaded Benchmark", ActualBenchmark2));
+            menu.MenuOptions.Add(new ConsoleMenuOption("Multi Threaded Benchmark", ActualBenchmark2_Parallel));
+
+            menu.RenderMenu();
+            menu.WaitForResult();
         }
 
         public static void TestHilbert()
@@ -80,7 +81,7 @@ namespace DeveMazeGeneratorCore.ConsoleApp
 
         public static void TestWithGenerics()
         {
-            var result = MazeGenerator.Generate<AlgorithmBacktrack2Deluxe2_AsByte, BitArreintjeFastInnerMap, XorShiftRandom>(16384, 16384, null);
+            var result = MazeGenerator.Generate<AlgorithmBacktrack2Deluxe2_AsByte, BitArreintjeFastInnerMap, XorShiftRandom>(256, 256, null);
         }
 
         public static void CreateIcons()
@@ -300,7 +301,7 @@ namespace DeveMazeGeneratorCore.ConsoleApp
 
         public static void Test7()
         {
-            int size = 1024;
+            int size = 256;
 
             var maze = (MazeWithPathAsInnerMap)MazeGenerator.Generate<AlgorithmDivisionDynamicWithPath, BitArreintjeFastInnerMap, XorShiftRandom>(size, size, null);
 
