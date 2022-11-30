@@ -37,6 +37,7 @@ namespace DeveMazeGeneratorCore.ConsoleApp
             var menu = new ConsoleMenu(ConsoleMenuType.KeyPress, 1, 1, 3);
             menu.MenuOptions.Add(new ConsoleMenuOption("Single Threaded Benchmark", ActualBenchmark2));
             menu.MenuOptions.Add(new ConsoleMenuOption("Multi Threaded Benchmark", ActualBenchmark2_Parallel));
+            menu.MenuOptions.Add(new ConsoleMenuOption("Create Icons", CreateIcons));
 
             menu.RenderMenu();
             menu.WaitForResult();
