@@ -109,6 +109,34 @@ jobs:
       run: dotnet build DeveMazeGeneratorCore.sln -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Test
       run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
+  
+  build_windows_consoleapp:
+    needs: generate_version_number
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 7.0.x
+    - name: Publish Untrimmed
+      run: dotnet publish DeveMazeGeneratorCore.ConsoleApp/DeveMazeGeneratorCore.ConsoleApp.csproj -c Release -r win-x64 -o DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/win-x64/publishuntrimmed/ /p:PublishSingleFile=true /p:SelfContained=true /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+    - name: Publish Trimmed
+      run: dotnet publish DeveMazeGeneratorCore.ConsoleApp/DeveMazeGeneratorCore.ConsoleApp.csproj -c Release -r win-x64 -o DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/win-x64/publishtrimmed/ /p:PublishSingleFile=true /p:SelfContained=true /p:PublishTrimmed=true /p:TrimMode=full /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+    - name: Publish Trimmed AOT
+      run: dotnet publish DeveMazeGeneratorCore.ConsoleApp/DeveMazeGeneratorCore.ConsoleApp.csproj -c Release -r win-x64 -o DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/win-x64/publishtrimmedaot/ /p:PublishTrimmed=true /p:TrimMode=full /p:PublishAot=true /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: DeveMazeGeneratorCore.ConsoleApp.Untrimmed
+        path: DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/win-x64/publishuntrimmed/DeveMazeGenerator.ConsoleApp.exe
+    - uses: actions/upload-artifact@v2
+      with:
+        name: DeveMazeGeneratorCore.ConsoleApp.Trimmed
+        path: DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/win-x64/publishtrimmed/DeveMazeGenerator.ConsoleApp.exe
+    - uses: actions/upload-artifact@v2
+      with:
+        name: DeveMazeGeneratorCore.ConsoleApp.TrimmedAot
+        path: DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/win-x64/publishtrimmedaot/DeveMazeGenerator.ConsoleApp.exe
 
   build_windows:
     needs: generate_version_number
@@ -400,6 +428,7 @@ jobs:
     needs: [
       generate_version_number,
       intellicode,
+      build_windows_consoleapp,
       build_windows,
       build_linux,
       build_docker,
@@ -448,6 +477,9 @@ jobs:
           ./artifacts/DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64/DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64.7z
           ./artifacts/DeveMazeGeneratorCore.MonoGame.Android_aab/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.aab
           ./artifacts/DeveMazeGeneratorCore.MonoGame.Android_apk/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.apk
+          ./artifacts/DeveMazeGeneratorCore.ConsoleApp.Untrimmed/DeveMazeGenerator.ConsoleApp.exe
+          ./artifacts/DeveMazeGeneratorCore.ConsoleApp.Trimmed/DeveMazeGenerator.ConsoleApp.exe
+          ./artifacts/DeveMazeGeneratorCore.ConsoleApp.TrimmedAot/DeveMazeGenerator.ConsoleApp.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -485,8 +517,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: |
-          6.0.x
+        dotnet-version: 7.0.x
     - name: Install workload android
       run: |
         dotnet workload install android
