@@ -132,7 +132,7 @@ jobs:
         find
         mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/win-x64/publishuntrimmed/DeveMazeGenerator.ConsoleApp.exe ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.Untrimmed.exe
         mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/win-x64/publishtrimmed/DeveMazeGenerator.ConsoleApp.exe ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.Trimmed.exe
-        mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/win-x64/publishuntripublishtrimmedaotmmed/DeveMazeGenerator.ConsoleApp.exe ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.TrimmedAot.exe
+        mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/win-x64/publishtrimmedaot/DeveMazeGenerator.ConsoleApp.exe ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.TrimmedAot.exe
     - uses: actions/upload-artifact@v3
       with:
         name: DeveMazeGeneratorCore.ConsoleApp
