@@ -228,8 +228,8 @@ namespace DeveMazeGeneratorCore.ConsoleApp
 
                 var mazesGeneratedHere = Interlocked.Increment(ref totalMazesCompleted);
 
-
-                var strToPrint2 = $"Mazes Generated: {mazesGeneratedHere} Generation time: {w.Elapsed} Total Generation Time: {wTotal.Elapsed} Average Duration: {TimeSpan.FromSeconds(wTotal.Elapsed.TotalSeconds / mazesGeneratedHere)}";
+                var elapsedHere = wTotal.Elapsed;
+                var strToPrint2 = $"Mazes Generated: {mazesGeneratedHere} Generation time: {w.Elapsed} Total Generation Time: {elapsedHere} Average Duration: {TimeSpan.FromSeconds(elapsedHere.TotalSeconds / mazesGeneratedHere)} Mps: {Math.Round(mazesGeneratedHere / elapsedHere.TotalSeconds, 3)}";
 
                 Console.WriteLine(strToPrint2);
                 Interlocked.Increment(ref seed);
