@@ -6,7 +6,7 @@ jobs:
   generate_version_number:
     runs-on: ubuntu-latest
     outputs:
-      build_number: ${{ github.event_name != 'pull_request' && steps.buildnumber.outputs.build_number || 0 }}
+      build_number: ${{ github.event.pull_request.head.repo.full_name == github.repository && steps.buildnumber.outputs.build_number || 0 }}
     steps:
     - name: Show github.event_name 
       run: |
