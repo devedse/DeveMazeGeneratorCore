@@ -6,9 +6,10 @@ jobs:
   generate_version_number:
     runs-on: ubuntu-latest
     outputs:
-      build_number: ${{ steps.buildnumber.outputs.build_number }}
+      build_number: ${{ github.event_name != 'pull_request' && steps.buildnumber.outputs.build_number || 0 }}
     steps:
     - name: Generate build number
+      if: github.event_name != 'pull_request'
       id: buildnumber
       uses: einaregilsson/build-number@v3
       with:
