@@ -8,6 +8,9 @@ jobs:
     outputs:
       build_number: ${{ github.event_name != 'pull_request' && steps.buildnumber.outputs.build_number || 0 }}
     steps:
+    - name: Run Buildx
+      run: |
+        echo EventName: ${{ github.event_name }}
     - name: Generate build number
       if: github.event_name != 'pull_request'
       id: buildnumber
