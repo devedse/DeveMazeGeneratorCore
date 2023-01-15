@@ -11,8 +11,9 @@ jobs:
     - name: Show github.event_name 
       run: |
         echo github.event_name: ${{ github.event_name }}
+        echo ${{ github.event.pull_request.head.repo.full_name}} == ${{ github.repository }}
     - name: Generate build number
-      if: github.event_name != 'pull_request'
+      if: github.event.pull_request.head.repo.full_name == github.repository
       id: buildnumber
       uses: einaregilsson/build-number@v3
       with:
