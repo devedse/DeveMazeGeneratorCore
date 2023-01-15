@@ -12,6 +12,8 @@ jobs:
       run: |
         echo github.event_name: ${{ github.event_name }}
         echo ${{ github.event.pull_request.head.repo.full_name}} == ${{ github.repository }}
+        echo github ref: ${{ github.ref }}
+        
     - name: Generate build number
       if: github.repository_owner == 'devedse'
       id: buildnumber
