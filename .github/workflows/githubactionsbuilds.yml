@@ -8,12 +8,6 @@ jobs:
     outputs:
       build_number: ${{ github.ref == 'refs/heads/master' && steps.buildnumber.outputs.build_number || 1 }}
     steps:
-    - name: Show github.event_name 
-      run: |
-        echo github.event_name: ${{ github.event_name }}
-        echo ${{ github.event.pull_request.head.repo.full_name}} == ${{ github.repository }}
-        echo github ref: ${{ github.ref }}
-        
     - name: Generate build number
       if: github.ref == 'refs/heads/master'
       id: buildnumber
@@ -379,7 +373,8 @@ jobs:
     - name: Build Android
       run: |
         #dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:Configuration=Release /p:AndroidPackageFormat=aab /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{secrets.ANDROIDKEYSTOREPASSWORD}} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{secrets.ANDROIDKEYSTOREPASSWORD}} DeveMazeGeneratorCore.MonoGame.Android\DeveMazeGeneratorCore.MonoGame.Android.csproj
+        #msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:Configuration=Release /p:AndroidPackageFormat=aab /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{secrets.ANDROIDKEYSTOREPASSWORD}} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{secrets.ANDROIDKEYSTOREPASSWORD}} DeveMazeGeneratorCore.MonoGame.Android\DeveMazeGeneratorCore.MonoGame.Android.csproj
+        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:Configuration=Release /p:AndroidPackageFormat=aab ${{ github.repository_owner == 'devedse' && '/p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{secrets.ANDROIDKEYSTOREPASSWORD}} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{secrets.ANDROIDKEYSTOREPASSWORD}}' || '' }} DeveMazeGeneratorCore.MonoGame.Android\DeveMazeGeneratorCore.MonoGame.Android.csproj
     - name: dotnet test
       run: dotnet test DeveMazeGeneratorCore.Tests/DeveMazeGeneratorCore.Tests.csproj -c Release --verbosity normal
     # - name: Package sources
@@ -421,7 +416,8 @@ jobs:
     - name: Build Android
       run: |
         #dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:Configuration=Release /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{secrets.ANDROIDKEYSTOREPASSWORD}} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{secrets.ANDROIDKEYSTOREPASSWORD}} DeveMazeGeneratorCore.MonoGame.Android\DeveMazeGeneratorCore.MonoGame.Android.csproj
+        #msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:Configuration=Release /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{secrets.ANDROIDKEYSTOREPASSWORD}} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{secrets.ANDROIDKEYSTOREPASSWORD}} DeveMazeGeneratorCore.MonoGame.Android\DeveMazeGeneratorCore.MonoGame.Android.csproj
+        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:Configuration=Release /p:AndroidPackageFormat=apk ${{ github.repository_owner == 'devedse' && '/p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{secrets.ANDROIDKEYSTOREPASSWORD}} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{secrets.ANDROIDKEYSTOREPASSWORD}}' || '' }} DeveMazeGeneratorCore.MonoGame.Android\DeveMazeGeneratorCore.MonoGame.Android.csproj
     - name: dotnet test
       run: dotnet test DeveMazeGeneratorCore.Tests/DeveMazeGeneratorCore.Tests.csproj -c Release --verbosity normal
     # - name: Package sources
