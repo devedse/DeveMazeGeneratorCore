@@ -18,6 +18,8 @@ jobs:
       run: |
         echo github.event_name: ${{ github.event_name }}
         echo github.repository_owner: ${{ github.repository_owner }}
+        echo github.event_name: ${{ github.event_name }}
+        echo github.ref: ${{ github.ref }}
 
   build_docker:
     needs: generate_version_number
