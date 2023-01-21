@@ -358,7 +358,7 @@ jobs:
       run: |
         dotnet workload install android
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@v1.3
     - name: Set Android version
       uses: damienaicheh/update-android-version-manifest-action@v1.0.0
       with:
@@ -401,7 +401,7 @@ jobs:
       run: |
         dotnet workload install android
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@v1.3
     - name: Set Android version
       uses: damienaicheh/update-android-version-manifest-action@v1.0.0
       with:
