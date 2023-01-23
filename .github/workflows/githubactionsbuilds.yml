@@ -176,7 +176,7 @@ jobs:
     - name: Pack
       run: dotnet pack DeveMazeGeneratorCore\DeveMazeGeneratorCore.csproj --verbosity normal --no-build -c Release /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Run CodeCov
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
       with:
         directory: ./DeveMazeGeneratorCore.Tests/TestResults
         fail_ci_if_error: true # optional (default = false)
