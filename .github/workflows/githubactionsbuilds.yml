@@ -187,15 +187,15 @@ jobs:
       shell: pwsh
 
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: DeveMazeGeneratorCore7z
         path: ./Scripts/Output/DeveMazeGeneratorCore.7z
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: DeveMazeGeneratorCoreZip
         path: ./Scripts/Output/DeveMazeGeneratorCore.zip
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: DeveMazeGeneratorCoreNuGet
         path: |
@@ -232,7 +232,7 @@ jobs:
     - name: 7zip output
       run: |
         7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64.7z" "./DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/linux-x64/publish/*" '-x!*.pdb'
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v3
       with:
         name: DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64
         path: DeveMazeGeneratorCore.MonoGame.DesktopGL_linux-x64.tar.gz
@@ -272,11 +272,11 @@ jobs:
     - name: 7zip output
       run: |
         7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux.7z" "./DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64/publish/*" '-x!*.pdb'
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v3
       with:
         name: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinuxtargz
         path: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux.tar.gz
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v3
       with:
         name: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux
         path: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64_onlinux.7z
@@ -308,7 +308,7 @@ jobs:
     - name: 7zip output
       run: |
         7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64.7z" "./DeveMazeGeneratorCore.MonoGame.DesktopGL/bin/Release/net7.0/win-x64/Publish/*" '-x!*.pdb'
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v3
       with:
         name: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64
         path: DeveMazeGeneratorCore.MonoGame.DesktopGL_win-x64.7z
@@ -339,7 +339,7 @@ jobs:
     - name: 7zip output
       run: |
         7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64.7z" "./DeveMazeGeneratorCore.MonoGame.WindowsDX/bin/Release/net7.0-windows/win-x64/Publish/*" '-x!*.pdb'
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v3
       with:
         name: DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64
         path: DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64.7z
@@ -382,7 +382,7 @@ jobs:
     #   run: |
     #     7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "./Scripts/Output/DeveMazeGeneratorCore.MonoGame.Android.7z" "DeveMazeGeneratorCore.MonoGame.Android\*" '-x!*.pdb'
     #   shell: powershell
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: DeveMazeGeneratorCore.MonoGame.Android_aab
         path: ./DeveMazeGeneratorCore.MonoGame.Android/bin/Release/net7.0-android/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.aab
@@ -425,7 +425,7 @@ jobs:
     #   run: |
     #     7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "./Scripts/Output/DeveMazeGeneratorCore.MonoGame.Android.7z" "DeveMazeGeneratorCore.MonoGame.Android\*" '-x!*.pdb'
     #   shell: powershell
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: DeveMazeGeneratorCore.MonoGame.Android_apk
         path: ./DeveMazeGeneratorCore.MonoGame.Android/bin/Release/net7.0-android/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.apk
@@ -552,7 +552,7 @@ jobs:
         tree /A
         cd
   
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: CodeQLAnalysis_${{ matrix.language }}
         path: ./artifacts/${{ matrix.language }}.zip
