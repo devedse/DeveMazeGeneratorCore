@@ -166,6 +166,38 @@ namespace DeveMazeGeneratorCore.InnerMaps
             //Console.WriteLine("New wall found: " + xstart + ":" + ystart + "  " + xend + ":" + yend);
         }
 
+        public void MarkBorderInaccessible()
+        {
+            int borderWidth = 2; // Hardcoded border width
+
+            // Check if the height and width are even. If so, adjust the border painting accordingly
+            bool isHeightEven = Height % 2 == 0;
+            bool isWidthEven = Width % 2 == 0;
+
+            int adjustedHeight = isHeightEven ? Height - 2 : Height - 1;
+            int adjustedWidth = isWidthEven ? Width - 2 : Width - 1;
+
+            // Mark top and bottom borders
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < borderWidth; y++)
+                {
+                    this[x, y] = true;                   // Top border
+                    this[x, adjustedHeight - y] = true;   // Bottom border
+                }
+            }
+
+            // Mark left and right borders
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < borderWidth; x++)
+                {
+                    this[x, y] = true;                  // Left border
+                    this[adjustedWidth - x, y] = true;  // Right border
+                }
+            }
+        }
+
         //abstract must be overidden
         public abstract bool this[int x, int y] { get; set; }
     }
