@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace DeveMazeGeneratorCore.Generators
 {
-    public class AlgorithmBacktrack2Deluxe3_AsByte : IAlgorithm<Maze>
+    public class AlgorithmBacktrack2Deluxe2WithBorder_AsByte : IAlgorithm<Maze>
     {
         public Maze GoGenerate<M, TAction>(int width, int height, int seed, IInnerMapFactory<M> mapFactory, IRandomFactory randomFactory, TAction pixelChangedCallback)
             where M : InnerMap
