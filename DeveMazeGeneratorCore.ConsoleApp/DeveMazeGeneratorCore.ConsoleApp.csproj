@@ -7,7 +7,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
-	<TieredCompilationQuickJitForLoops>false</TieredCompilationQuickJitForLoops>
+    <TieredCompilationQuickJitForLoops>false</TieredCompilationQuickJitForLoops>
   </PropertyGroup>
 
   <ItemGroup>
