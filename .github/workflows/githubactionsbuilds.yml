@@ -79,24 +79,6 @@ jobs:
         echo Version: $VERSION
         docker buildx build -f DeveMazeGeneratorCore.MonoGame.Blazor/Dockerfile --build-arg BUILD_VERSION=$VERSION --platform linux/arm64,linux/amd64 -t devedse/devemazegeneratorcoremonogameblazor:${{needs.generate_version_number.outputs.build_number}} -t devedse/devemazegeneratorcoremonogameblazor:latest ${{ github.ref == 'refs/heads/master' && '--push' || '' }} .
 
-
-
-  intellicode:
-    needs: generate_version_number
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0 # We need to fetch the entire Git history in order to verify the authenticity.
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 7.0.x
-    - name: Build with dotnet
-      run: dotnet build DeveMazeGeneratorCore.sln -c Release /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} # Project needs to build before training a model.
-    - name: Train Intellicode Model
-      uses: microsoft/vs-intellicode@v1
-
   build_linux:
     needs: generate_version_number
     runs-on: ubuntu-latest
