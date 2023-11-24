@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using DeveMazeGeneratorCore.Factories;
+﻿using DeveMazeGeneratorCore.Factories;
 using DeveMazeGeneratorCore.Generators.SpeedOptimization;
 using DeveMazeGeneratorCore.Helpers;
 using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.Structures;
+using System;
+using System.Collections.Generic;
 
 namespace DeveMazeGeneratorCore.Generators
 {

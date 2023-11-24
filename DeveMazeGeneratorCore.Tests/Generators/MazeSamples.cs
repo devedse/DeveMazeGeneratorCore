@@ -29,7 +29,7 @@ namespace DeveMazeGeneratorCore.Tests.Generators
             var randomFactory = new RandomFactory<NetRandom>();
 
             var algorithm = new AlgorithmBacktrack();
-            var generatedMap = algorithm.GoGenerate(128, 128, 1337, mapFactory, randomFactory, new NoAction());            
+            var generatedMap = algorithm.GoGenerate(128, 128, 1337, mapFactory, randomFactory, new NoAction());
 
             var path = PathFinderDepthFirstSmartWithPos.GoFind(map, null);
 

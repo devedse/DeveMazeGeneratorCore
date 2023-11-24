@@ -1,5 +1,4 @@
 ﻿using DeveMazeGeneratorCore.InnerMaps.InnerStuff;
-using System;
 using System.Runtime.CompilerServices;
 
 namespace DeveMazeGeneratorCore.InnerMaps

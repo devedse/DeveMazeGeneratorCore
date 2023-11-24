@@ -1,7 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Reports;
 using DeveMazeGeneratorCore.Factories;
