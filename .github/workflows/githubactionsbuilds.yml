@@ -152,13 +152,13 @@ jobs:
       shell: bash
       run: |
         mkdir BuildOutputConsole
-        mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/linux-x64/publishuntrimmed/DeveMazeGenerator.ConsoleApp.exe ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.Untrimmed.exe
-        mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/linux-x64/publishtrimmed/DeveMazeGenerator.ConsoleApp.exe ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.Trimmed.exe
-        mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/linux-x64/publishtrimmedaot/DeveMazeGenerator.ConsoleApp.exe ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.TrimmedAot.exe
+        mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/linux-x64/publishuntrimmed/DeveMazeGenerator.ConsoleApp ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.Untrimmed
+        mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/linux-x64/publishtrimmed/DeveMazeGenerator.ConsoleApp ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.Trimmed
+        mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net7.0/linux-x64/publishtrimmedaot/DeveMazeGenerator.ConsoleApp ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.TrimmedAot
     - uses: actions/upload-artifact@v3
       with:
         name: DeveMazeGeneratorCore.ConsoleApp
-        path: BuildOutputConsole/*.exe
+        path: BuildOutputConsole/*
 
   build_windows_consoleapp:
     needs: generate_version_number
