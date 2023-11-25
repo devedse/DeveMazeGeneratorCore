@@ -5,7 +5,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0-bullseye-slim-amd64 AS build
+FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["DeveMazeGeneratorCore.Web/DeveMazeGeneratorCore.Web.csproj", "DeveMazeGeneratorCore.Web/"]
 COPY ["DeveMazeGeneratorCore/DeveMazeGeneratorCore.csproj", "DeveMazeGeneratorCore/"]
