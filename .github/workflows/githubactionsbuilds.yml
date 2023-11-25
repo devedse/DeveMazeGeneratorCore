@@ -493,6 +493,8 @@ jobs:
       build_windows_Android,
       build_windows_AndroidForFireStick]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: github.ref == 'refs/heads/master'
     steps:
     - name: Download all artifacts
