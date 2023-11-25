@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,6 +23,7 @@ namespace DeveMazeGeneratorCore.ConsoleApp
     {
         public static void Main(string[] args)
         {
+            Console.WriteLine($"DeveMazeGeneratorCore version: {Assembly.GetEntryAssembly().GetName().Version}");
             //TestHilbert();
 
             Console.WriteLine(nameof(TestWithGenerics));
