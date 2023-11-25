@@ -482,6 +482,7 @@ jobs:
     needs: [
       generate_version_number,
       build_windows_consoleapp,
+      build_linux_consoleapp,
       build_windows,
       build_linux,
       build_docker,
@@ -533,6 +534,9 @@ jobs:
           ./artifacts/DeveMazeGeneratorCore.ConsoleApp/DeveMazeGenerator.ConsoleApp.Untrimmed.exe
           ./artifacts/DeveMazeGeneratorCore.ConsoleApp/DeveMazeGenerator.ConsoleApp.Trimmed.exe
           ./artifacts/DeveMazeGeneratorCore.ConsoleApp/DeveMazeGenerator.ConsoleApp.TrimmedAot.exe
+          ./artifacts/DeveMazeGeneratorCore.ConsoleApp/DeveMazeGenerator.ConsoleApp.Untrimmed
+          ./artifacts/DeveMazeGeneratorCore.ConsoleApp/DeveMazeGenerator.ConsoleApp.Trimmed
+          ./artifacts/DeveMazeGeneratorCore.ConsoleApp/DeveMazeGenerator.ConsoleApp.TrimmedAot
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
