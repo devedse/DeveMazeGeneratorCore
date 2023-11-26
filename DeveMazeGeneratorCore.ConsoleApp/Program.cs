@@ -263,7 +263,7 @@ namespace DeveMazeGeneratorCore.ConsoleApp
             int size = 128;
             var fastestElapsed = TimeSpan.MaxValue;
 
-            var alg = new AlgorithmBacktrack2Deluxe2WithBorder_AsByte();
+            var alg = new AlgorithmBacktrack2Deluxe2_AsByte();
 
             Console.WriteLine($"Generating maze using {alg.GetType().Name}...");
 
@@ -271,7 +271,7 @@ namespace DeveMazeGeneratorCore.ConsoleApp
 
             var w = Stopwatch.StartNew();
 
-            var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
+            var innerMapFactory = new InnerMapFactory<BitArreintjeFastChunkedInnerMap>();
             var randomFactory = new RandomFactory<XorShiftRandom>();
 
             var actionThing = new NoAction();
