@@ -21,6 +21,7 @@
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2.cs" Link="Generators\AlgorithmBacktrack2.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2Deluxe_AsByte.cs" Link="Generators\AlgorithmBacktrack2Deluxe_AsByte.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2Deluxe2_AsByte.cs" Link="Generators\AlgorithmBacktrack2Deluxe2_AsByte.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2Deluxe2WithBorder_AsByte.cs" Link="Generators\AlgorithmBacktrack2Deluxe2WithBorder_AsByte.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack3.cs" Link="Generators\AlgorithmBacktrack3.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack4.cs" Link="Generators\AlgorithmBacktrack4.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmDivisionDynamic.cs" Link="Generators\AlgorithmDivisionDynamic.cs" />
@@ -42,6 +43,7 @@
     <Compile Include="..\DeveMazeGeneratorCore\Helpers\UnevenHelper.cs" Link="Helpers\UnevenHelper.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Imageification\WithoutPath.cs" Link="Imageification\WithoutPath.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Imageification\WithPath.cs" Link="Imageification\WithPath.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\BitArreintjeFastChunkedInnerMap.cs" Link="InnerMaps\BitArreintjeFastChunkedInnerMap.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\BitArreintjeFastHilbertInnerMap.cs" Link="InnerMaps\BitArreintjeFastHilbertInnerMap.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\BitArreintjeFastInnerMap.cs" Link="InnerMaps\BitArreintjeFastInnerMap.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\BoolInnerMap.cs" Link="InnerMaps\BoolInnerMap.cs" />
