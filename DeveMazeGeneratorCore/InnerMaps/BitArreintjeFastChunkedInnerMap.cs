@@ -41,6 +41,16 @@ namespace DeveMazeGeneratorCore.InnerMaps
             return innerMapTarget;
         }
 
+        public BitArreintjeFastInnerMapArray GetChunk(int x, int y)
+        {
+            int chunkX = x / ChunkSize;
+            int chunkY = y / ChunkSize;
+
+            var chunkNumber = chunkY * _chunksPerRow + chunkX;
+
+            return _innerData[chunkNumber];
+        }
+
         public override bool this[int x, int y]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
