@@ -21,8 +21,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorCore.MonoG
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorCore.MonoGame.WindowsDX", "DeveMazeGeneratorCore.MonoGame.WindowsDX\DeveMazeGeneratorCore.MonoGame.WindowsDX.csproj", "{CABCA8E7-DCC3-43CC-8ABD-F9E707F188A8}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DeveMazeGeneratorCore.MonoGame.Shared", "DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.shproj", "{EB1B33BF-3F31-40B3-8643-83F4285CABD2}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorCore.MonoGame.Android", "DeveMazeGeneratorCore.MonoGame.Android\DeveMazeGeneratorCore.MonoGame.Android.csproj", "{DE5ACA0D-D621-4707-942F-AE67EE7B1CA1}"
 EndProject
 Global
@@ -79,9 +77,5 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {93CB3796-A1AF-425F-A7FD-D10B94636CC1}
-	EndGlobalSection
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.projitems*{2226201d-6ecd-4593-b4cd-1950e27826b1}*SharedItemsImports = 5
-		DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.projitems*{eb1b33bf-3f31-40b3-8643-83f4285cabd2}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

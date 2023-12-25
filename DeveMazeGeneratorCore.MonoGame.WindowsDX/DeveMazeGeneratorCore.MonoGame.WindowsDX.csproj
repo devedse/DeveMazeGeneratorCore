@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
   </PropertyGroup>
@@ -10,16 +10,15 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <MonoGameContentReference Include="..\DeveMazeGeneratorCore.MonoGame.Content\Content\Content.mgcb">
+    <KniContentReference Include="..\DeveMazeGeneratorCore.MonoGame.Content\Content\Content.mgcb">
       <Link>Content\Content.mgcb</Link>
-    </MonoGameContentReference>
+    </KniContentReference>
   </ItemGroup>
   <ItemGroup>
     <TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.1.303" />
-    <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
+    <PackageReference Include="MonoGame.Framework.WindowsDX.9000" Version="3.10.9001" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DeveMazeGeneratorCore.MonoGame.Core\DeveMazeGeneratorCore.MonoGame.Core.csproj" />
@@ -27,4 +26,5 @@
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\Kni.Content.Builder.targets" />
 </Project>

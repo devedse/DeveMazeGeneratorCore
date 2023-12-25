@@ -201,27 +201,28 @@ namespace DeveMazeGeneratorMonoGame
             Window.ClientSizeChanged += Window_ClientSizeChanged;
             Window.OrientationChanged += Window_OrientationChanged;
 
-#if !BLAZOR
-            if (_desiredScreenSize != null)
+            if (Platform != Platform.Blazor)
             {
-                graphics.PreferredBackBufferWidth = _desiredScreenSize.Value.Width;
-                graphics.PreferredBackBufferHeight = _desiredScreenSize.Value.Height;
+                if (_desiredScreenSize != null)
+                {
+                    graphics.PreferredBackBufferWidth = _desiredScreenSize.Value.Width;
+                    graphics.PreferredBackBufferHeight = _desiredScreenSize.Value.Height;
+                }
+                else if (Platform == Platform.Android)
+                {
+                    //For android I haven't been able to find the "FULL" screen size in the AndroidActivity
+                    //Whenever I tried it it would only give me the size of everything excluding system bars.
+                    //Unless I did GetRealMetrics but then it would always grab the full size, I want this to be dynamic.
+                    //So the value that is actually dynamic and correct is this:
+                    graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+                    graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+                }
+                else
+                {
+                    //graphics.PreferredBackBufferWidth = Window.ClientBounds.Width;
+                    //graphics.PreferredBackBufferHeight = Window.ClientBounds.Height;
+                }
             }
-            else if (Platform == Platform.Android)
-            {
-                //For android I haven't been able to find the "FULL" screen size in the AndroidActivity
-                //Whenever I tried it it would only give me the size of everything excluding system bars.
-                //Unless I did GetRealMetrics but then it would always grab the full size, I want this to be dynamic.
-                //So the value that is actually dynamic and correct is this:
-                graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-                graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            }
-            else
-            {
-                //graphics.PreferredBackBufferWidth = Window.ClientBounds.Width;
-                //graphics.PreferredBackBufferHeight = Window.ClientBounds.Height;
-            }
-#endif
 
             Window.AllowUserResizing = true;
 

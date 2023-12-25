@@ -13,13 +13,9 @@
 		<EmbeddedResource Include="Icon.ico" />
 	</ItemGroup>
 	<ItemGroup>
-		<MonoGameContentReference Include="..\DeveMazeGeneratorCore.MonoGame.Content\Content\Content.mgcb">
+		<KniContentReference Include="..\DeveMazeGeneratorCore.MonoGame.Content\Content\Content.mgcb">
 			<Link>Content\Content.mgcb</Link>
-		</MonoGameContentReference>
-	</ItemGroup>
-	<ItemGroup>
-	  <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
-	  <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
+		</KniContentReference>
 	</ItemGroup>
 	<ItemGroup>
 		<TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false" />
@@ -30,4 +26,8 @@
 	<ItemGroup>
 	  <Folder Include="Properties\" />
 	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="MonoGame.Framework.DesktopGL.9000" Version="3.10.9001" />
+	</ItemGroup>
+	<Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\Kni.Content.Builder.targets" />
 </Project>
