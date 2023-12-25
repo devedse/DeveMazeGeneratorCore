@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace DeveMazeGeneratorCore.MonoGame.Core
 {
@@ -66,7 +67,10 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
 
             _indexElementSize = indexElementSize ?? graphicsDevice.GetPreferedIndexElementSize();
 
-            var maxCountVerticesPerBuffer = _indexElementSize == IndexElementSize.ThirtyTwoBits ? int.MaxValue : short.MaxValue;
+            //Workaround for: https://github.com/MonoGame/MonoGame/pull/8112
+            var vertexSize = Marshal.SizeOf<T>();
+
+            var maxCountVerticesPerBuffer = _indexElementSize == IndexElementSize.ThirtyTwoBits ? int.MaxValue / vertexSize : short.MaxValue;
             _maxActualCountVerticesPerBuffer = maxCountVerticesPerBuffer / _verticesPerOperation * verticesPerOperation;
 
             InitializeArrays();
