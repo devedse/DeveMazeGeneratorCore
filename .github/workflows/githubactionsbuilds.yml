@@ -228,6 +228,8 @@ jobs:
         directory: ./DeveMazeGeneratorCore.Tests/TestResults
         fail_ci_if_error: true # optional (default = false)
         verbose: true # optional (default = false)
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Run GoPackage.ps1 script
       run: .\Scripts\GoPackage.ps1
