@@ -131,7 +131,7 @@ jobs:
     - name: Build
       run: dotnet build DeveMazeGeneratorCore.sln -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Test
-      run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
+      run: dotnet test DeveMazeGeneratorCore.sln -c Release --no-restore --verbosity normal
   
   build_linux_consoleapp:
     needs: generate_version_number
