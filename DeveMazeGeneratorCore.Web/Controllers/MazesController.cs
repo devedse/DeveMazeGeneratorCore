@@ -163,7 +163,7 @@ namespace DeveMazeGeneratorCore.Web.Controllers
                 var font = new Font(fontFamily, 26);
                 var fontSmall = new Font(fontFamily, 12);
 
-                var textOptions = new TextOptions(font)
+                var textOptions = new RichTextOptions(font)
                 {
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center,
@@ -171,13 +171,13 @@ namespace DeveMazeGeneratorCore.Web.Controllers
                     Origin = new Point(partWidth / 2, partHeight / 2),
                 };
 
-                var textOptionsSmall = new TextOptions(fontSmall)
+                var textOptionsSmall = new RichTextOptions(fontSmall)
                 {
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center,
                     TextAlignment = TextAlignment.Center,
                     Origin = new Point(partWidth / 2, partHeight - 10),
-                };
+                }; 
 
                 image.Mutate(x => x.DrawText(textOptions, $"X: {xPartNumber}\nY: {yPartNumber}\nLevel: {level}\n\nZoom in\nfurther", Color.White));
                 image.Mutate(x => x.DrawText(textOptionsSmall, $"Maze will show at level: {deepestLevel}", Color.White));
