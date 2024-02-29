@@ -62,8 +62,8 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.1" />
 		<PackageReference Include="nkast.Wasm.Audio" Version="6.0.5" />
 		<PackageReference Include="nkast.Wasm.Canvas" Version="6.0.5" />
-		<PackageReference Include="nkast.Wasm.Dom" Version="6.0.5" />
-		<PackageReference Include="nkast.Wasm.XHR" Version="6.0.5" />
+		<PackageReference Include="nkast.Wasm.Dom" Version="6.0.6" />
+		<PackageReference Include="nkast.Wasm.XHR" Version="6.0.6" />
 		<PackageReference Include="nkast.Xna.Framework.Blazor" Version="3.10.9001" />
 		<!-- <PackageReference Include="tainicom.Wasm.Canvas" Version="3.2.10" />
 	  <PackageReference Include="tainicom.Wasm.XHR" Version="3.2.10" />
