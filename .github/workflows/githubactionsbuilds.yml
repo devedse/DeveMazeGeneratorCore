@@ -606,7 +606,8 @@ jobs:
         tree /A
         cd
   
-    - uses: actions/upload-artifact@v4
+    - name: Upload CodeQL Database as Artifact
+      uses: actions/upload-artifact@v4
       with:
-        name: CodeQLAnalysis_${{ matrix.language }}
-        path: ./artifacts/${{ matrix.language }}.zip
+        name: CodeQLDatabase-${{ matrix.language }}
+        path: ${{ runner.temp }}/codeql_databases/${{ matrix.language }}.zip
