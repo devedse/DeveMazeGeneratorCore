@@ -22,7 +22,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
     <PackageReference Include="SixLabors.Fonts" Version="2.0.4" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1" />
   </ItemGroup>
 
   <ItemGroup>
