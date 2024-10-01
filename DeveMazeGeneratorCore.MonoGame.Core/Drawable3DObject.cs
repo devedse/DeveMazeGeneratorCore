@@ -22,12 +22,16 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
         private readonly int _vertexCount;
         private readonly int _indexCount;
         private readonly int _verticesPerOperation;
+        private readonly int _indicesPerOperation;
         private readonly int[] _relativeIndexPointers;
         private readonly short[] _relativeIndexPointersShort;
         private readonly IndexElementSize _indexElementSize;
 
-        //The actual number if we look at operations (e.g. 8 if we have vertices per operation)
-        private int _maxActualCountVerticesPerBuffer;
+        //The actual number if we look at operations (e.g. 6 indices per operation)
+        private int _maxCountPrimitivesPerBuffer;
+        private readonly int _maxCountIndicesPerBuffer;
+        private readonly int _maxOperationsPerBuffer;
+        private readonly int _maxCountVerticesPerBuffer;
 
         /// <summary>
         /// Create a new Drawable3DOBject
@@ -47,6 +51,7 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
 
             _verticesPerOperation = verticesPerOperation;
             _relativeIndexPointers = relativeIndexPointers;
+            _indicesPerOperation = relativeIndexPointers.Length;
 
             if (_vertexCount % _verticesPerOperation != 0)
             {
@@ -70,8 +75,11 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
             //Workaround for: https://github.com/MonoGame/MonoGame/pull/8112
             var vertexSize = Marshal.SizeOf<T>();
 
-            var maxCountVerticesPerBuffer = _indexElementSize == IndexElementSize.ThirtyTwoBits ? int.MaxValue / vertexSize : short.MaxValue;
-            _maxActualCountVerticesPerBuffer = maxCountVerticesPerBuffer / _verticesPerOperation * verticesPerOperation;
+            _maxCountPrimitivesPerBuffer = _indexElementSize == IndexElementSize.ThirtyTwoBits ? 1048575 : ushort.MaxValue;
+            _maxCountIndicesPerBuffer = _maxCountPrimitivesPerBuffer * 3;
+            _maxOperationsPerBuffer = _maxCountIndicesPerBuffer / _indicesPerOperation;
+            _maxCountVerticesPerBuffer = _maxOperationsPerBuffer * verticesPerOperation;
+            
 
             InitializeArrays();
         }
@@ -96,12 +104,11 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
 
         private void InitializeArrays()
         {
-            int maxVertexOperations = _maxActualCountVerticesPerBuffer / _verticesPerOperation;
-            int curVertexOperations = Math.Min((_vertexCount - (_vertexBuffers.Count * maxVertexOperations)) / _verticesPerOperation, maxVertexOperations);
+            int curVertexOperations = Math.Min((_vertexCount - (_vertexBuffers.Count * _maxCountVerticesPerBuffer)), _maxCountVerticesPerBuffer);
 
-            _curVertices = new T[curVertexOperations * _verticesPerOperation];
+            _curVertices = new T[curVertexOperations];
 
-            var indicesArrayLength = _relativeIndexPointers.Length * curVertexOperations;
+            var indicesArrayLength = curVertexOperations / _verticesPerOperation * _indicesPerOperation;
             if (_indexElementSize == IndexElementSize.ThirtyTwoBits)
             {
                 _curIndicesInt = new int[indicesArrayLength];
@@ -122,7 +129,7 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
                 throw new InvalidOperationException($"This {this.GetType().Name} is configured to be used with sets of {_verticesPerOperation} vertices per operation. But you are passing in: {vertices.Length}");
             }
 
-            if (_curVertI + vertices.Length > _maxActualCountVerticesPerBuffer)
+            if (_curVertI + vertices.Length > _maxCountVerticesPerBuffer)
             {
                 StoreArraysInBuffers();
                 InitializeArrays();
@@ -150,7 +157,7 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
                 }
             }
 
-            if (_curVertI + (_vertexBuffers.Count * _maxActualCountVerticesPerBuffer) >= _vertexCount)
+            if (_curVertI + (_vertexBuffers.Count * _maxCountVerticesPerBuffer) >= _vertexCount)
             {
                 StoreArraysInBuffers();
 
@@ -175,7 +182,15 @@ namespace DeveMazeGeneratorCore.MonoGame.Core
                 foreach (EffectPass pass in effect.CurrentTechnique.Passes)
                 {
                     pass.Apply();
-                    _graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, indexBuffer.IndexCount / 3);
+
+                    var primitiveCount = indexBuffer.IndexCount / 3;
+
+                    if (_graphicsDevice.GraphicsProfile == GraphicsProfile.Reach && primitiveCount > 65535)
+                        throw new NotSupportedException("Reach profile supports a maximum of 65535 primitives per draw call.");
+                    if (_graphicsDevice.GraphicsProfile == GraphicsProfile.HiDef && primitiveCount > 1048575)
+                        throw new NotSupportedException("HiDef profile supports a maximum of 1048575 primitives per draw call.");
+
+                    _graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, primitiveCount);
                 }
             }
         }
