@@ -535,12 +535,12 @@ jobs:
           ./artifacts/DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64/DeveMazeGeneratorCore.MonoGame.WindowsDX_win-x64.7z
           ./artifacts/DeveMazeGeneratorCore.MonoGame.Android_aab/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.aab
           ./artifacts/DeveMazeGeneratorCore.MonoGame.Android_apk/devemazegeneratorcoremonogame_android.devemazegeneratorcoremonogame_android-Signed.apk
-          ./artifacts/DeveMazeGeneratorCore.ConsoleApp/DeveMazeGenerator.ConsoleApp.Untrimmed.exe
-          ./artifacts/DeveMazeGeneratorCore.ConsoleApp/DeveMazeGenerator.ConsoleApp.Trimmed.exe
-          ./artifacts/DeveMazeGeneratorCore.ConsoleApp/DeveMazeGenerator.ConsoleApp.TrimmedAot.exe
-          ./artifacts/DeveMazeGeneratorCore.ConsoleApp/DeveMazeGenerator.ConsoleApp.Untrimmed
-          ./artifacts/DeveMazeGeneratorCore.ConsoleApp/DeveMazeGenerator.ConsoleApp.Trimmed
-          ./artifacts/DeveMazeGeneratorCore.ConsoleApp/DeveMazeGenerator.ConsoleApp.TrimmedAot
+          ./artifacts/DeveMazeGeneratorCore.ConsoleApp.Windows/DeveMazeGenerator.ConsoleApp.Untrimmed.exe
+          ./artifacts/DeveMazeGeneratorCore.ConsoleApp.Windows/DeveMazeGenerator.ConsoleApp.Trimmed.exe
+          ./artifacts/DeveMazeGeneratorCore.ConsoleApp.Windows/DeveMazeGenerator.ConsoleApp.TrimmedAot.exe
+          ./artifacts/DeveMazeGeneratorCore.ConsoleApp.Linux/DeveMazeGenerator.ConsoleApp.Untrimmed
+          ./artifacts/DeveMazeGeneratorCore.ConsoleApp.Linux/DeveMazeGenerator.ConsoleApp.Trimmed
+          ./artifacts/DeveMazeGeneratorCore.ConsoleApp.Linux/DeveMazeGenerator.ConsoleApp.TrimmedAot
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
