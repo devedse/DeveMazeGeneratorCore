@@ -56,7 +56,7 @@ jobs:
         echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
 
         if [[ "${{ github.ref }}" == 'refs/heads/master' ]]; then
-          echo "TAGS=-t devedse/devemazegeneratorcoreweb:${VERSION} -t devedse/devemazegeneratorcoreweb:latest" >> $GITHUB_OUTPUT
+          echo "TAGS=-t devedse/devemazegeneratorcoreweb:${VERSION} -t devedse/devemazegeneratorcoreweb:latest -t devedse/devemazegeneratorcoreweb:beta_nightly" >> $GITHUB_OUTPUT
         elif [[ "${{ github.actor }}" == 'dependabot[bot]' ]]; then
           echo "TAGS=-t devedse/devemazegeneratorcoreweb:beta_${BRANCH_NAME}" >> $GITHUB_OUTPUT
         else 
