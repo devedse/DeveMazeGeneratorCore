@@ -53,6 +53,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 CreateContentTypesFile(archive);
                 CreateRelsFile(archive);
                 Create3DModelFile(archive, maze, path);
+                CreateModelSettingsFile(archive);
             }
         }
 
@@ -67,6 +68,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
                         <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
                         <Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/>
+                        <Default Extension="png" ContentType="image/png"/>
+                        <Default Extension="gcode" ContentType="text/x.gcode"/>
                     </Types>
                     """);
             }
@@ -111,6 +114,24 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 writer.WriteStartDocument();
                 writer.WriteStartElement("model", "http://schemas.microsoft.com/3dmanufacturing/core/2015/02");
                 writer.WriteAttributeString("unit", "millimeter");
+                writer.WriteAttributeString("xml", "lang", "http://www.w3.org/XML/1998/namespace", "en-US");
+                writer.WriteAttributeString("xmlns", "BambuStudio", null, "http://schemas.bambulab.com/package/2021");
+                writer.WriteAttributeString("xmlns", "p", null, "http://schemas.microsoft.com/3dmanufacturing/production/2015/06");
+                writer.WriteAttributeString("requiredextensions", "p");
+
+                // Add BambuStudio metadata
+                writer.WriteStartElement("metadata");
+                writer.WriteAttributeString("name", "Application");
+                writer.WriteString("DeveMazeGeneratorCore-1.0.0");
+                writer.WriteEndElement();
+                writer.WriteStartElement("metadata");
+                writer.WriteAttributeString("name", "BambuStudio:3mfVersion");
+                writer.WriteString("1");
+                writer.WriteEndElement();
+                writer.WriteStartElement("metadata");
+                writer.WriteAttributeString("name", "CreationDate");
+                writer.WriteString(DateTime.Now.ToString("yyyy-MM-dd"));
+                writer.WriteEndElement();
 
                 // Resources section
                 writer.WriteStartElement("resources");
@@ -123,10 +144,14 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
                 writer.WriteEndElement(); // resources
 
-                // Build section
+                // Build section with UUID and transform
                 writer.WriteStartElement("build");
+                writer.WriteAttributeString("p", "UUID", null, Guid.NewGuid().ToString());
                 writer.WriteStartElement("item");
                 writer.WriteAttributeString("objectid", "2"); // The combined mesh object
+                writer.WriteAttributeString("p", "UUID", null, Guid.NewGuid().ToString());
+                writer.WriteAttributeString("transform", "1 0 0 0 1 0 0 0 1 0 0 0");
+                writer.WriteAttributeString("printable", "1");
                 writer.WriteEndElement(); // item
                 writer.WriteEndElement(); // build
 
@@ -172,6 +197,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         {
             writer.WriteStartElement("object");
             writer.WriteAttributeString("id", "2");
+            writer.WriteAttributeString("p", "UUID", null, Guid.NewGuid().ToString());
             writer.WriteAttributeString("type", "model");
 
             writer.WriteStartElement("mesh");
@@ -311,6 +337,43 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
             triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, materialIndex)); // Left
             triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, materialIndex));
+        }
+
+        private void CreateModelSettingsFile(ZipArchive archive)
+        {
+            var entry = archive.CreateEntry("Metadata/model_settings.config");
+            using (var stream = entry.Open())
+            using (var writer = new StreamWriter(stream, Encoding.UTF8))
+            {
+                writer.Write("""
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <config>
+                      <object id="2">
+                        <metadata key="name" value="Maze_Coaster"/>
+                        <metadata key="extruder" value="1"/>
+                        <part id="1" subtype="normal_part">
+                          <metadata key="name" value="Maze_Coaster"/>
+                          <metadata key="matrix" value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+                        </part>
+                      </object>
+                      <plate>
+                        <metadata key="plater_id" value="1"/>
+                        <metadata key="plater_name" value=""/>
+                        <metadata key="locked" value="false"/>
+                        <metadata key="filament_map_mode" value="Auto For Flush"/>
+                        <metadata key="filament_maps" value="1 1 1 1"/>
+                        <model_instance>
+                          <metadata key="object_id" value="2"/>
+                          <metadata key="instance_id" value="0"/>
+                          <metadata key="identify_id" value="1"/>
+                        </model_instance>
+                      </plate>
+                      <assemble>
+                       <assemble_item object_id="2" instance_id="0" transform="1 0 0 0 1 0 0 0 1 0 0 0" offset="0 0 0" />
+                      </assemble>
+                    </config>
+                    """);
+            }
         }
     }
 }
