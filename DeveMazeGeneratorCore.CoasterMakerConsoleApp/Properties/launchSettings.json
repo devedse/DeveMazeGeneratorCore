@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DeveMazeGeneratorCore.CoasterMakerConsoleApp": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
