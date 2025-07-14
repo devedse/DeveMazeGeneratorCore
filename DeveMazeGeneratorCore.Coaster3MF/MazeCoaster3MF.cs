@@ -182,10 +182,10 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Ground plane vertices and triangles
             AddGroundPlane(vertices, triangles, maze);
 
-            // Wall cubes
-            for (int y = 0; y < maze.Height; y++)
+            // Wall cubes - exclude the rightmost and bottommost edge (following image generation convention)
+            for (int y = 0; y < maze.Height - 1; y++)
             {
-                for (int x = 0; x < maze.Width; x++)
+                for (int x = 0; x < maze.Width - 1; x++)
                 {
                     if (!maze[x, y] && !pathSet.Contains((x, y))) // Wall position (false = wall)
                     {
@@ -194,10 +194,10 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 }
             }
 
-            // Path cubes
+            // Path cubes - only within the valid maze area (excluding rightmost and bottommost edge)
             foreach (var (x, y) in pathSet)
             {
-                if (maze[x, y]) // Open space that's part of the path
+                if (x < maze.Width - 1 && y < maze.Height - 1 && maze[x, y]) // Open space that's part of the path and within valid area
                 {
                     // Determine color based on position in path (0-255)
                     var relativePos = pathPositions[(x, y)];
@@ -241,17 +241,17 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         {
             int baseIndex = vertices.Count;
             
-            // Bottom vertices
+            // Bottom vertices - exclude the rightmost and bottommost edge (following image generation convention)
             vertices.Add((0, 0, 0));
-            vertices.Add((maze.Width, 0, 0));
-            vertices.Add((maze.Width, maze.Height, 0));
-            vertices.Add((0, maze.Height, 0));
+            vertices.Add((maze.Width - 1, 0, 0));
+            vertices.Add((maze.Width - 1, maze.Height - 1, 0));
+            vertices.Add((0, maze.Height - 1, 0));
 
             // Top vertices
             vertices.Add((0, 0, GroundHeight));
-            vertices.Add((maze.Width, 0, GroundHeight));
-            vertices.Add((maze.Width, maze.Height, GroundHeight));
-            vertices.Add((0, maze.Height, GroundHeight));
+            vertices.Add((maze.Width - 1, 0, GroundHeight));
+            vertices.Add((maze.Width - 1, maze.Height - 1, GroundHeight));
+            vertices.Add((0, maze.Height - 1, GroundHeight));
 
             // Bottom face (z = 0)
             triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, 0)); // White material
