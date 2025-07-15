@@ -335,7 +335,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 {
                     // Determine color based on position in path (0-255)
                     var relativePos = pathPositions[(x, y)];
-                    var paintColor = relativePos < 128 ? "8" : "0C"; // Green (8) for first half, Red (0C) for second half
+                    var paintColor = relativePos < 128 ? "8" : "1C"; // Green (8) for first half, Red (1C) for second half
                     
                     AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + PathHeight, paintColor);
                 }
@@ -394,8 +394,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             triangles.Add((baseIndex + 0, baseIndex + 3, baseIndex + 2, "4"));
 
             // Top face (z = GroundHeight) - white
-            triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, "1C"));
-            triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, "1C"));
+            triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, "0C"));
+            triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, "0C"));
 
             // Side faces - black
             triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 5, "4")); // Front
