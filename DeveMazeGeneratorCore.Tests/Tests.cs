@@ -27,7 +27,7 @@ namespace DeveMazeGeneratorCore.Tests
                 File.Delete(filename);
             
             // Act
-            coaster.Generate3MFCoaster(filename, 1337);
+            coaster.Generate3MFCoaster(filename, 10);
             
             // Assert
             Assert.True(File.Exists(filename), "3MF file should be created");
@@ -58,8 +58,8 @@ namespace DeveMazeGeneratorCore.Tests
             if (File.Exists(filename2)) File.Delete(filename2);
             
             // Act
-            coaster.Generate3MFCoaster(filename1, 1337);
-            coaster.Generate3MFCoaster(filename2, 7331);
+            coaster.Generate3MFCoaster(filename1, 10);
+            coaster.Generate3MFCoaster(filename2, 10, 7331);
             
             // Assert
             Assert.True(File.Exists(filename1), "First 3MF file should be created");

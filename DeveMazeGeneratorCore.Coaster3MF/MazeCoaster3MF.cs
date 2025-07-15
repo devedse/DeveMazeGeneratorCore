@@ -353,30 +353,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Ground plane vertices and triangles
             AddGroundPlane(vertices, triangles, maze);
 
-            // Wall cubes - exclude the rightmost and bottommost edge (following image generation convention)
-            for (int y = 0; y < maze.Height - 1; y++)
-            {
-                for (int x = 0; x < maze.Width - 1; x++)
-                {
-                    if (!maze[x, y] && !pathSet.Contains((x, y))) // Wall position (false = wall)
-                    {
-                        AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Black walls
-                    }
-                }
-            }
-
-            // Path cubes - only within the valid maze area (excluding rightmost and bottommost edge)
-            foreach (var (x, y) in pathSet)
-            {
-                if (x < maze.Width - 1 && y < maze.Height - 1 && maze[x, y]) // Open space that's part of the path and within valid area
-                {
-                    // Determine color based on position in path (0-255)
-                    var relativePos = pathPositions[(x, y)];
-                    var paintColor = relativePos < 128 ? Colors[2] : Colors[3];
-
-                    AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + PathHeight, paintColor);
-                }
-            }
+            // Generate optimized mesh using greedy meshing algorithm
+            GenerateOptimizedMesh(vertices, triangles, maze, pathSet, pathPositions);
 
             // Write vertices
             writer.WriteStartElement("vertices");
@@ -448,42 +426,366 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, Colors[0]));
         }
 
-        private void AddCube(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, int x, int y, float zBottom, float zTop, string paintColor)
+        private void GenerateOptimizedMesh(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, InnerMap maze, HashSet<(int x, int y)> pathSet, Dictionary<(int x, int y), byte> pathPositions)
+        {
+            // Create a 3D representation of voxels with different materials
+            // We have three layers: ground (already handled), walls, and paths
+            var voxels = new Dictionary<(int x, int y, int z), VoxelData>();
+            
+            // Add wall voxels
+            for (int y = 0; y < maze.Height - 1; y++)
+            {
+                for (int x = 0; x < maze.Width - 1; x++)
+                {
+                    if (!maze[x, y] && !pathSet.Contains((x, y))) // Wall position
+                    {
+                        voxels[(x, y, 1)] = new VoxelData { Material = Colors[0], Type = VoxelType.Wall };
+                    }
+                }
+            }
+
+            // Add path voxels
+            foreach (var (x, y) in pathSet)
+            {
+                if (x < maze.Width - 1 && y < maze.Height - 1 && maze[x, y])
+                {
+                    var relativePos = pathPositions[(x, y)];
+                    var paintColor = relativePos < 128 ? Colors[2] : Colors[3];
+                    voxels[(x, y, 1)] = new VoxelData { Material = paintColor, Type = VoxelType.Path };
+                }
+            }
+
+            // Generate optimized faces using greedy meshing
+            GenerateOptimizedFaces(vertices, triangles, voxels, maze);
+        }
+
+        private enum VoxelType
+        {
+            Wall,
+            Path
+        }
+
+        private class VoxelData
+        {
+            public string Material { get; set; } = "";
+            public VoxelType Type { get; set; }
+        }
+
+        private class Face
+        {
+            public float X { get; set; }
+            public float Y { get; set; }
+            public float Z { get; set; }
+            public float Width { get; set; }
+            public float Height { get; set; }
+            public int Direction { get; set; } // 0=+X, 1=-X, 2=+Y, 3=-Y, 4=+Z, 5=-Z
+            public string Material { get; set; } = "";
+            public VoxelType VoxelType { get; set; }
+        }
+
+        private void GenerateOptimizedFaces(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, Dictionary<(int x, int y, int z), VoxelData> voxels, InnerMap maze)
+        {
+            var faces = new List<Face>();
+
+            // Generate faces for each voxel
+            foreach (var kvp in voxels)
+            {
+                var (x, y, z) = kvp.Key;
+                var voxelData = kvp.Value;
+                
+                // Check each direction for exposed faces
+                var directions = new[]
+                {
+                    (1, 0, 0, 0),   // +X
+                    (-1, 0, 0, 1),  // -X
+                    (0, 1, 0, 2),   // +Y
+                    (0, -1, 0, 3),  // -Y
+                    (0, 0, 1, 4),   // +Z
+                    (0, 0, -1, 5)   // -Z
+                };
+
+                foreach (var (dx, dy, dz, dir) in directions)
+                {
+                    var neighborPos = (x + dx, y + dy, z + dz);
+                    
+                    // Check if face should be generated
+                    bool shouldGenerateFace = !voxels.ContainsKey(neighborPos);
+                    
+                    // Special handling for bottom faces (don't generate if there's ground below)
+                    if (dir == 5 && z == 1) // -Z direction at z=1 (bottom face touching ground)
+                    {
+                        shouldGenerateFace = false; // Ground plane already handles this
+                    }
+
+                    if (shouldGenerateFace)
+                    {
+                        var face = new Face
+                        {
+                            Direction = dir,
+                            Material = voxelData.Material,
+                            VoxelType = voxelData.Type,
+                            Width = 1.0f,
+                            Height = 1.0f
+                        };
+
+                        // Calculate face position based on direction
+                        SetFacePosition(face, x, y, z, voxelData.Type);
+                        faces.Add(face);
+                    }
+                }
+            }
+
+            // Apply greedy meshing to merge adjacent faces
+            var optimizedFaces = GreedyMeshFaces(faces);
+
+            // Generate triangles from optimized faces
+            foreach (var face in optimizedFaces)
+            {
+                AddFaceTriangles(vertices, triangles, face);
+            }
+        }
+
+        private void SetFacePosition(Face face, int x, int y, int z, VoxelType voxelType)
+        {
+            float zBottom = GroundHeight;
+            float zTop = GroundHeight + (voxelType == VoxelType.Wall ? WallHeight : PathHeight);
+
+            switch (face.Direction)
+            {
+                case 0: // +X
+                    face.X = x + 1;
+                    face.Y = y + 0.5f;
+                    face.Z = zBottom + (zTop - zBottom) / 2;
+                    face.Width = zTop - zBottom;
+                    face.Height = 1.0f;
+                    break;
+                case 1: // -X
+                    face.X = x;
+                    face.Y = y + 0.5f;
+                    face.Z = zBottom + (zTop - zBottom) / 2;
+                    face.Width = zTop - zBottom;
+                    face.Height = 1.0f;
+                    break;
+                case 2: // +Y
+                    face.X = x + 0.5f;
+                    face.Y = y + 1;
+                    face.Z = zBottom + (zTop - zBottom) / 2;
+                    face.Width = 1.0f;
+                    face.Height = zTop - zBottom;
+                    break;
+                case 3: // -Y
+                    face.X = x + 0.5f;
+                    face.Y = y;
+                    face.Z = zBottom + (zTop - zBottom) / 2;
+                    face.Width = 1.0f;
+                    face.Height = zTop - zBottom;
+                    break;
+                case 4: // +Z
+                    face.X = x + 0.5f;
+                    face.Y = y + 0.5f;
+                    face.Z = zTop;
+                    face.Width = 1.0f;
+                    face.Height = 1.0f;
+                    break;
+                case 5: // -Z (should not be called for z=1, but handle anyway)
+                    face.X = x + 0.5f;
+                    face.Y = y + 0.5f;
+                    face.Z = zBottom;
+                    face.Width = 1.0f;
+                    face.Height = 1.0f;
+                    break;
+            }
+        }
+
+        private List<Face> GreedyMeshFaces(List<Face> faces)
+        {
+            var optimizedFaces = new List<Face>();
+            var processed = new HashSet<Face>();
+
+            foreach (var face in faces)
+            {
+                if (processed.Contains(face))
+                    continue;
+
+                var mergedFace = new Face
+                {
+                    X = face.X,
+                    Y = face.Y,
+                    Z = face.Z,
+                    Width = face.Width,
+                    Height = face.Height,
+                    Direction = face.Direction,
+                    Material = face.Material,
+                    VoxelType = face.VoxelType
+                };
+
+                processed.Add(face);
+
+                // Try to merge with other faces
+                bool merged = true;
+                while (merged)
+                {
+                    merged = false;
+                    
+                    foreach (var otherFace in faces)
+                    {
+                        if (processed.Contains(otherFace) || otherFace.Direction != mergedFace.Direction || 
+                            otherFace.Material != mergedFace.Material || otherFace.VoxelType != mergedFace.VoxelType)
+                            continue;
+
+                        // Try to merge faces based on direction
+                        if (TryMergeFaces(mergedFace, otherFace))
+                        {
+                            processed.Add(otherFace);
+                            merged = true;
+                        }
+                    }
+                }
+
+                optimizedFaces.Add(mergedFace);
+            }
+
+            return optimizedFaces;
+        }
+
+        private bool TryMergeFaces(Face face1, Face face2)
+        {
+            const float tolerance = 0.001f;
+
+            switch (face1.Direction)
+            {
+                case 0: case 1: // X faces
+                    // Check if they're aligned and adjacent in Y direction
+                    if (Math.Abs(face1.X - face2.X) < tolerance && Math.Abs(face1.Z - face2.Z) < tolerance &&
+                        Math.Abs(face1.Width - face2.Width) < tolerance)
+                    {
+                        if (Math.Abs(face1.Y + face1.Height / 2 - (face2.Y - face2.Height / 2)) < tolerance)
+                        {
+                            // Merge in Y direction
+                            var newY = Math.Min(face1.Y - face1.Height / 2, face2.Y - face2.Height / 2);
+                            var newHeight = face1.Height + face2.Height;
+                            face1.Y = newY + newHeight / 2;
+                            face1.Height = newHeight;
+                            return true;
+                        }
+                    }
+                    break;
+
+                case 2: case 3: // Y faces
+                    // Check if they're aligned and adjacent in X direction
+                    if (Math.Abs(face1.Y - face2.Y) < tolerance && Math.Abs(face1.Z - face2.Z) < tolerance &&
+                        Math.Abs(face1.Height - face2.Height) < tolerance)
+                    {
+                        if (Math.Abs(face1.X + face1.Width / 2 - (face2.X - face2.Width / 2)) < tolerance)
+                        {
+                            // Merge in X direction
+                            var newX = Math.Min(face1.X - face1.Width / 2, face2.X - face2.Width / 2);
+                            var newWidth = face1.Width + face2.Width;
+                            face1.X = newX + newWidth / 2;
+                            face1.Width = newWidth;
+                            return true;
+                        }
+                    }
+                    break;
+
+                case 4: case 5: // Z faces
+                    // Check if they're aligned and adjacent in X direction
+                    if (Math.Abs(face1.Z - face2.Z) < tolerance && Math.Abs(face1.Y - face2.Y) < tolerance &&
+                        Math.Abs(face1.Height - face2.Height) < tolerance)
+                    {
+                        if (Math.Abs(face1.X + face1.Width / 2 - (face2.X - face2.Width / 2)) < tolerance)
+                        {
+                            // Merge in X direction
+                            var newX = Math.Min(face1.X - face1.Width / 2, face2.X - face2.Width / 2);
+                            var newWidth = face1.Width + face2.Width;
+                            face1.X = newX + newWidth / 2;
+                            face1.Width = newWidth;
+                            return true;
+                        }
+                    }
+                    // Check if they're aligned and adjacent in Y direction
+                    else if (Math.Abs(face1.Z - face2.Z) < tolerance && Math.Abs(face1.X - face2.X) < tolerance &&
+                        Math.Abs(face1.Width - face2.Width) < tolerance)
+                    {
+                        if (Math.Abs(face1.Y + face1.Height / 2 - (face2.Y - face2.Height / 2)) < tolerance)
+                        {
+                            // Merge in Y direction
+                            var newY = Math.Min(face1.Y - face1.Height / 2, face2.Y - face2.Height / 2);
+                            var newHeight = face1.Height + face2.Height;
+                            face1.Y = newY + newHeight / 2;
+                            face1.Height = newHeight;
+                            return true;
+                        }
+                    }
+                    break;
+            }
+
+            return false;
+        }
+
+        private void AddFaceTriangles(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, Face face)
         {
             int baseIndex = vertices.Count;
+            var corners = GetFaceCorners(face);
 
-            // Bottom vertices
-            vertices.Add((x, y, zBottom));
-            vertices.Add((x + 1, y, zBottom));
-            vertices.Add((x + 1, y + 1, zBottom));
-            vertices.Add((x, y + 1, zBottom));
+            // Add vertices
+            foreach (var corner in corners)
+            {
+                vertices.Add(corner);
+            }
 
-            // Top vertices
-            vertices.Add((x, y, zTop));
-            vertices.Add((x + 1, y, zTop));
-            vertices.Add((x + 1, y + 1, zTop));
-            vertices.Add((x, y + 1, zTop));
+            // Add triangles (2 triangles per face)
+            triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 2, face.Material));
+            triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 3, face.Material));
+        }
 
-            // Bottom face
-            triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, paintColor));
-            triangles.Add((baseIndex + 0, baseIndex + 3, baseIndex + 2, paintColor));
+        private List<(float x, float y, float z)> GetFaceCorners(Face face)
+        {
+            var corners = new List<(float x, float y, float z)>();
+            float halfWidth = face.Width / 2;
+            float halfHeight = face.Height / 2;
 
-            // Top face
-            triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, paintColor));
-            triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, paintColor));
+            switch (face.Direction)
+            {
+                case 0: // +X face (facing positive X)
+                    corners.Add((face.X, face.Y - halfHeight, face.Z - halfWidth));
+                    corners.Add((face.X, face.Y + halfHeight, face.Z - halfWidth));
+                    corners.Add((face.X, face.Y + halfHeight, face.Z + halfWidth));
+                    corners.Add((face.X, face.Y - halfHeight, face.Z + halfWidth));
+                    break;
+                case 1: // -X face (facing negative X)
+                    corners.Add((face.X, face.Y - halfHeight, face.Z + halfWidth));
+                    corners.Add((face.X, face.Y + halfHeight, face.Z + halfWidth));
+                    corners.Add((face.X, face.Y + halfHeight, face.Z - halfWidth));
+                    corners.Add((face.X, face.Y - halfHeight, face.Z - halfWidth));
+                    break;
+                case 2: // +Y face (facing positive Y)
+                    corners.Add((face.X - halfWidth, face.Y, face.Z - halfHeight));
+                    corners.Add((face.X - halfWidth, face.Y, face.Z + halfHeight));
+                    corners.Add((face.X + halfWidth, face.Y, face.Z + halfHeight));
+                    corners.Add((face.X + halfWidth, face.Y, face.Z - halfHeight));
+                    break;
+                case 3: // -Y face (facing negative Y)
+                    corners.Add((face.X - halfWidth, face.Y, face.Z + halfHeight));
+                    corners.Add((face.X - halfWidth, face.Y, face.Z - halfHeight));
+                    corners.Add((face.X + halfWidth, face.Y, face.Z - halfHeight));
+                    corners.Add((face.X + halfWidth, face.Y, face.Z + halfHeight));
+                    break;
+                case 4: // +Z face (facing positive Z)
+                    corners.Add((face.X - halfWidth, face.Y - halfHeight, face.Z));
+                    corners.Add((face.X + halfWidth, face.Y - halfHeight, face.Z));
+                    corners.Add((face.X + halfWidth, face.Y + halfHeight, face.Z));
+                    corners.Add((face.X - halfWidth, face.Y + halfHeight, face.Z));
+                    break;
+                case 5: // -Z face (facing negative Z)
+                    corners.Add((face.X - halfWidth, face.Y + halfHeight, face.Z));
+                    corners.Add((face.X + halfWidth, face.Y + halfHeight, face.Z));
+                    corners.Add((face.X + halfWidth, face.Y - halfHeight, face.Z));
+                    corners.Add((face.X - halfWidth, face.Y - halfHeight, face.Z));
+                    break;
+            }
 
-            // Side faces
-            triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 5, paintColor)); // Front
-            triangles.Add((baseIndex + 0, baseIndex + 5, baseIndex + 4, paintColor));
-
-            triangles.Add((baseIndex + 1, baseIndex + 2, baseIndex + 6, paintColor)); // Right
-            triangles.Add((baseIndex + 1, baseIndex + 6, baseIndex + 5, paintColor));
-
-            triangles.Add((baseIndex + 2, baseIndex + 3, baseIndex + 7, paintColor)); // Back
-            triangles.Add((baseIndex + 2, baseIndex + 7, baseIndex + 6, paintColor));
-
-            triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, paintColor)); // Left
-            triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, paintColor));
+            return corners;
         }
 
         private void CreateModelSettingsFile(ZipArchive archive, InnerMap maze, List<MazePointPos> path)
@@ -545,36 +847,40 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         private int CalculateFaceCount(InnerMap maze, HashSet<(int x, int y)> pathSet)
         {
-            // Ground plane: 2 triangles per unit square
-            int groundFaces = (maze.Width - 1) * (maze.Height - 1) * 2;
+            // Ground plane: 2 triangles per face
+            int groundFaces = 2;
 
-            // Count wall cubes
-            int wallCubes = 0;
+            // Create voxel representation to calculate exposed faces
+            var voxels = new Dictionary<(int x, int y, int z), VoxelData>();
+            
+            // Add wall voxels
             for (int y = 0; y < maze.Height - 1; y++)
             {
                 for (int x = 0; x < maze.Width - 1; x++)
                 {
                     if (!maze[x, y] && !pathSet.Contains((x, y))) // Wall position
                     {
-                        wallCubes++;
+                        voxels[(x, y, 1)] = new VoxelData { Material = Colors[0], Type = VoxelType.Wall };
                     }
                 }
             }
 
-            // Count path cubes (within valid maze area)
-            int pathCubes = 0;
+            // Add path voxels
             foreach (var (x, y) in pathSet)
             {
                 if (x < maze.Width - 1 && y < maze.Height - 1 && maze[x, y])
                 {
-                    pathCubes++;
+                    var paintColor = Colors[2]; // Simplified - use first path color
+                    voxels[(x, y, 1)] = new VoxelData { Material = paintColor, Type = VoxelType.Path };
                 }
             }
 
-            // Each cube has 12 triangles (6 faces * 2 triangles per face)
-            int cubeFaces = (wallCubes + pathCubes) * 12;
+            // Count exposed faces (approximation - each voxel contributes roughly 4-5 exposed faces on average)
+            // This is a simplification since the actual greedy meshing would merge many faces
+            int exposedFaces = voxels.Count * 5; // Approximate average exposed faces per voxel
+            int triangleCount = exposedFaces * 2; // 2 triangles per face
 
-            return groundFaces + cubeFaces;
+            return groundFaces + triangleCount;
         }
 
         private void CreateThumbnailImages(ZipArchive archive, InnerMap maze, List<MazePointPos> path)
