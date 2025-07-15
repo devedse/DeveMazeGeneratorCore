@@ -431,30 +431,13 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         private void AddOptimizedWalls(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, InnerMap maze, HashSet<(int x, int y)> pathSet)
         {
-            // Get optimized wall segments from the maze
-            var walls = maze.GenerateListOfMazeWalls();
+            // Generate optimized wall rectangles using advanced rectangle finding
+            var wallRectangles = GenerateWallRectangles(maze, pathSet);
             
-            foreach (var wall in walls)
+            foreach (var wallRect in wallRectangles)
             {
-                // Check if this wall is not overlapping with path
-                bool isValidWall = true;
-                for (int y = wall.Ystart; y <= wall.Yend && isValidWall; y++)
-                {
-                    for (int x = wall.Xstart; x <= wall.Xend && isValidWall; x++)
-                    {
-                        if (pathSet.Contains((x, y)))
-                        {
-                            isValidWall = false;
-                        }
-                    }
-                }
-                
-                if (isValidWall)
-                {
-                    // Create a cuboid for the entire wall segment
-                    AddCuboid(vertices, triangles, wall.Xstart, wall.Ystart, wall.Xend + 1, wall.Yend + 1, 
-                             GroundHeight, GroundHeight + WallHeight, Colors[0]); // Black walls
-                }
+                AddCuboid(vertices, triangles, wallRect.XStart, wallRect.YStart, wallRect.XEnd, wallRect.YEnd, 
+                         GroundHeight, GroundHeight + WallHeight, Colors[0]); // Black walls
             }
         }
 
@@ -469,6 +452,117 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 AddCuboid(vertices, triangles, pathRect.XStart, pathRect.YStart, pathRect.XEnd, pathRect.YEnd,
                          GroundHeight, GroundHeight + PathHeight, pathRect.Color);
             }
+        }
+
+        private List<WallRectangle> GenerateWallRectangles(InnerMap maze, HashSet<(int x, int y)> pathSet)
+        {
+            var rectangles = new List<WallRectangle>();
+            var processedCells = new HashSet<(int x, int y)>();
+            
+            // Find all wall cells (excluding borders and paths)
+            for (int y = 0; y < maze.Height - 1; y++)
+            {
+                for (int x = 0; x < maze.Width - 1; x++)
+                {
+                    // Check if this is a wall cell that hasn't been processed
+                    if (!maze[x, y] && // Wall cell (false = wall)
+                        !pathSet.Contains((x, y)) && // Not part of path
+                        !processedCells.Contains((x, y))) // Not already processed
+                    {
+                        // Find the largest rectangle starting from this point
+                        var rect = FindLargestWallRectangle(maze, pathSet, processedCells, x, y);
+                        if (rect != null)
+                        {
+                            rectangles.Add(rect);
+                        }
+                    }
+                }
+            }
+            
+            return rectangles;
+        }
+
+        private WallRectangle FindLargestWallRectangle(InnerMap maze, HashSet<(int x, int y)> pathSet, 
+                                                     HashSet<(int x, int y)> processedCells, int startX, int startY)
+        {
+            // Use a dynamic programming approach to find the largest rectangle
+            int maxWidth = 1;
+            int bestWidth = 1;
+            int bestHeight = 1;
+            int maxArea = 1;
+            
+            // Find maximum width at the starting row
+            while (startX + maxWidth < maze.Width - 1 && 
+                   IsWallCell(maze, pathSet, processedCells, startX + maxWidth, startY))
+            {
+                maxWidth++;
+            }
+            
+            // For each possible width, find the maximum height
+            for (int width = 1; width <= maxWidth; width++)
+            {
+                int height = 1;
+                
+                // Find maximum height that works for this width
+                while (startY + height < maze.Height - 1)
+                {
+                    bool canExtendHeight = true;
+                    
+                    // Check if the entire row can be added
+                    for (int x = startX; x < startX + width; x++)
+                    {
+                        if (!IsWallCell(maze, pathSet, processedCells, x, startY + height))
+                        {
+                            canExtendHeight = false;
+                            break;
+                        }
+                    }
+                    
+                    if (canExtendHeight)
+                    {
+                        height++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                
+                // Check if this rectangle is larger than our current best
+                int area = width * height;
+                if (area > maxArea)
+                {
+                    maxArea = area;
+                    bestWidth = width;
+                    bestHeight = height;
+                }
+            }
+            
+            // Mark all cells in this rectangle as processed
+            for (int y = startY; y < startY + bestHeight; y++)
+            {
+                for (int x = startX; x < startX + bestWidth; x++)
+                {
+                    processedCells.Add((x, y));
+                }
+            }
+            
+            return new WallRectangle
+            {
+                XStart = startX,
+                YStart = startY,
+                XEnd = startX + bestWidth,
+                YEnd = startY + bestHeight
+            };
+        }
+
+        private bool IsWallCell(InnerMap maze, HashSet<(int x, int y)> pathSet, HashSet<(int x, int y)> processedCells, int x, int y)
+        {
+            return x >= 0 && x < maze.Width - 1 && 
+                   y >= 0 && y < maze.Height - 1 &&
+                   !maze[x, y] && // Wall cell (false = wall)
+                   !pathSet.Contains((x, y)) && // Not part of path
+                   !processedCells.Contains((x, y)); // Not already processed
         }
 
         private List<PathRectangle> GeneratePathRectangles(InnerMap maze, HashSet<(int x, int y)> pathSet, Dictionary<(int x, int y), byte> pathPositions)
@@ -612,6 +706,14 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             public string Color { get; set; } = string.Empty;
         }
 
+        private class WallRectangle
+        {
+            public int XStart { get; set; }
+            public int YStart { get; set; }
+            public int XEnd { get; set; }
+            public int YEnd { get; set; }
+        }
+
         private void AddCube(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, int x, int y, float zBottom, float zTop, string paintColor)
         {
             int baseIndex = vertices.Count;
@@ -712,28 +814,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Ground plane: 12 triangles (6 faces * 2 triangles per face)
             int groundFaces = 12;
 
-            // Count optimized wall cuboids
-            var walls = maze.GenerateListOfMazeWalls();
-            int wallCuboids = 0;
-            foreach (var wall in walls)
-            {
-                // Check if this wall is not overlapping with path
-                bool isValidWall = true;
-                for (int y = wall.Ystart; y <= wall.Yend && isValidWall; y++)
-                {
-                    for (int x = wall.Xstart; x <= wall.Xend && isValidWall; x++)
-                    {
-                        if (pathSet.Contains((x, y)))
-                        {
-                            isValidWall = false;
-                        }
-                    }
-                }
-                if (isValidWall)
-                {
-                    wallCuboids++;
-                }
-            }
+            // Count optimized wall rectangles
+            var wallRectangles = GenerateWallRectangles(maze, pathSet);
+            int wallCuboids = wallRectangles.Count;
 
             // Count optimized path cuboids
             var pathPositions = new Dictionary<(int x, int y), byte>();
