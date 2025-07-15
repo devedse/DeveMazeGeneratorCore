@@ -638,8 +638,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             float zBottom = GroundHeight;
             float zTop = GroundHeight + cubeHeight;
             
-            // Create vertices for the rectangular region
-            // Bottom vertices
+            // Create vertices for the rectangular region (more efficient than individual cubes)
+            // Bottom vertices (usually not needed since ground plane covers this)
             vertices.Add((rectX, rectY, zBottom));
             vertices.Add((rectX + rectWidth, rectY, zBottom));
             vertices.Add((rectX + rectWidth, rectY + rectHeight, zBottom));
@@ -651,15 +651,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             vertices.Add((rectX + rectWidth, rectY + rectHeight, zTop));
             vertices.Add((rectX, rectY + rectHeight, zTop));
 
-            // Bottom face (optional - usually not needed since ground plane covers this)
-            // triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, material));
-            // triangles.Add((baseIndex + 0, baseIndex + 3, baseIndex + 2, material));
-
-            // Top face
+            // Top face (the most important face for visual appearance)
             triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, material));
             triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, material));
 
-            // Side faces
+            // Side faces (for walls/paths height)
             triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 5, material)); // Front
             triangles.Add((baseIndex + 0, baseIndex + 5, baseIndex + 4, material));
 
