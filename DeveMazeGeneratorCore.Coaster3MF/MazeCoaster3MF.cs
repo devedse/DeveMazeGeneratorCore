@@ -52,8 +52,10 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 // Create required 3MF files
                 CreateContentTypesFile(archive);
                 CreateRelsFile(archive);
-                Create3DModelFile(archive, maze, path);
+                Create3DModelFile(archive);
+                CreateObjectFile(archive, maze, path);
                 CreateModelSettingsFile(archive);
+                CreateMetadataFiles(archive);
             }
         }
 
@@ -90,7 +92,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             }
         }
 
-        private void Create3DModelFile(ZipArchive archive, InnerMap maze, List<MazePointPos> path)
+        private void Create3DModelFile(ZipArchive archive)
         {
             var entry = archive.CreateEntry("3D/3dmodel.model");
             using (var stream = entry.Open())
@@ -101,58 +103,105 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 OmitXmlDeclaration = false
             }))
             {
-                // Convert path to a HashSet for quick lookup
-                var pathSet = new HashSet<(int x, int y)>();
-                var pathPositions = new Dictionary<(int x, int y), byte>();
-                
-                foreach (var point in path)
-                {
-                    pathSet.Add((point.X, point.Y));
-                    pathPositions[(point.X, point.Y)] = point.RelativePos;
-                }
-
                 writer.WriteStartDocument();
                 writer.WriteStartElement("model", "http://schemas.microsoft.com/3dmanufacturing/core/2015/02");
                 writer.WriteAttributeString("unit", "millimeter");
                 writer.WriteAttributeString("xml", "lang", "http://www.w3.org/XML/1998/namespace", "en-US");
-                writer.WriteAttributeString("xmlns", "BambuStudio", null, "http://schemas.bambulab.com/package/2021");
                 writer.WriteAttributeString("xmlns", "p", null, "http://schemas.microsoft.com/3dmanufacturing/production/2015/06");
                 writer.WriteAttributeString("requiredextensions", "p");
 
-                // Add BambuStudio metadata
+                // Metadata
                 writer.WriteStartElement("metadata");
                 writer.WriteAttributeString("name", "Application");
-                writer.WriteString("DeveMazeGeneratorCore-1.0.0");
+                writer.WriteString("BambuStudio-02.01.01.52");
                 writer.WriteEndElement();
+                
                 writer.WriteStartElement("metadata");
                 writer.WriteAttributeString("name", "BambuStudio:3mfVersion");
                 writer.WriteString("1");
                 writer.WriteEndElement();
+                
+                writer.WriteStartElement("metadata");
+                writer.WriteAttributeString("name", "Copyright");
+                writer.WriteString("");
+                writer.WriteEndElement();
+                
                 writer.WriteStartElement("metadata");
                 writer.WriteAttributeString("name", "CreationDate");
-                writer.WriteString(DateTime.Now.ToString("yyyy-MM-dd"));
+                writer.WriteString("2025-01-15");
+                writer.WriteEndElement();
+                
+                writer.WriteStartElement("metadata");
+                writer.WriteAttributeString("name", "Description");
+                writer.WriteString("");
+                writer.WriteEndElement();
+                
+                writer.WriteStartElement("metadata");
+                writer.WriteAttributeString("name", "Designer");
+                writer.WriteString("");
+                writer.WriteEndElement();
+                
+                writer.WriteStartElement("metadata");
+                writer.WriteAttributeString("name", "DesignerCover");
+                writer.WriteString("");
+                writer.WriteEndElement();
+                
+                writer.WriteStartElement("metadata");
+                writer.WriteAttributeString("name", "DesignerUserId");
+                writer.WriteString("2360007279");
+                writer.WriteEndElement();
+                
+                writer.WriteStartElement("metadata");
+                writer.WriteAttributeString("name", "License");
+                writer.WriteString("");
+                writer.WriteEndElement();
+                
+                writer.WriteStartElement("metadata");
+                writer.WriteAttributeString("name", "ModificationDate");
+                writer.WriteString("2025-01-15");
+                writer.WriteEndElement();
+                
+                writer.WriteStartElement("metadata");
+                writer.WriteAttributeString("name", "Origin");
+                writer.WriteString("");
+                writer.WriteEndElement();
+                
+                writer.WriteStartElement("metadata");
+                writer.WriteAttributeString("name", "Title");
+                writer.WriteString("");
                 writer.WriteEndElement();
 
                 // Resources section
                 writer.WriteStartElement("resources");
-
-                // Create materials
-                CreateMaterials(writer);
-
-                // Create a single combined mesh object
-                CreateCombinedMesh(writer, maze, pathSet, pathPositions);
-
+                
+                writer.WriteStartElement("object");
+                writer.WriteAttributeString("id", "2");
+                writer.WriteAttributeString("p", "uuid", null, "00000001-61cb-4c03-9d28-80fed5dfa1dc");
+                writer.WriteAttributeString("type", "model");
+                
+                writer.WriteStartElement("components");
+                writer.WriteStartElement("component");
+                writer.WriteAttributeString("p", "path", null, "/3D/Objects/object_1.model");
+                writer.WriteAttributeString("objectid", "1");
+                writer.WriteAttributeString("p", "uuid", null, "00010000-b206-40ff-9872-83e8017abed1");
+                writer.WriteAttributeString("transform", "1 0 0 0 1 0 0 0 1 0 0 0");
+                writer.WriteEndElement(); // component
+                writer.WriteEndElement(); // components
+                
+                writer.WriteEndElement(); // object
                 writer.WriteEndElement(); // resources
 
-                // Build section with UUID and transform
+                // Build section
                 writer.WriteStartElement("build");
-                writer.WriteAttributeString("p", "UUID", null, Guid.NewGuid().ToString());
+                writer.WriteAttributeString("p", "uuid", null, "2c7c17d8-22b5-4d84-8835-1976022ea369");
+                
                 writer.WriteStartElement("item");
-                writer.WriteAttributeString("objectid", "2"); // The combined mesh object
-                writer.WriteAttributeString("p", "UUID", null, Guid.NewGuid().ToString());
-                writer.WriteAttributeString("transform", "1 0 0 0 1 0 0 0 1 0 0 0");
+                writer.WriteAttributeString("objectid", "2");
+                writer.WriteAttributeString("p", "uuid", null, "00000002-b1ec-4553-aec9-835e5b724bb4");
+                writer.WriteAttributeString("transform", "1 0 0 0 1 0 0 0 1 128 128 2.5");
                 writer.WriteAttributeString("printable", "1");
                 writer.WriteEndElement(); // item
+                
                 writer.WriteEndElement(); // build
 
                 writer.WriteEndElement(); // model
@@ -193,11 +242,77 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             writer.WriteEndElement(); // basematerials
         }
 
+        private void CreateObjectFile(ZipArchive archive, InnerMap maze, List<MazePointPos> path)
+        {
+            var entry = archive.CreateEntry("3D/Objects/object_1.model");
+            using (var stream = entry.Open())
+            using (var writer = XmlWriter.Create(stream, new XmlWriterSettings 
+            { 
+                Indent = true, 
+                Encoding = Encoding.UTF8,
+                OmitXmlDeclaration = false
+            }))
+            {
+                // Convert path to a HashSet for quick lookup
+                var pathSet = new HashSet<(int x, int y)>();
+                var pathPositions = new Dictionary<(int x, int y), byte>();
+                
+                foreach (var point in path)
+                {
+                    pathSet.Add((point.X, point.Y));
+                    pathPositions[(point.X, point.Y)] = point.RelativePos;
+                }
+
+                writer.WriteStartDocument();
+                writer.WriteStartElement("model", "http://schemas.microsoft.com/3dmanufacturing/core/2015/02");
+                writer.WriteAttributeString("unit", "millimeter");
+
+                // Resources section
+                writer.WriteStartElement("resources");
+
+                // Create materials
+                CreateMaterials(writer);
+
+                // Create a single combined mesh object
+                CreateCombinedMesh(writer, maze, pathSet, pathPositions);
+
+                writer.WriteEndElement(); // resources
+
+                writer.WriteEndElement(); // model
+                writer.WriteEndDocument();
+            }
+        }
+
+        private void CreateMetadataFiles(ZipArchive archive)
+        {
+            // Cut information
+            var cutEntry = archive.CreateEntry("Metadata/cut_information.xml");
+            using (var stream = cutEntry.Open())
+            using (var writer = new StreamWriter(stream, Encoding.UTF8))
+            {
+                writer.Write(BambuStudioMetadata.CutInformation);
+            }
+
+            // Project settings
+            var projectEntry = archive.CreateEntry("Metadata/project_settings.config");
+            using (var stream = projectEntry.Open())
+            using (var writer = new StreamWriter(stream, Encoding.UTF8))
+            {
+                writer.Write(BambuStudioMetadata.ProjectSettings);
+            }
+
+            // Slice info
+            var sliceEntry = archive.CreateEntry("Metadata/slice_info.config");
+            using (var stream = sliceEntry.Open())
+            using (var writer = new StreamWriter(stream, Encoding.UTF8))
+            {
+                writer.Write(BambuStudioMetadata.SliceInfo);
+            }
+        }
         private void CreateCombinedMesh(XmlWriter writer, InnerMap maze, HashSet<(int x, int y)> pathSet, Dictionary<(int x, int y), byte> pathPositions)
         {
             writer.WriteStartElement("object");
-            writer.WriteAttributeString("id", "2");
-            writer.WriteAttributeString("p", "UUID", null, Guid.NewGuid().ToString());
+            writer.WriteAttributeString("id", "1");
             writer.WriteAttributeString("type", "model");
 
             writer.WriteStartElement("mesh");
