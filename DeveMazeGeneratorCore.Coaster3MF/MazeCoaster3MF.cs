@@ -53,6 +53,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 CreateContentTypesFile(archive);
                 CreateRelsFile(archive);
                 Create3DModelFile(archive);
+                Create3DModelRelsFile(archive);
                 CreateObjectFile(archive, maze, path);
                 CreateModelSettingsFile(archive);
                 CreateMetadataFiles(archive);
@@ -87,6 +88,21 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     <?xml version="1.0" encoding="UTF-8"?>
                     <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
                         <Relationship Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" Target="/3D/3dmodel.model" Id="rel0"/>
+                    </Relationships>
+                    """);
+            }
+        }
+
+        private void Create3DModelRelsFile(ZipArchive archive)
+        {
+            var entry = archive.CreateEntry("3D/_rels/3dmodel.model.rels");
+            using (var stream = entry.Open())
+            using (var writer = new StreamWriter(stream, Encoding.UTF8))
+            {
+                writer.Write("""
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+                        <Relationship Target="/3D/Objects/object_1.model" Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/>
                     </Relationships>
                     """);
             }
