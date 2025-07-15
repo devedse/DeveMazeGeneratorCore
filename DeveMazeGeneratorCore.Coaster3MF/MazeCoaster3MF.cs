@@ -353,30 +353,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Ground plane vertices and triangles
             AddGroundPlane(vertices, triangles, maze);
 
-            // Wall cubes - exclude the rightmost and bottommost edge (following image generation convention)
-            for (int y = 0; y < maze.Height - 1; y++)
-            {
-                for (int x = 0; x < maze.Width - 1; x++)
-                {
-                    if (!maze[x, y] && !pathSet.Contains((x, y))) // Wall position (false = wall)
-                    {
-                        AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Black walls
-                    }
-                }
-            }
+            // Optimized wall generation using MazeWall segments
+            AddOptimizedWalls(vertices, triangles, maze, pathSet);
 
-            // Path cubes - only within the valid maze area (excluding rightmost and bottommost edge)
-            foreach (var (x, y) in pathSet)
-            {
-                if (x < maze.Width - 1 && y < maze.Height - 1 && maze[x, y]) // Open space that's part of the path and within valid area
-                {
-                    // Determine color based on position in path (0-255)
-                    var relativePos = pathPositions[(x, y)];
-                    var paintColor = relativePos < 128 ? Colors[2] : Colors[3];
-
-                    AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + PathHeight, paintColor);
-                }
-            }
+            // Optimized path generation using connected rectangular regions
+            AddOptimizedPaths(vertices, triangles, maze, pathSet, pathPositions);
 
             // Write vertices
             writer.WriteStartElement("vertices");
@@ -446,6 +427,189 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
             triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, Colors[0])); // Left
             triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, Colors[0]));
+        }
+
+        private void AddOptimizedWalls(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, InnerMap maze, HashSet<(int x, int y)> pathSet)
+        {
+            // Get optimized wall segments from the maze
+            var walls = maze.GenerateListOfMazeWalls();
+            
+            foreach (var wall in walls)
+            {
+                // Check if this wall is not overlapping with path
+                bool isValidWall = true;
+                for (int y = wall.Ystart; y <= wall.Yend && isValidWall; y++)
+                {
+                    for (int x = wall.Xstart; x <= wall.Xend && isValidWall; x++)
+                    {
+                        if (pathSet.Contains((x, y)))
+                        {
+                            isValidWall = false;
+                        }
+                    }
+                }
+                
+                if (isValidWall)
+                {
+                    // Create a cuboid for the entire wall segment
+                    AddCuboid(vertices, triangles, wall.Xstart, wall.Ystart, wall.Xend + 1, wall.Yend + 1, 
+                             GroundHeight, GroundHeight + WallHeight, Colors[0]); // Black walls
+                }
+            }
+        }
+
+        private void AddOptimizedPaths(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, 
+                                     InnerMap maze, HashSet<(int x, int y)> pathSet, Dictionary<(int x, int y), byte> pathPositions)
+        {
+            // Generate path rectangles by finding connected rectangular regions
+            var pathRectangles = GeneratePathRectangles(maze, pathSet, pathPositions);
+            
+            foreach (var pathRect in pathRectangles)
+            {
+                AddCuboid(vertices, triangles, pathRect.XStart, pathRect.YStart, pathRect.XEnd, pathRect.YEnd,
+                         GroundHeight, GroundHeight + PathHeight, pathRect.Color);
+            }
+        }
+
+        private List<PathRectangle> GeneratePathRectangles(InnerMap maze, HashSet<(int x, int y)> pathSet, Dictionary<(int x, int y), byte> pathPositions)
+        {
+            var rectangles = new List<PathRectangle>();
+            var processedCells = new HashSet<(int x, int y)>();
+            
+            foreach (var (x, y) in pathSet)
+            {
+                if (x >= maze.Width - 1 || y >= maze.Height - 1 || !maze[x, y] || processedCells.Contains((x, y)))
+                    continue;
+                
+                // Find the largest rectangle starting from this point
+                var rect = FindLargestPathRectangle(maze, pathSet, pathPositions, processedCells, x, y);
+                if (rect != null)
+                {
+                    rectangles.Add(rect);
+                }
+            }
+            
+            return rectangles;
+        }
+
+        private PathRectangle FindLargestPathRectangle(InnerMap maze, HashSet<(int x, int y)> pathSet, Dictionary<(int x, int y), byte> pathPositions, 
+                                                     HashSet<(int x, int y)> processedCells, int startX, int startY)
+        {
+            // Determine the dominant color for this region (based on the starting point)
+            var startRelativePos = pathPositions[(startX, startY)];
+            var dominantColor = startRelativePos < 128 ? Colors[2] : Colors[3];
+            
+            // Try to find the largest rectangle that can be formed
+            int maxWidth = 1;
+            int maxHeight = 1;
+            
+            // Find maximum width at the starting row
+            while (startX + maxWidth < maze.Width - 1 && 
+                   pathSet.Contains((startX + maxWidth, startY)) && 
+                   maze[startX + maxWidth, startY] &&
+                   !processedCells.Contains((startX + maxWidth, startY)))
+            {
+                var relativePos = pathPositions[(startX + maxWidth, startY)];
+                var cellColor = relativePos < 128 ? Colors[2] : Colors[3];
+                if (cellColor != dominantColor) break;
+                maxWidth++;
+            }
+            
+            // Find maximum height that works for this width
+            bool canExtendHeight = true;
+            while (canExtendHeight && startY + maxHeight < maze.Height - 1)
+            {
+                // Check if the entire row can be added
+                for (int x = startX; x < startX + maxWidth; x++)
+                {
+                    if (!pathSet.Contains((x, startY + maxHeight)) || 
+                        !maze[x, startY + maxHeight] ||
+                        processedCells.Contains((x, startY + maxHeight)))
+                    {
+                        canExtendHeight = false;
+                        break;
+                    }
+                    
+                    var relativePos = pathPositions[(x, startY + maxHeight)];
+                    var cellColor = relativePos < 128 ? Colors[2] : Colors[3];
+                    if (cellColor != dominantColor)
+                    {
+                        canExtendHeight = false;
+                        break;
+                    }
+                }
+                
+                if (canExtendHeight)
+                {
+                    maxHeight++;
+                }
+            }
+            
+            // Mark all cells in this rectangle as processed
+            for (int y = startY; y < startY + maxHeight; y++)
+            {
+                for (int x = startX; x < startX + maxWidth; x++)
+                {
+                    processedCells.Add((x, y));
+                }
+            }
+            
+            return new PathRectangle
+            {
+                XStart = startX,
+                YStart = startY,
+                XEnd = startX + maxWidth,
+                YEnd = startY + maxHeight,
+                Color = dominantColor
+            };
+        }
+
+        private void AddCuboid(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, 
+                             int xStart, int yStart, int xEnd, int yEnd, float zBottom, float zTop, string paintColor)
+        {
+            int baseIndex = vertices.Count;
+
+            // Bottom vertices
+            vertices.Add((xStart, yStart, zBottom));         // 0
+            vertices.Add((xEnd, yStart, zBottom));           // 1
+            vertices.Add((xEnd, yEnd, zBottom));             // 2
+            vertices.Add((xStart, yEnd, zBottom));           // 3
+
+            // Top vertices
+            vertices.Add((xStart, yStart, zTop));            // 4
+            vertices.Add((xEnd, yStart, zTop));              // 5
+            vertices.Add((xEnd, yEnd, zTop));                // 6
+            vertices.Add((xStart, yEnd, zTop));              // 7
+
+            // Bottom face
+            triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, paintColor));
+            triangles.Add((baseIndex + 0, baseIndex + 3, baseIndex + 2, paintColor));
+
+            // Top face
+            triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, paintColor));
+            triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, paintColor));
+
+            // Side faces
+            triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 5, paintColor)); // Front
+            triangles.Add((baseIndex + 0, baseIndex + 5, baseIndex + 4, paintColor));
+
+            triangles.Add((baseIndex + 1, baseIndex + 2, baseIndex + 6, paintColor)); // Right
+            triangles.Add((baseIndex + 1, baseIndex + 6, baseIndex + 5, paintColor));
+
+            triangles.Add((baseIndex + 2, baseIndex + 3, baseIndex + 7, paintColor)); // Back
+            triangles.Add((baseIndex + 2, baseIndex + 7, baseIndex + 6, paintColor));
+
+            triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, paintColor)); // Left
+            triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, paintColor));
+        }
+
+        private class PathRectangle
+        {
+            public int XStart { get; set; }
+            public int YStart { get; set; }
+            public int XEnd { get; set; }
+            public int YEnd { get; set; }
+            public string Color { get; set; } = string.Empty;
         }
 
         private void AddCube(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, int x, int y, float zBottom, float zTop, string paintColor)
@@ -545,36 +709,45 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         private int CalculateFaceCount(InnerMap maze, HashSet<(int x, int y)> pathSet)
         {
-            // Ground plane: 2 triangles per unit square
-            int groundFaces = (maze.Width - 1) * (maze.Height - 1) * 2;
+            // Ground plane: 12 triangles (6 faces * 2 triangles per face)
+            int groundFaces = 12;
 
-            // Count wall cubes
-            int wallCubes = 0;
-            for (int y = 0; y < maze.Height - 1; y++)
+            // Count optimized wall cuboids
+            var walls = maze.GenerateListOfMazeWalls();
+            int wallCuboids = 0;
+            foreach (var wall in walls)
             {
-                for (int x = 0; x < maze.Width - 1; x++)
+                // Check if this wall is not overlapping with path
+                bool isValidWall = true;
+                for (int y = wall.Ystart; y <= wall.Yend && isValidWall; y++)
                 {
-                    if (!maze[x, y] && !pathSet.Contains((x, y))) // Wall position
+                    for (int x = wall.Xstart; x <= wall.Xend && isValidWall; x++)
                     {
-                        wallCubes++;
+                        if (pathSet.Contains((x, y)))
+                        {
+                            isValidWall = false;
+                        }
                     }
                 }
-            }
-
-            // Count path cubes (within valid maze area)
-            int pathCubes = 0;
-            foreach (var (x, y) in pathSet)
-            {
-                if (x < maze.Width - 1 && y < maze.Height - 1 && maze[x, y])
+                if (isValidWall)
                 {
-                    pathCubes++;
+                    wallCuboids++;
                 }
             }
 
-            // Each cube has 12 triangles (6 faces * 2 triangles per face)
-            int cubeFaces = (wallCubes + pathCubes) * 12;
+            // Count optimized path cuboids
+            var pathPositions = new Dictionary<(int x, int y), byte>();
+            foreach (var (x, y) in pathSet)
+            {
+                pathPositions[(x, y)] = 128; // Default value for face count calculation
+            }
+            var pathRectangles = GeneratePathRectangles(maze, pathSet, pathPositions);
+            int pathCuboids = pathRectangles.Count;
 
-            return groundFaces + cubeFaces;
+            // Each cuboid has 12 triangles (6 faces * 2 triangles per face)
+            int cuboidFaces = (wallCuboids + pathCuboids) * 12;
+
+            return groundFaces + cuboidFaces;
         }
 
         private void CreateThumbnailImages(ZipArchive archive, InnerMap maze, List<MazePointPos> path)

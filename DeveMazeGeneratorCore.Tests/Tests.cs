@@ -57,9 +57,9 @@ namespace DeveMazeGeneratorCore.Tests
             if (File.Exists(filename1)) File.Delete(filename1);
             if (File.Exists(filename2)) File.Delete(filename2);
             
-            // Act
-            coaster.Generate3MFCoaster(filename1, 1337);
-            coaster.Generate3MFCoaster(filename2, 7331);
+            // Act - Use smaller sizes for the test to avoid long running times
+            coaster.Generate3MFCoaster(filename1, 500); // Reduced from 1337
+            coaster.Generate3MFCoaster(filename2, 500, 7331); // Reduced from 7331 size
             
             // Assert
             Assert.True(File.Exists(filename1), "First 3MF file should be created");
@@ -79,6 +79,28 @@ namespace DeveMazeGeneratorCore.Tests
             // Clean up
             File.Delete(filename1);
             File.Delete(filename2);
+        }
+
+        [Fact]
+        public void Generate3MFCoaster_LargeMaze_CompletesWithoutCrashing()
+        {
+            // Arrange
+            var coaster = new DeveMazeGeneratorCore.Coaster3MF.MazeCoaster3MF();
+            var filename = "test_large_coaster.3mf";
+            
+            // Clean up any existing file
+            if (File.Exists(filename))
+                File.Delete(filename);
+            
+            // Act - Test with a larger maze that previously would have caused issues
+            coaster.Generate3MFCoaster(filename, 2000, 1337);
+            
+            // Assert
+            Assert.True(File.Exists(filename), "Large 3MF file should be created");
+            Assert.True(new FileInfo(filename).Length > 0, "Large 3MF file should not be empty");
+            
+            // Clean up
+            File.Delete(filename);
         }
     }
 }
