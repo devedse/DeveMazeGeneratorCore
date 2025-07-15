@@ -461,35 +461,216 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         private void GenerateOptimizedMesh(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, InnerMap maze, HashSet<(int x, int y)> pathSet, Dictionary<(int x, int y), byte> pathPositions)
         {
-            // Create a 3D representation of voxels with different materials
-            // We have three layers: ground (already handled), walls, and paths
-            var voxels = new Dictionary<(int x, int y, int z), VoxelData>();
+            Console.WriteLine("Using advanced rectangular region optimization...");
             
-            // Add wall voxels
+            // Create material map for the maze
+            var materialMap = new string[maze.Width - 1, maze.Height - 1];
+            var heightMap = new float[maze.Width - 1, maze.Height - 1];
+            
+            // Fill material and height maps
             for (int y = 0; y < maze.Height - 1; y++)
             {
                 for (int x = 0; x < maze.Width - 1; x++)
                 {
-                    if (!maze[x, y] && !pathSet.Contains((x, y))) // Wall position
+                    if (pathSet.Contains((x, y)) && maze[x, y])
                     {
-                        voxels[(x, y, 1)] = new VoxelData { Material = Colors[0], Type = VoxelType.Wall };
+                        // Path position
+                        var relativePos = pathPositions[(x, y)];
+                        materialMap[x, y] = relativePos < 128 ? Colors[2] : Colors[3];
+                        heightMap[x, y] = PathHeight;
+                    }
+                    else if (!maze[x, y])
+                    {
+                        // Wall position
+                        materialMap[x, y] = Colors[0];
+                        heightMap[x, y] = WallHeight;
+                    }
+                    else
+                    {
+                        // Empty space (no cube)
+                        materialMap[x, y] = "";  // Use empty string instead of null
+                        heightMap[x, y] = 0;
+                    }
+                }
+            }
+            
+            // Generate optimized rectangular regions for each material type
+            GenerateOptimizedRegions(vertices, triangles, materialMap, heightMap, maze.Width - 1, maze.Height - 1);
+        }
+        
+        private void AddCube(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, int x, int y, float zBottom, float zTop, string paintColor)
+        {
+            int baseIndex = vertices.Count;
+
+            // Bottom vertices
+            vertices.Add((x, y, zBottom));
+            vertices.Add((x + 1, y, zBottom));
+            vertices.Add((x + 1, y + 1, zBottom));
+            vertices.Add((x, y + 1, zBottom));
+
+            // Top vertices
+            vertices.Add((x, y, zTop));
+            vertices.Add((x + 1, y, zTop));
+            vertices.Add((x + 1, y + 1, zTop));
+            vertices.Add((x, y + 1, zTop));
+
+            // Bottom face (z = zBottom)
+            triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, paintColor));
+            triangles.Add((baseIndex + 0, baseIndex + 3, baseIndex + 2, paintColor));
+
+            // Top face (z = zTop)
+            triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, paintColor));
+            triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, paintColor));
+
+            // Side faces
+            triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 5, paintColor)); // Front
+            triangles.Add((baseIndex + 0, baseIndex + 5, baseIndex + 4, paintColor));
+
+            triangles.Add((baseIndex + 1, baseIndex + 2, baseIndex + 6, paintColor)); // Right
+            triangles.Add((baseIndex + 1, baseIndex + 6, baseIndex + 5, paintColor));
+
+            triangles.Add((baseIndex + 2, baseIndex + 3, baseIndex + 7, paintColor)); // Back
+            triangles.Add((baseIndex + 2, baseIndex + 7, baseIndex + 6, paintColor));
+
+            triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, paintColor)); // Left
+            triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, paintColor));
+        }
+
+        private void GenerateOptimizedRegions(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, string[,] materialMap, float[,] heightMap, int width, int height)
+        {
+            var processed = new bool[width, height];
+            
+            // Find all unique materials
+            var materials = new HashSet<string>();
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    if (!string.IsNullOrEmpty(materialMap[x, y]))
+                    {
+                        materials.Add(materialMap[x, y]);
                     }
                 }
             }
 
-            // Add path voxels
-            foreach (var (x, y) in pathSet)
+            // Process each material separately to create optimized regions
+            foreach (var material in materials)
             {
-                if (x < maze.Width - 1 && y < maze.Height - 1 && maze[x, y])
+                // Find largest rectangles for this material
+                FindOptimalRectangles(vertices, triangles, materialMap, heightMap, processed, width, height, material);
+            }
+        }
+
+        private void FindOptimalRectangles(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, string[,] materialMap, float[,] heightMap, bool[,] processed, int width, int height, string targetMaterial)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
                 {
-                    var relativePos = pathPositions[(x, y)];
-                    var paintColor = relativePos < 128 ? Colors[2] : Colors[3];
-                    voxels[(x, y, 1)] = new VoxelData { Material = paintColor, Type = VoxelType.Path };
+                    if (!processed[x, y] && materialMap[x, y] == targetMaterial && !string.IsNullOrEmpty(materialMap[x, y]))
+                    {
+                        // Find the largest rectangle starting from this position
+                        var rect = FindLargestRectangle(materialMap, heightMap, processed, x, y, width, height, targetMaterial);
+                        
+                        if (rect.width > 0 && rect.height > 0)
+                        {
+                            // Create optimized geometry for this rectangle
+                            CreateRectangleGeometry(vertices, triangles, rect.x, rect.y, rect.width, rect.height, targetMaterial, heightMap[x, y]);
+                            
+                            // Mark all cells in this rectangle as processed
+                            MarkRectangleAsProcessed(processed, rect.x, rect.y, rect.width, rect.height);
+                        }
+                    }
                 }
             }
+        }
 
-            // Generate optimized faces using greedy meshing
-            GenerateOptimizedFaces(vertices, triangles, voxels, maze);
+        private (int x, int y, int width, int height) FindLargestRectangle(string[,] materialMap, float[,] heightMap, bool[,] processed, int startX, int startY, int totalWidth, int totalHeight, string targetMaterial)
+        {
+            var targetHeight = heightMap[startX, startY];
+            
+            // Find maximum width for this row
+            int maxWidth = 0;
+            for (int x = startX; x < totalWidth; x++)
+            {
+                if (processed[x, startY] || materialMap[x, startY] != targetMaterial || heightMap[x, startY] != targetHeight)
+                    break;
+                maxWidth++;
+            }
+            
+            if (maxWidth == 0) return (0, 0, 0, 0);
+            
+            // Find maximum height maintaining the same width
+            int maxHeight = 1;
+            for (int y = startY + 1; y < totalHeight; y++)
+            {
+                bool canExtend = true;
+                for (int x = startX; x < startX + maxWidth; x++)
+                {
+                    if (processed[x, y] || materialMap[x, y] != targetMaterial || heightMap[x, y] != targetHeight)
+                    {
+                        canExtend = false;
+                        break;
+                    }
+                }
+                
+                if (!canExtend) break;
+                maxHeight++;
+            }
+            
+            return (startX, startY, maxWidth, maxHeight);
+        }
+
+        private void MarkRectangleAsProcessed(bool[,] processed, int x, int y, int width, int height)
+        {
+            for (int ry = y; ry < y + height; ry++)
+            {
+                for (int rx = x; rx < x + width; rx++)
+                {
+                    processed[rx, ry] = true;
+                }
+            }
+        }
+
+        private void CreateRectangleGeometry(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, int rectX, int rectY, int rectWidth, int rectHeight, string material, float cubeHeight)
+        {
+            int baseIndex = vertices.Count;
+            float zBottom = GroundHeight;
+            float zTop = GroundHeight + cubeHeight;
+            
+            // Create vertices for the rectangular region
+            // Bottom vertices
+            vertices.Add((rectX, rectY, zBottom));
+            vertices.Add((rectX + rectWidth, rectY, zBottom));
+            vertices.Add((rectX + rectWidth, rectY + rectHeight, zBottom));
+            vertices.Add((rectX, rectY + rectHeight, zBottom));
+            
+            // Top vertices
+            vertices.Add((rectX, rectY, zTop));
+            vertices.Add((rectX + rectWidth, rectY, zTop));
+            vertices.Add((rectX + rectWidth, rectY + rectHeight, zTop));
+            vertices.Add((rectX, rectY + rectHeight, zTop));
+
+            // Bottom face (optional - usually not needed since ground plane covers this)
+            // triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, material));
+            // triangles.Add((baseIndex + 0, baseIndex + 3, baseIndex + 2, material));
+
+            // Top face
+            triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, material));
+            triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, material));
+
+            // Side faces
+            triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 5, material)); // Front
+            triangles.Add((baseIndex + 0, baseIndex + 5, baseIndex + 4, material));
+
+            triangles.Add((baseIndex + 1, baseIndex + 2, baseIndex + 6, material)); // Right
+            triangles.Add((baseIndex + 1, baseIndex + 6, baseIndex + 5, material));
+
+            triangles.Add((baseIndex + 2, baseIndex + 3, baseIndex + 7, material)); // Back
+            triangles.Add((baseIndex + 2, baseIndex + 7, baseIndex + 6, material));
+
+            triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, material)); // Left
+            triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, material));
         }
 
         private enum VoxelType
