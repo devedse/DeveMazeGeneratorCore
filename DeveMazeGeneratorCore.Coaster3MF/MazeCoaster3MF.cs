@@ -461,7 +461,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         private void GenerateOptimizedMesh(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, InnerMap maze, HashSet<(int x, int y)> pathSet, Dictionary<(int x, int y), byte> pathPositions)
         {
-            Console.WriteLine("Using advanced rectangular region optimization...");
+            Console.WriteLine("Using iterative rectangular region optimization...");
             
             // Create material map for the maze
             var materialMap = new string[maze.Width - 1, maze.Height - 1];
@@ -556,12 +556,347 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 }
             }
 
-            // Process each material separately to create optimized regions
+            // Process each material separately with perimeter optimization first
             foreach (var material in materials)
             {
-                // Find largest rectangles for this material
-                FindOptimalRectangles(vertices, triangles, materialMap, heightMap, processed, width, height, material, vertexCache);
+                // Use specialized perimeter optimization for outer walls
+                if (material == Colors[0]) // Wall material (black) - apply perimeter optimization
+                {
+                    FindOptimalPerimeterRectangles(vertices, triangles, materialMap, heightMap, processed, width, height, material, vertexCache);
+                }
+                else
+                {
+                    // Use iterative optimization for path materials
+                    FindOptimalRectanglesIterative(vertices, triangles, materialMap, heightMap, processed, width, height, material, vertexCache);
+                }
             }
+        }
+
+        private void FindOptimalPerimeterRectangles(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, string[,] materialMap, float[,] heightMap, bool[,] processed, int width, int height, string targetMaterial, Dictionary<(float x, float y, float z), int> vertexCache)
+        {
+            var rectangles = new List<(int x, int y, int width, int height, float cubeHeight)>();
+            
+            Console.WriteLine($"  Applying perimeter optimization for material {targetMaterial}...");
+            
+            // Phase 1: Handle outer perimeter walls first (they often form long strips)
+            ProcessPerimeterWalls(rectangles, materialMap, heightMap, processed, width, height, targetMaterial);
+            
+            // Phase 2: Handle remaining interior walls with regular algorithm
+            FindOptimalRectanglesBase(rectangles, materialMap, heightMap, processed, width, height, targetMaterial);
+            
+            int initialCount = rectangles.Count;
+            
+            // Phase 3: Apply aggressive merging for wall segments
+            bool merged = true;
+            int iterations = 0;
+            const int maxIterations = 15; // More iterations for walls
+            
+            while (merged && iterations < maxIterations)
+            {
+                merged = false;
+                iterations++;
+                int beforeMergeCount = rectangles.Count;
+                
+                // Try merging all possible combinations
+                for (int i = 0; i < rectangles.Count; i++)
+                {
+                    for (int j = i + 1; j < rectangles.Count; j++)
+                    {
+                        var rect1 = rectangles[i];
+                        var rect2 = rectangles[j];
+                        
+                        if (rect1.cubeHeight != rect2.cubeHeight) continue;
+                        
+                        var mergedRect = TryMergeRectangles(rect1, rect2);
+                        if (mergedRect.HasValue)
+                        {
+                            rectangles[i] = mergedRect.Value;
+                            rectangles.RemoveAt(j);
+                            merged = true;
+                            break;
+                        }
+                    }
+                    if (merged) break;
+                }
+                
+                int afterMergeCount = rectangles.Count;
+                if (beforeMergeCount > afterMergeCount)
+                {
+                    Console.WriteLine($"    Iteration {iterations}: Merged {beforeMergeCount - afterMergeCount} wall rectangles");
+                }
+            }
+            
+            Console.WriteLine($"  Wall material {targetMaterial}: {initialCount} -> {rectangles.Count} rectangles after {iterations} iterations");
+            
+            // Phase 4: Create optimized geometry
+            foreach (var rect in rectangles)
+            {
+                CreateRectangleGeometryShared(vertices, triangles, rect.x, rect.y, rect.width, rect.height, targetMaterial, rect.cubeHeight, vertexCache);
+            }
+        }
+
+        private void ProcessPerimeterWalls(List<(int x, int y, int width, int height, float cubeHeight)> rectangles, string[,] materialMap, float[,] heightMap, bool[,] processed, int width, int height, string targetMaterial)
+        {
+            // Process top edge
+            ProcessPerimeterEdge(rectangles, materialMap, heightMap, processed, 0, 0, width, 1, targetMaterial, true);
+            
+            // Process bottom edge
+            ProcessPerimeterEdge(rectangles, materialMap, heightMap, processed, 0, height - 1, width, 1, targetMaterial, true);
+            
+            // Process left edge (excluding corners already processed)
+            ProcessPerimeterEdge(rectangles, materialMap, heightMap, processed, 0, 1, 1, height - 2, targetMaterial, false);
+            
+            // Process right edge (excluding corners already processed)
+            ProcessPerimeterEdge(rectangles, materialMap, heightMap, processed, width - 1, 1, 1, height - 2, targetMaterial, false);
+        }
+
+        private void ProcessPerimeterEdge(List<(int x, int y, int width, int height, float cubeHeight)> rectangles, string[,] materialMap, float[,] heightMap, bool[,] processed, int startX, int startY, int maxWidth, int maxHeight, string targetMaterial, bool horizontal)
+        {
+            if (horizontal)
+            {
+                // Process horizontal edge - look for long horizontal strips
+                for (int y = startY; y < startY + maxHeight; y++)
+                {
+                    int x = startX;
+                    while (x < startX + maxWidth)
+                    {
+                        if (!processed[x, y] && materialMap[x, y] == targetMaterial && !string.IsNullOrEmpty(materialMap[x, y]))
+                        {
+                            // Find the longest horizontal strip
+                            int stripWidth = 0;
+                            float stripHeight = heightMap[x, y];
+                            
+                            for (int checkX = x; checkX < startX + maxWidth; checkX++)
+                            {
+                                if (processed[checkX, y] || materialMap[checkX, y] != targetMaterial || heightMap[checkX, y] != stripHeight)
+                                    break;
+                                stripWidth++;
+                            }
+                            
+                            if (stripWidth > 0)
+                            {
+                                rectangles.Add((x, y, stripWidth, 1, stripHeight));
+                                
+                                // Mark as processed
+                                for (int markX = x; markX < x + stripWidth; markX++)
+                                {
+                                    processed[markX, y] = true;
+                                }
+                                
+                                x += stripWidth;
+                            }
+                            else
+                            {
+                                x++;
+                            }
+                        }
+                        else
+                        {
+                            x++;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Process vertical edge - look for long vertical strips
+                for (int x = startX; x < startX + maxWidth; x++)
+                {
+                    int y = startY;
+                    while (y < startY + maxHeight)
+                    {
+                        if (!processed[x, y] && materialMap[x, y] == targetMaterial && !string.IsNullOrEmpty(materialMap[x, y]))
+                        {
+                            // Find the longest vertical strip
+                            int stripHeight = 0;
+                            float stripHeightValue = heightMap[x, y];
+                            
+                            for (int checkY = y; checkY < startY + maxHeight; checkY++)
+                            {
+                                if (processed[x, checkY] || materialMap[x, checkY] != targetMaterial || heightMap[x, checkY] != stripHeightValue)
+                                    break;
+                                stripHeight++;
+                            }
+                            
+                            if (stripHeight > 0)
+                            {
+                                rectangles.Add((x, y, 1, stripHeight, stripHeightValue));
+                                
+                                // Mark as processed
+                                for (int markY = y; markY < y + stripHeight; markY++)
+                                {
+                                    processed[x, markY] = true;
+                                }
+                                
+                                y += stripHeight;
+                            }
+                            else
+                            {
+                                y++;
+                            }
+                        }
+                        else
+                        {
+                            y++;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void FindOptimalRectanglesIterative(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, string[,] materialMap, float[,] heightMap, bool[,] processed, int width, int height, string targetMaterial, Dictionary<(float x, float y, float z), int> vertexCache)
+        {
+            var rectangles = new List<(int x, int y, int width, int height, float cubeHeight)>();
+            
+            // Phase 1: Find initial rectangles using the existing algorithm
+            FindOptimalRectanglesBase(rectangles, materialMap, heightMap, processed, width, height, targetMaterial);
+            int initialCount = rectangles.Count;
+            
+            // Phase 2: Iteratively merge adjacent rectangles to catch more optimization opportunities
+            bool merged = true;
+            int iterations = 0;
+            const int maxIterations = 10; // Increase iterations to allow more merging
+            
+            while (merged && iterations < maxIterations)
+            {
+                merged = false;
+                iterations++;
+                int beforeMergeCount = rectangles.Count;
+                
+                for (int i = 0; i < rectangles.Count; i++)
+                {
+                    for (int j = i + 1; j < rectangles.Count; j++)
+                    {
+                        var rect1 = rectangles[i];
+                        var rect2 = rectangles[j];
+                        
+                        // Only merge rectangles with same height
+                        if (rect1.cubeHeight != rect2.cubeHeight) continue;
+                        
+                        var mergedRect = TryMergeRectangles(rect1, rect2);
+                        if (mergedRect.HasValue)
+                        {
+                            // Replace the two rectangles with the merged one
+                            rectangles[i] = mergedRect.Value;
+                            rectangles.RemoveAt(j);
+                            merged = true;
+                            break;
+                        }
+                    }
+                    if (merged) break;
+                }
+                
+                int afterMergeCount = rectangles.Count;
+                if (beforeMergeCount > afterMergeCount)
+                {
+                    Console.WriteLine($"  Iteration {iterations}: Merged {beforeMergeCount - afterMergeCount} rectangles for material {targetMaterial}");
+                }
+            }
+            
+            Console.WriteLine($"  Material {targetMaterial}: {initialCount} -> {rectangles.Count} rectangles after {iterations} iterations");
+            
+            // Phase 3: Create optimized geometry for all rectangles
+            foreach (var rect in rectangles)
+            {
+                CreateRectangleGeometryShared(vertices, triangles, rect.x, rect.y, rect.width, rect.height, targetMaterial, rect.cubeHeight, vertexCache);
+            }
+        }
+
+        private void FindOptimalRectanglesBase(List<(int x, int y, int width, int height, float cubeHeight)> rectangles, string[,] materialMap, float[,] heightMap, bool[,] processed, int width, int height, string targetMaterial)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    if (!processed[x, y] && materialMap[x, y] == targetMaterial && !string.IsNullOrEmpty(materialMap[x, y]))
+                    {
+                        // Find the largest rectangle starting from this position
+                        var rect = FindLargestRectangle(materialMap, heightMap, processed, x, y, width, height, targetMaterial);
+                        
+                        if (rect.width > 0 && rect.height > 0)
+                        {
+                            // Add rectangle to list instead of creating geometry immediately
+                            rectangles.Add((rect.x, rect.y, rect.width, rect.height, heightMap[x, y]));
+                            
+                            // Mark all cells in this rectangle as processed
+                            MarkRectangleAsProcessed(processed, rect.x, rect.y, rect.width, rect.height);
+                        }
+                    }
+                }
+            }
+        }
+
+        private (int x, int y, int width, int height, float cubeHeight)? TryMergeRectangles((int x, int y, int width, int height, float cubeHeight) rect1, (int x, int y, int width, int height, float cubeHeight) rect2)
+        {
+            // Check if rectangles are adjacent and can be merged
+            
+            // Horizontal adjacency (same Y and height, adjacent X)
+            if (rect1.y == rect2.y && rect1.height == rect2.height)
+            {
+                if (rect1.x + rect1.width == rect2.x)
+                {
+                    // rect1 is to the left of rect2
+                    return (rect1.x, rect1.y, rect1.width + rect2.width, rect1.height, rect1.cubeHeight);
+                }
+                else if (rect2.x + rect2.width == rect1.x)
+                {
+                    // rect2 is to the left of rect1
+                    return (rect2.x, rect2.y, rect2.width + rect1.width, rect2.height, rect2.cubeHeight);
+                }
+            }
+            
+            // Vertical adjacency (same X and width, adjacent Y)
+            if (rect1.x == rect2.x && rect1.width == rect2.width)
+            {
+                if (rect1.y + rect1.height == rect2.y)
+                {
+                    // rect1 is above rect2
+                    return (rect1.x, rect1.y, rect1.width, rect1.height + rect2.height, rect1.cubeHeight);
+                }
+                else if (rect2.y + rect2.height == rect1.y)
+                {
+                    // rect2 is above rect1
+                    return (rect2.x, rect2.y, rect2.width, rect2.height + rect1.height, rect2.cubeHeight);
+                }
+            }
+            
+            // Try diagonal merging for L-shapes and complex patterns
+            // This is an experimental approach to catch patterns that pure rectangle merging misses
+            if (CanFormLargerRectangle(rect1, rect2))
+            {
+                return FormLargerRectangle(rect1, rect2);
+            }
+            
+            return null; // Cannot merge
+        }
+        
+        private bool CanFormLargerRectangle((int x, int y, int width, int height, float cubeHeight) rect1, (int x, int y, int width, int height, float cubeHeight) rect2)
+        {
+            // Check if two rectangles can form a larger rectangle when combined
+            // This handles cases where rectangles are not directly adjacent but can form a larger shape
+            
+            int minX = Math.Min(rect1.x, rect2.x);
+            int maxX = Math.Max(rect1.x + rect1.width, rect2.x + rect2.width);
+            int minY = Math.Min(rect1.y, rect2.y);
+            int maxY = Math.Max(rect1.y + rect1.height, rect2.y + rect2.height);
+            
+            int combinedWidth = maxX - minX;
+            int combinedHeight = maxY - minY;
+            int combinedArea = combinedWidth * combinedHeight;
+            int actualArea = rect1.width * rect1.height + rect2.width * rect2.height;
+            
+            // If the combined area equals the sum of individual areas, they form a perfect rectangle
+            return combinedArea == actualArea;
+        }
+        
+        private (int x, int y, int width, int height, float cubeHeight) FormLargerRectangle((int x, int y, int width, int height, float cubeHeight) rect1, (int x, int y, int width, int height, float cubeHeight) rect2)
+        {
+            int minX = Math.Min(rect1.x, rect2.x);
+            int maxX = Math.Max(rect1.x + rect1.width, rect2.x + rect2.width);
+            int minY = Math.Min(rect1.y, rect2.y);
+            int maxY = Math.Max(rect1.y + rect1.height, rect2.y + rect2.height);
+            
+            return (minX, minY, maxX - minX, maxY - minY, rect1.cubeHeight);
         }
 
         private void FindOptimalRectangles(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, string[,] materialMap, float[,] heightMap, bool[,] processed, int width, int height, string targetMaterial, Dictionary<(float x, float y, float z), int> vertexCache)
