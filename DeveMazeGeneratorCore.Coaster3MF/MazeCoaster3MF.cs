@@ -25,27 +25,65 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         private const float WallHeight = 2.5f; // Additional height for walls (black) in mm
         private const float PathHeight = 1.25f; // Additional height for path in mm
 
+
+
+        private static string[] Colors =
+        [
+            "4", // [0] Slot 1 in AMS: Black for walls
+            "8", // [1] Slot 2 in AMS: Green for first half of path
+            "0C", // [2] Slot 3 in AMS: Red for second half of path
+            "1C", // [3] Slot 4 in AMS: White for ground
+            "2C",
+            "3C",
+            "4C",
+            "5C",
+            "6C",
+            "7C",
+            "8C",
+            "9C",
+            "AC",
+            "BC",
+            "CC",
+            "DC",
+            "EC",
+            "0FC",
+            "1FC",
+            "2FC",
+            "3FC",
+            "4FC",
+            "5FC",
+            "6FC",
+            "7FC",
+            "8FC",
+            "9FC",
+            "AFC",
+            "BFC",
+            "CFC",
+            "DFC",
+            "EFC"
+        ];
+
         public void Generate3MFCoaster(string filename, int? seed = null)
         {
             Console.WriteLine($"Generating {MazeSize}x{MazeSize} maze...");
-            
+
             // Generate maze using AlgorithmBacktrack2Deluxe2_AsByte
             var alg = new AlgorithmBacktrack2Deluxe2_AsByte();
             var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
             var randomFactory = new RandomFactory<XorShiftRandom>();
             var actionThing = new NoAction();
-            
+
             var usedSeed = seed ?? 1337;
             var maze = alg.GoGenerate(MazeSize, MazeSize, usedSeed, innerMapFactory, randomFactory, actionThing);
-            
+
             Console.WriteLine("Finding path through maze...");
-            
+
             // Find the path with position information
             var path = PathFinderDepthFirstSmartWithPos.GoFind(maze.InnerMap, null);
-            
+
             Console.WriteLine($"Path found with {path.Count} points (seed: {usedSeed})");
             Console.WriteLine("Generating 3MF file...");
-            
+
             // Generate the 3MF file
             Generate3MFFile(maze.InnerMap, path, filename);
         }
@@ -63,7 +101,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 CreateObjectFile(archive, maze, path);
                 CreateModelSettingsFile(archive, maze, path);
                 CreateMetadataFiles(archive);
-                
+
                 // Generate and add thumbnail images
                 CreateThumbnailImages(archive, maze, path);
             }
@@ -124,9 +162,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         {
             var entry = archive.CreateEntry("3D/3dmodel.model");
             using (var stream = entry.Open())
-            using (var writer = XmlWriter.Create(stream, new XmlWriterSettings 
-            { 
-                Indent = true, 
+            using (var writer = XmlWriter.Create(stream, new XmlWriterSettings
+            {
+                Indent = true,
                 Encoding = Encoding.UTF8,
                 OmitXmlDeclaration = false
             }))
@@ -143,57 +181,57 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 writer.WriteAttributeString("name", "Application");
                 writer.WriteString("BambuStudio-02.01.01.52");
                 writer.WriteEndElement();
-                
+
                 writer.WriteStartElement("metadata");
                 writer.WriteAttributeString("name", "BambuStudio:3mfVersion");
                 writer.WriteString("1");
                 writer.WriteEndElement();
-                
+
                 writer.WriteStartElement("metadata");
                 writer.WriteAttributeString("name", "Copyright");
                 writer.WriteString("");
                 writer.WriteEndElement();
-                
+
                 writer.WriteStartElement("metadata");
                 writer.WriteAttributeString("name", "CreationDate");
                 writer.WriteString("2025-01-15");
                 writer.WriteEndElement();
-                
+
                 writer.WriteStartElement("metadata");
                 writer.WriteAttributeString("name", "Description");
                 writer.WriteString("");
                 writer.WriteEndElement();
-                
+
                 writer.WriteStartElement("metadata");
                 writer.WriteAttributeString("name", "Designer");
                 writer.WriteString("");
                 writer.WriteEndElement();
-                
+
                 writer.WriteStartElement("metadata");
                 writer.WriteAttributeString("name", "DesignerCover");
                 writer.WriteString("");
                 writer.WriteEndElement();
-                
+
                 writer.WriteStartElement("metadata");
                 writer.WriteAttributeString("name", "DesignerUserId");
                 writer.WriteString("2360007279");
                 writer.WriteEndElement();
-                
+
                 writer.WriteStartElement("metadata");
                 writer.WriteAttributeString("name", "License");
                 writer.WriteString("");
                 writer.WriteEndElement();
-                
+
                 writer.WriteStartElement("metadata");
                 writer.WriteAttributeString("name", "ModificationDate");
                 writer.WriteString("2025-01-15");
                 writer.WriteEndElement();
-                
+
                 writer.WriteStartElement("metadata");
                 writer.WriteAttributeString("name", "Origin");
                 writer.WriteString("");
                 writer.WriteEndElement();
-                
+
                 writer.WriteStartElement("metadata");
                 writer.WriteAttributeString("name", "Title");
                 writer.WriteString("");
@@ -201,12 +239,12 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
                 // Resources section
                 writer.WriteStartElement("resources");
-                
+
                 writer.WriteStartElement("object");
                 writer.WriteAttributeString("id", "2");
                 writer.WriteAttributeString("p", "uuid", null, "00000001-61cb-4c03-9d28-80fed5dfa1dc");
                 writer.WriteAttributeString("type", "model");
-                
+
                 writer.WriteStartElement("components");
                 writer.WriteStartElement("component");
                 writer.WriteAttributeString("p", "path", null, "/3D/Objects/object_1.model");
@@ -215,21 +253,21 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 writer.WriteAttributeString("transform", "1 0 0 0 1 0 0 0 1 0 0 0");
                 writer.WriteEndElement(); // component
                 writer.WriteEndElement(); // components
-                
+
                 writer.WriteEndElement(); // object
                 writer.WriteEndElement(); // resources
 
                 // Build section
                 writer.WriteStartElement("build");
                 writer.WriteAttributeString("p", "uuid", null, "2c7c17d8-22b5-4d84-8835-1976022ea369");
-                
+
                 writer.WriteStartElement("item");
                 writer.WriteAttributeString("objectid", "2");
                 writer.WriteAttributeString("p", "uuid", null, "00000002-b1ec-4553-aec9-835e5b724bb4");
                 writer.WriteAttributeString("transform", "1 0 0 0 1 0 0 0 1 128 128 2.5");
                 writer.WriteAttributeString("printable", "1");
                 writer.WriteEndElement(); // item
-                
+
                 writer.WriteEndElement(); // build
 
                 writer.WriteEndElement(); // model
@@ -242,9 +280,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         {
             var entry = archive.CreateEntry("3D/Objects/object_1.model");
             using (var stream = entry.Open())
-            using (var writer = XmlWriter.Create(stream, new XmlWriterSettings 
-            { 
-                Indent = true, 
+            using (var writer = XmlWriter.Create(stream, new XmlWriterSettings
+            {
+                Indent = true,
                 Encoding = Encoding.UTF8,
                 OmitXmlDeclaration = false
             }))
@@ -252,7 +290,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 // Convert path to a HashSet for quick lookup
                 var pathSet = new HashSet<(int x, int y)>();
                 var pathPositions = new Dictionary<(int x, int y), byte>();
-                
+
                 foreach (var point in path)
                 {
                     pathSet.Add((point.X, point.Y));
@@ -323,7 +361,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 {
                     if (!maze[x, y] && !pathSet.Contains((x, y))) // Wall position (false = wall)
                     {
-                        AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + WallHeight, "4"); // Black walls
+                        AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Black walls
                     }
                 }
             }
@@ -335,8 +373,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 {
                     // Determine color based on position in path (0-255)
                     var relativePos = pathPositions[(x, y)];
-                    var paintColor = relativePos < 128 ? "8" : "1C"; // Green (8) for first half, Red (1C) for second half
-                    
+                    var paintColor = relativePos < 128 ? Colors[2] : Colors[3];
+
                     AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + PathHeight, paintColor);
                 }
             }
@@ -376,7 +414,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         private void AddGroundPlane(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, InnerMap maze)
         {
             int baseIndex = vertices.Count;
-            
+
             // Bottom vertices - exclude the rightmost and bottommost edge (following image generation convention)
             vertices.Add((0, 0, 0));
             vertices.Add((maze.Width - 1, 0, 0));
@@ -390,25 +428,25 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             vertices.Add((0, maze.Height - 1, GroundHeight));
 
             // Bottom face (z = 0) - black
-            triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, "4"));
-            triangles.Add((baseIndex + 0, baseIndex + 3, baseIndex + 2, "4"));
+            triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, Colors[0]));
+            triangles.Add((baseIndex + 0, baseIndex + 3, baseIndex + 2, Colors[0]));
 
             // Top face (z = GroundHeight) - white
-            triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, "0C"));
-            triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, "0C"));
+            triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, Colors[1]));
+            triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, Colors[1]));
 
             // Side faces - black
-            triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 5, "4")); // Front
-            triangles.Add((baseIndex + 0, baseIndex + 5, baseIndex + 4, "4"));
-            
-            triangles.Add((baseIndex + 1, baseIndex + 2, baseIndex + 6, "4")); // Right
-            triangles.Add((baseIndex + 1, baseIndex + 6, baseIndex + 5, "4"));
-            
-            triangles.Add((baseIndex + 2, baseIndex + 3, baseIndex + 7, "4")); // Back
-            triangles.Add((baseIndex + 2, baseIndex + 7, baseIndex + 6, "4"));
-            
-            triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, "4")); // Left
-            triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, "4"));
+            triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 5, Colors[0])); // Front
+            triangles.Add((baseIndex + 0, baseIndex + 5, baseIndex + 4, Colors[0]));
+
+            triangles.Add((baseIndex + 1, baseIndex + 2, baseIndex + 6, Colors[0])); // Right
+            triangles.Add((baseIndex + 1, baseIndex + 6, baseIndex + 5, Colors[0]));
+
+            triangles.Add((baseIndex + 2, baseIndex + 3, baseIndex + 7, Colors[0])); // Back
+            triangles.Add((baseIndex + 2, baseIndex + 7, baseIndex + 6, Colors[0]));
+
+            triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, Colors[0])); // Left
+            triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, Colors[0]));
         }
 
         private void AddCube(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, int x, int y, float zBottom, float zTop, string paintColor)
@@ -457,9 +495,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             {
                 pathSet.Add((point.X, point.Y));
             }
-            
+
             var faceCount = CalculateFaceCount(maze, pathSet);
-            
+
             var entry = archive.CreateEntry("Metadata/model_settings.config");
             using (var stream = entry.Open())
             using (var writer = new StreamWriter(stream, Encoding.UTF8))
@@ -510,7 +548,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         {
             // Ground plane: 2 triangles per unit square
             int groundFaces = (maze.Width - 1) * (maze.Height - 1) * 2;
-            
+
             // Count wall cubes
             int wallCubes = 0;
             for (int y = 0; y < maze.Height - 1; y++)
@@ -523,7 +561,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     }
                 }
             }
-            
+
             // Count path cubes (within valid maze area)
             int pathCubes = 0;
             foreach (var (x, y) in pathSet)
@@ -533,10 +571,10 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     pathCubes++;
                 }
             }
-            
+
             // Each cube has 12 triangles (6 faces * 2 triangles per face)
             int cubeFaces = (wallCubes + pathCubes) * 12;
-            
+
             return groundFaces + cubeFaces;
         }
 
@@ -547,7 +585,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             {
                 WithPath.SaveMazeAsImageDeluxePng(maze, path, baseImageStream);
                 baseImageStream.Position = 0;
-                
+
                 // Load the base image once
                 using (var baseImage = Image.Load<Argb32>(baseImageStream))
                 {
@@ -577,7 +615,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     {
                         resizedImage.Mutate(x => x.Brightness(0.7f));
                     }
-                    
+
                     // Save as PNG with maximum compression
                     resizedImage.SaveAsPng(stream, new PngEncoder() { CompressionLevel = PngCompressionLevel.Level9 });
                 }
