@@ -237,38 +237,6 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             }
         }
 
-        private void CreateMaterials(XmlWriter writer)
-        {
-            // Base material group
-            writer.WriteStartElement("basematerials");
-            writer.WriteAttributeString("id", "1");
-
-            // White for ground
-            writer.WriteStartElement("base");
-            writer.WriteAttributeString("name", "White");
-            writer.WriteAttributeString("displaycolor", "#FFFFFF");
-            writer.WriteEndElement();
-
-            // Black for walls
-            writer.WriteStartElement("base");
-            writer.WriteAttributeString("name", "Black");
-            writer.WriteAttributeString("displaycolor", "#000000");
-            writer.WriteEndElement();
-
-            // Green for path start
-            writer.WriteStartElement("base");
-            writer.WriteAttributeString("name", "Green");
-            writer.WriteAttributeString("displaycolor", "#00FF00");
-            writer.WriteEndElement();
-
-            // Red for path end
-            writer.WriteStartElement("base");
-            writer.WriteAttributeString("name", "Red");
-            writer.WriteAttributeString("displaycolor", "#FF0000");
-            writer.WriteEndElement();
-
-            writer.WriteEndElement(); // basematerials
-        }
 
         private void CreateObjectFile(ZipArchive archive, InnerMap maze, List<MazePointPos> path)
         {
@@ -297,9 +265,6 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
                 // Resources section
                 writer.WriteStartElement("resources");
-
-                // Create materials
-                CreateMaterials(writer);
 
                 // Create a single combined mesh object
                 CreateCombinedMesh(writer, maze, pathSet, pathPositions);
@@ -346,7 +311,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             writer.WriteStartElement("mesh");
 
             var vertices = new List<(float x, float y, float z)>();
-            var triangles = new List<(int v1, int v2, int v3, int materialIndex)>();
+            var triangles = new List<(int v1, int v2, int v3, string paintColor)>();
 
             // Ground plane vertices and triangles
             AddGroundPlane(vertices, triangles, maze);
@@ -358,7 +323,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 {
                     if (!maze[x, y] && !pathSet.Contains((x, y))) // Wall position (false = wall)
                     {
-                        AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + WallHeight, 1); // Black material (index 1)
+                        AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + WallHeight, "8"); // Black material
                     }
                 }
             }
@@ -370,9 +335,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 {
                     // Determine color based on position in path (0-255)
                     var relativePos = pathPositions[(x, y)];
-                    var materialIndex = relativePos < 128 ? 2 : 3; // Green (2) for first half, Red (3) for second half
+                    var paintColor = relativePos < 128 ? "0C" : "1C"; // Green (0C) for first half, Red (1C) for second half
                     
-                    AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + PathHeight, materialIndex);
+                    AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + PathHeight, paintColor);
                 }
             }
 
@@ -390,14 +355,16 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
             // Write triangles
             writer.WriteStartElement("triangles");
-            foreach (var (v1, v2, v3, materialIndex) in triangles)
+            foreach (var (v1, v2, v3, paintColor) in triangles)
             {
                 writer.WriteStartElement("triangle");
                 writer.WriteAttributeString("v1", v1.ToString());
                 writer.WriteAttributeString("v2", v2.ToString());
                 writer.WriteAttributeString("v3", v3.ToString());
-                writer.WriteAttributeString("pid", "1");
-                writer.WriteAttributeString("p1", materialIndex.ToString());
+                if (!string.IsNullOrEmpty(paintColor))
+                {
+                    writer.WriteAttributeString("paint_color", paintColor);
+                }
                 writer.WriteEndElement();
             }
             writer.WriteEndElement(); // triangles
@@ -406,7 +373,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             writer.WriteEndElement(); // object
         }
 
-        private void AddGroundPlane(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, int materialIndex)> triangles, InnerMap maze)
+        private void AddGroundPlane(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, InnerMap maze)
         {
             int baseIndex = vertices.Count;
             
@@ -422,29 +389,29 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             vertices.Add((maze.Width - 1, maze.Height - 1, GroundHeight));
             vertices.Add((0, maze.Height - 1, GroundHeight));
 
-            // Bottom face (z = 0)
-            triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, 0)); // White material
-            triangles.Add((baseIndex + 0, baseIndex + 3, baseIndex + 2, 0));
+            // Bottom face (z = 0) - no paint color for white/ground
+            triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, ""));
+            triangles.Add((baseIndex + 0, baseIndex + 3, baseIndex + 2, ""));
 
-            // Top face (z = GroundHeight)
-            triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, 0));
-            triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, 0));
+            // Top face (z = GroundHeight) - no paint color for white/ground
+            triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, ""));
+            triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, ""));
 
-            // Side faces
-            triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 5, 0)); // Front
-            triangles.Add((baseIndex + 0, baseIndex + 5, baseIndex + 4, 0));
+            // Side faces - no paint color for white/ground
+            triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 5, "")); // Front
+            triangles.Add((baseIndex + 0, baseIndex + 5, baseIndex + 4, ""));
             
-            triangles.Add((baseIndex + 1, baseIndex + 2, baseIndex + 6, 0)); // Right
-            triangles.Add((baseIndex + 1, baseIndex + 6, baseIndex + 5, 0));
+            triangles.Add((baseIndex + 1, baseIndex + 2, baseIndex + 6, "")); // Right
+            triangles.Add((baseIndex + 1, baseIndex + 6, baseIndex + 5, ""));
             
-            triangles.Add((baseIndex + 2, baseIndex + 3, baseIndex + 7, 0)); // Back
-            triangles.Add((baseIndex + 2, baseIndex + 7, baseIndex + 6, 0));
+            triangles.Add((baseIndex + 2, baseIndex + 3, baseIndex + 7, "")); // Back
+            triangles.Add((baseIndex + 2, baseIndex + 7, baseIndex + 6, ""));
             
-            triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, 0)); // Left
-            triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, 0));
+            triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, "")); // Left
+            triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, ""));
         }
 
-        private void AddCube(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, int materialIndex)> triangles, int x, int y, float zBottom, float zTop, int materialIndex)
+        private void AddCube(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, int x, int y, float zBottom, float zTop, string paintColor)
         {
             int baseIndex = vertices.Count;
 
@@ -461,25 +428,25 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             vertices.Add((x, y + 1, zTop));
 
             // Bottom face
-            triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, materialIndex));
-            triangles.Add((baseIndex + 0, baseIndex + 3, baseIndex + 2, materialIndex));
+            triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, paintColor));
+            triangles.Add((baseIndex + 0, baseIndex + 3, baseIndex + 2, paintColor));
 
             // Top face
-            triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, materialIndex));
-            triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, materialIndex));
+            triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, paintColor));
+            triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, paintColor));
 
             // Side faces
-            triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 5, materialIndex)); // Front
-            triangles.Add((baseIndex + 0, baseIndex + 5, baseIndex + 4, materialIndex));
+            triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 5, paintColor)); // Front
+            triangles.Add((baseIndex + 0, baseIndex + 5, baseIndex + 4, paintColor));
 
-            triangles.Add((baseIndex + 1, baseIndex + 2, baseIndex + 6, materialIndex)); // Right
-            triangles.Add((baseIndex + 1, baseIndex + 6, baseIndex + 5, materialIndex));
+            triangles.Add((baseIndex + 1, baseIndex + 2, baseIndex + 6, paintColor)); // Right
+            triangles.Add((baseIndex + 1, baseIndex + 6, baseIndex + 5, paintColor));
 
-            triangles.Add((baseIndex + 2, baseIndex + 3, baseIndex + 7, materialIndex)); // Back
-            triangles.Add((baseIndex + 2, baseIndex + 7, baseIndex + 6, materialIndex));
+            triangles.Add((baseIndex + 2, baseIndex + 3, baseIndex + 7, paintColor)); // Back
+            triangles.Add((baseIndex + 2, baseIndex + 7, baseIndex + 6, paintColor));
 
-            triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, materialIndex)); // Left
-            triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, materialIndex));
+            triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, paintColor)); // Left
+            triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, paintColor));
         }
 
         private void CreateModelSettingsFile(ZipArchive archive, InnerMap maze, List<MazePointPos> path)
