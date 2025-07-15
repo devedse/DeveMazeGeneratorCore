@@ -37,9 +37,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             if (args.Length > 0)
             {
                 // Single maze with specified parameters
-                var filename = $"maze_coaster_{mazeSize}x{mazeSize}.3mf";
-                Console.WriteLine($"Creating {filename}...");
-                mazeCoaster.Generate3MFCoaster(filename, mazeSize, seed);
+                Console.WriteLine($"Creating maze coaster {mazeSize}x{mazeSize}...");
+                var filename = mazeCoaster.Generate3MFCoasterWithStats(mazeSize, seed);
                 
                 if (File.Exists(filename))
                 {
@@ -52,19 +51,19 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 // Generate with different seeds for variety
                 Console.WriteLine("Generating 3 different coaster designs...");
                 
+                var filenames = new List<string>();
                 for (int i = 1; i <= 3; i++)
                 {
-                    var filename = $"maze_coaster_{i}.3mf";
-                    Console.WriteLine($"Creating {filename}...");
-                    mazeCoaster.Generate3MFCoaster(filename, 20, 1337 + i);
+                    Console.WriteLine($"Creating coaster design {i}...");
+                    var filename = mazeCoaster.Generate3MFCoasterWithStats(20, 1337 + i);
+                    filenames.Add(filename);
                 }
                 
                 Console.WriteLine("All 3MF coasters generated successfully!");
                 Console.WriteLine("Files created:");
                 
-                for (int i = 1; i <= 3; i++)
+                foreach (var filename in filenames)
                 {
-                    var filename = $"maze_coaster_{i}.3mf";
                     if (File.Exists(filename))
                     {
                         var fileInfo = new FileInfo(filename);

@@ -81,6 +81,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             var path = PathFinderDepthFirstSmartWithPos.GoFind(maze.InnerMap, null);
 
             Console.WriteLine($"Path found with {path.Count} points (seed: {usedSeed})");
+            
+            // Calculate mesh statistics
+            var (triangles, vertices) = CalculateMeshStats(maze.InnerMap, path);
+            Console.WriteLine($"Mesh stats: {triangles} triangles, {vertices} vertices");
+            
             Console.WriteLine("Generating 3MF file...");
 
             // Generate the 3MF file
@@ -1286,6 +1291,85 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             int cuboidFaces = (wallCuboids + pathCuboids) * 12;
 
             return groundFaces + cuboidFaces;
+        }
+
+        private int CalculateVertexCount(InnerMap maze, HashSet<(int x, int y)> pathSet)
+        {
+            // Ground plane: 8 vertices
+            int groundVertices = 8;
+
+            // Count optimized wall rectangles
+            var wallRectangles = GenerateWallRectangles(maze, pathSet);
+            int wallCuboids = wallRectangles.Count;
+
+            // Count optimized path cuboids
+            var pathPositions = new Dictionary<(int x, int y), byte>();
+            foreach (var (x, y) in pathSet)
+            {
+                pathPositions[(x, y)] = 128; // Default value for vertex count calculation
+            }
+            var pathRectangles = GeneratePathRectangles(maze, pathSet, pathPositions);
+            int pathCuboids = pathRectangles.Count;
+
+            // Each cuboid has 8 vertices (no sharing accounted for in this approximation)
+            int cuboidVertices = (wallCuboids + pathCuboids) * 8;
+
+            return groundVertices + cuboidVertices;
+        }
+
+        public (int triangles, int vertices) CalculateMeshStats(InnerMap maze, List<MazePointPos> path)
+        {
+            var pathSet = new HashSet<(int x, int y)>();
+            foreach (var point in path)
+            {
+                pathSet.Add((point.X, point.Y));
+            }
+
+            var triangles = CalculateFaceCount(maze, pathSet);
+            var vertices = CalculateVertexCount(maze, pathSet);
+            
+            return (triangles, vertices);
+        }
+
+        public string GenerateFilenameWithStats(int mazeSize, int? seed, int triangles, int vertices)
+        {
+            var usedSeed = seed ?? 1337;
+            return $"maze_coaster_{mazeSize}x{mazeSize}_seed{usedSeed}_{triangles}tri_{vertices}vert.3mf";
+        }
+
+        public string Generate3MFCoasterWithStats(int mazeSize, int? seed = null)
+        {
+            Console.WriteLine($"Generating {mazeSize}x{mazeSize} maze...");
+
+            // Generate maze using AlgorithmBacktrack2Deluxe2_AsByte
+            var alg = new AlgorithmBacktrack2Deluxe2_AsByte();
+            var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
+            var randomFactory = new RandomFactory<XorShiftRandom>();
+            var actionThing = new NoAction();
+
+            var usedSeed = seed ?? 1337;
+            var maze = alg.GoGenerate(mazeSize, mazeSize, usedSeed, innerMapFactory, randomFactory, actionThing);
+
+            Console.WriteLine("Finding path through maze...");
+
+            // Find the path with position information
+            var path = PathFinderDepthFirstSmartWithPos.GoFind(maze.InnerMap, null);
+
+            Console.WriteLine($"Path found with {path.Count} points (seed: {usedSeed})");
+            
+            // Calculate mesh statistics
+            var (triangles, vertices) = CalculateMeshStats(maze.InnerMap, path);
+            Console.WriteLine($"Mesh stats: {triangles} triangles, {vertices} vertices");
+            
+            // Generate filename with stats
+            var filename = GenerateFilenameWithStats(mazeSize, seed, triangles, vertices);
+            
+            Console.WriteLine("Generating 3MF file...");
+
+            // Generate the 3MF file
+            Generate3MFFile(maze.InnerMap, path, filename);
+            
+            return filename;
         }
 
         private void CreateThumbnailImages(ZipArchive archive, InnerMap maze, List<MazePointPos> path)
