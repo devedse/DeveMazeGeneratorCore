@@ -323,7 +323,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 {
                     if (!maze[x, y] && !pathSet.Contains((x, y))) // Wall position (false = wall)
                     {
-                        AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + WallHeight, "8"); // Black material
+                        AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + WallHeight, "4"); // Black walls
                     }
                 }
             }
@@ -335,7 +335,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 {
                     // Determine color based on position in path (0-255)
                     var relativePos = pathPositions[(x, y)];
-                    var paintColor = relativePos < 128 ? "0C" : "1C"; // Green (0C) for first half, Red (1C) for second half
+                    var paintColor = relativePos < 128 ? "8" : "0C"; // Green (8) for first half, Red (0C) for second half
                     
                     AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + PathHeight, paintColor);
                 }
@@ -389,26 +389,26 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             vertices.Add((maze.Width - 1, maze.Height - 1, GroundHeight));
             vertices.Add((0, maze.Height - 1, GroundHeight));
 
-            // Bottom face (z = 0) - no paint color for white/ground
-            triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, ""));
-            triangles.Add((baseIndex + 0, baseIndex + 3, baseIndex + 2, ""));
+            // Bottom face (z = 0) - black
+            triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, "4"));
+            triangles.Add((baseIndex + 0, baseIndex + 3, baseIndex + 2, "4"));
 
-            // Top face (z = GroundHeight) - no paint color for white/ground
-            triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, ""));
-            triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, ""));
+            // Top face (z = GroundHeight) - white
+            triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, "1C"));
+            triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, "1C"));
 
-            // Side faces - no paint color for white/ground
-            triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 5, "")); // Front
-            triangles.Add((baseIndex + 0, baseIndex + 5, baseIndex + 4, ""));
+            // Side faces - black
+            triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 5, "4")); // Front
+            triangles.Add((baseIndex + 0, baseIndex + 5, baseIndex + 4, "4"));
             
-            triangles.Add((baseIndex + 1, baseIndex + 2, baseIndex + 6, "")); // Right
-            triangles.Add((baseIndex + 1, baseIndex + 6, baseIndex + 5, ""));
+            triangles.Add((baseIndex + 1, baseIndex + 2, baseIndex + 6, "4")); // Right
+            triangles.Add((baseIndex + 1, baseIndex + 6, baseIndex + 5, "4"));
             
-            triangles.Add((baseIndex + 2, baseIndex + 3, baseIndex + 7, "")); // Back
-            triangles.Add((baseIndex + 2, baseIndex + 7, baseIndex + 6, ""));
+            triangles.Add((baseIndex + 2, baseIndex + 3, baseIndex + 7, "4")); // Back
+            triangles.Add((baseIndex + 2, baseIndex + 7, baseIndex + 6, "4"));
             
-            triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, "")); // Left
-            triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, ""));
+            triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, "4")); // Left
+            triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, "4"));
         }
 
         private void AddCube(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, int x, int y, float zBottom, float zTop, string paintColor)
