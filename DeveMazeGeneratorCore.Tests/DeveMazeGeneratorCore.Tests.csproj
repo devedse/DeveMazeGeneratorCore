@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DeveMazeGeneratorCore\DeveMazeGeneratorCore.csproj" />
+    <ProjectReference Include="..\DeveMazeGeneratorCore.Coaster3MF\DeveMazeGeneratorCore.Coaster3MF.csproj" />
   </ItemGroup>
 
 </Project>
