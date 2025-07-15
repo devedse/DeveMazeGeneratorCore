@@ -62,7 +62,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             "EFC"
         ];
 
-        public void Generate3MFCoaster(string filename, int mazeSize, int? seed = null)
+        public string Generate3MFCoaster(string filename, int mazeSize, int? seed = null)
         {
             Console.WriteLine($"Generating {mazeSize}x{mazeSize} maze...");
 
@@ -81,10 +81,19 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             var path = PathFinderDepthFirstSmartWithPos.GoFind(maze.InnerMap, null);
 
             Console.WriteLine($"Path found with {path.Count} points (seed: {usedSeed})");
-            Console.WriteLine("Generating 3MF file...");
+            Console.WriteLine("Generating mesh data to determine vertex and triangle counts...");
+
+            // Generate mesh data to get vertex and triangle counts
+            var (vertexCount, triangleCount) = CalculateMeshCounts(maze.InnerMap, path);
+            
+            // Create filename with mesh statistics
+            var actualFilename = $"maze_coaster_{mazeSize}x{mazeSize}_seed{usedSeed}_{triangleCount}tri_{vertexCount}vert.3mf";
+            Console.WriteLine($"Creating {actualFilename} ({vertexCount} vertices, {triangleCount} triangles)...");
 
             // Generate the 3MF file
-            Generate3MFFile(maze.InnerMap, path, filename);
+            Generate3MFFile(maze.InnerMap, path, actualFilename);
+            
+            return actualFilename;
         }
 
         private void Generate3MFFile(InnerMap maze, List<MazePointPos> path, string filename)
@@ -339,6 +348,30 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 writer.Write(BambuStudioMetadata.SliceInfo);
             }
         }
+        private (int vertexCount, int triangleCount) CalculateMeshCounts(InnerMap maze, List<MazePointPos> path)
+        {
+            // Convert path to a HashSet for quick lookup
+            var pathSet = new HashSet<(int x, int y)>();
+            var pathPositions = new Dictionary<(int x, int y), byte>();
+
+            foreach (var point in path)
+            {
+                pathSet.Add((point.X, point.Y));
+                pathPositions[(point.X, point.Y)] = point.RelativePos;
+            }
+
+            var vertices = new List<(float x, float y, float z)>();
+            var triangles = new List<(int v1, int v2, int v3, string paintColor)>();
+
+            // Ground plane vertices and triangles
+            AddGroundPlane(vertices, triangles, maze);
+
+            // Generate optimized mesh using greedy meshing algorithm
+            GenerateOptimizedMesh(vertices, triangles, maze, pathSet, pathPositions);
+
+            return (vertices.Count, triangles.Count);
+        }
+
         private void CreateCombinedMesh(XmlWriter writer, InnerMap maze, HashSet<(int x, int y)> pathSet, Dictionary<(int x, int y), byte> pathPositions)
         {
             writer.WriteStartElement("object");
