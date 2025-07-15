@@ -5,9 +5,14 @@ using DeveMazeGeneratorCore.Generators.Helpers;
 using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.PathFinders;
 using DeveMazeGeneratorCore.Structures;
+using DeveMazeGeneratorCore.Imageification;
 using System.IO.Compression;
 using System.Xml;
 using System.Text;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace DeveMazeGeneratorCore.Coaster3MF
 {
@@ -55,8 +60,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 Create3DModelFile(archive);
                 Create3DModelRelsFile(archive);
                 CreateObjectFile(archive, maze, path);
-                CreateModelSettingsFile(archive);
+                CreateModelSettingsFile(archive, maze, path);
                 CreateMetadataFiles(archive);
+                
+                // Generate and add thumbnail images
+                CreateThumbnailImages(archive, maze, path);
             }
         }
 
@@ -87,7 +95,10 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 writer.Write("""
                     <?xml version="1.0" encoding="UTF-8"?>
                     <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-                        <Relationship Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" Target="/3D/3dmodel.model" Id="rel0"/>
+                        <Relationship Target="/3D/3dmodel.model" Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/>
+                        <Relationship Target="/Metadata/plate_1.png" Id="rel-2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/thumbnail"/>
+                        <Relationship Target="/Metadata/plate_1.png" Id="rel-4" Type="http://schemas.bambulab.com/package/2021/cover-thumbnail-middle"/>
+                        <Relationship Target="/Metadata/plate_1_small.png" Id="rel-5" Type="http://schemas.bambulab.com/package/2021/cover-thumbnail-small"/>
                     </Relationships>
                     """);
             }
@@ -470,21 +481,38 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, materialIndex));
         }
 
-        private void CreateModelSettingsFile(ZipArchive archive)
+        private void CreateModelSettingsFile(ZipArchive archive, InnerMap maze, List<MazePointPos> path)
         {
+            // Calculate face count based on the mesh that will be generated
+            var pathSet = new HashSet<(int x, int y)>();
+            foreach (var point in path)
+            {
+                pathSet.Add((point.X, point.Y));
+            }
+            
+            var faceCount = CalculateFaceCount(maze, pathSet);
+            
             var entry = archive.CreateEntry("Metadata/model_settings.config");
             using (var stream = entry.Open())
             using (var writer = new StreamWriter(stream, Encoding.UTF8))
             {
-                writer.Write("""
+                writer.Write($"""
                     <?xml version="1.0" encoding="UTF-8"?>
                     <config>
                       <object id="2">
                         <metadata key="name" value="Maze_Coaster"/>
                         <metadata key="extruder" value="1"/>
+                        <metadata key="face_count" value="{faceCount}"/>
                         <part id="1" subtype="normal_part">
                           <metadata key="name" value="Maze_Coaster"/>
                           <metadata key="matrix" value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+                          <metadata key="source_file" value="maze_coaster.3mf"/>
+                          <metadata key="source_object_id" value="0"/>
+                          <metadata key="source_volume_id" value="0"/>
+                          <metadata key="source_offset_x" value="9.5"/>
+                          <metadata key="source_offset_y" value="9.5"/>
+                          <metadata key="source_offset_z" value="2.5"/>
+                          <mesh_stat face_count="{faceCount}" edges_fixed="0" degenerate_facets="0" facets_removed="0" facets_reversed="0" backwards_edges="0"/>
                         </part>
                       </object>
                       <plate>
@@ -492,18 +520,98 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                         <metadata key="plater_name" value=""/>
                         <metadata key="locked" value="false"/>
                         <metadata key="filament_map_mode" value="Auto For Flush"/>
-                        <metadata key="filament_maps" value="1 1 1 1"/>
+                        <metadata key="thumbnail_file" value="Metadata/plate_1.png"/>
+                        <metadata key="thumbnail_no_light_file" value="Metadata/plate_no_light_1.png"/>
+                        <metadata key="top_file" value="Metadata/top_1.png"/>
+                        <metadata key="pick_file" value="Metadata/pick_1.png"/>
                         <model_instance>
                           <metadata key="object_id" value="2"/>
                           <metadata key="instance_id" value="0"/>
-                          <metadata key="identify_id" value="1"/>
+                          <metadata key="identify_id" value="84"/>
                         </model_instance>
                       </plate>
                       <assemble>
-                       <assemble_item object_id="2" instance_id="0" transform="1 0 0 0 1 0 0 0 1 0 0 0" offset="0 0 0" />
+                       <assemble_item object_id="2" instance_id="0" transform="1 0 0 0 1 0 0 0 1 0 0 0" offset="0 0 0"/>
                       </assemble>
                     </config>
                     """);
+            }
+        }
+
+        private int CalculateFaceCount(InnerMap maze, HashSet<(int x, int y)> pathSet)
+        {
+            // Ground plane: 2 triangles per unit square
+            int groundFaces = (maze.Width - 1) * (maze.Height - 1) * 2;
+            
+            // Count wall cubes
+            int wallCubes = 0;
+            for (int y = 0; y < maze.Height - 1; y++)
+            {
+                for (int x = 0; x < maze.Width - 1; x++)
+                {
+                    if (!maze[x, y] && !pathSet.Contains((x, y))) // Wall position
+                    {
+                        wallCubes++;
+                    }
+                }
+            }
+            
+            // Count path cubes (within valid maze area)
+            int pathCubes = 0;
+            foreach (var (x, y) in pathSet)
+            {
+                if (x < maze.Width - 1 && y < maze.Height - 1 && maze[x, y])
+                {
+                    pathCubes++;
+                }
+            }
+            
+            // Each cube has 12 triangles (6 faces * 2 triangles per face)
+            int cubeFaces = (wallCubes + pathCubes) * 12;
+            
+            return groundFaces + cubeFaces;
+        }
+
+        private void CreateThumbnailImages(ZipArchive archive, InnerMap maze, List<MazePointPos> path)
+        {
+            // Generate the different thumbnails required by Bambu Studio
+            CreateThumbnail(archive, maze, path, "Metadata/plate_1.png", 512, 512, false);
+            CreateThumbnail(archive, maze, path, "Metadata/plate_1_small.png", 128, 128, false);
+            CreateThumbnail(archive, maze, path, "Metadata/plate_no_light_1.png", 512, 512, true);
+            CreateThumbnail(archive, maze, path, "Metadata/top_1.png", 512, 512, false);
+        }
+
+        private void CreateThumbnail(ZipArchive archive, InnerMap maze, List<MazePointPos> path, string filename, int width, int height, bool noLight)
+        {
+            var entry = archive.CreateEntry(filename);
+            using (var stream = entry.Open())
+            {
+                // Create image using existing maze imageification code
+                using (var memoryStream = new MemoryStream())
+                {
+                    // Use the existing WithPath.SaveMazeAsImageDeluxePng method
+                    WithPath.SaveMazeAsImageDeluxePng(maze, path, memoryStream);
+                    memoryStream.Position = 0;
+                    
+                    // Load the generated image and resize it
+                    using (var sourceImage = Image.Load<Argb32>(memoryStream))
+                    {
+                        // Resize to target dimensions
+                        using (var resizedImage = new Image<Argb32>(width, height))
+                        {
+                            resizedImage.Mutate(x => x.DrawImage(sourceImage.Clone(ctx => ctx.Resize(width, height)), 1.0f));
+                            
+                            // Apply "no light" effect by darkening the image
+                            if (noLight)
+                            {
+                                resizedImage.Mutate(x => x.Brightness(0.7f));
+                            }
+                            
+                            // Save as PNG with maximum compression
+                            resizedImage.SaveAsPng(stream, new PngEncoder() { CompressionLevel = PngCompressionLevel.Level9 });
+                        }
+                    }
+                }
             }
         }
     }
