@@ -19,7 +19,6 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 {
     public class MazeCoaster3MF
     {
-        private const int MazeSize = 20;
         private const float CoasterSize = 5.0f; // Total height in mm
         private const float GroundHeight = 2.5f; // White ground base height in mm
         private const float WallHeight = 2.5f; // Additional height for walls (black) in mm
@@ -63,9 +62,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             "EFC"
         ];
 
-        public void Generate3MFCoaster(string filename, int? seed = null)
+        public void Generate3MFCoaster(string filename, int mazeSize, int? seed = null)
         {
-            Console.WriteLine($"Generating {MazeSize}x{MazeSize} maze...");
+            Console.WriteLine($"Generating {mazeSize}x{mazeSize} maze...");
 
             // Generate maze using AlgorithmBacktrack2Deluxe2_AsByte
             var alg = new AlgorithmBacktrack2Deluxe2_AsByte();
@@ -74,7 +73,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             var actionThing = new NoAction();
 
             var usedSeed = seed ?? 1337;
-            var maze = alg.GoGenerate(MazeSize, MazeSize, usedSeed, innerMapFactory, randomFactory, actionThing);
+            var maze = alg.GoGenerate(mazeSize, mazeSize, usedSeed, innerMapFactory, randomFactory, actionThing);
 
             Console.WriteLine("Finding path through maze...");
 

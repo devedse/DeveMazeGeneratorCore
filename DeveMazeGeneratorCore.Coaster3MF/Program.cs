@@ -27,7 +27,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             {
                 var filename = $"maze_coaster_{i}.3mf";
                 Console.WriteLine($"Creating {filename}...");
-                mazeCoaster.Generate3MFCoaster(filename, 1337 + i);
+                mazeCoaster.Generate3MFCoaster(filename, 20, 1337 + i);
             }
             
             Console.WriteLine("All 3MF coasters generated successfully!");
