@@ -461,7 +461,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         private void GenerateOptimizedMesh(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, InnerMap maze, HashSet<(int x, int y)> pathSet, Dictionary<(int x, int y), byte> pathPositions)
         {
-            Console.WriteLine("Using iterative rectangular region optimization...");
+            Console.WriteLine("Using enhanced same-plane optimization with connected components...");
             
             // Create material map for the maze
             var materialMap = new string[maze.Width - 1, maze.Height - 1];
@@ -556,22 +556,342 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 }
             }
 
-            // Process each material separately with perimeter optimization first
+            // Process each material separately with enhanced same-plane optimization
             foreach (var material in materials)
             {
-                // Use specialized perimeter optimization for outer walls
-                if (material == Colors[0]) // Wall material (black) - apply perimeter optimization
-                {
-                    FindOptimalPerimeterRectangles(vertices, triangles, materialMap, heightMap, processed, width, height, material, vertexCache);
-                }
-                else
-                {
-                    // Use iterative optimization for path materials
-                    FindOptimalRectanglesIterative(vertices, triangles, materialMap, heightMap, processed, width, height, material, vertexCache);
-                }
+                // Use enhanced same-plane optimization for all materials
+                FindOptimalSamePlaneRegions(vertices, triangles, materialMap, heightMap, processed, width, height, material, vertexCache);
             }
         }
 
+        private void FindOptimalSamePlaneRegions(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, string[,] materialMap, float[,] heightMap, bool[,] processed, int width, int height, string targetMaterial, Dictionary<(float x, float y, float z), int> vertexCache)
+        {
+            Console.WriteLine($"  Applying enhanced same-plane optimization for material {targetMaterial}...");
+            
+            // Use flood-fill approach to find connected components
+            var components = FindConnectedComponents(materialMap, heightMap, width, height, targetMaterial);
+            
+            int totalRectangles = 0;
+            
+            foreach (var component in components)
+            {
+                // Process each connected component separately for optimal results
+                var componentRectangles = OptimizeConnectedComponent(component, materialMap, heightMap, processed, targetMaterial);
+                totalRectangles += componentRectangles.Count;
+                
+                // Create geometry for all rectangles in this component
+                foreach (var rect in componentRectangles)
+                {
+                    CreateRectangleGeometryShared(vertices, triangles, rect.x, rect.y, rect.width, rect.height, targetMaterial, rect.cubeHeight, vertexCache);
+                }
+            }
+            
+            Console.WriteLine($"  Material {targetMaterial}: optimized into {totalRectangles} rectangles across {components.Count} connected components");
+        }
+
+        private List<List<(int x, int y)>> FindConnectedComponents(string[,] materialMap, float[,] heightMap, int width, int height, string targetMaterial)
+        {
+            var visited = new bool[width, height];
+            var components = new List<List<(int x, int y)>>();
+            
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    if (!visited[x, y] && materialMap[x, y] == targetMaterial && !string.IsNullOrEmpty(materialMap[x, y]))
+                    {
+                        var component = new List<(int x, int y)>();
+                        var targetHeight = heightMap[x, y];
+                        FloodFill(materialMap, heightMap, visited, x, y, width, height, targetMaterial, targetHeight, component);
+                        
+                        if (component.Count > 0)
+                        {
+                            components.Add(component);
+                        }
+                    }
+                }
+            }
+            
+            return components;
+        }
+        
+        private void FloodFill(string[,] materialMap, float[,] heightMap, bool[,] visited, int startX, int startY, int width, int height, string targetMaterial, float targetHeight, List<(int x, int y)> component)
+        {
+            var stack = new Stack<(int x, int y)>();
+            stack.Push((startX, startY));
+            
+            while (stack.Count > 0)
+            {
+                var (x, y) = stack.Pop();
+                
+                if (x < 0 || x >= width || y < 0 || y >= height || visited[x, y] ||
+                    materialMap[x, y] != targetMaterial || heightMap[x, y] != targetHeight)
+                {
+                    continue;
+                }
+                
+                visited[x, y] = true;
+                component.Add((x, y));
+                
+                // Add all 4 adjacent cells
+                stack.Push((x + 1, y));
+                stack.Push((x - 1, y));
+                stack.Push((x, y + 1));
+                stack.Push((x, y - 1));
+            }
+        }
+        
+        private List<(int x, int y, int width, int height, float cubeHeight)> OptimizeConnectedComponent(List<(int x, int y)> component, string[,] materialMap, float[,] heightMap, bool[,] processed, string targetMaterial)
+        {
+            var rectangles = new List<(int x, int y, int width, int height, float cubeHeight)>();
+            var componentProcessed = new HashSet<(int x, int y)>();
+            
+            // Sort component by x, then y for consistent processing
+            component.Sort((a, b) => a.x == b.x ? a.y.CompareTo(b.y) : a.x.CompareTo(b.x));
+            
+            foreach (var (x, y) in component)
+            {
+                if (componentProcessed.Contains((x, y)))
+                    continue;
+                    
+                // Find the largest rectangle starting from this position within the component
+                var rect = FindLargestRectangleInComponent(component, componentProcessed, x, y, heightMap[x, y]);
+                
+                if (rect.width > 0 && rect.height > 0)
+                {
+                    rectangles.Add((rect.x, rect.y, rect.width, rect.height, heightMap[x, y]));
+                    
+                    // Mark all cells in this rectangle as processed
+                    for (int ry = rect.y; ry < rect.y + rect.height; ry++)
+                    {
+                        for (int rx = rect.x; rx < rect.x + rect.width; rx++)
+                        {
+                            componentProcessed.Add((rx, ry));
+                            processed[rx, ry] = true;
+                        }
+                    }
+                }
+            }
+            
+            // Apply ultra-aggressive merging with multiple strategies
+            int initialCount = rectangles.Count;
+            bool merged = true;
+            int iterations = 0;
+            const int maxIterations = 30; // Even more aggressive iterations
+            
+            while (merged && iterations < maxIterations)
+            {
+                merged = false;
+                iterations++;
+                int beforeMergeCount = rectangles.Count;
+                
+                // Strategy 1: Try all possible simple adjacency merges
+                for (int i = 0; i < rectangles.Count && !merged; i++)
+                {
+                    for (int j = i + 1; j < rectangles.Count && !merged; j++)
+                    {
+                        var rect1 = rectangles[i];
+                        var rect2 = rectangles[j];
+                        
+                        if (rect1.cubeHeight != rect2.cubeHeight) continue;
+                        
+                        var mergedRect = TryMergeRectangles(rect1, rect2);
+                        if (mergedRect.HasValue)
+                        {
+                            rectangles[i] = mergedRect.Value;
+                            rectangles.RemoveAt(j);
+                            merged = true;
+                            break;
+                        }
+                    }
+                }
+                
+                // Strategy 2: Try complex merge patterns if simple merging didn't work
+                if (!merged)
+                {
+                    for (int i = 0; i < rectangles.Count && !merged; i++)
+                    {
+                        for (int j = i + 1; j < rectangles.Count && !merged; j++)
+                        {
+                            var rect1 = rectangles[i];
+                            var rect2 = rectangles[j];
+                            
+                            if (rect1.cubeHeight != rect2.cubeHeight) continue;
+                            
+                            var complexMerge = TryComplexMerge(rect1, rect2, component);
+                            if (complexMerge.HasValue)
+                            {
+                                rectangles[i] = complexMerge.Value;
+                                rectangles.RemoveAt(j);
+                                merged = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Strategy 3: Try to merge multiple rectangles that can form a larger shape
+                if (!merged && iterations < 15) // Only try this in earlier iterations to avoid infinite loops
+                {
+                    merged = TryMultiRectangleMerge(rectangles, component);
+                }
+                
+                int afterMergeCount = rectangles.Count;
+                if (beforeMergeCount > afterMergeCount)
+                {
+                    Console.WriteLine($"    Component iteration {iterations}: Merged {beforeMergeCount - afterMergeCount} rectangles");
+                }
+            }
+            
+            return rectangles;
+        }
+        
+        private bool TryMultiRectangleMerge(List<(int x, int y, int width, int height, float cubeHeight)> rectangles, List<(int x, int y)> component)
+        {
+            // Try to find 3 or more rectangles that can be merged into a larger shape
+            for (int i = 0; i < rectangles.Count; i++)
+            {
+                for (int j = i + 1; j < rectangles.Count; j++)
+                {
+                    for (int k = j + 1; k < rectangles.Count; k++)
+                    {
+                        var rect1 = rectangles[i];
+                        var rect2 = rectangles[j];
+                        var rect3 = rectangles[k];
+                        
+                        if (rect1.cubeHeight != rect2.cubeHeight || rect1.cubeHeight != rect3.cubeHeight) continue;
+                        
+                        // Check if these three rectangles can form a larger rectangle
+                        var mergedRect = TryMergeThreeRectangles(rect1, rect2, rect3, component);
+                        if (mergedRect.HasValue)
+                        {
+                            // Replace the three rectangles with the merged one
+                            rectangles[i] = mergedRect.Value;
+                            rectangles.RemoveAt(Math.Max(j, k)); // Remove larger index first
+                            rectangles.RemoveAt(Math.Min(j, k));
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        
+        private (int x, int y, int width, int height, float cubeHeight)? TryMergeThreeRectangles(
+            (int x, int y, int width, int height, float cubeHeight) rect1,
+            (int x, int y, int width, int height, float cubeHeight) rect2,
+            (int x, int y, int width, int height, float cubeHeight) rect3,
+            List<(int x, int y)> component)
+        {
+            // Find the bounding box of all three rectangles
+            int minX = Math.Min(Math.Min(rect1.x, rect2.x), rect3.x);
+            int maxX = Math.Max(Math.Max(rect1.x + rect1.width, rect2.x + rect2.width), rect3.x + rect3.width);
+            int minY = Math.Min(Math.Min(rect1.y, rect2.y), rect3.y);
+            int maxY = Math.Max(Math.Max(rect1.y + rect1.height, rect2.y + rect2.height), rect3.y + rect3.height);
+            
+            int combinedWidth = maxX - minX;
+            int combinedHeight = maxY - minY;
+            int requiredArea = combinedWidth * combinedHeight;
+            
+            // Check if all three rectangles together fill the bounding box exactly
+            int rect1Area = rect1.width * rect1.height;
+            int rect2Area = rect2.width * rect2.height;
+            int rect3Area = rect3.width * rect3.height;
+            int totalArea = rect1Area + rect2Area + rect3Area;
+            
+            if (totalArea != requiredArea) return null; // Not a perfect fit
+            
+            // Verify that all positions in the bounding box are in the component
+            var componentSet = new HashSet<(int x, int y)>(component);
+            for (int y = minY; y < maxY; y++)
+            {
+                for (int x = minX; x < maxX; x++)
+                {
+                    if (!componentSet.Contains((x, y)))
+                    {
+                        return null; // Gap found
+                    }
+                }
+            }
+            
+            return (minX, minY, combinedWidth, combinedHeight, rect1.cubeHeight);
+        }
+        
+        private (int x, int y, int width, int height) FindLargestRectangleInComponent(List<(int x, int y)> component, HashSet<(int x, int y)> processed, int startX, int startY, float targetHeight)
+        {
+            // Create a set for fast lookup
+            var componentSet = new HashSet<(int x, int y)>(component);
+            
+            // Find maximum width for this row
+            int maxWidth = 0;
+            for (int x = startX; ; x++)
+            {
+                if (processed.Contains((x, startY)) || !componentSet.Contains((x, startY)))
+                    break;
+                maxWidth++;
+            }
+            
+            if (maxWidth == 0) return (0, 0, 0, 0);
+            
+            // Find maximum height maintaining the same width
+            int maxHeight = 1;
+            for (int y = startY + 1; ; y++)
+            {
+                bool canExtend = true;
+                for (int x = startX; x < startX + maxWidth; x++)
+                {
+                    if (processed.Contains((x, y)) || !componentSet.Contains((x, y)))
+                    {
+                        canExtend = false;
+                        break;
+                    }
+                }
+                
+                if (!canExtend) break;
+                maxHeight++;
+            }
+            
+            return (startX, startY, maxWidth, maxHeight);
+        }
+        
+        private (int x, int y, int width, int height, float cubeHeight)? TryComplexMerge((int x, int y, int width, int height, float cubeHeight) rect1, (int x, int y, int width, int height, float cubeHeight) rect2, List<(int x, int y)> component)
+        {
+            // Check if the two rectangles can form a valid merged rectangle by checking if all intermediate positions are in the component
+            int minX = Math.Min(rect1.x, rect2.x);
+            int maxX = Math.Max(rect1.x + rect1.width, rect2.x + rect2.width);
+            int minY = Math.Min(rect1.y, rect2.y);
+            int maxY = Math.Max(rect1.y + rect1.height, rect2.y + rect2.height);
+            
+            int combinedWidth = maxX - minX;
+            int combinedHeight = maxY - minY;
+            int requiredArea = combinedWidth * combinedHeight;
+            
+            // Create a set for fast lookup
+            var componentSet = new HashSet<(int x, int y)>(component);
+            
+            // Check if all positions in the combined rectangle are in the component
+            int actualArea = 0;
+            for (int y = minY; y < maxY; y++)
+            {
+                for (int x = minX; x < maxX; x++)
+                {
+                    if (componentSet.Contains((x, y)))
+                    {
+                        actualArea++;
+                    }
+                }
+            }
+            
+            // If all positions are covered, we can merge
+            if (actualArea == requiredArea)
+            {
+                return (minX, minY, combinedWidth, combinedHeight, rect1.cubeHeight);
+            }
+            
+            return null;
+        }
+
+        // Legacy methods (kept for reference but not used)
         private void FindOptimalPerimeterRectangles(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, string[,] materialMap, float[,] heightMap, bool[,] processed, int width, int height, string targetMaterial, Dictionary<(float x, float y, float z), int> vertexCache)
         {
             var rectangles = new List<(int x, int y, int width, int height, float cubeHeight)>();
