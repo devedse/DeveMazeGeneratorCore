@@ -13,6 +13,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace DeveMazeGeneratorCore.Coaster3MF
 {
@@ -574,43 +575,44 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         private void CreateThumbnailImages(ZipArchive archive, InnerMap maze, List<MazePointPos> path)
         {
-            // Generate the different thumbnails required by Bambu Studio
-            CreateThumbnail(archive, maze, path, "Metadata/plate_1.png", 512, 512, false);
-            CreateThumbnail(archive, maze, path, "Metadata/plate_1_small.png", 128, 128, false);
-            CreateThumbnail(archive, maze, path, "Metadata/plate_no_light_1.png", 512, 512, true);
-            CreateThumbnail(archive, maze, path, "Metadata/top_1.png", 512, 512, false);
+            // Generate the base maze image once into a memory stream
+            using (var baseImageStream = new MemoryStream())
+            {
+                WithPath.SaveMazeAsImageDeluxePng(maze, path, baseImageStream);
+                baseImageStream.Position = 0;
+                
+                // Load the base image once
+                using (var baseImage = Image.Load<Argb32>(baseImageStream))
+                {
+                    // Generate the different thumbnails required by Bambu Studio
+                    CreateThumbnailFromBase(archive, baseImage, "Metadata/plate_1.png", 512, 512, false);
+                    CreateThumbnailFromBase(archive, baseImage, "Metadata/plate_1_small.png", 128, 128, false);
+                    CreateThumbnailFromBase(archive, baseImage, "Metadata/plate_no_light_1.png", 512, 512, true);
+                    CreateThumbnailFromBase(archive, baseImage, "Metadata/top_1.png", 512, 512, false);
+                }
+            }
         }
 
-        private void CreateThumbnail(ZipArchive archive, InnerMap maze, List<MazePointPos> path, string filename, int width, int height, bool noLight)
+        private void CreateThumbnailFromBase(ZipArchive archive, Image<Argb32> baseImage, string filename, int width, int height, bool noLight)
         {
             var entry = archive.CreateEntry(filename);
             using (var stream = entry.Open())
             {
-                // Create image using existing maze imageification code
-                using (var memoryStream = new MemoryStream())
+                // Clone the base image and resize with nearest neighbor (no interpolation) for hard edges
+                using (var resizedImage = baseImage.Clone(ctx => ctx.Resize(new ResizeOptions
                 {
-                    // Use the existing WithPath.SaveMazeAsImageDeluxePng method
-                    WithPath.SaveMazeAsImageDeluxePng(maze, path, memoryStream);
-                    memoryStream.Position = 0;
-                    
-                    // Load the generated image and resize it
-                    using (var sourceImage = Image.Load<Argb32>(memoryStream))
+                    Size = new Size(width, height),
+                    Sampler = KnownResamplers.NearestNeighbor // Keep hard edges for maze
+                })))
+                {
+                    // Apply "no light" effect by darkening the image
+                    if (noLight)
                     {
-                        // Resize to target dimensions
-                        using (var resizedImage = new Image<Argb32>(width, height))
-                        {
-                            resizedImage.Mutate(x => x.DrawImage(sourceImage.Clone(ctx => ctx.Resize(width, height)), 1.0f));
-                            
-                            // Apply "no light" effect by darkening the image
-                            if (noLight)
-                            {
-                                resizedImage.Mutate(x => x.Brightness(0.7f));
-                            }
-                            
-                            // Save as PNG with maximum compression
-                            resizedImage.SaveAsPng(stream, new PngEncoder() { CompressionLevel = PngCompressionLevel.Level9 });
-                        }
+                        resizedImage.Mutate(x => x.Brightness(0.7f));
                     }
+                    
+                    // Save as PNG with maximum compression
+                    resizedImage.SaveAsPng(stream, new PngEncoder() { CompressionLevel = PngCompressionLevel.Level9 });
                 }
             }
         }
