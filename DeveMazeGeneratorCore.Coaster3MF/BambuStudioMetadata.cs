@@ -22,15 +22,17 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             """;
 
         public static string ProjectSettings => """
-            {
+                        {
                 "accel_to_decel_enable": "0",
                 "accel_to_decel_factor": "50%",
                 "activate_air_filtration": [
                     "0",
                     "0",
+                    "0",
                     "0"
                 ],
                 "additional_cooling_fan_speed": [
+                    "70",
                     "70",
                     "70",
                     "70"
@@ -64,6 +66,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "chamber_temperatures": [
                     "0",
                     "0",
+                    "0",
                     "0"
                 ],
                 "change_filament_gcode": "M620 S[next_extruder]A\nM204 S9000\nG1 Z{max_layer_z + 3.0} F1200\n\nG1 X70 F21000\nG1 Y245\nG1 Y265 F3000\nM400\nM106 P1 S0\nM106 P2 S0\n{if old_filament_temp > 142 && next_extruder < 255}\nM104 S[old_filament_temp]\n{endif}\n{if long_retractions_when_cut[previous_extruder]}\nM620.11 S1 I[previous_extruder] E-{retraction_distances_when_cut[previous_extruder]} F{old_filament_e_feedrate}\n{else}\nM620.11 S0\n{endif}\nM400\nG1 X90 F3000\nG1 Y255 F4000\nG1 X100 F5000\nG1 X120 F15000\nG1 X20 Y50 F21000\nG1 Y-3\n{if toolchange_count == 2}\n; get travel path for change filament\nM620.1 X[travel_point_1_x] Y[travel_point_1_y] F21000 P0\nM620.1 X[travel_point_2_x] Y[travel_point_2_y] F21000 P1\nM620.1 X[travel_point_3_x] Y[travel_point_3_y] F21000 P2\n{endif}\nM620.1 E F[old_filament_e_feedrate] T{nozzle_temperature_range_high[previous_extruder]}\nT[next_extruder]\nM620.1 E F[new_filament_e_feedrate] T{nozzle_temperature_range_high[next_extruder]}\n\n{if next_extruder < 255}\n{if long_retractions_when_cut[previous_extruder]}\nM620.11 S1 I[previous_extruder] E{retraction_distances_when_cut[previous_extruder]} F{old_filament_e_feedrate}\nM628 S1\nG92 E0\nG1 E{retraction_distances_when_cut[previous_extruder]} F[old_filament_e_feedrate]\nM400\nM629 S1\n{else}\nM620.11 S0\n{endif}\nG92 E0\n{if flush_length_1 > 1}\nM83\n; FLUSH_START\n; always use highest temperature to flush\nM400\n{if filament_type[next_extruder] == \"PETG\"}\nM109 S260\n{elsif filament_type[next_extruder] == \"PVA\"}\nM109 S210\n{else}\nM109 S[nozzle_temperature_range_high]\n{endif}\n{if flush_length_1 > 23.7}\nG1 E23.7 F{old_filament_e_feedrate} ; do not need pulsatile flushing for start part\nG1 E{(flush_length_1 - 23.7) * 0.02} F50\nG1 E{(flush_length_1 - 23.7) * 0.23} F{old_filament_e_feedrate}\nG1 E{(flush_length_1 - 23.7) * 0.02} F50\nG1 E{(flush_length_1 - 23.7) * 0.23} F{new_filament_e_feedrate}\nG1 E{(flush_length_1 - 23.7) * 0.02} F50\nG1 E{(flush_length_1 - 23.7) * 0.23} F{new_filament_e_feedrate}\nG1 E{(flush_length_1 - 23.7) * 0.02} F50\nG1 E{(flush_length_1 - 23.7) * 0.23} F{new_filament_e_feedrate}\n{else}\nG1 E{flush_length_1} F{old_filament_e_feedrate}\n{endif}\n; FLUSH_END\nG1 E-[old_retract_length_toolchange] F1800\nG1 E[old_retract_length_toolchange] F300\n{endif}\n\n{if flush_length_2 > 1}\n\nG91\nG1 X3 F12000; move aside to extrude\nG90\nM83\n\n; FLUSH_START\nG1 E{flush_length_2 * 0.18} F{new_filament_e_feedrate}\nG1 E{flush_length_2 * 0.02} F50\nG1 E{flush_length_2 * 0.18} F{new_filament_e_feedrate}\nG1 E{flush_length_2 * 0.02} F50\nG1 E{flush_length_2 * 0.18} F{new_filament_e_feedrate}\nG1 E{flush_length_2 * 0.02} F50\nG1 E{flush_length_2 * 0.18} F{new_filament_e_feedrate}\nG1 E{flush_length_2 * 0.02} F50\nG1 E{flush_length_2 * 0.18} F{new_filament_e_feedrate}\nG1 E{flush_length_2 * 0.02} F50\n; FLUSH_END\nG1 E-[new_retract_length_toolchange] F1800\nG1 E[new_retract_length_toolchange] F300\n{endif}\n\n{if flush_length_3 > 1}\n\nG91\nG1 X3 F12000; move aside to extrude\nG90\nM83\n\n; FLUSH_START\nG1 E{flush_length_3 * 0.18} F{new_filament_e_feedrate}\nG1 E{flush_length_3 * 0.02} F50\nG1 E{flush_length_3 * 0.18} F{new_filament_e_feedrate}\nG1 E{flush_length_3 * 0.02} F50\nG1 E{flush_length_3 * 0.18} F{new_filament_e_feedrate}\nG1 E{flush_length_3 * 0.02} F50\nG1 E{flush_length_3 * 0.18} F{new_filament_e_feedrate}\nG1 E{flush_length_3 * 0.02} F50\nG1 E{flush_length_3 * 0.18} F{new_filament_e_feedrate}\nG1 E{flush_length_3 * 0.02} F50\n; FLUSH_END\nG1 E-[new_retract_length_toolchange] F1800\nG1 E[new_retract_length_toolchange] F300\n{endif}\n\n{if flush_length_4 > 1}\n\nG91\nG1 X3 F12000; move aside to extrude\nG90\nM83\n\n; FLUSH_START\nG1 E{flush_length_4 * 0.18} F{new_filament_e_feedrate}\nG1 E{flush_length_4 * 0.02} F50\nG1 E{flush_length_4 * 0.18} F{new_filament_e_feedrate}\nG1 E{flush_length_4 * 0.02} F50\nG1 E{flush_length_4 * 0.18} F{new_filament_e_feedrate}\nG1 E{flush_length_4 * 0.02} F50\nG1 E{flush_length_4 * 0.18} F{new_filament_e_feedrate}\nG1 E{flush_length_4 * 0.02} F50\nG1 E{flush_length_4 * 0.18} F{new_filament_e_feedrate}\nG1 E{flush_length_4 * 0.02} F50\n; FLUSH_END\n{endif}\n; FLUSH_START\nM400\nM109 S[new_filament_temp]\nG1 E2 F{new_filament_e_feedrate} ;Compensate for filament spillage during waiting temperature\n; FLUSH_END\nM400\nG92 E0\nG1 E-[new_retract_length_toolchange] F1800\nM106 P1 S255\nM400 S3\n\nG1 X70 F5000\nG1 X90 F3000\nG1 Y255 F4000\nG1 X105 F5000\nG1 Y265 F5000\nG1 X70 F10000\nG1 X100 F5000\nG1 X70 F10000\nG1 X100 F5000\n\nG1 X70 F10000\nG1 X80 F15000\nG1 X60\nG1 X80\nG1 X60\nG1 X80 ; shake to put down garbage\nG1 X100 F5000\nG1 X165 F15000; wipe and shake\nG1 Y256 ; move Y to aside, prevent collision\nM400\nG1 Z{max_layer_z + 3.0} F3000\n{if layer_z <= (initial_layer_print_height + 0.001)}\nM204 S[initial_layer_acceleration]\n{else}\nM204 S[default_acceleration]\n{endif}\n{else}\nG1 X[x_after_toolchange] Y[y_after_toolchange] Z[z_after_toolchange] F12000\n{endif}\nM621 S[next_extruder]A\n",
@@ -71,9 +74,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "circle_compensation_speed": [
                     "200",
                     "200",
+                    "200",
                     "200"
                 ],
                 "close_fan_the_first_x_layers": [
+                    "1",
                     "1",
                     "1",
                     "1"
@@ -81,9 +86,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "complete_print_exhaust_fan_speed": [
                     "70",
                     "70",
+                    "70",
                     "70"
                 ],
                 "cool_plate_temp": [
+                    "35",
                     "35",
                     "35",
                     "35"
@@ -91,9 +98,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "cool_plate_temp_initial_layer": [
                     "35",
                     "35",
+                    "35",
                     "35"
                 ],
                 "counter_coef_1": [
+                    "0",
                     "0",
                     "0",
                     "0"
@@ -101,9 +110,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "counter_coef_2": [
                     "0.008",
                     "0.008",
+                    "0.008",
                     "0.008"
                 ],
                 "counter_coef_3": [
+                    "-0.041",
                     "-0.041",
                     "-0.041",
                     "-0.041"
@@ -111,9 +122,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "counter_limit_max": [
                     "0.033",
                     "0.033",
+                    "0.033",
                     "0.033"
                 ],
                 "counter_limit_min": [
+                    "-0.035",
                     "-0.035",
                     "-0.035",
                     "-0.035"
@@ -123,6 +136,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     "10000"
                 ],
                 "default_filament_colour": [
+                    "",
                     "",
                     "",
                     ""
@@ -145,10 +159,12 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "diameter_limit": [
                     "50",
                     "50",
+                    "50",
                     "50"
                 ],
                 "draft_shield": "disabled",
                 "during_print_exhaust_fan_speed": [
+                    "70",
                     "70",
                     "70",
                     "70"
@@ -160,6 +176,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "enable_overhang_bridge_fan": [
                     "1",
                     "1",
+                    "1",
                     "1"
                 ],
                 "enable_overhang_speed": [
@@ -167,6 +184,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 ],
                 "enable_pre_heating": "0",
                 "enable_pressure_advance": [
+                    "0",
                     "0",
                     "0",
                     "0"
@@ -177,9 +195,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "eng_plate_temp": [
                     "0",
                     "0",
+                    "0",
                     "0"
                 ],
                 "eng_plate_temp_initial_layer": [
+                    "0",
                     "0",
                     "0",
                     "0"
@@ -211,9 +231,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "fan_cooling_layer_time": [
                     "100",
                     "100",
+                    "100",
                     "100"
                 ],
                 "fan_max_speed": [
+                    "100",
                     "100",
                     "100",
                     "100"
@@ -221,9 +243,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "fan_min_speed": [
                     "100",
                     "100",
+                    "100",
                     "100"
                 ],
                 "filament_adhesiveness_category": [
+                    "100",
                     "100",
                     "100",
                     "100"
@@ -231,14 +255,17 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_change_length": [
                     "10",
                     "10",
+                    "5",
                     "5"
                 ],
                 "filament_colour": [
-                    "#FFFFFF",
                     "#000000",
-                    "#6F5034"
+                    "#FFFFFF",
+                    "#00AE42",
+                    "#F90D00"
                 ],
                 "filament_cost": [
+                    "24.99",
                     "24.99",
                     "24.99",
                     "24.99"
@@ -246,9 +273,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_density": [
                     "1.32",
                     "1.32",
+                    "1.26",
                     "1.26"
                 ],
                 "filament_deretraction_speed": [
+                    "nil",
                     "nil",
                     "nil",
                     "nil"
@@ -256,9 +285,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_diameter": [
                     "1.75",
                     "1.75",
+                    "1.75",
                     "1.75"
                 ],
                 "filament_end_gcode": [
+                    "; filament end gcode \n\n",
                     "; filament end gcode \n\n",
                     "; filament end gcode \n\n",
                     "; filament end gcode \n\n"
@@ -266,9 +297,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_extruder_variant": [
                     "Direct Drive Standard",
                     "Direct Drive Standard",
+                    "Direct Drive Standard",
                     "Direct Drive Standard"
                 ],
                 "filament_flow_ratio": [
+                    "0.98",
                     "0.98",
                     "0.98",
                     "0.98"
@@ -276,9 +309,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_flush_temp": [
                     "0",
                     "0",
+                    "0",
                     "0"
                 ],
                 "filament_flush_volumetric_speed": [
+                    "0",
                     "0",
                     "0",
                     "0"
@@ -286,9 +321,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_ids": [
                     "GFA01",
                     "GFA01",
+                    "GFA00",
                     "GFA00"
                 ],
                 "filament_is_support": [
+                    "0",
                     "0",
                     "0",
                     "0"
@@ -296,9 +333,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_long_retractions_when_cut": [
                     "1",
                     "1",
+                    "1",
                     "1"
                 ],
                 "filament_map": [
+                    "1",
                     "1",
                     "1",
                     "1"
@@ -307,9 +346,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_max_volumetric_speed": [
                     "22",
                     "22",
+                    "21",
                     "21"
                 ],
                 "filament_minimal_purge_on_wipe_tower": [
+                    "15",
                     "15",
                     "15",
                     "15"
@@ -318,14 +359,17 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_pre_cooling_temperature": [
                     "0",
                     "0",
+                    "0",
                     "0"
                 ],
                 "filament_prime_volume": [
                     "45",
                     "45",
+                    "30",
                     "30"
                 ],
                 "filament_printable": [
+                    "3",
                     "3",
                     "3",
                     "3"
@@ -333,9 +377,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_ramming_travel_time": [
                     "0",
                     "0",
+                    "0",
                     "0"
                 ],
                 "filament_ramming_volumetric_speed": [
+                    "-1",
                     "-1",
                     "-1",
                     "-1"
@@ -343,9 +389,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_retract_before_wipe": [
                     "nil",
                     "nil",
+                    "nil",
                     "nil"
                 ],
                 "filament_retract_restart_extra": [
+                    "nil",
                     "nil",
                     "nil",
                     "nil"
@@ -353,9 +401,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_retract_when_changing_layer": [
                     "nil",
                     "nil",
+                    "nil",
                     "nil"
                 ],
                 "filament_retraction_distances_when_cut": [
+                    "18",
                     "18",
                     "18",
                     "18"
@@ -363,9 +413,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_retraction_length": [
                     "nil",
                     "nil",
+                    "nil",
                     "nil"
                 ],
                 "filament_retraction_minimum_travel": [
+                    "nil",
                     "nil",
                     "nil",
                     "nil"
@@ -373,9 +425,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_retraction_speed": [
                     "nil",
                     "nil",
+                    "nil",
                     "nil"
                 ],
                 "filament_scarf_gap": [
+                    "0%",
                     "0%",
                     "0%",
                     "0%"
@@ -383,9 +437,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_scarf_height": [
                     "5%",
                     "5%",
+                    "10%",
                     "10%"
                 ],
                 "filament_scarf_length": [
+                    "10",
                     "10",
                     "10",
                     "10"
@@ -393,19 +449,23 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_scarf_seam_type": [
                     "none",
                     "none",
+                    "none",
                     "none"
                 ],
                 "filament_self_index": [
                     "1",
                     "2",
-                    "3"
+                    "3",
+                    "4"
                 ],
                 "filament_settings_id": [
                     "Bambu PLA Matte @BBL X1C",
                     "Bambu PLA Matte @BBL X1C",
+                    "Bambu PLA Basic @BBL X1C",
                     "Bambu PLA Basic @BBL X1C"
                 ],
                 "filament_shrink": [
+                    "100%",
                     "100%",
                     "100%",
                     "100%"
@@ -413,9 +473,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_soluble": [
                     "0",
                     "0",
+                    "0",
                     "0"
                 ],
                 "filament_start_gcode": [
+                    "; filament start gcode\n{if  (bed_temperature[current_extruder] >55)||(bed_temperature_initial_layer[current_extruder] >55)}M106 P3 S200\n{elsif(bed_temperature[current_extruder] >50)||(bed_temperature_initial_layer[current_extruder] >50)}M106 P3 S150\n{elsif(bed_temperature[current_extruder] >45)||(bed_temperature_initial_layer[current_extruder] >45)}M106 P3 S50\n{endif}\nM142 P1 R35 S40\n{if activate_air_filtration[current_extruder] && support_air_filtration}\nM106 P3 S{during_print_exhaust_fan_speed_num[current_extruder]} \n{endif}",
                     "; filament start gcode\n{if  (bed_temperature[current_extruder] >55)||(bed_temperature_initial_layer[current_extruder] >55)}M106 P3 S200\n{elsif(bed_temperature[current_extruder] >50)||(bed_temperature_initial_layer[current_extruder] >50)}M106 P3 S150\n{elsif(bed_temperature[current_extruder] >45)||(bed_temperature_initial_layer[current_extruder] >45)}M106 P3 S50\n{endif}\nM142 P1 R35 S40\n{if activate_air_filtration[current_extruder] && support_air_filtration}\nM106 P3 S{during_print_exhaust_fan_speed_num[current_extruder]} \n{endif}",
                     "; filament start gcode\n{if  (bed_temperature[current_extruder] >55)||(bed_temperature_initial_layer[current_extruder] >55)}M106 P3 S200\n{elsif(bed_temperature[current_extruder] >50)||(bed_temperature_initial_layer[current_extruder] >50)}M106 P3 S150\n{elsif(bed_temperature[current_extruder] >45)||(bed_temperature_initial_layer[current_extruder] >45)}M106 P3 S50\n{endif}\nM142 P1 R35 S40\n{if activate_air_filtration[current_extruder] && support_air_filtration}\nM106 P3 S{during_print_exhaust_fan_speed_num[current_extruder]} \n{endif}",
                     "; filament start gcode\n{if  (bed_temperature[current_extruder] >55)||(bed_temperature_initial_layer[current_extruder] >55)}M106 P3 S200\n{elsif(bed_temperature[current_extruder] >50)||(bed_temperature_initial_layer[current_extruder] >50)}M106 P3 S150\n{elsif(bed_temperature[current_extruder] >45)||(bed_temperature_initial_layer[current_extruder] >45)}M106 P3 S50\n{endif}\nM142 P1 R35 S40\n{if activate_air_filtration[current_extruder] && support_air_filtration}\nM106 P3 S{during_print_exhaust_fan_speed_num[current_extruder]} \n{endif}"
@@ -423,9 +485,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_type": [
                     "PLA",
                     "PLA",
+                    "PLA",
                     "PLA"
                 ],
                 "filament_vendor": [
+                    "Bambu Lab",
                     "Bambu Lab",
                     "Bambu Lab",
                     "Bambu Lab"
@@ -433,9 +497,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_wipe": [
                     "nil",
                     "nil",
+                    "nil",
                     "nil"
                 ],
                 "filament_wipe_distance": [
+                    "nil",
                     "nil",
                     "nil",
                     "nil"
@@ -443,9 +509,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "filament_z_hop": [
                     "nil",
                     "nil",
+                    "nil",
                     "nil"
                 ],
                 "filament_z_hop_types": [
+                    "nil",
                     "nil",
                     "nil",
                     "nil"
@@ -463,16 +531,25 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 ],
                 "flush_volumes_matrix": [
                     "0",
-                    "143",
-                    "154",
                     "623",
+                    "475",
+                    "477",
+                    "143",
                     "0",
-                    "355",
-                    "511",
-                    "123",
+                    "246",
+                    "319",
+                    "138",
+                    "538",
+                    "0",
+                    "269",
+                    "152",
+                    "635",
+                    "413",
                     "0"
                 ],
                 "flush_volumes_vector": [
+                    "140",
+                    "140",
                     "140",
                     "140",
                     "140",
@@ -482,6 +559,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 ],
                 "from": "project",
                 "full_fan_speed_layer": [
+                    "0",
                     "0",
                     "0",
                     "0"
@@ -502,9 +580,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "hole_coef_1": [
                     "0",
                     "0",
+                    "0",
                     "0"
                 ],
                 "hole_coef_2": [
+                    "-0.008",
                     "-0.008",
                     "-0.008",
                     "-0.008"
@@ -512,14 +592,17 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "hole_coef_3": [
                     "0.23415",
                     "0.23415",
+                    "0.23415",
                     "0.23415"
                 ],
                 "hole_limit_max": [
                     "0.22",
                     "0.22",
+                    "0.22",
                     "0.22"
                 ],
                 "hole_limit_min": [
+                    "0.088",
                     "0.088",
                     "0.088",
                     "0.088"
@@ -528,9 +611,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "hot_plate_temp": [
                     "55",
                     "55",
+                    "55",
                     "55"
                 ],
                 "hot_plate_temp_initial_layer": [
+                    "55",
                     "55",
                     "55",
                     "55"
@@ -544,6 +629,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "impact_strength_z": [
                     "6.6",
                     "6.6",
+                    "13.8",
                     "13.8"
                 ],
                 "independent_support_layer_height": "1",
@@ -606,6 +692,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     "0"
                 ],
                 "long_retractions_when_ec": [
+                    "0",
                     "0",
                     "0",
                     "0"
@@ -706,9 +793,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "nozzle_temperature": [
                     "220",
                     "220",
+                    "220",
                     "220"
                 ],
                 "nozzle_temperature_initial_layer": [
+                    "220",
                     "220",
                     "220",
                     "220"
@@ -716,9 +805,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "nozzle_temperature_range_high": [
                     "240",
                     "240",
+                    "240",
                     "240"
                 ],
                 "nozzle_temperature_range_low": [
+                    "190",
                     "190",
                     "190",
                     "190"
@@ -761,14 +852,17 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "overhang_fan_speed": [
                     "100",
                     "100",
+                    "100",
                     "100"
                 ],
                 "overhang_fan_threshold": [
                     "50%",
                     "50%",
+                    "50%",
                     "50%"
                 ],
                 "overhang_threshold_participating_cooling": [
+                    "95%",
                     "95%",
                     "95%",
                     "95%"
@@ -783,11 +877,13 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "pre_start_fan_time": [
                     "0",
                     "0",
+                    "0",
                     "0"
                 ],
                 "precise_outer_wall": "0",
                 "precise_z_height": "0",
                 "pressure_advance": [
+                    "0.02",
                     "0.02",
                     "0.02",
                     "0.02"
@@ -852,10 +948,12 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "reduce_fan_stop_start_freq": [
                     "1",
                     "1",
+                    "1",
                     "1"
                 ],
                 "reduce_infill_retraction": "1",
                 "required_nozzle_HRC": [
+                    "3",
                     "3",
                     "3",
                     "3"
@@ -886,6 +984,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     "18"
                 ],
                 "retraction_distances_when_ec": [
+                    "0",
                     "0",
                     "0",
                     "0"
@@ -923,14 +1022,17 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "slow_down_for_layer_cooling": [
                     "1",
                     "1",
+                    "1",
                     "1"
                 ],
                 "slow_down_layer_time": [
                     "4",
                     "4",
+                    "4",
                     "4"
                 ],
                 "slow_down_min_speed": [
+                    "20",
                     "20",
                     "20",
                     "20"
@@ -967,9 +1069,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "supertack_plate_temp": [
                     "45",
                     "45",
+                    "45",
                     "45"
                 ],
                 "supertack_plate_temp_initial_layer": [
+                    "45",
                     "45",
                     "45",
                     "45"
@@ -1010,15 +1114,18 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 "temperature_vitrification": [
                     "45",
                     "45",
+                    "45",
                     "45"
                 ],
                 "template_custom_gcode": "",
                 "textured_plate_temp": [
                     "55",
                     "55",
+                    "55",
                     "55"
                 ],
                 "textured_plate_temp_initial_layer": [
+                    "55",
                     "55",
                     "55",
                     "55"
@@ -1106,6 +1213,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     "Auto Lift"
                 ]
             }
+            
             """;
     }
 }
