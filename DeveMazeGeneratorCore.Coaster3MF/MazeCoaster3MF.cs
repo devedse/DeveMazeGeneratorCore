@@ -540,6 +540,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         {
             var processed = new bool[width, height];
             
+            // Create vertex cache for sharing vertices between adjacent rectangles
+            var vertexCache = new Dictionary<(float x, float y, float z), int>();
+            
             // Find all unique materials
             var materials = new HashSet<string>();
             for (int y = 0; y < height; y++)
@@ -557,11 +560,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             foreach (var material in materials)
             {
                 // Find largest rectangles for this material
-                FindOptimalRectangles(vertices, triangles, materialMap, heightMap, processed, width, height, material);
+                FindOptimalRectangles(vertices, triangles, materialMap, heightMap, processed, width, height, material, vertexCache);
             }
         }
 
-        private void FindOptimalRectangles(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, string[,] materialMap, float[,] heightMap, bool[,] processed, int width, int height, string targetMaterial)
+        private void FindOptimalRectangles(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, string[,] materialMap, float[,] heightMap, bool[,] processed, int width, int height, string targetMaterial, Dictionary<(float x, float y, float z), int> vertexCache)
         {
             for (int y = 0; y < height; y++)
             {
@@ -574,8 +577,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                         
                         if (rect.width > 0 && rect.height > 0)
                         {
-                            // Create optimized geometry for this rectangle
-                            CreateRectangleGeometry(vertices, triangles, rect.x, rect.y, rect.width, rect.height, targetMaterial, heightMap[x, y]);
+                            // Create optimized geometry for this rectangle with vertex sharing
+                            CreateRectangleGeometryShared(vertices, triangles, rect.x, rect.y, rect.width, rect.height, targetMaterial, heightMap[x, y], vertexCache);
                             
                             // Mark all cells in this rectangle as processed
                             MarkRectangleAsProcessed(processed, rect.x, rect.y, rect.width, rect.height);
@@ -667,6 +670,55 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
             triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, material)); // Left
             triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, material));
+        }
+
+        private void CreateRectangleGeometryShared(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, int rectX, int rectY, int rectWidth, int rectHeight, string material, float cubeHeight, Dictionary<(float x, float y, float z), int> vertexCache)
+        {
+            float zBottom = GroundHeight;
+            float zTop = GroundHeight + cubeHeight;
+            
+            // Helper function to get or create vertex index
+            int GetOrCreateVertex(float x, float y, float z)
+            {
+                var vertexKey = (x, y, z);
+                if (vertexCache.TryGetValue(vertexKey, out int existingIndex))
+                {
+                    return existingIndex;
+                }
+                
+                int newIndex = vertices.Count;
+                vertices.Add((x, y, z));
+                vertexCache[vertexKey] = newIndex;
+                return newIndex;
+            }
+            
+            // Create vertices for the rectangular region with sharing
+            var v0 = GetOrCreateVertex(rectX, rectY, zBottom);
+            var v1 = GetOrCreateVertex(rectX + rectWidth, rectY, zBottom);
+            var v2 = GetOrCreateVertex(rectX + rectWidth, rectY + rectHeight, zBottom);
+            var v3 = GetOrCreateVertex(rectX, rectY + rectHeight, zBottom);
+            
+            var v4 = GetOrCreateVertex(rectX, rectY, zTop);
+            var v5 = GetOrCreateVertex(rectX + rectWidth, rectY, zTop);
+            var v6 = GetOrCreateVertex(rectX + rectWidth, rectY + rectHeight, zTop);
+            var v7 = GetOrCreateVertex(rectX, rectY + rectHeight, zTop);
+
+            // Top face (the most important face for visual appearance)
+            triangles.Add((v4, v5, v6, material));
+            triangles.Add((v4, v6, v7, material));
+
+            // Side faces (for walls/paths height)
+            triangles.Add((v0, v1, v5, material)); // Front
+            triangles.Add((v0, v5, v4, material));
+
+            triangles.Add((v1, v2, v6, material)); // Right
+            triangles.Add((v1, v6, v5, material));
+
+            triangles.Add((v2, v3, v7, material)); // Back
+            triangles.Add((v2, v7, v6, material));
+
+            triangles.Add((v3, v0, v4, material)); // Left
+            triangles.Add((v3, v4, v7, material));
         }
 
         private enum VoxelType
