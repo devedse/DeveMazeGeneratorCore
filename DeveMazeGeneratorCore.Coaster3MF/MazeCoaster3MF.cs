@@ -509,7 +509,20 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     var neighborPos = (x + dx, y + dy, z + dz);
                     
                     // Check if face should be generated
-                    bool shouldGenerateFace = !voxels.ContainsKey(neighborPos);
+                    bool shouldGenerateFace = false;
+                    
+                    if (!voxels.ContainsKey(neighborPos))
+                    {
+                        // No neighbor voxel - this is a boundary face
+                        shouldGenerateFace = true;
+                    }
+                    else
+                    {
+                        // Neighbor voxel exists - generate face if different material or type
+                        var neighborVoxel = voxels[neighborPos];
+                        shouldGenerateFace = neighborVoxel.Material != voxelData.Material || 
+                                           neighborVoxel.Type != voxelData.Type;
+                    }
                     
                     // Special handling for bottom faces (don't generate if there's ground below)
                     if (dir == 5 && z == 1) // -Z direction at z=1 (bottom face touching ground)
