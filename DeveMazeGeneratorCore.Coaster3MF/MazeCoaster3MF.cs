@@ -75,6 +75,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             var usedSeed = seed ?? 1337;
             var maze = alg.GoGenerate(mazeSize, mazeSize, usedSeed, innerMapFactory, randomFactory, actionThing);
 
+
             Console.WriteLine("Finding path through maze...");
 
             // Find the path with position information
@@ -85,6 +86,12 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
             // Generate the 3MF file
             Generate3MFFile(maze.InnerMap, path, filename);
+
+
+            using (var fs = new FileStream($"{filename}.png", FileMode.Create))
+            {
+                WithPath.SaveMazeAsImageDeluxePng(maze.InnerMap, new List<Structures.MazePointPos>(), fs);
+            }
         }
 
         private void Generate3MFFile(InnerMap maze, List<MazePointPos> path, string filename)
@@ -353,16 +360,75 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Ground plane vertices and triangles
             AddGroundPlane(vertices, triangles, maze);
 
-            // Wall cubes - exclude the rightmost and bottommost edge (following image generation convention)
-            for (int y = 0; y < maze.Height - 1; y++)
+
+            var mazeWalls = maze.GenerateListOfMazeWalls();
+
+            int cur = 0;
+
+            foreach (var wall in mazeWalls)
             {
-                for (int x = 0; x < maze.Width - 1; x++)
+                var isHorizontal = wall.Ystart == wall.Yend; // Check if the wall is horizontal or vertical
+
+                if (cur == 3)
                 {
-                    if (!maze[x, y] && !pathSet.Contains((x, y))) // Wall position (false = wall)
-                    {
-                        AddCube(vertices, triangles, x, y, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Black walls
-                    }
+
                 }
+
+                if (isHorizontal)
+                {
+                    var xstart = wall.Xstart;
+                    var xend = wall.Xend;
+
+                    if (wall.Ystart > 0 && wall.Ystart < maze.Height - 2)
+                    {
+                        if (maze[wall.Xstart, wall.Ystart - 1] == false || maze[wall.Xstart, wall.Ystart + 1] == false)
+                        {
+                            xstart++;
+                        }
+                    }
+                    else if (wall.Xstart == 0)
+                    {
+                        xstart++;
+                    }
+
+                    if (wall.Yend < maze.Height - 2 && wall.Yend > 0)
+                    {
+                        if (maze[wall.Xend, wall.Yend - 1] == false || maze[wall.Xend, wall.Yend + 1] == false)
+                        {
+                            xend--;
+                        }
+                    }
+                    else if (wall.Xend == maze.Width - 2)
+                    {
+                        xend--;
+                    }
+                    AddCubeWithDimensions(vertices, triangles, xstart, wall.Ystart, xend + 1, wall.Yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Horizontal wall
+                }
+                else
+                {
+                    var ystart = wall.Ystart;
+                    var yend = wall.Yend;
+
+                    if (wall.Xstart > 0 && wall.Xstart < maze.Width - 2)
+                    {
+                        if (maze[wall.Xstart - 1, wall.Ystart] == false && maze[wall.Xstart + 1, wall.Ystart] == false)
+                        {
+                            ystart++;
+
+                        }
+                    }
+
+                    if (wall.Xend < maze.Width - 2 && wall.Xend > 0)
+                    {
+                        if (maze[wall.Xend - 1, wall.Yend] == false && maze[wall.Xend + 1, wall.Yend] == false)
+                        {
+                            yend--;
+                        }
+                    }
+
+                    AddCubeWithDimensions(vertices, triangles, wall.Xstart, ystart, wall.Xend + 1, yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Vertical wall
+                }
+                cur++;
             }
 
             // Path cubes - only within the valid maze area (excluding rightmost and bottommost edge)
@@ -448,6 +514,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, Colors[0]));
         }
 
+
+
         private void AddCube(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, int x, int y, float zBottom, float zTop, string paintColor)
         {
             int baseIndex = vertices.Count;
@@ -463,6 +531,57 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             vertices.Add((x + 1, y, zTop));
             vertices.Add((x + 1, y + 1, zTop));
             vertices.Add((x, y + 1, zTop));
+
+            // Bottom face
+            triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, paintColor));
+            triangles.Add((baseIndex + 0, baseIndex + 3, baseIndex + 2, paintColor));
+
+            // Top face
+            triangles.Add((baseIndex + 4, baseIndex + 5, baseIndex + 6, paintColor));
+            triangles.Add((baseIndex + 4, baseIndex + 6, baseIndex + 7, paintColor));
+
+            // Side faces
+            triangles.Add((baseIndex + 0, baseIndex + 1, baseIndex + 5, paintColor)); // Front
+            triangles.Add((baseIndex + 0, baseIndex + 5, baseIndex + 4, paintColor));
+
+            triangles.Add((baseIndex + 1, baseIndex + 2, baseIndex + 6, paintColor)); // Right
+            triangles.Add((baseIndex + 1, baseIndex + 6, baseIndex + 5, paintColor));
+
+            triangles.Add((baseIndex + 2, baseIndex + 3, baseIndex + 7, paintColor)); // Back
+            triangles.Add((baseIndex + 2, baseIndex + 7, baseIndex + 6, paintColor));
+
+            triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, paintColor)); // Left
+            triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, paintColor));
+        }
+
+        /// <summary>
+        /// Adds a cube with custom dimensions to the mesh.
+        /// </summary>
+        /// <param name="vertices">The list of vertices to add to</param>
+        /// <param name="triangles">The list of triangles to add to</param>
+        /// <param name="x">Start X position of the cube</param>
+        /// <param name="y">Start Y position of the cube</param>
+        /// <param name="endX">End X position of the cube</param>
+        /// <param name="endY">End Y position of the cube</param>
+        /// <param name="zBottom">Bottom Z coordinate</param>
+        /// <param name="zTop">Top Z coordinate</param>
+        /// <param name="paintColor">Color of the cube</param>
+        private void AddCubeWithDimensions(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles,
+            float x, float y, float endX, float endY, float zBottom, float zTop, string paintColor)
+        {
+            int baseIndex = vertices.Count;
+
+            // Bottom vertices
+            vertices.Add((x, y, zBottom));
+            vertices.Add((endX, y, zBottom));
+            vertices.Add((endX, endY, zBottom));
+            vertices.Add((x, endY, zBottom));
+
+            // Top vertices
+            vertices.Add((x, y, zTop));
+            vertices.Add((endX, y, zTop));
+            vertices.Add((endX, endY, zTop));
+            vertices.Add((x, endY, zTop));
 
             // Bottom face
             triangles.Add((baseIndex + 0, baseIndex + 2, baseIndex + 1, paintColor));
@@ -620,5 +739,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 }
             }
         }
+
+
     }
 }

@@ -14,5 +14,10 @@
             Xend = xend;
             Yend = yend;
         }
+
+        public override string ToString()
+        {
+            return $"Wall from ({Xstart}, {Ystart}) to ({Xend}, {Yend})";
+        }
     }
 }
