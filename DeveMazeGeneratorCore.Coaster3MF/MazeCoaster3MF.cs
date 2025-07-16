@@ -436,378 +436,46 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         private void AddOptimizedWalls(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, InnerMap maze, HashSet<(int x, int y)> pathSet)
         {
-            // Generate optimized wall rectangles using T-intersection aware algorithm
-            var wallRectangles = GenerateOptimizedWallRectangles(maze, pathSet);
-            Console.WriteLine($"Generated {wallRectangles.Count} optimized wall rectangles");
+            // Use the existing GenerateListOfMazeWalls method which already creates optimal wall segments
+            var mazeWalls = maze.GenerateListOfMazeWalls();
             
-            foreach (var rect in wallRectangles)
+            // Filter out walls that overlap with path areas
+            var filteredWalls = new List<MazeWall>();
+            foreach (var wall in mazeWalls)
             {
-                // Create a cuboid for the entire wall rectangle
-                AddCuboid(vertices, triangles, rect.XStart, rect.YStart, rect.XEnd, rect.YEnd, 
+                bool overlapsWithPath = false;
+                
+                // Check if any part of this wall overlaps with a path cell
+                for (int y = wall.Ystart; y <= wall.Yend; y++)
+                {
+                    for (int x = wall.Xstart; x <= wall.Xend; x++)
+                    {
+                        if (pathSet.Contains((x, y)))
+                        {
+                            overlapsWithPath = true;
+                            break;
+                        }
+                    }
+                    if (overlapsWithPath) break;
+                }
+                
+                if (!overlapsWithPath)
+                {
+                    filteredWalls.Add(wall);
+                }
+            }
+            
+            Console.WriteLine($"Generated {filteredWalls.Count} wall segments (filtered from {mazeWalls.Count} total)");
+            
+            // Create cuboids for each wall segment
+            foreach (var wall in filteredWalls)
+            {
+                // Add 1 to the end coordinates to create proper cuboid bounds (MazeWall uses inclusive coordinates)
+                AddCuboid(vertices, triangles, wall.Xstart, wall.Ystart, wall.Xend + 1, wall.Yend + 1, 
                          GroundHeight, GroundHeight + WallHeight, Colors[0]); // Black walls
             }
         }
 
-        private List<WallRectangle> GenerateOptimizedWallRectangles(InnerMap maze, HashSet<(int x, int y)> pathSet)
-        {
-            // Create initial set of wall cells
-            var originalWallCells = new HashSet<(int x, int y)>();
-            for (int y = 0; y < maze.Height - 1; y++)
-            {
-                for (int x = 0; x < maze.Width - 1; x++)
-                {
-                    if (!maze[x, y] && !pathSet.Contains((x, y)))
-                    {
-                        originalWallCells.Add((x, y));
-                    }
-                }
-            }
-            
-            Console.WriteLine($"Starting with {originalWallCells.Count} wall cells");
-            
-            // Apply smart T-intersection optimization by resolving conflicts
-            var optimizedWallCells = ResolveTIntersectionConflicts(originalWallCells, maze.Width - 1, maze.Height - 1);
-            
-            // Generate rectangles from optimized wall cells
-            var rectangles = CreateMaximalWallRectangles(optimizedWallCells, maze.Width - 1, maze.Height - 1);
-            
-            Console.WriteLine($"Generated {rectangles.Count} wall rectangles after smart T-intersection optimization");
-            return rectangles;
-        }
-        
-        private HashSet<(int x, int y)> ResolveTIntersectionConflicts(HashSet<(int x, int y)> wallCells, int maxX, int maxY)
-        {
-            var resolvedCells = new HashSet<(int x, int y)>(wallCells);
-            var tIntersections = FindTIntersections(wallCells, maxX, maxY);
-            
-            Console.WriteLine($"Found {tIntersections.Count} T-intersections to resolve");
-            
-            int resolutionsApplied = 0;
-            
-            foreach (var (x, y, tType) in tIntersections)
-            {
-                // For each T-intersection, determine the optimal main direction
-                // and "remove" the stub from consideration to allow longer main lines
-                if (ResolveTIntersectionConflict(resolvedCells, x, y, tType, maxX, maxY))
-                {
-                    resolutionsApplied++;
-                }
-            }
-            
-            Console.WriteLine($"Applied {resolutionsApplied} T-intersection conflict resolutions");
-            return resolvedCells;
-        }
-        
-        private bool ResolveTIntersectionConflict(HashSet<(int x, int y)> wallCells, int x, int y, TIntersectionType tType, int maxX, int maxY)
-        {
-            var extents = MeasureExtentsFromPoint(wallCells, x, y, maxX, maxY);
-            
-            switch (tType)
-            {
-                case TIntersectionType.TUp: // ┴ (left-right main, up stub)
-                case TIntersectionType.TDown: // ┬ (left-right main, down stub)
-                    {
-                        int horizontalExtent = extents.left + extents.right;
-                        int verticalExtent = (tType == TIntersectionType.TUp) ? extents.up : extents.down;
-                        
-                        // If horizontal is longer, remove the vertical stub to prioritize horizontal line
-                        if (horizontalExtent >= verticalExtent)
-                        {
-                            RemoveVerticalStub(wallCells, x, y, tType, maxY);
-                            return true;
-                        }
-                        break;
-                    }
-                    
-                case TIntersectionType.TLeft: // ├ (up-down main, right stub)
-                case TIntersectionType.TRight: // ┤ (up-down main, left stub)
-                    {
-                        int verticalExtent = extents.up + extents.down;
-                        int horizontalExtent = (tType == TIntersectionType.TLeft) ? extents.right : extents.left;
-                        
-                        // If vertical is longer, remove the horizontal stub to prioritize vertical line
-                        if (verticalExtent >= horizontalExtent)
-                        {
-                            RemoveHorizontalStub(wallCells, x, y, tType, maxX);
-                            return true;
-                        }
-                        break;
-                    }
-            }
-            
-            return false;
-        }
-        
-        private void RemoveVerticalStub(HashSet<(int x, int y)> wallCells, int x, int y, TIntersectionType tType, int maxY)
-        {
-            if (tType == TIntersectionType.TUp)
-            {
-                // Remove the up stub
-                for (int i = y - 1; i >= 0 && wallCells.Contains((x, i)); i--)
-                {
-                    wallCells.Remove((x, i));
-                }
-            }
-            else if (tType == TIntersectionType.TDown)
-            {
-                // Remove the down stub
-                for (int i = y + 1; i <= maxY && wallCells.Contains((x, i)); i++)
-                {
-                    wallCells.Remove((x, i));
-                }
-            }
-        }
-        
-        private void RemoveHorizontalStub(HashSet<(int x, int y)> wallCells, int x, int y, TIntersectionType tType, int maxX)
-        {
-            if (tType == TIntersectionType.TLeft)
-            {
-                // Remove the right stub
-                for (int i = x + 1; i <= maxX && wallCells.Contains((i, y)); i++)
-                {
-                    wallCells.Remove((i, y));
-                }
-            }
-            else if (tType == TIntersectionType.TRight)
-            {
-                // Remove the left stub
-                for (int i = x - 1; i >= 0 && wallCells.Contains((i, y)); i--)
-                {
-                    wallCells.Remove((i, y));
-                }
-            }
-        }
-        
-        private List<WallRectangle> CreateMaximalWallRectangles(HashSet<(int x, int y)> wallCells, int maxX, int maxY)
-        {
-            var rectangles = new List<WallRectangle>();
-            var processedCells = new HashSet<(int x, int y)>();
-            
-            int horizontalCount = 0;
-            int verticalCount = 0;
-            int singleCount = 0;
-            
-            // First pass: Create maximal horizontal rectangles
-            for (int y = 0; y <= maxY; y++)
-            {
-                for (int x = 0; x <= maxX; x++)
-                {
-                    if (processedCells.Contains((x, y)) || !wallCells.Contains((x, y)))
-                        continue;
-                    
-                    var rect = CreateMaximalHorizontalRectangle(wallCells, processedCells, x, y, maxX, maxY);
-                    if (rect != null)
-                    {
-                        rectangles.Add(rect);
-                        horizontalCount++;
-                    }
-                }
-            }
-            
-            // Second pass: Create maximal vertical rectangles from remaining cells
-            for (int x = 0; x <= maxX; x++)
-            {
-                for (int y = 0; y <= maxY; y++)
-                {
-                    if (processedCells.Contains((x, y)) || !wallCells.Contains((x, y)))
-                        continue;
-                    
-                    var rect = CreateMaximalVerticalRectangle(wallCells, processedCells, x, y, maxX, maxY);
-                    if (rect != null)
-                    {
-                        rectangles.Add(rect);
-                        verticalCount++;
-                    }
-                }
-            }
-            
-            // Third pass: Handle any remaining individual cells
-            foreach (var (x, y) in wallCells)
-            {
-                if (processedCells.Contains((x, y)))
-                    continue;
-                
-                processedCells.Add((x, y));
-                rectangles.Add(new WallRectangle
-                {
-                    XStart = x,
-                    YStart = y,
-                    XEnd = x + 1,
-                    YEnd = y + 1
-                });
-                singleCount++;
-            }
-            
-            Console.WriteLine($"Created {horizontalCount} horizontal, {verticalCount} vertical, {singleCount} single rectangles");
-            return rectangles;
-        }
-        
-        private WallRectangle? CreateMaximalHorizontalRectangle(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
-                                                               int startX, int startY, int maxX, int maxY)
-        {
-            if (processedCells.Contains((startX, startY)))
-                return null;
-            
-            // Find maximum width
-            int width = 1;
-            while (startX + width <= maxX && wallCells.Contains((startX + width, startY)) && !processedCells.Contains((startX + width, startY)))
-            {
-                width++;
-            }
-            
-            // Find maximum height that works for this width
-            int height = 1;
-            bool canExtendDown = true;
-            while (canExtendDown && startY + height <= maxY)
-            {
-                for (int x = startX; x < startX + width; x++)
-                {
-                    if (!wallCells.Contains((x, startY + height)) || processedCells.Contains((x, startY + height)))
-                    {
-                        canExtendDown = false;
-                        break;
-                    }
-                }
-                if (canExtendDown)
-                {
-                    height++;
-                }
-            }
-            
-            // Mark all cells as processed
-            for (int y = startY; y < startY + height; y++)
-            {
-                for (int x = startX; x < startX + width; x++)
-                {
-                    processedCells.Add((x, y));
-                }
-            }
-            
-            return new WallRectangle
-            {
-                XStart = startX,
-                YStart = startY,
-                XEnd = startX + width,
-                YEnd = startY + height
-            };
-        }
-        
-        private WallRectangle? CreateMaximalVerticalRectangle(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
-                                                             int startX, int startY, int maxX, int maxY)
-        {
-            if (processedCells.Contains((startX, startY)))
-                return null;
-            
-            // Find maximum height
-            int height = 1;
-            while (startY + height <= maxY && wallCells.Contains((startX, startY + height)) && !processedCells.Contains((startX, startY + height)))
-            {
-                height++;
-            }
-            
-            // Find maximum width that works for this height
-            int width = 1;
-            bool canExtendRight = true;
-            while (canExtendRight && startX + width <= maxX)
-            {
-                for (int y = startY; y < startY + height; y++)
-                {
-                    if (!wallCells.Contains((startX + width, y)) || processedCells.Contains((startX + width, y)))
-                    {
-                        canExtendRight = false;
-                        break;
-                    }
-                }
-                if (canExtendRight)
-                {
-                    width++;
-                }
-            }
-            
-            // Mark all cells as processed
-            for (int y = startY; y < startY + height; y++)
-            {
-                for (int x = startX; x < startX + width; x++)
-                {
-                    processedCells.Add((x, y));
-                }
-            }
-            
-            return new WallRectangle
-            {
-                XStart = startX,
-                YStart = startY,
-                XEnd = startX + width,
-                YEnd = startY + height
-            };
-        }
-        private List<(int x, int y, TIntersectionType type)> FindTIntersections(HashSet<(int x, int y)> wallCells, int maxX, int maxY)
-        {
-            var tIntersections = new List<(int x, int y, TIntersectionType type)>();
-            
-            foreach (var (x, y) in wallCells)
-            {
-                var tType = GetTIntersectionType(wallCells, x, y, maxX, maxY);
-                if (tType != TIntersectionType.None)
-                {
-                    tIntersections.Add((x, y, tType));
-                }
-            }
-            
-            return tIntersections;
-        }
-        
-        private TIntersectionType GetTIntersectionType(HashSet<(int x, int y)> wallCells, int x, int y, int maxX, int maxY)
-        {
-            bool left = x > 0 && wallCells.Contains((x - 1, y));
-            bool right = x < maxX && wallCells.Contains((x + 1, y));
-            bool up = y > 0 && wallCells.Contains((x, y - 1));
-            bool down = y < maxY && wallCells.Contains((x, y + 1));
-            
-            int connections = (left ? 1 : 0) + (right ? 1 : 0) + (up ? 1 : 0) + (down ? 1 : 0);
-            
-            if (connections != 3) return TIntersectionType.None;
-            
-            // Determine T-intersection type
-            if (left && right && up && !down) return TIntersectionType.TUp; // ┴
-            if (left && right && !up && down) return TIntersectionType.TDown; // ┬
-            if (!left && right && up && down) return TIntersectionType.TLeft; // ├
-            if (left && !right && up && down) return TIntersectionType.TRight; // ┤
-            
-            return TIntersectionType.None;
-        }
-        
-        private (int left, int right, int up, int down) MeasureExtentsFromPoint(HashSet<(int x, int y)> wallCells, int x, int y, int maxX, int maxY)
-        {
-            int left = 0, right = 0, up = 0, down = 0;
-            
-            // Measure left extent
-            for (int i = x - 1; i >= 0 && wallCells.Contains((i, y)); i--)
-                left++;
-                
-            // Measure right extent
-            for (int i = x + 1; i <= maxX && wallCells.Contains((i, y)); i++)
-                right++;
-                
-            // Measure up extent
-            for (int i = y - 1; i >= 0 && wallCells.Contains((x, i)); i--)
-                up++;
-                
-            // Measure down extent
-            for (int i = y + 1; i <= maxY && wallCells.Contains((x, i)); i++)
-                down++;
-                
-            return (left, right, up, down);
-        }
-        
-        private enum TIntersectionType
-        {
-            None,
-            TUp,    // ┴
-            TDown,  // ┬
-            TLeft,  // ├
-            TRight  // ┤
-        }
         private void AddOptimizedPaths(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, 
                                      InnerMap maze, HashSet<(int x, int y)> pathSet, Dictionary<(int x, int y), byte> pathPositions)
         {
@@ -962,14 +630,6 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             public string Color { get; set; } = string.Empty;
         }
 
-        private class WallRectangle
-        {
-            public int XStart { get; set; }
-            public int YStart { get; set; }
-            public int XEnd { get; set; }
-            public int YEnd { get; set; }
-        }
-
         private void AddCube(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, int x, int y, float zBottom, float zTop, string paintColor)
         {
             int baseIndex = vertices.Count;
@@ -1070,9 +730,29 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Ground plane: 12 triangles (6 faces * 2 triangles per face)
             int groundFaces = 12;
 
-            // Count optimized wall rectangles
-            var wallRectangles = GenerateOptimizedWallRectangles(maze, pathSet);
-            int wallCuboids = wallRectangles.Count;
+            // Count wall segments using the same method as rendering
+            var mazeWalls = maze.GenerateListOfMazeWalls();
+            var filteredWalls = new List<MazeWall>();
+            foreach (var wall in mazeWalls)
+            {
+                bool overlapsWithPath = false;
+                for (int y = wall.Ystart; y <= wall.Yend; y++)
+                {
+                    for (int x = wall.Xstart; x <= wall.Xend; x++)
+                    {
+                        if (pathSet.Contains((x, y)))
+                        {
+                            overlapsWithPath = true;
+                            break;
+                        }
+                    }
+                    if (overlapsWithPath) break;
+                }
+                if (!overlapsWithPath)
+                {
+                    filteredWalls.Add(wall);
+                }
+            }
 
             // Count optimized path cuboids
             var pathPositions = new Dictionary<(int x, int y), byte>();
@@ -1081,10 +761,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 pathPositions[(x, y)] = 128; // Default value for face count calculation
             }
             var pathRectangles = GeneratePathRectangles(maze, pathSet, pathPositions);
-            int pathCuboids = pathRectangles.Count;
 
             // Each cuboid has 12 triangles (6 faces * 2 triangles per face)
-            int cuboidFaces = (wallCuboids + pathCuboids) * 12;
+            int cuboidFaces = (filteredWalls.Count + pathRectangles.Count) * 12;
 
             return groundFaces + cuboidFaces;
         }
@@ -1094,9 +773,29 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Ground plane: 8 vertices
             int groundVertices = 8;
 
-            // Count optimized wall rectangles
-            var wallRectangles = GenerateOptimizedWallRectangles(maze, pathSet);
-            int wallCuboids = wallRectangles.Count;
+            // Count wall segments using the same method as rendering
+            var mazeWalls = maze.GenerateListOfMazeWalls();
+            var filteredWalls = new List<MazeWall>();
+            foreach (var wall in mazeWalls)
+            {
+                bool overlapsWithPath = false;
+                for (int y = wall.Ystart; y <= wall.Yend; y++)
+                {
+                    for (int x = wall.Xstart; x <= wall.Xend; x++)
+                    {
+                        if (pathSet.Contains((x, y)))
+                        {
+                            overlapsWithPath = true;
+                            break;
+                        }
+                    }
+                    if (overlapsWithPath) break;
+                }
+                if (!overlapsWithPath)
+                {
+                    filteredWalls.Add(wall);
+                }
+            }
 
             // Count optimized path cuboids
             var pathPositions = new Dictionary<(int x, int y), byte>();
@@ -1105,10 +804,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 pathPositions[(x, y)] = 128; // Default value for vertex count calculation
             }
             var pathRectangles = GeneratePathRectangles(maze, pathSet, pathPositions);
-            int pathCuboids = pathRectangles.Count;
 
             // Each cuboid has 8 vertices (no sharing accounted for in this approximation)
-            int cuboidVertices = (wallCuboids + pathCuboids) * 8;
+            int cuboidVertices = (filteredWalls.Count + pathRectangles.Count) * 8;
 
             return groundVertices + cuboidVertices;
         }
