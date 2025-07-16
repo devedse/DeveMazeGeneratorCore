@@ -450,557 +450,216 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         private List<WallRectangle> GenerateOptimizedWallRectangles(InnerMap maze, HashSet<(int x, int y)> pathSet)
         {
-            var rectangles = new List<WallRectangle>();
-            
-            // Create a modifiable set of wall cells
-            var wallCells = new HashSet<(int x, int y)>();
+            // Create initial set of wall cells
+            var originalWallCells = new HashSet<(int x, int y)>();
             for (int y = 0; y < maze.Height - 1; y++)
             {
                 for (int x = 0; x < maze.Width - 1; x++)
                 {
                     if (!maze[x, y] && !pathSet.Contains((x, y)))
                     {
-                        wallCells.Add((x, y));
+                        originalWallCells.Add((x, y));
                     }
                 }
             }
             
-            Console.WriteLine($"Starting with {wallCells.Count} wall cells");
+            Console.WriteLine($"Starting with {originalWallCells.Count} wall cells");
             
-            // Generate rectangles using intelligent T-intersection spanning
-            var optimizedRectangles = CreateIntelligentWallRectangles(wallCells, maze.Width - 1, maze.Height - 1);
+            // Apply smart T-intersection optimization by resolving conflicts
+            var optimizedWallCells = ResolveTIntersectionConflicts(originalWallCells, maze.Width - 1, maze.Height - 1);
             
-            Console.WriteLine($"Generated {optimizedRectangles.Count} optimized wall rectangles");
-            return optimizedRectangles;
+            // Generate rectangles from optimized wall cells
+            var rectangles = CreateMaximalWallRectangles(optimizedWallCells, maze.Width - 1, maze.Height - 1);
+            
+            Console.WriteLine($"Generated {rectangles.Count} wall rectangles after smart T-intersection optimization");
+            return rectangles;
         }
-        private List<WallRectangle> CreateIntelligentWallRectangles(HashSet<(int x, int y)> wallCells, int maxX, int maxY)
+        
+        private HashSet<(int x, int y)> ResolveTIntersectionConflicts(HashSet<(int x, int y)> wallCells, int maxX, int maxY)
+        {
+            var resolvedCells = new HashSet<(int x, int y)>(wallCells);
+            var tIntersections = FindTIntersections(wallCells, maxX, maxY);
+            
+            Console.WriteLine($"Found {tIntersections.Count} T-intersections to resolve");
+            
+            int resolutionsApplied = 0;
+            
+            foreach (var (x, y, tType) in tIntersections)
+            {
+                // For each T-intersection, determine the optimal main direction
+                // and "remove" the stub from consideration to allow longer main lines
+                if (ResolveTIntersectionConflict(resolvedCells, x, y, tType, maxX, maxY))
+                {
+                    resolutionsApplied++;
+                }
+            }
+            
+            Console.WriteLine($"Applied {resolutionsApplied} T-intersection conflict resolutions");
+            return resolvedCells;
+        }
+        
+        private bool ResolveTIntersectionConflict(HashSet<(int x, int y)> wallCells, int x, int y, TIntersectionType tType, int maxX, int maxY)
+        {
+            var extents = MeasureExtentsFromPoint(wallCells, x, y, maxX, maxY);
+            
+            switch (tType)
+            {
+                case TIntersectionType.TUp: // ┴ (left-right main, up stub)
+                case TIntersectionType.TDown: // ┬ (left-right main, down stub)
+                    {
+                        int horizontalExtent = extents.left + extents.right;
+                        int verticalExtent = (tType == TIntersectionType.TUp) ? extents.up : extents.down;
+                        
+                        // If horizontal is longer, remove the vertical stub to prioritize horizontal line
+                        if (horizontalExtent >= verticalExtent)
+                        {
+                            RemoveVerticalStub(wallCells, x, y, tType, maxY);
+                            return true;
+                        }
+                        break;
+                    }
+                    
+                case TIntersectionType.TLeft: // ├ (up-down main, right stub)
+                case TIntersectionType.TRight: // ┤ (up-down main, left stub)
+                    {
+                        int verticalExtent = extents.up + extents.down;
+                        int horizontalExtent = (tType == TIntersectionType.TLeft) ? extents.right : extents.left;
+                        
+                        // If vertical is longer, remove the horizontal stub to prioritize vertical line
+                        if (verticalExtent >= horizontalExtent)
+                        {
+                            RemoveHorizontalStub(wallCells, x, y, tType, maxX);
+                            return true;
+                        }
+                        break;
+                    }
+            }
+            
+            return false;
+        }
+        
+        private void RemoveVerticalStub(HashSet<(int x, int y)> wallCells, int x, int y, TIntersectionType tType, int maxY)
+        {
+            if (tType == TIntersectionType.TUp)
+            {
+                // Remove the up stub
+                for (int i = y - 1; i >= 0 && wallCells.Contains((x, i)); i--)
+                {
+                    wallCells.Remove((x, i));
+                }
+            }
+            else if (tType == TIntersectionType.TDown)
+            {
+                // Remove the down stub
+                for (int i = y + 1; i <= maxY && wallCells.Contains((x, i)); i++)
+                {
+                    wallCells.Remove((x, i));
+                }
+            }
+        }
+        
+        private void RemoveHorizontalStub(HashSet<(int x, int y)> wallCells, int x, int y, TIntersectionType tType, int maxX)
+        {
+            if (tType == TIntersectionType.TLeft)
+            {
+                // Remove the right stub
+                for (int i = x + 1; i <= maxX && wallCells.Contains((i, y)); i++)
+                {
+                    wallCells.Remove((i, y));
+                }
+            }
+            else if (tType == TIntersectionType.TRight)
+            {
+                // Remove the left stub
+                for (int i = x - 1; i >= 0 && wallCells.Contains((i, y)); i--)
+                {
+                    wallCells.Remove((i, y));
+                }
+            }
+        }
+        
+        private List<WallRectangle> CreateMaximalWallRectangles(HashSet<(int x, int y)> wallCells, int maxX, int maxY)
         {
             var rectangles = new List<WallRectangle>();
             var processedCells = new HashSet<(int x, int y)>();
             
-            // First pass: prioritize very long horizontal segments
-            ProcessLongHorizontalSegments(wallCells, processedCells, rectangles, maxX, maxY);
+            int horizontalCount = 0;
+            int verticalCount = 0;
+            int singleCount = 0;
             
-            // Second pass: prioritize very long vertical segments
-            ProcessLongVerticalSegments(wallCells, processedCells, rectangles, maxX, maxY);
-            
-            // Third pass: handle remaining cells with normal logic
-            ProcessRemainingCells(wallCells, processedCells, rectangles, maxX, maxY);
-            
-            Console.WriteLine($"Intelligent rectangle generation: {rectangles.Count} rectangles created");
-            return rectangles;
-        }
-        
-        private void ProcessLongHorizontalSegments(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
-                                                  List<WallRectangle> rectangles, int maxX, int maxY)
-        {
+            // First pass: Create maximal horizontal rectangles
             for (int y = 0; y <= maxY; y++)
             {
                 for (int x = 0; x <= maxX; x++)
                 {
                     if (processedCells.Contains((x, y)) || !wallCells.Contains((x, y)))
                         continue;
-                        
-                    // Check if this could start a long horizontal segment (≥5 cells)
-                    int potentialWidth = GetMaximumHorizontalExtent(wallCells, processedCells, x, y, maxX);
-                    if (potentialWidth >= 5)
+                    
+                    var rect = CreateMaximalHorizontalRectangle(wallCells, processedCells, x, y, maxX, maxY);
+                    if (rect != null)
                     {
-                        var rect = CreateOptimalHorizontalRectangle(wallCells, processedCells, x, y, maxX, maxY);
-                        if (rect != null)
-                        {
-                            rectangles.Add(rect);
-                        }
+                        rectangles.Add(rect);
+                        horizontalCount++;
                     }
                 }
             }
-        }
-        
-        private void ProcessLongVerticalSegments(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
-                                                List<WallRectangle> rectangles, int maxX, int maxY)
-        {
+            
+            // Second pass: Create maximal vertical rectangles from remaining cells
             for (int x = 0; x <= maxX; x++)
             {
                 for (int y = 0; y <= maxY; y++)
                 {
                     if (processedCells.Contains((x, y)) || !wallCells.Contains((x, y)))
                         continue;
-                        
-                    // Check if this could start a long vertical segment (≥5 cells)
-                    int potentialHeight = GetMaximumVerticalExtent(wallCells, processedCells, x, y, maxY);
-                    if (potentialHeight >= 5)
-                    {
-                        // Create vertical rectangle without affecting processed cells yet
-                        var rect = CreateOptimalVerticalRectangleWithMarking(wallCells, processedCells, x, y, maxX, maxY);
-                        if (rect != null)
-                        {
-                            rectangles.Add(rect);
-                        }
-                    }
-                }
-            }
-        }
-        
-        private void ProcessRemainingCells(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
-                                          List<WallRectangle> rectangles, int maxX, int maxY)
-        {
-            for (int y = 0; y <= maxY; y++)
-            {
-                for (int x = 0; x <= maxX; x++)
-                {
-                    if (processedCells.Contains((x, y)) || !wallCells.Contains((x, y)))
-                        continue;
-                        
-                    var rect = CreateLargestRectangleWithTSpanning(wallCells, processedCells, x, y, maxX, maxY);
+                    
+                    var rect = CreateMaximalVerticalRectangle(wallCells, processedCells, x, y, maxX, maxY);
                     if (rect != null)
                     {
                         rectangles.Add(rect);
+                        verticalCount++;
                     }
                 }
             }
-        }
-        
-        private int GetMaximumHorizontalExtent(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
-                                              int startX, int startY, int maxX)
-        {
-            int width = 0;
-            for (int x = startX; x <= maxX && wallCells.Contains((x, startY)) && !processedCells.Contains((x, startY)); x++)
-            {
-                width++;
-            }
-            return width;
-        }
-        
-        private int GetMaximumVerticalExtent(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
-                                            int startX, int startY, int maxY)
-        {
-            int height = 0;
-            for (int y = startY; y <= maxY && wallCells.Contains((startX, y)) && !processedCells.Contains((startX, y)); y++)
-            {
-                height++;
-            }
-            return height;
-        }
-        
-        private WallRectangle? CreateOptimalVerticalRectangleWithMarking(HashSet<(int x, int y)> wallCells, 
-                                                                        HashSet<(int x, int y)> processedCells, 
-                                                                        int startX, int startY, int maxX, int maxY)
-        {
-            // Find the maximum height while spanning through T-intersections when beneficial
-            int height = 1;
             
-            // Extend down as far as possible, potentially spanning through T-intersections
-            while (startY + height <= maxY)
+            // Third pass: Handle any remaining individual cells
+            foreach (var (x, y) in wallCells)
             {
-                var currentPos = (startX, startY + height);
+                if (processedCells.Contains((x, y)))
+                    continue;
                 
-                if (!wallCells.Contains(currentPos) || processedCells.Contains(currentPos))
-                    break;
-                
-                // Check if this position is a T-intersection
-                if (IsTIntersection(wallCells, startX, startY + height, maxX, maxY))
+                processedCells.Add((x, y));
+                rectangles.Add(new WallRectangle
                 {
-                    // Determine if we should span through this T-intersection
-                    if (ShouldSpanThroughTIntersection(wallCells, startX, startY, startX, startY + height, false, maxX, maxY))
-                    {
-                        height++;
-                        continue; // Continue through the T-intersection
-                    }
-                    else
-                    {
-                        break; // Don't span through this T-intersection
-                    }
-                }
-                
-                height++;
+                    XStart = x,
+                    YStart = y,
+                    XEnd = x + 1,
+                    YEnd = y + 1
+                });
+                singleCount++;
             }
             
-            // Try to extend horizontally to create a wider rectangle
-            int width = 1;
-            bool canExtendRight = true;
-            while (canExtendRight && startX + width <= maxX)
-            {
-                // Check if all cells in the next column are available
-                for (int y = startY; y < startY + height; y++)
-                {
-                    var pos = (startX + width, y);
-                    if (!wallCells.Contains(pos) || processedCells.Contains(pos))
-                    {
-                        canExtendRight = false;
-                        break;
-                    }
-                }
-                if (canExtendRight)
-                {
-                    width++;
-                }
-            }
-            
-            // Mark all cells in this rectangle as processed
-            for (int y = startY; y < startY + height; y++)
-            {
-                for (int x = startX; x < startX + width; x++)
-                {
-                    processedCells.Add((x, y));
-                }
-            }
-            
-            return new WallRectangle
-            {
-                XStart = startX,
-                YStart = startY,
-                XEnd = startX + width,
-                YEnd = startY + height
-            };
-        }
-        
-        private WallRectangle? CreateLargestRectangleWithTSpanning(HashSet<(int x, int y)> wallCells, 
-                                                                  HashSet<(int x, int y)> processedCells, 
-                                                                  int startX, int startY, int maxX, int maxY)
-        {
-            if (processedCells.Contains((startX, startY))) return null;
-            
-            // Try both horizontal and vertical rectangles, choose the one with larger area
-            var horizontalRect = CreateOptimalHorizontalRectangle(wallCells, processedCells, startX, startY, maxX, maxY);
-            var verticalRect = CreateOptimalVerticalRectangle(wallCells, processedCells, startX, startY, maxX, maxY);
-            
-            // Choose the rectangle with the larger area
-            var chosenRect = horizontalRect;
-            if (verticalRect != null && horizontalRect != null)
-            {
-                int hArea = (horizontalRect.XEnd - horizontalRect.XStart) * (horizontalRect.YEnd - horizontalRect.YStart);
-                int vArea = (verticalRect.XEnd - verticalRect.XStart) * (verticalRect.YEnd - verticalRect.YStart);
-                if (vArea > hArea)
-                {
-                    chosenRect = verticalRect;
-                }
-            }
-            else if (verticalRect != null)
-            {
-                chosenRect = verticalRect;
-            }
-            
-            return chosenRect;
-        }
-        
-        private WallRectangle? CreateOptimalHorizontalRectangle(HashSet<(int x, int y)> wallCells, 
-                                                               HashSet<(int x, int y)> processedCells, 
-                                                               int startX, int startY, int maxX, int maxY)
-        {
-            // Find the maximum width while spanning through T-intersections when beneficial
-            int width = 1;
-            
-            // Extend right as far as possible, potentially spanning through T-intersections
-            while (startX + width <= maxX)
-            {
-                var currentPos = (startX + width, startY);
-                
-                if (!wallCells.Contains(currentPos) || processedCells.Contains(currentPos))
-                    break;
-                
-                // Check if this position is a T-intersection
-                if (IsTIntersection(wallCells, startX + width, startY, maxX, maxY))
-                {
-                    // Determine if we should span through this T-intersection
-                    if (ShouldSpanThroughTIntersection(wallCells, startX, startY, startX + width, startY, true, maxX, maxY))
-                    {
-                        width++;
-                        continue; // Continue through the T-intersection
-                    }
-                    else
-                    {
-                        break; // Don't span through this T-intersection
-                    }
-                }
-                
-                width++;
-            }
-            
-            // Try to extend vertically to create a thicker rectangle
-            int height = 1;
-            bool canExtendDown = true;
-            while (canExtendDown && startY + height <= maxY)
-            {
-                // Check if all cells in the next row are available and don't conflict with T-intersections
-                for (int x = startX; x < startX + width; x++)
-                {
-                    var pos = (x, startY + height);
-                    if (!wallCells.Contains(pos) || processedCells.Contains(pos))
-                    {
-                        canExtendDown = false;
-                        break;
-                    }
-                }
-                if (canExtendDown)
-                {
-                    height++;
-                }
-            }
-            
-            // Mark all cells in this rectangle as processed
-            for (int y = startY; y < startY + height; y++)
-            {
-                for (int x = startX; x < startX + width; x++)
-                {
-                    processedCells.Add((x, y));
-                }
-            }
-            
-            return new WallRectangle
-            {
-                XStart = startX,
-                YStart = startY,
-                XEnd = startX + width,
-                YEnd = startY + height
-            };
-        }
-        
-        private WallRectangle? CreateOptimalVerticalRectangle(HashSet<(int x, int y)> wallCells, 
-                                                             HashSet<(int x, int y)> processedCells, 
-                                                             int startX, int startY, int maxX, int maxY)
-        {
-            // Save the current state
-            var savedProcessedCells = new HashSet<(int x, int y)>(processedCells);
-            
-            // Find the maximum height while spanning through T-intersections when beneficial
-            int height = 1;
-            
-            // Extend down as far as possible, potentially spanning through T-intersections
-            while (startY + height <= maxY)
-            {
-                var currentPos = (startX, startY + height);
-                
-                if (!wallCells.Contains(currentPos) || processedCells.Contains(currentPos))
-                    break;
-                
-                // Check if this position is a T-intersection
-                if (IsTIntersection(wallCells, startX, startY + height, maxX, maxY))
-                {
-                    // Determine if we should span through this T-intersection
-                    if (ShouldSpanThroughTIntersection(wallCells, startX, startY, startX, startY + height, false, maxX, maxY))
-                    {
-                        height++;
-                        continue; // Continue through the T-intersection
-                    }
-                    else
-                    {
-                        break; // Don't span through this T-intersection
-                    }
-                }
-                
-                height++;
-            }
-            
-            // Try to extend horizontally to create a wider rectangle
-            int width = 1;
-            bool canExtendRight = true;
-            while (canExtendRight && startX + width <= maxX)
-            {
-                // Check if all cells in the next column are available
-                for (int y = startY; y < startY + height; y++)
-                {
-                    var pos = (startX + width, y);
-                    if (!wallCells.Contains(pos) || processedCells.Contains(pos))
-                    {
-                        canExtendRight = false;
-                        break;
-                    }
-                }
-                if (canExtendRight)
-                {
-                    width++;
-                }
-            }
-            
-            // Only return this if it's different from a horizontal rectangle starting from the same point
-            // Restore the processed cells state since we're just exploring
-            processedCells.Clear();
-            processedCells.UnionWith(savedProcessedCells);
-            
-            // Return the dimensions without marking cells as processed yet
-            return new WallRectangle
-            {
-                XStart = startX,
-                YStart = startY,
-                XEnd = startX + width,
-                YEnd = startY + height
-            };
-        }
-        
-        private bool IsTIntersection(HashSet<(int x, int y)> wallCells, int x, int y, int maxX, int maxY)
-        {
-            // Check the 4 orthogonal directions for wall presence
-            bool left = x > 0 && wallCells.Contains((x - 1, y));
-            bool right = x < maxX && wallCells.Contains((x + 1, y));
-            bool up = y > 0 && wallCells.Contains((x, y - 1));
-            bool down = y < maxY && wallCells.Contains((x, y + 1));
-            
-            int connections = (left ? 1 : 0) + (right ? 1 : 0) + (up ? 1 : 0) + (down ? 1 : 0);
-            
-            // T-intersection has exactly 3 connections
-            return connections == 3;
-        }
-        
-        private bool ShouldSpanThroughTIntersection(HashSet<(int x, int y)> wallCells, 
-                                                   int lineStartX, int lineStartY, 
-                                                   int tIntersectionX, int tIntersectionY, 
-                                                   bool isHorizontalLine, int maxX, int maxY)
-        {
-            if (isHorizontalLine)
-            {
-                // For horizontal lines, be MORE AGGRESSIVE - prioritize horizontal continuity
-                int horizontalLeft = 0;
-                int horizontalRight = 0;
-                int verticalStub = 0;
-                
-                // Measure horizontal extent from T-intersection
-                for (int x = tIntersectionX - 1; x >= 0 && wallCells.Contains((x, tIntersectionY)); x--)
-                    horizontalLeft++;
-                for (int x = tIntersectionX + 1; x <= maxX && wallCells.Contains((x, tIntersectionY)); x++)
-                    horizontalRight++;
-                
-                // Measure vertical stub from T-intersection
-                bool hasUp = tIntersectionY > 0 && wallCells.Contains((tIntersectionX, tIntersectionY - 1));
-                bool hasDown = tIntersectionY < maxY && wallCells.Contains((tIntersectionX, tIntersectionY + 1));
-                
-                if (hasUp)
-                {
-                    for (int y = tIntersectionY - 1; y >= 0 && wallCells.Contains((tIntersectionX, y)); y--)
-                        verticalStub++;
-                }
-                if (hasDown)
-                {
-                    for (int y = tIntersectionY + 1; y <= maxY && wallCells.Contains((tIntersectionX, y)); y++)
-                        verticalStub++;
-                }
-                
-                int totalHorizontal = horizontalLeft + horizontalRight + 1; // +1 for the T-intersection itself
-                
-                // Be more aggressive: span if horizontal is equal or longer, OR if the stub is very short
-                return totalHorizontal >= verticalStub || verticalStub <= 2;
-            }
-            else
-            {
-                // For vertical lines, be MORE AGGRESSIVE - prioritize vertical continuity
-                int verticalUp = 0;
-                int verticalDown = 0;
-                int horizontalStub = 0;
-                
-                // Measure vertical extent from T-intersection
-                for (int y = tIntersectionY - 1; y >= 0 && wallCells.Contains((tIntersectionX, y)); y--)
-                    verticalUp++;
-                for (int y = tIntersectionY + 1; y <= maxY && wallCells.Contains((tIntersectionX, y)); y++)
-                    verticalDown++;
-                
-                // Measure horizontal stub from T-intersection
-                bool hasLeft = tIntersectionX > 0 && wallCells.Contains((tIntersectionX - 1, tIntersectionY));
-                bool hasRight = tIntersectionX < maxX && wallCells.Contains((tIntersectionX + 1, tIntersectionY));
-                
-                if (hasLeft)
-                {
-                    for (int x = tIntersectionX - 1; x >= 0 && wallCells.Contains((x, tIntersectionY)); x--)
-                        horizontalStub++;
-                }
-                if (hasRight)
-                {
-                    for (int x = tIntersectionX + 1; x <= maxX && wallCells.Contains((x, tIntersectionY)); x++)
-                        horizontalStub++;
-                }
-                
-                int totalVertical = verticalUp + verticalDown + 1; // +1 for the T-intersection itself
-                
-                // Be more aggressive: span if vertical is equal or longer, OR if the stub is very short
-                return totalVertical >= horizontalStub || horizontalStub <= 2;
-            }
-        }
-        
-        private List<WallRectangle> CreateOptimalWallLines(HashSet<(int x, int y)> wallCells, int maxX, int maxY)
-        {
-            var rectangles = new List<WallRectangle>();
-            var processedCells = new HashSet<(int x, int y)>();
-            
-            // Priority 1: Create the longest possible horizontal lines first
-            CreateLongestLines(wallCells, processedCells, rectangles, true, maxX, maxY);
-            
-            // Priority 2: Create the longest possible vertical lines from remaining cells
-            CreateLongestLines(wallCells, processedCells, rectangles, false, maxX, maxY);
-            
-            // Priority 3: Handle any remaining individual cells as small rectangles
-            CreateRemainingRectangles(wallCells, processedCells, rectangles, maxX, maxY);
-            
-            Console.WriteLine($"Line-based optimization: {rectangles.Count} rectangles created");
+            Console.WriteLine($"Created {horizontalCount} horizontal, {verticalCount} vertical, {singleCount} single rectangles");
             return rectangles;
         }
         
-        private void CreateLongestLines(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
-                                      List<WallRectangle> rectangles, bool horizontal, int maxX, int maxY)
-        {
-            var direction = horizontal ? "horizontal" : "vertical";
-            var linesCreated = 0;
-            
-            if (horizontal)
-            {
-                // Process row by row to find the longest horizontal segments
-                for (int y = 0; y <= maxY; y++)
-                {
-                    for (int x = 0; x <= maxX; x++)
-                    {
-                        if (processedCells.Contains((x, y)) || !wallCells.Contains((x, y)))
-                            continue;
-                        
-                        // Find the longest horizontal line starting from this point
-                        var rect = CreateLongestHorizontalLine(wallCells, processedCells, x, y, maxX);
-                        if (rect != null)
-                        {
-                            rectangles.Add(rect);
-                            linesCreated++;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // Process column by column to find the longest vertical segments
-                for (int x = 0; x <= maxX; x++)
-                {
-                    for (int y = 0; y <= maxY; y++)
-                    {
-                        if (processedCells.Contains((x, y)) || !wallCells.Contains((x, y)))
-                            continue;
-                        
-                        // Find the longest vertical line starting from this point
-                        var rect = CreateLongestVerticalLine(wallCells, processedCells, x, y, maxY);
-                        if (rect != null)
-                        {
-                            rectangles.Add(rect);
-                            linesCreated++;
-                        }
-                    }
-                }
-            }
-            
-            Console.WriteLine($"Created {linesCreated} {direction} lines");
-        }
-        
-        private WallRectangle? CreateLongestHorizontalLine(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
-                                                          int startX, int startY, int maxX)
+        private WallRectangle? CreateMaximalHorizontalRectangle(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
+                                                               int startX, int startY, int maxX, int maxY)
         {
             if (processedCells.Contains((startX, startY)))
                 return null;
             
-            // Find the maximum width for this horizontal line, ignoring T-intersections
+            // Find maximum width
             int width = 1;
-            while (startX + width <= maxX && wallCells.Contains((startX + width, startY)))
+            while (startX + width <= maxX && wallCells.Contains((startX + width, startY)) && !processedCells.Contains((startX + width, startY)))
             {
-                // Skip over T-intersections - prioritize the horizontal line
                 width++;
             }
             
-            // Try to extend this line vertically to create a thicker rectangle if possible
+            // Find maximum height that works for this width
             int height = 1;
             bool canExtendDown = true;
-            while (canExtendDown && startY + height <= maxX) // Note: using maxX for height limit due to maze bounds
+            while (canExtendDown && startY + height <= maxY)
             {
-                // Check if all cells in the next row are available
                 for (int x = startX; x < startX + width; x++)
                 {
                     if (!wallCells.Contains((x, startY + height)) || processedCells.Contains((x, startY + height)))
@@ -1015,7 +674,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 }
             }
             
-            // Mark all cells in this rectangle as processed
+            // Mark all cells as processed
             for (int y = startY; y < startY + height; y++)
             {
                 for (int x = startX; x < startX + width; x++)
@@ -1033,26 +692,24 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             };
         }
         
-        private WallRectangle? CreateLongestVerticalLine(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
-                                                        int startX, int startY, int maxY)
+        private WallRectangle? CreateMaximalVerticalRectangle(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
+                                                             int startX, int startY, int maxX, int maxY)
         {
             if (processedCells.Contains((startX, startY)))
                 return null;
             
-            // Find the maximum height for this vertical line, ignoring T-intersections
+            // Find maximum height
             int height = 1;
-            while (startY + height <= maxY && wallCells.Contains((startX, startY + height)))
+            while (startY + height <= maxY && wallCells.Contains((startX, startY + height)) && !processedCells.Contains((startX, startY + height)))
             {
-                // Skip over T-intersections - prioritize the vertical line
                 height++;
             }
             
-            // Try to extend this line horizontally to create a wider rectangle if possible
+            // Find maximum width that works for this height
             int width = 1;
             bool canExtendRight = true;
-            while (canExtendRight && startX + width <= maxY) // Note: using maxY for width limit due to maze bounds
+            while (canExtendRight && startX + width <= maxX)
             {
-                // Check if all cells in the next column are available
                 for (int y = startY; y < startY + height; y++)
                 {
                     if (!wallCells.Contains((startX + width, y)) || processedCells.Contains((startX + width, y)))
@@ -1067,7 +724,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 }
             }
             
-            // Mark all cells in this rectangle as processed
+            // Mark all cells as processed
             for (int y = startY; y < startY + height; y++)
             {
                 for (int x = startX; x < startX + width; x++)
@@ -1084,36 +741,73 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 YEnd = startY + height
             };
         }
-        
-        private void CreateRemainingRectangles(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
-                                             List<WallRectangle> rectangles, int maxX, int maxY)
+        private List<(int x, int y, TIntersectionType type)> FindTIntersections(HashSet<(int x, int y)> wallCells, int maxX, int maxY)
         {
-            var remainingCount = 0;
+            var tIntersections = new List<(int x, int y, TIntersectionType type)>();
             
             foreach (var (x, y) in wallCells)
             {
-                if (processedCells.Contains((x, y)))
-                    continue;
-                
-                // Create individual cell rectangles for any remaining cells
-                processedCells.Add((x, y));
-                rectangles.Add(new WallRectangle
+                var tType = GetTIntersectionType(wallCells, x, y, maxX, maxY);
+                if (tType != TIntersectionType.None)
                 {
-                    XStart = x,
-                    YStart = y,
-                    XEnd = x + 1,
-                    YEnd = y + 1
-                });
-                remainingCount++;
+                    tIntersections.Add((x, y, tType));
+                }
             }
             
-            if (remainingCount > 0)
-            {
-                Console.WriteLine($"Created {remainingCount} individual cell rectangles for remaining cells");
-            }
+            return tIntersections;
         }
-
-
+        
+        private TIntersectionType GetTIntersectionType(HashSet<(int x, int y)> wallCells, int x, int y, int maxX, int maxY)
+        {
+            bool left = x > 0 && wallCells.Contains((x - 1, y));
+            bool right = x < maxX && wallCells.Contains((x + 1, y));
+            bool up = y > 0 && wallCells.Contains((x, y - 1));
+            bool down = y < maxY && wallCells.Contains((x, y + 1));
+            
+            int connections = (left ? 1 : 0) + (right ? 1 : 0) + (up ? 1 : 0) + (down ? 1 : 0);
+            
+            if (connections != 3) return TIntersectionType.None;
+            
+            // Determine T-intersection type
+            if (left && right && up && !down) return TIntersectionType.TUp; // ┴
+            if (left && right && !up && down) return TIntersectionType.TDown; // ┬
+            if (!left && right && up && down) return TIntersectionType.TLeft; // ├
+            if (left && !right && up && down) return TIntersectionType.TRight; // ┤
+            
+            return TIntersectionType.None;
+        }
+        
+        private (int left, int right, int up, int down) MeasureExtentsFromPoint(HashSet<(int x, int y)> wallCells, int x, int y, int maxX, int maxY)
+        {
+            int left = 0, right = 0, up = 0, down = 0;
+            
+            // Measure left extent
+            for (int i = x - 1; i >= 0 && wallCells.Contains((i, y)); i--)
+                left++;
+                
+            // Measure right extent
+            for (int i = x + 1; i <= maxX && wallCells.Contains((i, y)); i++)
+                right++;
+                
+            // Measure up extent
+            for (int i = y - 1; i >= 0 && wallCells.Contains((x, i)); i--)
+                up++;
+                
+            // Measure down extent
+            for (int i = y + 1; i <= maxY && wallCells.Contains((x, i)); i++)
+                down++;
+                
+            return (left, right, up, down);
+        }
+        
+        private enum TIntersectionType
+        {
+            None,
+            TUp,    // ┴
+            TDown,  // ┬
+            TLeft,  // ├
+            TRight  // ┤
+        }
         private void AddOptimizedPaths(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, 
                                      InnerMap maze, HashSet<(int x, int y)> pathSet, Dictionary<(int x, int y), byte> pathPositions)
         {
@@ -1126,367 +820,6 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                          GroundHeight, GroundHeight + PathHeight, pathRect.Color);
             }
         }
-
-        private List<WallRectangle> GenerateWallRectangles(InnerMap maze, HashSet<(int x, int y)> pathSet)
-        {
-            var rectangles = new List<WallRectangle>();
-            var processedCells = new HashSet<(int x, int y)>();
-            
-            // Step 1: Identify all wall cells
-            var wallCells = new HashSet<(int x, int y)>();
-            for (int y = 0; y < maze.Height - 1; y++)
-            {
-                for (int x = 0; x < maze.Width - 1; x++)
-                {
-                    if (!maze[x, y] && !pathSet.Contains((x, y)))
-                    {
-                        wallCells.Add((x, y));
-                    }
-                }
-            }
-            
-            // Step 2: Priority-based rectangle generation
-            // First pass: Generate longer horizontal rectangles
-            GeneratePriorityRectangles(wallCells, processedCells, rectangles, true, maze.Width - 1, maze.Height - 1);
-            
-            // Second pass: Generate remaining vertical rectangles
-            GeneratePriorityRectangles(wallCells, processedCells, rectangles, false, maze.Width - 1, maze.Height - 1);
-            
-            return rectangles;
-        }
-
-        private void GeneratePriorityRectangles(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
-                                               List<WallRectangle> rectangles, bool prioritizeHorizontal, int maxX, int maxY)
-        {
-            // Create a list of potential rectangle starting points with their priorities
-            var prioritizedCandidates = new List<(int x, int y, int priority)>();
-            
-            foreach (var (x, y) in wallCells)
-            {
-                if (processedCells.Contains((x, y))) continue;
-                
-                int priority = CalculateRectanglePriority(wallCells, x, y, prioritizeHorizontal, maxX, maxY);
-                if (priority > 0)
-                {
-                    prioritizedCandidates.Add((x, y, priority));
-                }
-            }
-            
-            // Sort by priority (highest first) to process the most promising rectangles first
-            prioritizedCandidates.Sort((a, b) => b.priority.CompareTo(a.priority));
-            
-            foreach (var (x, y, priority) in prioritizedCandidates)
-            {
-                if (processedCells.Contains((x, y))) continue;
-                
-                var rect = FindOptimalRectangle(wallCells, processedCells, x, y, prioritizeHorizontal, maxX, maxY);
-                if (rect != null)
-                {
-                    rectangles.Add(rect);
-                }
-            }
-        }
-        
-        private int CalculateRectanglePriority(HashSet<(int x, int y)> wallCells, int x, int y, bool prioritizeHorizontal, int maxX, int maxY)
-        {
-            if (prioritizeHorizontal)
-            {
-                // For horizontal priority, measure potential horizontal extent
-                int leftExtent = GetHorizontalExtent(wallCells, x, y, -1);
-                int rightExtent = GetHorizontalExtent(wallCells, x, y, 1);
-                int totalHorizontal = leftExtent + rightExtent + 1;
-                
-                // Check if this is part of a T-intersection where horizontal should be prioritized
-                bool isOptimalTPosition = IsOptimalTIntersection(wallCells, x, y, true, maxX, maxY);
-                
-                return totalHorizontal * (isOptimalTPosition ? 10 : 1); // Boost priority for T-intersections
-            }
-            else
-            {
-                // For vertical priority, measure potential vertical extent
-                int upExtent = GetVerticalExtent(wallCells, x, y, -1);
-                int downExtent = GetVerticalExtent(wallCells, x, y, 1);
-                int totalVertical = upExtent + downExtent + 1;
-                
-                // Check if this is part of a T-intersection where vertical should be prioritized
-                bool isOptimalTPosition = IsOptimalTIntersection(wallCells, x, y, false, maxX, maxY);
-                
-                return totalVertical * (isOptimalTPosition ? 10 : 1); // Boost priority for T-intersections
-            }
-        }
-        
-        private int GetHorizontalExtent(HashSet<(int x, int y)> wallCells, int x, int y, int direction)
-        {
-            int extent = 0;
-            int currentX = x + direction;
-            
-            while (wallCells.Contains((currentX, y)))
-            {
-                extent++;
-                currentX += direction;
-            }
-            
-            return extent;
-        }
-        
-        private int GetVerticalExtent(HashSet<(int x, int y)> wallCells, int x, int y, int direction)
-        {
-            int extent = 0;
-            int currentY = y + direction;
-            
-            while (wallCells.Contains((x, currentY)))
-            {
-                extent++;
-                currentY += direction;
-            }
-            
-            return extent;
-        }
-        
-        private bool IsOptimalTIntersection(HashSet<(int x, int y)> wallCells, int x, int y, bool checkingHorizontal, int maxX, int maxY)
-        {
-            // Check the 4 orthogonal directions for wall presence
-            bool left = x > 0 && wallCells.Contains((x - 1, y));
-            bool right = x < maxX && wallCells.Contains((x + 1, y));
-            bool up = y > 0 && wallCells.Contains((x, y - 1));
-            bool down = y < maxY && wallCells.Contains((x, y + 1));
-            
-            int orthogonalConnections = (left ? 1 : 0) + (right ? 1 : 0) + (up ? 1 : 0) + (down ? 1 : 0);
-            
-            if (orthogonalConnections != 3) return false; // Not a T-intersection
-            
-            if (checkingHorizontal)
-            {
-                // For horizontal priority, favor T-intersections where horizontal is the main line
-                return left && right && (up || down); // T-up or T-down configurations
-            }
-            else
-            {
-                // For vertical priority, favor T-intersections where vertical is the main line
-                return up && down && (left || right); // T-left or T-right configurations
-            }
-        }
-        
-        private WallRectangle FindOptimalRectangle(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
-                                                  int startX, int startY, bool prioritizeHorizontal, int maxX, int maxY)
-        {
-            if (processedCells.Contains((startX, startY))) return null;
-            
-            int bestWidth = 1;
-            int bestHeight = 1;
-            int maxArea = 1;
-            
-            if (prioritizeHorizontal)
-            {
-                // For horizontal priority, try to maximize width first
-                int maxWidth = FindMaximumWidth(wallCells, processedCells, startX, startY, maxX);
-                
-                for (int width = maxWidth; width >= 1; width--) // Start with maximum width
-                {
-                    int height = FindMaximumHeightForWidth(wallCells, processedCells, startX, startY, width, maxY);
-                    int area = width * height;
-                    
-                    if (area > maxArea)
-                    {
-                        maxArea = area;
-                        bestWidth = width;
-                        bestHeight = height;
-                    }
-                }
-            }
-            else
-            {
-                // For vertical priority, try to maximize height first
-                int maxHeight = FindMaximumHeight(wallCells, processedCells, startX, startY, maxY);
-                
-                for (int height = maxHeight; height >= 1; height--) // Start with maximum height
-                {
-                    int width = FindMaximumWidthForHeight(wallCells, processedCells, startX, startY, height, maxX);
-                    int area = width * height;
-                    
-                    if (area > maxArea)
-                    {
-                        maxArea = area;
-                        bestWidth = width;
-                        bestHeight = height;
-                    }
-                }
-            }
-            
-            // Mark all cells in this rectangle as processed
-            for (int y = startY; y < startY + bestHeight; y++)
-            {
-                for (int x = startX; x < startX + bestWidth; x++)
-                {
-                    processedCells.Add((x, y));
-                }
-            }
-            
-            return new WallRectangle
-            {
-                XStart = startX,
-                YStart = startY,
-                XEnd = startX + bestWidth,
-                YEnd = startY + bestHeight
-            };
-        }
-        
-        private int FindMaximumWidth(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, int startX, int startY, int maxX)
-        {
-            int width = 1;
-            while (startX + width < maxX && 
-                   wallCells.Contains((startX + width, startY)) && 
-                   !processedCells.Contains((startX + width, startY)))
-            {
-                width++;
-            }
-            return width;
-        }
-        
-        private int FindMaximumHeight(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, int startX, int startY, int maxY)
-        {
-            int height = 1;
-            while (startY + height < maxY && 
-                   wallCells.Contains((startX, startY + height)) && 
-                   !processedCells.Contains((startX, startY + height)))
-            {
-                height++;
-            }
-            return height;
-        }
-        
-        private int FindMaximumWidthForHeight(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
-                                             int startX, int startY, int height, int maxX)
-        {
-            int width = 1;
-            while (startX + width < maxX)
-            {
-                bool canExtendWidth = true;
-                for (int y = startY; y < startY + height; y++)
-                {
-                    if (!wallCells.Contains((startX + width, y)) || processedCells.Contains((startX + width, y)))
-                    {
-                        canExtendWidth = false;
-                        break;
-                    }
-                }
-                
-                if (canExtendWidth)
-                {
-                    width++;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            return width;
-        }
-        
-        private int FindMaximumHeightForWidth(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, 
-                                             int startX, int startY, int width, int maxY)
-        {
-            int height = 1;
-            while (startY + height < maxY)
-            {
-                bool canExtendHeight = true;
-                for (int x = startX; x < startX + width; x++)
-                {
-                    if (!wallCells.Contains((x, startY + height)) || processedCells.Contains((x, startY + height)))
-                    {
-                        canExtendHeight = false;
-                        break;
-                    }
-                }
-                
-                if (canExtendHeight)
-                {
-                    height++;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            return height;
-        }
-        
-        private WallRectangle FindLargestOptimizedWallRectangle(HashSet<(int x, int y)> wallCells, HashSet<(int x, int y)> processedCells, int startX, int startY, int maxX, int maxY)
-        {
-            // Use a dynamic programming approach to find the largest rectangle
-            int maxWidth = 1;
-            int bestWidth = 1;
-            int bestHeight = 1;
-            int maxArea = 1;
-            
-            // Find maximum width at the starting row
-            while (startX + maxWidth < maxX && 
-                   wallCells.Contains((startX + maxWidth, startY)) &&
-                   !processedCells.Contains((startX + maxWidth, startY)))
-            {
-                maxWidth++;
-            }
-            
-            // For each possible width, find the maximum height
-            for (int width = 1; width <= maxWidth; width++)
-            {
-                int height = 1;
-                
-                // Find maximum height that works for this width
-                while (startY + height < maxY)
-                {
-                    bool canExtendHeight = true;
-                    
-                    // Check if the entire row can be added
-                    for (int x = startX; x < startX + width; x++)
-                    {
-                        if (!wallCells.Contains((x, startY + height)) ||
-                            processedCells.Contains((x, startY + height)))
-                        {
-                            canExtendHeight = false;
-                            break;
-                        }
-                    }
-                    
-                    if (canExtendHeight)
-                    {
-                        height++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                
-                // Check if this rectangle is larger than our current best
-                int area = width * height;
-                if (area > maxArea)
-                {
-                    maxArea = area;
-                    bestWidth = width;
-                    bestHeight = height;
-                }
-            }
-            
-            // Mark all cells in this rectangle as processed
-            for (int y = startY; y < startY + bestHeight; y++)
-            {
-                for (int x = startX; x < startX + bestWidth; x++)
-                {
-                    processedCells.Add((x, y));
-                }
-            }
-            
-            return new WallRectangle
-            {
-                XStart = startX,
-                YStart = startY,
-                XEnd = startX + bestWidth,
-                YEnd = startY + bestHeight
-            };
-        }
-
-
 
         private List<PathRectangle> GeneratePathRectangles(InnerMap maze, HashSet<(int x, int y)> pathSet, Dictionary<(int x, int y), byte> pathPositions)
         {
