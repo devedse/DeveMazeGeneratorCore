@@ -816,13 +816,17 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         private List<(int x, int y, int width, int height, float cubeHeight)> ExhaustiveAdjacentMerging(List<(int x, int y, int width, int height, float cubeHeight)> rectangles)
         {
             bool foundMerge = true;
-            while (foundMerge)
+            int totalIterations = 0;
+            
+            while (foundMerge && totalIterations < 1000) // Safety limit
             {
                 foundMerge = false;
+                totalIterations++;
                 
-                for (int i = 0; i < rectangles.Count && !foundMerge; i++)
+                // Try ALL possible pairs in each iteration - don't break early
+                for (int i = 0; i < rectangles.Count; i++)
                 {
-                    for (int j = i + 1; j < rectangles.Count && !foundMerge; j++)
+                    for (int j = i + 1; j < rectangles.Count; j++)
                     {
                         var rect1 = rectangles[i];
                         var rect2 = rectangles[j];
@@ -835,11 +839,19 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                             rectangles[i] = mergedRect.Value;
                             rectangles.RemoveAt(j);
                             foundMerge = true;
+                            break; // Break inner loop to restart with updated indices
                         }
                     }
+                    if (foundMerge) break; // Break outer loop to restart completely
+                }
+                
+                if (totalIterations % 20 == 0 && foundMerge)
+                {
+                    Console.WriteLine($"        Exhaustive merging iteration {totalIterations}: {rectangles.Count} rectangles remaining");
                 }
             }
             
+            Console.WriteLine($"        Exhaustive merging completed after {totalIterations} iterations");
             return rectangles;
         }
 
@@ -1828,11 +1840,53 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 }
             }
             
-            // Try diagonal merging for L-shapes and complex patterns
-            // This is an experimental approach to catch patterns that pure rectangle merging misses
-            if (CanFormLargerRectangle(rect1, rect2))
+            // Enhanced: Try more permissive adjacency (allow small gaps or overlaps of 1 unit)
+            // This catches cases where rectangles are almost adjacent due to floating point or rounding issues
+            
+            // Horizontal with 1-unit tolerance
+            if (Math.Abs(rect1.y - rect2.y) <= 1 && Math.Abs(rect1.height - rect2.height) <= 1)
             {
-                return FormLargerRectangle(rect1, rect2);
+                // Align Y coordinates to the minimum
+                int alignedY = Math.Min(rect1.y, rect2.y);
+                int alignedHeight = Math.Max(rect1.y + rect1.height, rect2.y + rect2.height) - alignedY;
+                
+                if (Math.Abs(rect1.x + rect1.width - rect2.x) <= 1)
+                {
+                    // rect1 is to the left of rect2 (with tolerance)
+                    int mergedX = rect1.x;
+                    int mergedWidth = rect2.x + rect2.width - rect1.x;
+                    return (mergedX, alignedY, mergedWidth, alignedHeight, rect1.cubeHeight);
+                }
+                else if (Math.Abs(rect2.x + rect2.width - rect1.x) <= 1)
+                {
+                    // rect2 is to the left of rect1 (with tolerance)
+                    int mergedX = rect2.x;
+                    int mergedWidth = rect1.x + rect1.width - rect2.x;
+                    return (mergedX, alignedY, mergedWidth, alignedHeight, rect2.cubeHeight);
+                }
+            }
+            
+            // Vertical with 1-unit tolerance
+            if (Math.Abs(rect1.x - rect2.x) <= 1 && Math.Abs(rect1.width - rect2.width) <= 1)
+            {
+                // Align X coordinates to the minimum
+                int alignedX = Math.Min(rect1.x, rect2.x);
+                int alignedWidth = Math.Max(rect1.x + rect1.width, rect2.x + rect2.width) - alignedX;
+                
+                if (Math.Abs(rect1.y + rect1.height - rect2.y) <= 1)
+                {
+                    // rect1 is above rect2 (with tolerance)
+                    int mergedY = rect1.y;
+                    int mergedHeight = rect2.y + rect2.height - rect1.y;
+                    return (alignedX, mergedY, alignedWidth, mergedHeight, rect1.cubeHeight);
+                }
+                else if (Math.Abs(rect2.y + rect2.height - rect1.y) <= 1)
+                {
+                    // rect2 is above rect1 (with tolerance)
+                    int mergedY = rect2.y;
+                    int mergedHeight = rect1.y + rect1.height - rect2.y;
+                    return (alignedX, mergedY, alignedWidth, mergedHeight, rect2.cubeHeight);
+                }
             }
             
             return null; // Cannot merge
