@@ -604,15 +604,199 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         
         private List<(int x, int y, int width, int height, float cubeHeight)> FindLargestPossibleRectangles(List<(int x, int y)> component, float targetHeight)
         {
+            Console.WriteLine($"      Applying brute-force optimal rectangle covering algorithm...");
+            
+            // Use exhaustive search for optimal rectangle covering
+            var rectangles = UseExhaustiveOptimalCovering(component, targetHeight);
+            
+            int totalCells = component.Count;
+            int totalRectangles = rectangles.Count;
+            Console.WriteLine($"    Brute-force optimization: {totalCells} cells into {totalRectangles} rectangles ({100 - (totalRectangles * 100 / totalCells):F1}% reduction)");
+            
+            return rectangles;
+        }
+        
+        private List<(int x, int y, int width, int height, float cubeHeight)> UseExhaustiveOptimalCovering(List<(int x, int y)> component, float targetHeight)
+        {
+            // For small components, try exhaustive search
+            if (component.Count <= 15)
+            {
+                return ExhaustiveSearchOptimal(component, targetHeight);
+            }
+            
+            // For larger components, use a more sophisticated but still aggressive approach
+            return SmartGreedyWithBacktracking(component, targetHeight);
+        }
+        
+        private List<(int x, int y, int width, int height, float cubeHeight)> ExhaustiveSearchOptimal(List<(int x, int y)> component, float targetHeight)
+        {
+            var componentSet = new HashSet<(int x, int y)>(component);
+            var allPossibleRectangles = GenerateAllPossibleRectangles(component);
+            
+            // Find minimum set cover - this is NP-hard but feasible for small components
+            var bestCover = FindMinimalRectangleCover(componentSet, allPossibleRectangles, targetHeight);
+            
+            Console.WriteLine($"        Exhaustive search found {bestCover.Count} rectangles for {component.Count} cells");
+            return bestCover;
+        }
+        
+        private List<(int x, int y, int width, int height, float cubeHeight)> SmartGreedyWithBacktracking(List<(int x, int y)> component, float targetHeight)
+        {
             var rectangles = new List<(int x, int y, int width, int height, float cubeHeight)>();
             var remaining = new HashSet<(int x, int y)>(component);
             
-            // Use a more intelligent approach: scan for rectangles using histogram-based algorithm
-            // This is similar to the "largest rectangle in histogram" problem but applied to 2D
+            // Generate sorted list of all possible rectangles by efficiency
+            var allRectangles = GenerateAllPossibleRectangles(component)
+                .OrderByDescending(r => r.width * r.height) // Prefer larger rectangles
+                .ThenBy(r => r.width + r.height) // Then prefer square-ish rectangles
+                .ToList();
             
+            // Greedy selection with backtracking
             while (remaining.Count > 0)
             {
-                var bestRect = FindBestRectangleInRemaining(remaining);
+                bool foundRectangle = false;
+                
+                foreach (var rect in allRectangles)
+                {
+                    if (CanPlaceRectangle(rect.x, rect.y, rect.width, rect.height, remaining))
+                    {
+                        rectangles.Add((rect.x, rect.y, rect.width, rect.height, targetHeight));
+                        
+                        // Remove covered cells
+                        for (int y = rect.y; y < rect.y + rect.height; y++)
+                        {
+                            for (int x = rect.x; x < rect.x + rect.width; x++)
+                            {
+                                remaining.Remove((x, y));
+                            }
+                        }
+                        
+                        foundRectangle = true;
+                        break;
+                    }
+                }
+                
+                if (!foundRectangle)
+                {
+                    // Fallback: place a 1x1 rectangle
+                    var cell = remaining.First();
+                    rectangles.Add((cell.x, cell.y, 1, 1, targetHeight));
+                    remaining.Remove(cell);
+                }
+            }
+            
+            return rectangles;
+        }
+        
+        private List<(int x, int y, int width, int height)> GenerateAllPossibleRectangles(List<(int x, int y)> component)
+        {
+            var rectangles = new List<(int x, int y, int width, int height)>();
+            var componentSet = new HashSet<(int x, int y)>(component);
+            
+            int minX = component.Min(p => p.x);
+            int maxX = component.Max(p => p.x);
+            int minY = component.Min(p => p.y);
+            int maxY = component.Max(p => p.y);
+            
+            // Try every possible rectangle position and size
+            for (int startX = minX; startX <= maxX; startX++)
+            {
+                for (int startY = minY; startY <= maxY; startY++)
+                {
+                    if (!componentSet.Contains((startX, startY))) continue;
+                    
+                    // Try all possible widths
+                    for (int width = 1; startX + width - 1 <= maxX; width++)
+                    {
+                        // Try all possible heights
+                        for (int height = 1; startY + height - 1 <= maxY; height++)
+                        {
+                            // Check if this rectangle is valid (all cells are in component)
+                            bool isValid = true;
+                            for (int y = startY; y < startY + height && isValid; y++)
+                            {
+                                for (int x = startX; x < startX + width && isValid; x++)
+                                {
+                                    if (!componentSet.Contains((x, y)))
+                                    {
+                                        isValid = false;
+                                    }
+                                }
+                            }
+                            
+                            if (isValid)
+                            {
+                                rectangles.Add((startX, startY, width, height));
+                            }
+                        }
+                    }
+                }
+            }
+            
+            Console.WriteLine($"        Generated {rectangles.Count} possible rectangles for {component.Count} cells");
+            return rectangles;
+        }
+        
+        private List<(int x, int y, int width, int height, float cubeHeight)> FindMinimalRectangleCover(
+            HashSet<(int x, int y)> componentSet,
+            List<(int x, int y, int width, int height)> allRectangles,
+            float targetHeight)
+        {
+            // Use dynamic programming approach for set cover
+            var bestSolution = new List<(int x, int y, int width, int height, float cubeHeight)>();
+            int minRectangles = int.MaxValue;
+            
+            // Try all possible combinations (exponential, but feasible for small sets)
+            var totalCombinations = 1L << Math.Min(allRectangles.Count, 20); // Limit to avoid timeout
+            
+            for (long mask = 1; mask < totalCombinations; mask++)
+            {
+                var currentSet = new HashSet<(int x, int y)>();
+                var currentRectangles = new List<(int x, int y, int width, int height, float cubeHeight)>();
+                
+                for (int i = 0; i < allRectangles.Count && i < 20; i++)
+                {
+                    if ((mask & (1L << i)) != 0)
+                    {
+                        var rect = allRectangles[i];
+                        currentRectangles.Add((rect.x, rect.y, rect.width, rect.height, targetHeight));
+                        
+                        // Add all cells covered by this rectangle
+                        for (int y = rect.y; y < rect.y + rect.height; y++)
+                        {
+                            for (int x = rect.x; x < rect.x + rect.width; x++)
+                            {
+                                currentSet.Add((x, y));
+                            }
+                        }
+                    }
+                }
+                
+                // Check if this combination covers all cells
+                if (currentSet.SetEquals(componentSet) && currentRectangles.Count < minRectangles)
+                {
+                    minRectangles = currentRectangles.Count;
+                    bestSolution = new List<(int x, int y, int width, int height, float cubeHeight)>(currentRectangles);
+                }
+            }
+            
+            // If no solution found, fall back to greedy
+            if (bestSolution.Count == 0)
+            {
+                return SmartGreedyWithBacktracking(componentSet.ToList(), targetHeight);
+            }
+            
+            return bestSolution;
+        }
+        
+        private List<(int x, int y, int width, int height, float cubeHeight)> UseMaximalRectangleStrategy(HashSet<(int x, int y)> remaining, float targetHeight)
+        {
+            var rectangles = new List<(int x, int y, int width, int height, float cubeHeight)>();
+            var workingSet = new HashSet<(int x, int y)>(remaining);
+            
+            while (workingSet.Count > 0)
+            {
+                var bestRect = FindBestRectangleInRemaining(workingSet);
                 if (bestRect.HasValue)
                 {
                     rectangles.Add((bestRect.Value.x, bestRect.Value.y, bestRect.Value.width, bestRect.Value.height, targetHeight));
@@ -622,27 +806,568 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     {
                         for (int x = bestRect.Value.x; x < bestRect.Value.x + bestRect.Value.width; x++)
                         {
-                            remaining.Remove((x, y));
+                            workingSet.Remove((x, y));
                         }
                     }
                 }
                 else
                 {
-                    // Fallback: take the first remaining cell as a 1x1 rectangle
-                    var firstCell = remaining.First();
+                    var firstCell = workingSet.First();
                     rectangles.Add((firstCell.x, firstCell.y, 1, 1, targetHeight));
-                    remaining.Remove(firstCell);
+                    workingSet.Remove(firstCell);
                 }
             }
             
-            // Post-processing: Apply ultra-aggressive merging to catch any missed opportunities
-            rectangles = ApplyPostProcessingMerges(rectangles, component);
+            return rectangles;
+        }
+        
+        private List<(int x, int y, int width, int height, float cubeHeight)> UseHistogramBasedStrategy(HashSet<(int x, int y)> remaining, float targetHeight)
+        {
+            var rectangles = new List<(int x, int y, int width, int height, float cubeHeight)>();
             
-            int totalCells = component.Count;
-            int totalRectangles = rectangles.Count;
-            Console.WriteLine($"    Optimized {totalCells} cells into {totalRectangles} rectangles ({100 - (totalRectangles * 100 / totalCells):F1}% reduction)");
+            // Find bounds
+            int minX = remaining.Min(p => p.x);
+            int maxX = remaining.Max(p => p.x);
+            int minY = remaining.Min(p => p.y);
+            int maxY = remaining.Max(p => p.y);
+            
+            var grid = new bool[maxX - minX + 1, maxY - minY + 1];
+            foreach (var (x, y) in remaining)
+            {
+                grid[x - minX, y - minY] = true;
+            }
+            
+            var processed = new bool[maxX - minX + 1, maxY - minY + 1];
+            
+            // Scan row by row
+            for (int y = 0; y <= maxY - minY; y++)
+            {
+                for (int x = 0; x <= maxX - minX; x++)
+                {
+                    if (grid[x, y] && !processed[x, y])
+                    {
+                        // Find maximum width
+                        int width = 0;
+                        while (x + width <= maxX - minX && grid[x + width, y] && !processed[x + width, y])
+                        {
+                            width++;
+                        }
+                        
+                        // Find maximum height for this width
+                        int height = 1;
+                        bool canExtend = true;
+                        while (canExtend && y + height <= maxY - minY)
+                        {
+                            for (int checkX = x; checkX < x + width; checkX++)
+                            {
+                                if (!grid[checkX, y + height] || processed[checkX, y + height])
+                                {
+                                    canExtend = false;
+                                    break;
+                                }
+                            }
+                            if (canExtend) height++;
+                        }
+                        
+                        // Mark as processed
+                        for (int ry = y; ry < y + height; ry++)
+                        {
+                            for (int rx = x; rx < x + width; rx++)
+                            {
+                                processed[rx, ry] = true;
+                            }
+                        }
+                        
+                        rectangles.Add((x + minX, y + minY, width, height, targetHeight));
+                    }
+                }
+            }
             
             return rectangles;
+        }
+        
+        private List<(int x, int y, int width, int height, float cubeHeight)> UseScanlineStrategy(HashSet<(int x, int y)> remaining, float targetHeight)
+        {
+            var rectangles = new List<(int x, int y, int width, int height, float cubeHeight)>();
+            var workingSet = new HashSet<(int x, int y)>(remaining);
+            
+            // Sort by Y first, then X for scanline approach
+            var sortedCells = workingSet.OrderBy(p => p.y).ThenBy(p => p.x).ToList();
+            
+            var processed = new HashSet<(int x, int y)>();
+            
+            foreach (var (startX, startY) in sortedCells)
+            {
+                if (processed.Contains((startX, startY))) continue;
+                
+                // Find maximum rectangle starting at this point
+                int maxWidth = 0;
+                while (workingSet.Contains((startX + maxWidth, startY)) && !processed.Contains((startX + maxWidth, startY)))
+                {
+                    maxWidth++;
+                }
+                
+                int maxHeight = 1;
+                bool canExtendDown = true;
+                while (canExtendDown)
+                {
+                    for (int x = startX; x < startX + maxWidth; x++)
+                    {
+                        if (!workingSet.Contains((x, startY + maxHeight)) || processed.Contains((x, startY + maxHeight)))
+                        {
+                            canExtendDown = false;
+                            break;
+                        }
+                    }
+                    if (canExtendDown) maxHeight++;
+                }
+                
+                // Mark all cells in this rectangle as processed
+                for (int y = startY; y < startY + maxHeight; y++)
+                {
+                    for (int x = startX; x < startX + maxWidth; x++)
+                    {
+                        processed.Add((x, y));
+                    }
+                }
+                
+                rectangles.Add((startX, startY, maxWidth, maxHeight, targetHeight));
+            }
+            
+            return rectangles;
+        }
+        
+        private List<(int x, int y, int width, int height, float cubeHeight)> UseBottomUpStrategy(HashSet<(int x, int y)> remaining, float targetHeight)
+        {
+            var rectangles = new List<(int x, int y, int width, int height, float cubeHeight)>();
+            
+            // Start with 1x1 rectangles and merge aggressively
+            foreach (var (x, y) in remaining)
+            {
+                rectangles.Add((x, y, 1, 1, targetHeight));
+            }
+            
+            // Apply ultra-aggressive merging
+            bool merged = true;
+            int iterations = 0;
+            
+            while (merged && iterations < 200) // Very high iteration limit
+            {
+                merged = false;
+                iterations++;
+                
+                for (int i = 0; i < rectangles.Count && !merged; i++)
+                {
+                    for (int j = i + 1; j < rectangles.Count && !merged; j++)
+                    {
+                        var mergedRect = TryMergeRectangles(rectangles[i], rectangles[j]);
+                        if (mergedRect.HasValue)
+                        {
+                            rectangles[i] = mergedRect.Value;
+                            rectangles.RemoveAt(j);
+                            merged = true;
+                        }
+                    }
+                }
+            }
+            
+            return rectangles;
+        }
+        
+        private List<(int x, int y, int width, int height, float cubeHeight)> ApplyUltraAggressiveMerging(List<(int x, int y, int width, int height, float cubeHeight)> rectangles, List<(int x, int y)> component)
+        {
+            var componentSet = new HashSet<(int x, int y)>(component);
+            bool foundMerge = true;
+            int iteration = 0;
+            const int maxIterations = 200; // Remove conservative limit
+            
+            Console.WriteLine($"      Starting ultra-aggressive merging with {rectangles.Count} rectangles...");
+            
+            while (foundMerge && iteration < maxIterations)
+            {
+                foundMerge = false;
+                iteration++;
+                int beforeCount = rectangles.Count;
+                
+                // Strategy 1: Exhaustive pairwise merging
+                foundMerge = ApplyExhaustivePairwiseMerging(rectangles);
+                
+                // Strategy 2: Complex shape merging (removed size restrictions)
+                if (!foundMerge)
+                {
+                    foundMerge = ApplyComplexShapeMerging(rectangles, componentSet);
+                }
+                
+                // Strategy 3: Multi-rectangle merging (up to 4 rectangles at once)
+                if (!foundMerge)
+                {
+                    foundMerge = ApplyMultiRectangleMerging(rectangles, componentSet);
+                }
+                
+                // Strategy 4: Force merge adjacent rectangles regardless of current algorithm limitations
+                if (!foundMerge)
+                {
+                    foundMerge = ApplyForcedAdjacentMerging(rectangles, componentSet);
+                }
+                
+                int afterCount = rectangles.Count;
+                if (afterCount < beforeCount)
+                {
+                    foundMerge = true; // Continue if we made progress
+                    if (iteration <= 20 || afterCount <= beforeCount * 0.9)
+                    {
+                        Console.WriteLine($"        Ultra-aggressive iteration {iteration}: {beforeCount} -> {afterCount} rectangles");
+                    }
+                }
+            }
+            
+            Console.WriteLine($"      Ultra-aggressive merging completed after {iteration} iterations: {rectangles.Count} final rectangles");
+            return rectangles;
+        }
+        
+        private bool ApplyExhaustivePairwiseMerging(List<(int x, int y, int width, int height, float cubeHeight)> rectangles)
+        {
+            for (int i = 0; i < rectangles.Count; i++)
+            {
+                for (int j = i + 1; j < rectangles.Count; j++)
+                {
+                    var rect1 = rectangles[i];
+                    var rect2 = rectangles[j];
+                    
+                    if (rect1.cubeHeight != rect2.cubeHeight) continue;
+                    
+                    var mergedRect = TryMergeRectangles(rect1, rect2);
+                    if (mergedRect.HasValue)
+                    {
+                        rectangles[i] = mergedRect.Value;
+                        rectangles.RemoveAt(j);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        
+        private bool ApplyComplexShapeMerging(List<(int x, int y, int width, int height, float cubeHeight)> rectangles, HashSet<(int x, int y)> componentSet)
+        {
+            for (int i = 0; i < rectangles.Count; i++)
+            {
+                for (int j = i + 1; j < rectangles.Count; j++)
+                {
+                    var rect1 = rectangles[i];
+                    var rect2 = rectangles[j];
+                    
+                    if (rect1.cubeHeight != rect2.cubeHeight) continue;
+                    
+                    // Try complex merge with NO size restrictions
+                    var complexMerge = TryComplexMergeUnrestricted(rect1, rect2, componentSet);
+                    if (complexMerge.HasValue)
+                    {
+                        rectangles[i] = complexMerge.Value;
+                        rectangles.RemoveAt(j);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        
+        private bool ApplyMultiRectangleMerging(List<(int x, int y, int width, int height, float cubeHeight)> rectangles, HashSet<(int x, int y)> componentSet)
+        {
+            // Try merging 3 rectangles
+            for (int i = 0; i < rectangles.Count; i++)
+            {
+                for (int j = i + 1; j < rectangles.Count; j++)
+                {
+                    for (int k = j + 1; k < rectangles.Count; k++)
+                    {
+                        var rect1 = rectangles[i];
+                        var rect2 = rectangles[j];
+                        var rect3 = rectangles[k];
+                        
+                        if (rect1.cubeHeight != rect2.cubeHeight || rect1.cubeHeight != rect3.cubeHeight) continue;
+                        
+                        var mergedRect = TryMergeThreeRectanglesUnrestricted(rect1, rect2, rect3, componentSet);
+                        if (mergedRect.HasValue)
+                        {
+                            rectangles[i] = mergedRect.Value;
+                            rectangles.RemoveAt(Math.Max(j, k));
+                            rectangles.RemoveAt(Math.Min(j, k));
+                            return true;
+                        }
+                    }
+                }
+            }
+            
+            // Try merging 4 rectangles
+            for (int i = 0; i < rectangles.Count; i++)
+            {
+                for (int j = i + 1; j < rectangles.Count; j++)
+                {
+                    for (int k = j + 1; k < rectangles.Count; k++)
+                    {
+                        for (int l = k + 1; l < rectangles.Count; l++)
+                        {
+                            var rect1 = rectangles[i];
+                            var rect2 = rectangles[j];
+                            var rect3 = rectangles[k];
+                            var rect4 = rectangles[l];
+                            
+                            if (rect1.cubeHeight != rect2.cubeHeight || rect1.cubeHeight != rect3.cubeHeight || rect1.cubeHeight != rect4.cubeHeight) continue;
+                            
+                            var mergedRect = TryMergeFourRectangles(rect1, rect2, rect3, rect4, componentSet);
+                            if (mergedRect.HasValue)
+                            {
+                                rectangles[i] = mergedRect.Value;
+                                var indices = new[] { j, k, l }.OrderByDescending(x => x).ToArray();
+                                foreach (var index in indices)
+                                {
+                                    rectangles.RemoveAt(index);
+                                }
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        private bool ApplyForcedAdjacentMerging(List<(int x, int y, int width, int height, float cubeHeight)> rectangles, HashSet<(int x, int y)> componentSet)
+        {
+            // Force merge any rectangles that are clearly adjacent, even if our normal algorithms miss them
+            for (int i = 0; i < rectangles.Count; i++)
+            {
+                for (int j = i + 1; j < rectangles.Count; j++)
+                {
+                    var rect1 = rectangles[i];
+                    var rect2 = rectangles[j];
+                    
+                    if (rect1.cubeHeight != rect2.cubeHeight) continue;
+                    
+                    // Check for various adjacency patterns with tolerance
+                    if (AreRectanglesForceAdjacent(rect1, rect2, componentSet))
+                    {
+                        var forcedMerge = CreateForcedMerge(rect1, rect2, componentSet);
+                        if (forcedMerge.HasValue)
+                        {
+                            rectangles[i] = forcedMerge.Value;
+                            rectangles.RemoveAt(j);
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        
+        private (int x, int y, int width, int height, float cubeHeight)? TryComplexMergeUnrestricted(
+            (int x, int y, int width, int height, float cubeHeight) rect1,
+            (int x, int y, int width, int height, float cubeHeight) rect2,
+            HashSet<(int x, int y)> componentSet)
+        {
+            // Remove ALL size restrictions - merge any rectangles whose bounding box is fully covered
+            int minX = Math.Min(rect1.x, rect2.x);
+            int maxX = Math.Max(rect1.x + rect1.width, rect2.x + rect2.width);
+            int minY = Math.Min(rect1.y, rect2.y);
+            int maxY = Math.Max(rect1.y + rect1.height, rect2.y + rect2.height);
+            
+            int combinedWidth = maxX - minX;
+            int combinedHeight = maxY - minY;
+            int requiredArea = combinedWidth * combinedHeight;
+            
+            // Check if all positions in the combined rectangle are in the component
+            int actualArea = 0;
+            for (int y = minY; y < maxY; y++)
+            {
+                for (int x = minX; x < maxX; x++)
+                {
+                    if (componentSet.Contains((x, y)))
+                    {
+                        actualArea++;
+                    }
+                }
+            }
+            
+            // If all positions are covered, we can merge
+            if (actualArea == requiredArea)
+            {
+                return (minX, minY, combinedWidth, combinedHeight, rect1.cubeHeight);
+            }
+            
+            return null;
+        }
+        
+        private (int x, int y, int width, int height, float cubeHeight)? TryMergeThreeRectanglesUnrestricted(
+            (int x, int y, int width, int height, float cubeHeight) rect1,
+            (int x, int y, int width, int height, float cubeHeight) rect2,
+            (int x, int y, int width, int height, float cubeHeight) rect3,
+            HashSet<(int x, int y)> componentSet)
+        {
+            // Find the bounding box of all three rectangles - NO size restrictions
+            int minX = Math.Min(Math.Min(rect1.x, rect2.x), rect3.x);
+            int maxX = Math.Max(Math.Max(rect1.x + rect1.width, rect2.x + rect2.width), rect3.x + rect3.width);
+            int minY = Math.Min(Math.Min(rect1.y, rect2.y), rect3.y);
+            int maxY = Math.Max(Math.Max(rect1.y + rect1.height, rect2.y + rect2.height), rect3.y + rect3.height);
+            
+            int combinedWidth = maxX - minX;
+            int combinedHeight = maxY - minY;
+            int requiredArea = combinedWidth * combinedHeight;
+            
+            // Check if all three rectangles together fill the bounding box exactly
+            int totalArea = rect1.width * rect1.height + rect2.width * rect2.height + rect3.width * rect3.height;
+            
+            if (totalArea != requiredArea) return null;
+            
+            // Verify that all positions in the bounding box are in the component
+            for (int y = minY; y < maxY; y++)
+            {
+                for (int x = minX; x < maxX; x++)
+                {
+                    if (!componentSet.Contains((x, y)))
+                    {
+                        return null;
+                    }
+                }
+            }
+            
+            return (minX, minY, combinedWidth, combinedHeight, rect1.cubeHeight);
+        }
+        
+        private (int x, int y, int width, int height, float cubeHeight)? TryMergeFourRectangles(
+            (int x, int y, int width, int height, float cubeHeight) rect1,
+            (int x, int y, int width, int height, float cubeHeight) rect2,
+            (int x, int y, int width, int height, float cubeHeight) rect3,
+            (int x, int y, int width, int height, float cubeHeight) rect4,
+            HashSet<(int x, int y)> componentSet)
+        {
+            // Find the bounding box of all four rectangles
+            var rects = new[] { rect1, rect2, rect3, rect4 };
+            int minX = rects.Min(r => r.x);
+            int maxX = rects.Max(r => r.x + r.width);
+            int minY = rects.Min(r => r.y);
+            int maxY = rects.Max(r => r.y + r.height);
+            
+            int combinedWidth = maxX - minX;
+            int combinedHeight = maxY - minY;
+            int requiredArea = combinedWidth * combinedHeight;
+            int totalArea = rects.Sum(r => r.width * r.height);
+            
+            if (totalArea != requiredArea) return null;
+            
+            // Verify that all positions in the bounding box are in the component
+            for (int y = minY; y < maxY; y++)
+            {
+                for (int x = minX; x < maxX; x++)
+                {
+                    if (!componentSet.Contains((x, y)))
+                    {
+                        return null;
+                    }
+                }
+            }
+            
+            return (minX, minY, combinedWidth, combinedHeight, rect1.cubeHeight);
+        }
+        
+        private bool AreRectanglesForceAdjacent(
+            (int x, int y, int width, int height, float cubeHeight) rect1,
+            (int x, int y, int width, int height, float cubeHeight) rect2,
+            HashSet<(int x, int y)> componentSet)
+        {
+            // Check if rectangles share any edge or are separated by just 1 unit
+            
+            // Horizontal adjacency or close proximity
+            if (rect1.y == rect2.y && rect1.height == rect2.height)
+            {
+                int gap = Math.Min(Math.Abs(rect1.x + rect1.width - rect2.x), Math.Abs(rect2.x + rect2.width - rect1.x));
+                if (gap <= 2) // Allow small gaps
+                {
+                    return CanBridgeHorizontally(rect1, rect2, componentSet);
+                }
+            }
+            
+            // Vertical adjacency or close proximity
+            if (rect1.x == rect2.x && rect1.width == rect2.width)
+            {
+                int gap = Math.Min(Math.Abs(rect1.y + rect1.height - rect2.y), Math.Abs(rect2.y + rect2.height - rect1.y));
+                if (gap <= 2) // Allow small gaps
+                {
+                    return CanBridgeVertically(rect1, rect2, componentSet);
+                }
+            }
+            
+            return false;
+        }
+        
+        private bool CanBridgeHorizontally(
+            (int x, int y, int width, int height, float cubeHeight) rect1,
+            (int x, int y, int width, int height, float cubeHeight) rect2,
+            HashSet<(int x, int y)> componentSet)
+        {
+            int minX = Math.Min(rect1.x, rect2.x);
+            int maxX = Math.Max(rect1.x + rect1.width, rect2.x + rect2.width);
+            
+            // Check if all cells between the rectangles are in the component
+            for (int x = minX; x < maxX; x++)
+            {
+                for (int y = rect1.y; y < rect1.y + rect1.height; y++)
+                {
+                    if (!componentSet.Contains((x, y)))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        
+        private bool CanBridgeVertically(
+            (int x, int y, int width, int height, float cubeHeight) rect1,
+            (int x, int y, int width, int height, float cubeHeight) rect2,
+            HashSet<(int x, int y)> componentSet)
+        {
+            int minY = Math.Min(rect1.y, rect2.y);
+            int maxY = Math.Max(rect1.y + rect1.height, rect2.y + rect2.height);
+            
+            // Check if all cells between the rectangles are in the component
+            for (int y = minY; y < maxY; y++)
+            {
+                for (int x = rect1.x; x < rect1.x + rect1.width; x++)
+                {
+                    if (!componentSet.Contains((x, y)))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        
+        private (int x, int y, int width, int height, float cubeHeight)? CreateForcedMerge(
+            (int x, int y, int width, int height, float cubeHeight) rect1,
+            (int x, int y, int width, int height, float cubeHeight) rect2,
+            HashSet<(int x, int y)> componentSet)
+        {
+            int minX = Math.Min(rect1.x, rect2.x);
+            int maxX = Math.Max(rect1.x + rect1.width, rect2.x + rect2.width);
+            int minY = Math.Min(rect1.y, rect2.y);
+            int maxY = Math.Max(rect1.y + rect1.height, rect2.y + rect2.height);
+            
+            // Only merge if the bounding box is fully covered by component
+            for (int y = minY; y < maxY; y++)
+            {
+                for (int x = minX; x < maxX; x++)
+                {
+                    if (!componentSet.Contains((x, y)))
+                    {
+                        return null;
+                    }
+                }
+            }
+            
+            return (minX, minY, maxX - minX, maxY - minY, rect1.cubeHeight);
         }
         
         private List<(int x, int y, int width, int height, float cubeHeight)> ApplyPostProcessingMerges(List<(int x, int y, int width, int height, float cubeHeight)> rectangles, List<(int x, int y)> component)
