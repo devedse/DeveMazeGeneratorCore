@@ -467,12 +467,71 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             
             Console.WriteLine($"Generated {filteredWalls.Count} wall segments (filtered from {mazeWalls.Count} total)");
             
-            // Create cuboids for each wall segment
+            // Apply T-intersection optimization as provided by @devedse
+            var cur = 0;
             foreach (var wall in filteredWalls)
             {
-                // Add 1 to the end coordinates to create proper cuboid bounds (MazeWall uses inclusive coordinates)
-                AddCuboid(vertices, triangles, wall.Xstart, wall.Ystart, wall.Xend + 1, wall.Yend + 1, 
-                         GroundHeight, GroundHeight + WallHeight, Colors[0]); // Black walls
+                var isHorizontal = wall.Ystart == wall.Yend; // Check if the wall is horizontal or vertical
+
+                if (cur == 3)
+                {
+                    // Debug breakpoint location
+                }
+
+                if (isHorizontal)
+                {
+                    var xstart = wall.Xstart;
+                    var xend = wall.Xend;
+
+                    if (wall.Ystart > 0 && wall.Ystart < maze.Height - 2)
+                    {
+                        if (maze[wall.Xstart, wall.Ystart - 1] == false || maze[wall.Xstart, wall.Ystart + 1] == false)
+                        {
+                            xstart++;
+                        }
+                    }
+                    else if (wall.Xstart == 0)
+                    {
+                        xstart++;
+                    }
+
+                    if (wall.Yend < maze.Height - 2 && wall.Yend > 0)
+                    {
+                        if (maze[wall.Xend, wall.Yend - 1] == false || maze[wall.Xend, wall.Yend + 1] == false)
+                        {
+                            xend--;
+                        }
+                    }
+                    else if (wall.Xend == maze.Width - 2)
+                    {
+                        xend--;
+                    }
+                    AddCubeWithDimensions(vertices, triangles, xstart, wall.Ystart, xend + 1, wall.Yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Horizontal wall
+                }
+                else
+                {
+                    var ystart = wall.Ystart;
+                    var yend = wall.Yend;
+
+                    if (wall.Xstart > 0 && wall.Xstart < maze.Width - 2)
+                    {
+                        if (maze[wall.Xstart - 1, wall.Ystart] == false && maze[wall.Xstart + 1, wall.Ystart] == false)
+                        {
+                            ystart++;
+                        }
+                    }
+
+                    if (wall.Xend < maze.Width - 2 && wall.Xend > 0)
+                    {
+                        if (maze[wall.Xend - 1, wall.Yend] == false && maze[wall.Xend + 1, wall.Yend] == false)
+                        {
+                            yend--;
+                        }
+                    }
+
+                    AddCubeWithDimensions(vertices, triangles, wall.Xstart, ystart, wall.Xend + 1, yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Vertical wall
+                }
+                cur++;
             }
         }
 
@@ -619,6 +678,13 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
             triangles.Add((baseIndex + 3, baseIndex + 0, baseIndex + 4, paintColor)); // Left
             triangles.Add((baseIndex + 3, baseIndex + 4, baseIndex + 7, paintColor));
+        }
+
+        // Alias method for the T-intersection optimization code
+        private void AddCubeWithDimensions(List<(float x, float y, float z)> vertices, List<(int v1, int v2, int v3, string paintColor)> triangles, 
+                                         int xStart, int yStart, int xEnd, int yEnd, float zBottom, float zTop, string paintColor)
+        {
+            AddCuboid(vertices, triangles, xStart, yStart, xEnd, yEnd, zBottom, zTop, paintColor);
         }
 
         private class PathRectangle
