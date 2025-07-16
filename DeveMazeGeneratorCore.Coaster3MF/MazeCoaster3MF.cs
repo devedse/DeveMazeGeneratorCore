@@ -692,7 +692,219 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 }
             }
             
+            // Apply additional conservative optimization for commonly missed patterns
+            rectangles = ApplyConservativePatternOptimization(rectangles, componentSet);
+            
             return rectangles;
+        }
+        
+        private List<(int x, int y, int width, int height, float cubeHeight)> ApplyConservativePatternOptimization(List<(int x, int y, int width, int height, float cubeHeight)> rectangles, HashSet<(int x, int y)> componentSet)
+        {
+            // Look for specific patterns that are safe to merge:
+            // 1. Three rectangles forming an L-shape
+            // 2. Two rectangles with a small 1x1 rectangle between them that can bridge them
+            
+            var result = new List<(int x, int y, int width, int height, float cubeHeight)>(rectangles);
+            bool improved = true;
+            int conservativeIterations = 0;
+            
+            while (improved && conservativeIterations < 10) // Conservative iteration limit
+            {
+                improved = false;
+                conservativeIterations++;
+                int beforeCount = result.Count;
+                
+                // Look for L-shaped merge opportunities (3 rectangles that can form 1)
+                for (int i = 0; i < result.Count && !improved; i++)
+                {
+                    for (int j = i + 1; j < result.Count && !improved; j++)
+                    {
+                        for (int k = j + 1; k < result.Count && !improved; k++)
+                        {
+                            var rect1 = result[i];
+                            var rect2 = result[j];
+                            var rect3 = result[k];
+                            
+                            if (rect1.cubeHeight != rect2.cubeHeight || rect1.cubeHeight != rect3.cubeHeight) 
+                                continue;
+                            
+                            // Try to merge these three rectangles if they form a perfect larger rectangle
+                            var mergedRect = TryMergeThreeRectanglesConservative(rect1, rect2, rect3, componentSet);
+                            if (mergedRect.HasValue)
+                            {
+                                result[i] = mergedRect.Value;
+                                result.RemoveAt(Math.Max(j, k)); // Remove larger index first
+                                result.RemoveAt(Math.Min(j, k));
+                                improved = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Look for bridge merge opportunities (two rectangles with a 1x1 gap that can be bridged)
+                if (!improved)
+                {
+                    for (int i = 0; i < result.Count && !improved; i++)
+                    {
+                        for (int j = i + 1; j < result.Count && !improved; j++)
+                        {
+                            var rect1 = result[i];
+                            var rect2 = result[j];
+                            
+                            if (rect1.cubeHeight != rect2.cubeHeight) continue;
+                            
+                            // Try to bridge merge (safe merge across small gaps)
+                            var bridgedRect = TryBridgeMerge(rect1, rect2, componentSet);
+                            if (bridgedRect.HasValue)
+                            {
+                                result[i] = bridgedRect.Value;
+                                result.RemoveAt(j);
+                                improved = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                int afterCount = result.Count;
+                if (afterCount < beforeCount)
+                {
+                    Console.WriteLine($"      Conservative pattern optimization {conservativeIterations}: {beforeCount} -> {afterCount} rectangles");
+                }
+            }
+            
+            return result;
+        }
+        
+        private (int x, int y, int width, int height, float cubeHeight)? TryMergeThreeRectanglesConservative(
+            (int x, int y, int width, int height, float cubeHeight) rect1,
+            (int x, int y, int width, int height, float cubeHeight) rect2,
+            (int x, int y, int width, int height, float cubeHeight) rect3,
+            HashSet<(int x, int y)> componentSet)
+        {
+            // Find the bounding box of all three rectangles
+            int minX = Math.Min(Math.Min(rect1.x, rect2.x), rect3.x);
+            int maxX = Math.Max(Math.Max(rect1.x + rect1.width, rect2.x + rect2.width), rect3.x + rect3.width);
+            int minY = Math.Min(Math.Min(rect1.y, rect2.y), rect3.y);
+            int maxY = Math.Max(Math.Max(rect1.y + rect1.height, rect2.y + rect2.height), rect3.y + rect3.height);
+            
+            int combinedWidth = maxX - minX;
+            int combinedHeight = maxY - minY;
+            int requiredArea = combinedWidth * combinedHeight;
+            
+            // Check if all three rectangles together fill the bounding box exactly
+            int totalArea = rect1.width * rect1.height + rect2.width * rect2.height + rect3.width * rect3.height;
+            
+            if (totalArea != requiredArea) return null;
+            
+            // Conservative check: only allow if the bounding box is reasonably sized (not too large)
+            if (combinedWidth > 6 || combinedHeight > 6) return null; // Conservative size limit
+            
+            // Verify that all positions in the bounding box are in the component
+            for (int y = minY; y < maxY; y++)
+            {
+                for (int x = minX; x < maxX; x++)
+                {
+                    if (!componentSet.Contains((x, y)))
+                    {
+                        return null;
+                    }
+                }
+            }
+            
+            return (minX, minY, combinedWidth, combinedHeight, rect1.cubeHeight);
+        }
+        
+        private (int x, int y, int width, int height, float cubeHeight)? TryBridgeMerge(
+            (int x, int y, int width, int height, float cubeHeight) rect1,
+            (int x, int y, int width, int height, float cubeHeight) rect2,
+            HashSet<(int x, int y)> componentSet)
+        {
+            // Look for cases where two rectangles are separated by a small gap that can be bridged
+            // Only allow bridging if the gap is 1 unit and all cells in the bridge are in the component
+            
+            // Check for horizontal bridging (same Y, small X gap)
+            if (rect1.y == rect2.y && rect1.height == rect2.height)
+            {
+                int gap = 0;
+                int leftRect = rect1.x < rect2.x ? 1 : 2;
+                if (leftRect == 1)
+                {
+                    gap = rect2.x - (rect1.x + rect1.width);
+                }
+                else
+                {
+                    gap = rect1.x - (rect2.x + rect2.width);
+                }
+                
+                // Only bridge small gaps (1-2 units) conservatively
+                if (gap > 0 && gap <= 2)
+                {
+                    int minX = Math.Min(rect1.x, rect2.x);
+                    int maxX = Math.Max(rect1.x + rect1.width, rect2.x + rect2.width);
+                    
+                    // Check if all cells in the bridge are in the component
+                    bool canBridge = true;
+                    for (int x = minX; x < maxX && canBridge; x++)
+                    {
+                        for (int y = rect1.y; y < rect1.y + rect1.height && canBridge; y++)
+                        {
+                            if (!componentSet.Contains((x, y)))
+                            {
+                                canBridge = false;
+                            }
+                        }
+                    }
+                    
+                    if (canBridge)
+                    {
+                        return (minX, rect1.y, maxX - minX, rect1.height, rect1.cubeHeight);
+                    }
+                }
+            }
+            
+            // Check for vertical bridging (same X, small Y gap)
+            if (rect1.x == rect2.x && rect1.width == rect2.width)
+            {
+                int gap = 0;
+                int topRect = rect1.y < rect2.y ? 1 : 2;
+                if (topRect == 1)
+                {
+                    gap = rect2.y - (rect1.y + rect1.height);
+                }
+                else
+                {
+                    gap = rect1.y - (rect2.y + rect2.height);
+                }
+                
+                // Only bridge small gaps (1-2 units) conservatively
+                if (gap > 0 && gap <= 2)
+                {
+                    int minY = Math.Min(rect1.y, rect2.y);
+                    int maxY = Math.Max(rect1.y + rect1.height, rect2.y + rect2.height);
+                    
+                    // Check if all cells in the bridge are in the component
+                    bool canBridge = true;
+                    for (int y = minY; y < maxY && canBridge; y++)
+                    {
+                        for (int x = rect1.x; x < rect1.x + rect1.width && canBridge; x++)
+                        {
+                            if (!componentSet.Contains((x, y)))
+                            {
+                                canBridge = false;
+                            }
+                        }
+                    }
+                    
+                    if (canBridge)
+                    {
+                        return (rect1.x, minY, rect1.width, maxY - minY, rect1.cubeHeight);
+                    }
+                }
+            }
+            
+            return null;
         }
         
         private (int x, int y, int width, int height)? FindBestRectangleInRemaining(HashSet<(int x, int y)> remaining)
@@ -816,17 +1028,13 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         private List<(int x, int y, int width, int height, float cubeHeight)> ExhaustiveAdjacentMerging(List<(int x, int y, int width, int height, float cubeHeight)> rectangles)
         {
             bool foundMerge = true;
-            int totalIterations = 0;
-            
-            while (foundMerge && totalIterations < 1000) // Safety limit
+            while (foundMerge)
             {
                 foundMerge = false;
-                totalIterations++;
                 
-                // Try ALL possible pairs in each iteration - don't break early
-                for (int i = 0; i < rectangles.Count; i++)
+                for (int i = 0; i < rectangles.Count && !foundMerge; i++)
                 {
-                    for (int j = i + 1; j < rectangles.Count; j++)
+                    for (int j = i + 1; j < rectangles.Count && !foundMerge; j++)
                     {
                         var rect1 = rectangles[i];
                         var rect2 = rectangles[j];
@@ -839,19 +1047,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                             rectangles[i] = mergedRect.Value;
                             rectangles.RemoveAt(j);
                             foundMerge = true;
-                            break; // Break inner loop to restart with updated indices
                         }
                     }
-                    if (foundMerge) break; // Break outer loop to restart completely
-                }
-                
-                if (totalIterations % 20 == 0 && foundMerge)
-                {
-                    Console.WriteLine($"        Exhaustive merging iteration {totalIterations}: {rectangles.Count} rectangles remaining");
                 }
             }
             
-            Console.WriteLine($"        Exhaustive merging completed after {totalIterations} iterations");
             return rectangles;
         }
 
@@ -1840,53 +2040,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 }
             }
             
-            // Enhanced: Try more permissive adjacency (allow small gaps or overlaps of 1 unit)
-            // This catches cases where rectangles are almost adjacent due to floating point or rounding issues
-            
-            // Horizontal with 1-unit tolerance
-            if (Math.Abs(rect1.y - rect2.y) <= 1 && Math.Abs(rect1.height - rect2.height) <= 1)
+            // Try diagonal merging for L-shapes and complex patterns
+            // This is an experimental approach to catch patterns that pure rectangle merging misses
+            if (CanFormLargerRectangle(rect1, rect2))
             {
-                // Align Y coordinates to the minimum
-                int alignedY = Math.Min(rect1.y, rect2.y);
-                int alignedHeight = Math.Max(rect1.y + rect1.height, rect2.y + rect2.height) - alignedY;
-                
-                if (Math.Abs(rect1.x + rect1.width - rect2.x) <= 1)
-                {
-                    // rect1 is to the left of rect2 (with tolerance)
-                    int mergedX = rect1.x;
-                    int mergedWidth = rect2.x + rect2.width - rect1.x;
-                    return (mergedX, alignedY, mergedWidth, alignedHeight, rect1.cubeHeight);
-                }
-                else if (Math.Abs(rect2.x + rect2.width - rect1.x) <= 1)
-                {
-                    // rect2 is to the left of rect1 (with tolerance)
-                    int mergedX = rect2.x;
-                    int mergedWidth = rect1.x + rect1.width - rect2.x;
-                    return (mergedX, alignedY, mergedWidth, alignedHeight, rect2.cubeHeight);
-                }
-            }
-            
-            // Vertical with 1-unit tolerance
-            if (Math.Abs(rect1.x - rect2.x) <= 1 && Math.Abs(rect1.width - rect2.width) <= 1)
-            {
-                // Align X coordinates to the minimum
-                int alignedX = Math.Min(rect1.x, rect2.x);
-                int alignedWidth = Math.Max(rect1.x + rect1.width, rect2.x + rect2.width) - alignedX;
-                
-                if (Math.Abs(rect1.y + rect1.height - rect2.y) <= 1)
-                {
-                    // rect1 is above rect2 (with tolerance)
-                    int mergedY = rect1.y;
-                    int mergedHeight = rect2.y + rect2.height - rect1.y;
-                    return (alignedX, mergedY, alignedWidth, mergedHeight, rect1.cubeHeight);
-                }
-                else if (Math.Abs(rect2.y + rect2.height - rect1.y) <= 1)
-                {
-                    // rect2 is above rect1 (with tolerance)
-                    int mergedY = rect2.y;
-                    int mergedHeight = rect1.y + rect1.height - rect2.y;
-                    return (alignedX, mergedY, alignedWidth, mergedHeight, rect2.cubeHeight);
-                }
+                return FormLargerRectangle(rect1, rect2);
             }
             
             return null; // Cannot merge
