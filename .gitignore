@@ -406,3 +406,7 @@ FodyWeavers.xsd
 DeveMazeGeneratorCore.Coaster3MF/3D/
 DeveMazeGeneratorCore.Coaster3MF/[Content_Types].xml
 DeveMazeGeneratorCore.Coaster3MF/_rels/
+
+# Generated output files from testing
+DeveMazeGeneratorCore.Coaster3MF/maze_coaster_*.3mf
+DeveMazeGeneratorCore.Coaster3MF/maze_coaster_*.png
