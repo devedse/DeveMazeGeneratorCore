@@ -209,59 +209,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         private void AddCubeQuads(List<Quad> quads, int x, int y, float zBottom, float zTop, string paintColor)
         {
-            // Bottom face
-            quads.Add(new Quad(
-                new Vertex(x, y, zBottom),
-                new Vertex(x + 1, y, zBottom),
-                new Vertex(x + 1, y + 1, zBottom),
-                new Vertex(x, y + 1, zBottom),
-                paintColor
-            ));
-
-            // Top face
-            quads.Add(new Quad(
-                new Vertex(x, y, zTop),
-                new Vertex(x + 1, y, zTop),
-                new Vertex(x + 1, y + 1, zTop),
-                new Vertex(x, y + 1, zTop),
-                paintColor
-            ));
-
-            // Front face
-            quads.Add(new Quad(
-                new Vertex(x, y, zBottom),
-                new Vertex(x + 1, y, zBottom),
-                new Vertex(x + 1, y, zTop),
-                new Vertex(x, y, zTop),
-                paintColor
-            ));
-
-            // Right face
-            quads.Add(new Quad(
-                new Vertex(x + 1, y, zBottom),
-                new Vertex(x + 1, y + 1, zBottom),
-                new Vertex(x + 1, y + 1, zTop),
-                new Vertex(x + 1, y, zTop),
-                paintColor
-            ));
-
-            // Back face
-            quads.Add(new Quad(
-                new Vertex(x + 1, y + 1, zBottom),
-                new Vertex(x, y + 1, zBottom),
-                new Vertex(x, y + 1, zTop),
-                new Vertex(x + 1, y + 1, zTop),
-                paintColor
-            ));
-
-            // Left face
-            quads.Add(new Quad(
-                new Vertex(x, y + 1, zBottom),
-                new Vertex(x, y, zBottom),
-                new Vertex(x, y, zTop),
-                new Vertex(x, y + 1, zTop),
-                paintColor
-            ));
+            AddCubeQuadsWithDimensions(quads, x, y, x + 1, y + 1, zBottom, zTop, paintColor);
         }
 
         private void AddCubeQuadsWithDimensions(List<Quad> quads, float x, float y, float endX, float endY, float zBottom, float zTop, string paintColor)
