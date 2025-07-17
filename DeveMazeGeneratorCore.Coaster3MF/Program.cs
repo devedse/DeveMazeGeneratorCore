@@ -25,23 +25,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             
             for (int i = 1; i <= 3; i++)
             {
-                var filename = $"maze_coaster_{i}.3mf";
-                Console.WriteLine($"Creating {filename}...");
-                mazeCoaster.Generate3MFCoaster(filename, 20, 1337 + i);
+                Console.WriteLine($"Creating coaster {i}...");
+                mazeCoaster.Generate3MFCoaster(20, 1337 + i);
             }
             
             Console.WriteLine("All 3MF coasters generated successfully!");
-            Console.WriteLine("Files created:");
-            
-            for (int i = 1; i <= 3; i++)
-            {
-                var filename = $"maze_coaster_{i}.3mf";
-                if (File.Exists(filename))
-                {
-                    var fileInfo = new FileInfo(filename);
-                    Console.WriteLine($"  {filename} ({fileInfo.Length:N0} bytes)");
-                }
-            }
         }
     }
 }
