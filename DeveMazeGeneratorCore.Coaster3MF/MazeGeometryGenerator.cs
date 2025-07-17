@@ -93,6 +93,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 }
             }
 
+
+
+
             // Path cubes - only within the valid maze area (excluding rightmost and bottommost edge)
             foreach (var point in pathData.PathSet)
             {
@@ -109,6 +112,14 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             return meshData;
         }
 
+        private void VertexAndIndexOptimizer(List<Vertex> vertices, List<Triangle> triangles)
+        {
+            // We will go over all vertices
+            // Let's say we start with vertex 0
+            // We find all vertices on the same position
+            // Then we check if these vertices are in the same plane
+
+        }
 
 
         private void AddGroundPlane(List<Vertex> vertices, List<Triangle> triangles, InnerMap maze)
