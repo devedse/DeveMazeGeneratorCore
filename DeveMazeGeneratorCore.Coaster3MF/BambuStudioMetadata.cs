@@ -2,6 +2,33 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 {
     public static class BambuStudioMetadata
     {
+        public static string ContentTypes => """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+                <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+                <Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/>
+                <Default Extension="png" ContentType="image/png"/>
+                <Default Extension="gcode" ContentType="text/x.gcode"/>
+            </Types>
+            """;
+
+        public static string RootRelationships => """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+                <Relationship Target="/3D/3dmodel.model" Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/>
+                <Relationship Target="/Metadata/plate_1.png" Id="rel-2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/thumbnail"/>
+                <Relationship Target="/Metadata/plate_1.png" Id="rel-4" Type="http://schemas.bambulab.com/package/2021/cover-thumbnail-middle"/>
+                <Relationship Target="/Metadata/plate_1_small.png" Id="rel-5" Type="http://schemas.bambulab.com/package/2021/cover-thumbnail-small"/>
+            </Relationships>
+            """;
+
+        public static string ModelRelationships => """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+                <Relationship Target="/3D/Objects/object_1.model" Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/>
+            </Relationships>
+            """;
+
         public static string CutInformation => """
             <?xml version="1.0" encoding="utf-8"?>
             <objects>
@@ -20,6 +47,49 @@ namespace DeveMazeGeneratorCore.Coaster3MF
               </header>
             </config>
             """;
+
+        public static string GetModelSettings(int faceCount)
+        {
+            return $"""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <config>
+                  <object id="2">
+                    <metadata key="name" value="Maze_Coaster"/>
+                    <metadata key="extruder" value="1"/>
+                    <metadata key="face_count" value="{faceCount}"/>
+                    <part id="1" subtype="normal_part">
+                      <metadata key="name" value="Maze_Coaster"/>
+                      <metadata key="matrix" value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+                      <metadata key="source_file" value="maze_coaster.3mf"/>
+                      <metadata key="source_object_id" value="0"/>
+                      <metadata key="source_volume_id" value="0"/>
+                      <metadata key="source_offset_x" value="9.5"/>
+                      <metadata key="source_offset_y" value="9.5"/>
+                      <metadata key="source_offset_z" value="2.5"/>
+                      <mesh_stat face_count="{faceCount}" edges_fixed="0" degenerate_facets="0" facets_removed="0" facets_reversed="0" backwards_edges="0"/>
+                    </part>
+                  </object>
+                  <plate>
+                    <metadata key="plater_id" value="1"/>
+                    <metadata key="plater_name" value=""/>
+                    <metadata key="locked" value="false"/>
+                    <metadata key="filament_map_mode" value="Auto For Flush"/>
+                    <metadata key="thumbnail_file" value="Metadata/plate_1.png"/>
+                    <metadata key="thumbnail_no_light_file" value="Metadata/plate_no_light_1.png"/>
+                    <metadata key="top_file" value="Metadata/top_1.png"/>
+                    <metadata key="pick_file" value="Metadata/pick_1.png"/>
+                    <model_instance>
+                      <metadata key="object_id" value="2"/>
+                      <metadata key="instance_id" value="0"/>
+                      <metadata key="identify_id" value="84"/>
+                    </model_instance>
+                  </plate>
+                  <assemble>
+                   <assemble_item object_id="2" instance_id="0" transform="1 0 0 0 1 0 0 0 1 0 0 0" offset="0 0 0"/>
+                  </assemble>
+                </config>
+                """;
+        }
 
         public static string ProjectSettings => """
                         {
