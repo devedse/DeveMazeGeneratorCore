@@ -1,12 +1,12 @@
 using DeveMazeGeneratorCore.Factories;
 using DeveMazeGeneratorCore.Generators;
-using DeveMazeGeneratorCore.Generators.SpeedOptimization;
 using DeveMazeGeneratorCore.Generators.Helpers;
+using DeveMazeGeneratorCore.Generators.SpeedOptimization;
+using DeveMazeGeneratorCore.Imageification;
 using DeveMazeGeneratorCore.InnerMaps;
+using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.PathFinders;
 using DeveMazeGeneratorCore.Structures;
-using DeveMazeGeneratorCore.Imageification;
-using DeveMazeGeneratorCore.Mazes;
 
 namespace DeveMazeGeneratorCore.Coaster3MF
 {
@@ -45,7 +45,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Generate preview image
             using (var fs = new FileStream($"{filename}.png", FileMode.Create))
             {
-                WithPath.SaveMazeAsImageDeluxePng(maze.InnerMap, new List<Structures.MazePointPos>(), fs);
+                WithPath.SaveMazeAsImageDeluxePng(maze.InnerMap, new List<MazePointPos>(), fs);
             }
         }
 
