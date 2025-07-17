@@ -48,6 +48,49 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             </config>
             """;
 
+        public static string GetModelSettings(int faceCount)
+        {
+            return $"""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <config>
+                  <object id="2">
+                    <metadata key="name" value="Maze_Coaster"/>
+                    <metadata key="extruder" value="1"/>
+                    <metadata key="face_count" value="{faceCount}"/>
+                    <part id="1" subtype="normal_part">
+                      <metadata key="name" value="Maze_Coaster"/>
+                      <metadata key="matrix" value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+                      <metadata key="source_file" value="maze_coaster.3mf"/>
+                      <metadata key="source_object_id" value="0"/>
+                      <metadata key="source_volume_id" value="0"/>
+                      <metadata key="source_offset_x" value="9.5"/>
+                      <metadata key="source_offset_y" value="9.5"/>
+                      <metadata key="source_offset_z" value="2.5"/>
+                      <mesh_stat face_count="{faceCount}" edges_fixed="0" degenerate_facets="0" facets_removed="0" facets_reversed="0" backwards_edges="0"/>
+                    </part>
+                  </object>
+                  <plate>
+                    <metadata key="plater_id" value="1"/>
+                    <metadata key="plater_name" value=""/>
+                    <metadata key="locked" value="false"/>
+                    <metadata key="filament_map_mode" value="Auto For Flush"/>
+                    <metadata key="thumbnail_file" value="Metadata/plate_1.png"/>
+                    <metadata key="thumbnail_no_light_file" value="Metadata/plate_no_light_1.png"/>
+                    <metadata key="top_file" value="Metadata/top_1.png"/>
+                    <metadata key="pick_file" value="Metadata/pick_1.png"/>
+                    <model_instance>
+                      <metadata key="object_id" value="2"/>
+                      <metadata key="instance_id" value="0"/>
+                      <metadata key="identify_id" value="84"/>
+                    </model_instance>
+                  </plate>
+                  <assemble>
+                   <assemble_item object_id="2" instance_id="0" transform="1 0 0 0 1 0 0 0 1 0 0 0" offset="0 0 0"/>
+                  </assemble>
+                </config>
+                """;
+        }
+
         public static string ProjectSettings => """
                         {
                 "accel_to_decel_enable": "0",

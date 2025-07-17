@@ -1,6 +1,7 @@
 using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Structures;
 using DeveMazeGeneratorCore.Imageification;
+using DeveMazeGeneratorCore.Coaster3MF.Models;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
@@ -14,7 +15,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 {
     public class ThreeMFPackageGenerator
     {
-        public void Create3MFFile(InnerMap maze, List<MazePointPos> path, MazeGeometryGenerator.MeshData meshData, string filename)
+        public void Create3MFFile(InnerMap maze, List<MazePointPos> path, MeshData meshData, string filename)
         {
             using (var fileStream = new FileStream(filename, FileMode.Create))
             using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Create))
@@ -149,7 +150,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             }
         }
 
-        private void CreateObjectFile(ZipArchive archive, MazeGeometryGenerator.MeshData meshData)
+        private void CreateObjectFile(ZipArchive archive, MeshData meshData)
         {
             var entry = archive.CreateEntry("3D/Objects/object_1.model");
             using (var stream = entry.Open())
@@ -176,27 +177,27 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
                 // Write vertices
                 writer.WriteStartElement("vertices");
-                foreach (var (x, y, z) in meshData.Vertices)
+                foreach (var vertex in meshData.Vertices)
                 {
                     writer.WriteStartElement("vertex");
-                    writer.WriteAttributeString("x", x.ToString());
-                    writer.WriteAttributeString("y", y.ToString());
-                    writer.WriteAttributeString("z", z.ToString());
+                    writer.WriteAttributeString("x", vertex.X.ToString());
+                    writer.WriteAttributeString("y", vertex.Y.ToString());
+                    writer.WriteAttributeString("z", vertex.Z.ToString());
                     writer.WriteEndElement();
                 }
                 writer.WriteEndElement(); // vertices
 
                 // Write triangles
                 writer.WriteStartElement("triangles");
-                foreach (var (v1, v2, v3, paintColor) in meshData.Triangles)
+                foreach (var triangle in meshData.Triangles)
                 {
                     writer.WriteStartElement("triangle");
-                    writer.WriteAttributeString("v1", v1.ToString());
-                    writer.WriteAttributeString("v2", v2.ToString());
-                    writer.WriteAttributeString("v3", v3.ToString());
-                    if (!string.IsNullOrEmpty(paintColor))
+                    writer.WriteAttributeString("v1", triangle.V1.ToString());
+                    writer.WriteAttributeString("v2", triangle.V2.ToString());
+                    writer.WriteAttributeString("v3", triangle.V3.ToString());
+                    if (!string.IsNullOrEmpty(triangle.PaintColor))
                     {
-                        writer.WriteAttributeString("paint_color", paintColor);
+                        writer.WriteAttributeString("paint_color", triangle.PaintColor);
                     }
                     writer.WriteEndElement();
                 }
@@ -242,58 +243,16 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         private void CreateModelSettingsFile(ZipArchive archive, InnerMap maze, List<MazePointPos> path)
         {
             // Calculate face count based on the mesh that will be generated
-            var pathSet = new HashSet<(int x, int y)>();
-            foreach (var point in path)
-            {
-                pathSet.Add((point.X, point.Y));
-            }
+            var pathData = new PathData(path);
 
             var geometryGenerator = new MazeGeometryGenerator();
-            var faceCount = geometryGenerator.CalculateFaceCount(maze, pathSet);
+            var faceCount = geometryGenerator.CalculateFaceCount(maze, pathData);
 
             var entry = archive.CreateEntry("Metadata/model_settings.config");
             using (var stream = entry.Open())
             using (var writer = new StreamWriter(stream, Encoding.UTF8))
             {
-                writer.Write($"""
-                    <?xml version="1.0" encoding="UTF-8"?>
-                    <config>
-                      <object id="2">
-                        <metadata key="name" value="Maze_Coaster"/>
-                        <metadata key="extruder" value="1"/>
-                        <metadata key="face_count" value="{faceCount}"/>
-                        <part id="1" subtype="normal_part">
-                          <metadata key="name" value="Maze_Coaster"/>
-                          <metadata key="matrix" value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
-                          <metadata key="source_file" value="maze_coaster.3mf"/>
-                          <metadata key="source_object_id" value="0"/>
-                          <metadata key="source_volume_id" value="0"/>
-                          <metadata key="source_offset_x" value="9.5"/>
-                          <metadata key="source_offset_y" value="9.5"/>
-                          <metadata key="source_offset_z" value="2.5"/>
-                          <mesh_stat face_count="{faceCount}" edges_fixed="0" degenerate_facets="0" facets_removed="0" facets_reversed="0" backwards_edges="0"/>
-                        </part>
-                      </object>
-                      <plate>
-                        <metadata key="plater_id" value="1"/>
-                        <metadata key="plater_name" value=""/>
-                        <metadata key="locked" value="false"/>
-                        <metadata key="filament_map_mode" value="Auto For Flush"/>
-                        <metadata key="thumbnail_file" value="Metadata/plate_1.png"/>
-                        <metadata key="thumbnail_no_light_file" value="Metadata/plate_no_light_1.png"/>
-                        <metadata key="top_file" value="Metadata/top_1.png"/>
-                        <metadata key="pick_file" value="Metadata/pick_1.png"/>
-                        <model_instance>
-                          <metadata key="object_id" value="2"/>
-                          <metadata key="instance_id" value="0"/>
-                          <metadata key="identify_id" value="84"/>
-                        </model_instance>
-                      </plate>
-                      <assemble>
-                       <assemble_item object_id="2" instance_id="0" transform="1 0 0 0 1 0 0 0 1 0 0 0" offset="0 0 0"/>
-                      </assemble>
-                    </config>
-                    """);
+                writer.Write(BambuStudioMetadata.GetModelSettings(faceCount));
             }
         }
 
