@@ -16,6 +16,30 @@ namespace DeveMazeGeneratorCore.Tests
     public class MazeCoaster3MFTests
     {
         [Fact]
+        public void GenerateMazeQuads_ProducesSameResultsAsDirectGeneration()
+        {
+            // Arrange
+            var alg = new DeveMazeGeneratorCore.Generators.AlgorithmBacktrack2Deluxe2_AsByte();
+            var innerMapFactory = new DeveMazeGeneratorCore.Factories.InnerMapFactory<DeveMazeGeneratorCore.InnerMaps.BitArreintjeFastInnerMap>();
+            var randomFactory = new DeveMazeGeneratorCore.Factories.RandomFactory<DeveMazeGeneratorCore.Generators.Helpers.XorShiftRandom>();
+            var actionThing = new DeveMazeGeneratorCore.Generators.SpeedOptimization.NoAction();
+            
+            var maze = alg.GoGenerate(5, 5, 1337, innerMapFactory, randomFactory, actionThing);
+            var path = DeveMazeGeneratorCore.PathFinders.PathFinderDepthFirstSmartWithPos.GoFind(maze.InnerMap, null);
+            var generator = new DeveMazeGeneratorCore.Coaster3MF.MazeGeometryGenerator();
+            
+            // Act
+            var quads = generator.GenerateMazeQuads(maze.InnerMap, path);
+            var meshFromQuads = generator.ConvertQuadsToMesh(quads);
+            var meshDirect = generator.GenerateMazeGeometry(maze.InnerMap, path);
+            
+            // Assert
+            Assert.Equal(meshDirect.Vertices.Count, meshFromQuads.Vertices.Count);
+            Assert.Equal(meshDirect.Triangles.Count, meshFromQuads.Triangles.Count);
+            Assert.True(quads.Count > 0, "Should generate at least some quads");
+        }
+
+        [Fact]
         public void Generate3MFCoaster_CreatesValidFile()
         {
             // Arrange
@@ -27,7 +51,7 @@ namespace DeveMazeGeneratorCore.Tests
                 File.Delete(filename);
             
             // Act
-            coaster.Generate3MFCoaster(filename, 1337);
+            coaster.Generate3MFCoaster(filename, 10, 1337);
             
             // Assert
             Assert.True(File.Exists(filename), "3MF file should be created");
@@ -58,8 +82,8 @@ namespace DeveMazeGeneratorCore.Tests
             if (File.Exists(filename2)) File.Delete(filename2);
             
             // Act
-            coaster.Generate3MFCoaster(filename1, 1337);
-            coaster.Generate3MFCoaster(filename2, 7331);
+            coaster.Generate3MFCoaster(filename1, 10, 1337);
+            coaster.Generate3MFCoaster(filename2, 10, 7331);
             
             // Assert
             Assert.True(File.Exists(filename1), "First 3MF file should be created");

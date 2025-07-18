@@ -22,7 +22,257 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
 
 
+        /// <summary>
+        /// First generates quads representing the maze geometry, then converts them to vertices and triangles.
+        /// This is the refactored version that uses the two-step approach.
+        /// </summary>
         public MeshData GenerateMazeGeometry(InnerMap maze, List<MazePointPos> path)
+        {
+            // Step 1: Generate quads
+            var quads = GenerateMazeQuads(maze, path);
+            
+            // Step 2: Convert quads to mesh data
+            return ConvertQuadsToMesh(quads);
+        }
+
+        /// <summary>
+        /// Generates quads representing the maze geometry (ground, walls, path).
+        /// </summary>
+        public List<Quad> GenerateMazeQuads(InnerMap maze, List<MazePointPos> path)
+        {
+            var quads = new List<Quad>();
+            
+            // Convert path to PathData for better organization
+            var pathData = new PathData(path);
+
+            // Ground plane quads
+            AddGroundPlaneQuads(quads, maze);
+
+            // Add wall quads - inlined AddWall method logic
+            var mazeWalls = maze.GenerateListOfMazeWalls();
+            foreach (var wall in mazeWalls)
+            {
+                var isHorizontal = wall.Ystart == wall.Yend; // Check if the wall is horizontal or vertical
+
+                if (isHorizontal)
+                {
+                    var xstart = wall.Xstart;
+                    var xend = wall.Xend;
+
+                    if (wall.Ystart > 0 && wall.Ystart < maze.Height - 2)
+                    {
+                        if (maze[wall.Xstart, wall.Ystart - 1] == false || maze[wall.Xstart, wall.Ystart + 1] == false)
+                        {
+                            xstart++;
+                        }
+                    }
+                    else if (wall.Xstart == 0)
+                    {
+                        xstart++;
+                    }
+
+                    if (wall.Yend < maze.Height - 2 && wall.Yend > 0)
+                    {
+                        if (maze[wall.Xend, wall.Yend - 1] == false || maze[wall.Xend, wall.Yend + 1] == false)
+                        {
+                            xend--;
+                        }
+                    }
+                    else if (wall.Xend == maze.Width - 2)
+                    {
+                        xend--;
+                    }
+                    AddCubeQuadsWithDimensions(quads, xstart, wall.Ystart, xend + 1, wall.Yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Horizontal wall
+                }
+                else
+                {
+                    var ystart = wall.Ystart;
+                    var yend = wall.Yend;
+
+                    if (wall.Xstart > 0 && wall.Xstart < maze.Width - 2)
+                    {
+                        if (maze[wall.Xstart - 1, wall.Ystart] == false && maze[wall.Xstart + 1, wall.Ystart] == false)
+                        {
+                            ystart++;
+                        }
+                    }
+
+                    if (wall.Xend < maze.Width - 2 && wall.Xend > 0)
+                    {
+                        if (maze[wall.Xend - 1, wall.Yend] == false && maze[wall.Xend + 1, wall.Yend] == false)
+                        {
+                            yend--;
+                        }
+                    }
+
+                    AddCubeQuadsWithDimensions(quads, wall.Xstart, ystart, wall.Xend + 1, yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Vertical wall
+                }
+            }
+
+            // Path cube quads - only within the valid maze area (excluding rightmost and bottommost edge)
+            foreach (var point in pathData.PathSet)
+            {
+                if (point.X < maze.Width - 1 && point.Y < maze.Height - 1 && maze[point.X, point.Y]) // Open space that's part of the path and within valid area
+                {
+                    // Determine color based on position in path (0-255)
+                    var relativePos = pathData.PathPositions[point];
+                    var paintColor = relativePos < 128 ? Colors[2] : Colors[3];
+
+                    AddCubeQuads(quads, point.X, point.Y, GroundHeight, GroundHeight + PathHeight, paintColor);
+                }
+            }
+
+            return quads;
+        }
+
+        /// <summary>
+        /// Converts a list of quads to mesh data (vertices and triangles).
+        /// </summary>
+        public MeshData ConvertQuadsToMesh(List<Quad> quads)
+        {
+            var meshData = new MeshData();
+
+            foreach (var quad in quads)
+            {
+                // Add the 4 vertices of the quad
+                int baseIndex = meshData.Vertices.Count;
+                meshData.Vertices.Add(quad.V1);
+                meshData.Vertices.Add(quad.V2);
+                meshData.Vertices.Add(quad.V3);
+                meshData.Vertices.Add(quad.V4);
+
+                // Create 2 triangles from the quad (assuming vertices are in correct order)
+                meshData.Triangles.Add(new Triangle(baseIndex + 0, baseIndex + 2, baseIndex + 1, quad.PaintColor));
+                meshData.Triangles.Add(new Triangle(baseIndex + 0, baseIndex + 3, baseIndex + 2, quad.PaintColor));
+            }
+
+            return meshData;
+        }
+
+        private void AddGroundPlaneQuads(List<Quad> quads, InnerMap maze)
+        {
+            // Bottom face (z = 0) - black
+            quads.Add(new Quad(
+                new Vertex(0, 0, 0),
+                new Vertex(maze.Width - 1, 0, 0),
+                new Vertex(maze.Width - 1, maze.Height - 1, 0),
+                new Vertex(0, maze.Height - 1, 0),
+                Colors[0]
+            ));
+
+            // Top face (z = GroundHeight) - white
+            quads.Add(new Quad(
+                new Vertex(0, 0, GroundHeight),
+                new Vertex(maze.Width - 1, 0, GroundHeight),
+                new Vertex(maze.Width - 1, maze.Height - 1, GroundHeight),
+                new Vertex(0, maze.Height - 1, GroundHeight),
+                Colors[1]
+            ));
+
+            // Side faces - black
+            // Front face
+            quads.Add(new Quad(
+                new Vertex(0, 0, 0),
+                new Vertex(maze.Width - 1, 0, 0),
+                new Vertex(maze.Width - 1, 0, GroundHeight),
+                new Vertex(0, 0, GroundHeight),
+                Colors[0]
+            ));
+
+            // Right face
+            quads.Add(new Quad(
+                new Vertex(maze.Width - 1, 0, 0),
+                new Vertex(maze.Width - 1, maze.Height - 1, 0),
+                new Vertex(maze.Width - 1, maze.Height - 1, GroundHeight),
+                new Vertex(maze.Width - 1, 0, GroundHeight),
+                Colors[0]
+            ));
+
+            // Back face
+            quads.Add(new Quad(
+                new Vertex(maze.Width - 1, maze.Height - 1, 0),
+                new Vertex(0, maze.Height - 1, 0),
+                new Vertex(0, maze.Height - 1, GroundHeight),
+                new Vertex(maze.Width - 1, maze.Height - 1, GroundHeight),
+                Colors[0]
+            ));
+
+            // Left face
+            quads.Add(new Quad(
+                new Vertex(0, maze.Height - 1, 0),
+                new Vertex(0, 0, 0),
+                new Vertex(0, 0, GroundHeight),
+                new Vertex(0, maze.Height - 1, GroundHeight),
+                Colors[0]
+            ));
+        }
+
+        private void AddCubeQuads(List<Quad> quads, int x, int y, float zBottom, float zTop, string paintColor)
+        {
+            AddCubeQuadsWithDimensions(quads, x, y, x + 1, y + 1, zBottom, zTop, paintColor);
+        }
+
+        private void AddCubeQuadsWithDimensions(List<Quad> quads, float x, float y, float endX, float endY, float zBottom, float zTop, string paintColor)
+        {
+            // Bottom face
+            quads.Add(new Quad(
+                new Vertex(x, y, zBottom),
+                new Vertex(endX, y, zBottom),
+                new Vertex(endX, endY, zBottom),
+                new Vertex(x, endY, zBottom),
+                paintColor
+            ));
+
+            // Top face
+            quads.Add(new Quad(
+                new Vertex(x, y, zTop),
+                new Vertex(endX, y, zTop),
+                new Vertex(endX, endY, zTop),
+                new Vertex(x, endY, zTop),
+                paintColor
+            ));
+
+            // Front face
+            quads.Add(new Quad(
+                new Vertex(x, y, zBottom),
+                new Vertex(endX, y, zBottom),
+                new Vertex(endX, y, zTop),
+                new Vertex(x, y, zTop),
+                paintColor
+            ));
+
+            // Right face
+            quads.Add(new Quad(
+                new Vertex(endX, y, zBottom),
+                new Vertex(endX, endY, zBottom),
+                new Vertex(endX, endY, zTop),
+                new Vertex(endX, y, zTop),
+                paintColor
+            ));
+
+            // Back face
+            quads.Add(new Quad(
+                new Vertex(endX, endY, zBottom),
+                new Vertex(x, endY, zBottom),
+                new Vertex(x, endY, zTop),
+                new Vertex(endX, endY, zTop),
+                paintColor
+            ));
+
+            // Left face
+            quads.Add(new Quad(
+                new Vertex(x, endY, zBottom),
+                new Vertex(x, y, zBottom),
+                new Vertex(x, y, zTop),
+                new Vertex(x, endY, zTop),
+                paintColor
+            ));
+        }
+
+        /// <summary>
+        /// Original method for backward compatibility - generates mesh data directly.
+        /// </summary>
+        public MeshData GenerateMazeGeometryDirect(InnerMap maze, List<MazePointPos> path)
         {
             var meshData = new MeshData();
             
