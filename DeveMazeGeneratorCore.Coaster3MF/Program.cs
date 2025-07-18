@@ -23,10 +23,10 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Generate with different seeds for variety
             Console.WriteLine("Generating 3 different coaster designs...");
             
-            for (int i = 1; i <= 3; i++)
+            for (int i = 3; i <= 3; i++)
             {
                 Console.WriteLine($"Creating coaster {i}...");
-                mazeCoaster.Generate3MFCoaster(20, 1337 + i);
+                mazeCoaster.Generate3MFCoaster(6, 1337 + i);
             }
             
             Console.WriteLine("All 3MF coasters generated successfully!");
