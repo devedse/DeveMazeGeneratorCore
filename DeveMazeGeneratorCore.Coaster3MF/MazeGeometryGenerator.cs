@@ -222,25 +222,25 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 }
             }
 
-            var blah = quads.OrderBy(t => t.QuadDirection).ThenBy(t => t.V1.X).ThenBy(t => t.V1.Y).ThenBy(t => t.V1.Z).ToList();
+            //var blah = quads.OrderBy(t => t.QuadDirection).ThenBy(t => t.V1.X).ThenBy(t => t.V1.Y).ThenBy(t => t.V1.Z).ToList();
 
-            quads = blah.Where(t => t.QuadDirection != QuadDirection.Flat).ToList();
+            //quads = blah.Where(t => t.QuadDirection != QuadDirection.Flat).ToList();
 
             Console.WriteLine($"Found {quads.Count} wall quads after optimization.");
 
 
             // Path cube quads - only within the valid maze area (excluding rightmost and bottommost edge)
-            //foreach (var point in pathData.PathSet)
-            //{
-            //    if (point.X < maze.Width - 1 && point.Y < maze.Height - 1 && maze[point.X, point.Y]) // Open space that's part of the path and within valid area
-            //    {
-            //        // Determine color based on position in path (0-255)
-            //        var relativePos = pathData.PathPositions[point];
-            //        var paintColor = relativePos < 128 ? Colors[2] : Colors[3];
+            foreach (var point in pathData.PathSet)
+            {
+                if (point.X < maze.Width - 1 && point.Y < maze.Height - 1 && maze[point.X, point.Y]) // Open space that's part of the path and within valid area
+                {
+                    // Determine color based on position in path (0-255)
+                    var relativePos = pathData.PathPositions[point];
+                    var paintColor = relativePos < 128 ? Colors[2] : Colors[3];
 
-            //        AddCubeQuads(quads, point.X, point.Y, GroundHeight, GroundHeight + PathHeight, paintColor);
-            //    }
-            //}
+                    AddCubeQuads(quads, point.X, point.Y, GroundHeight, GroundHeight + PathHeight, paintColor);
+                }
+            }
 
             return quads;
         }
