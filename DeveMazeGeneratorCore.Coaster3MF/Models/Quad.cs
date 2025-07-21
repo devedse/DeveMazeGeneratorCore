@@ -1,12 +1,124 @@
 namespace DeveMazeGeneratorCore.Coaster3MF.Models
 {
-    public record Quad(Vertex V1, Vertex V2, Vertex V3, Vertex V4, string PaintColor)
+    public record Quad(Vertex V1, Vertex V2, Vertex V3, Vertex V4, string PaintColor, FaceDirection FaceDirection)
     {
         public Vertex[] Vertices => [V1, V2, V3, V4];
 
         public QuadDirection QuadDirection => Vertices.Select(t => t.X).Distinct().Count() == 1 ? QuadDirection.Vertical :
                                               Vertices.Select(t => t.Y).Distinct().Count() == 1 ? QuadDirection.Horizontal :
                                               QuadDirection.Flat;
+
+        /// <summary>
+        /// Orders the 4 vertices in a canonical order for cuboids based on face direction:
+        /// For each face, finds the 2 dominant axes and orders vertices as:
+        /// [0] = min axis1, min axis2  (0,0)
+        /// [1] = min axis1, max axis2  (0,1) 
+        /// [2] = max axis1, min axis2  (1,0)
+        /// [3] = max axis1, max axis2  (1,1)
+        /// This creates a consistent 2x2 grid pattern regardless of input order
+        /// </summary>
+        private Vertex[] GetCanonicallyOrderedVertices()
+        {
+            var vertices = Vertices;
+            
+            return FaceDirection switch
+            {
+                // Top/Bottom faces: use X and Y coordinates (Z is constant)
+                FaceDirection.Top or FaceDirection.Bottom => GetOrderedByXY(vertices),
+                
+                // Front/Back faces: use X and Z coordinates (Y is constant)  
+                FaceDirection.Front or FaceDirection.Back => GetOrderedByXZ(vertices),
+                
+                // Left/Right faces: use Y and Z coordinates (X is constant)
+                FaceDirection.Left or FaceDirection.Right => GetOrderedByYZ(vertices),
+                
+                // Default: use X and Y
+                _ => GetOrderedByXY(vertices)
+            };
+        }
+        
+        private Vertex[] GetOrderedByXY(Vertex[] vertices)
+        {
+            var minX = vertices.Min(v => v.X);
+            var maxX = vertices.Max(v => v.X);
+            var minY = vertices.Min(v => v.Y);
+            var maxY = vertices.Max(v => v.Y);
+            
+            var v00 = vertices.First(v => Math.Abs(v.X - minX) < 0.001f && Math.Abs(v.Y - minY) < 0.001f); // (minX, minY)
+            var v01 = vertices.First(v => Math.Abs(v.X - minX) < 0.001f && Math.Abs(v.Y - maxY) < 0.001f); // (minX, maxY)
+            var v10 = vertices.First(v => Math.Abs(v.X - maxX) < 0.001f && Math.Abs(v.Y - minY) < 0.001f); // (maxX, minY)
+            var v11 = vertices.First(v => Math.Abs(v.X - maxX) < 0.001f && Math.Abs(v.Y - maxY) < 0.001f); // (maxX, maxY)
+            
+            return [v00, v01, v10, v11];
+        }
+        
+        private Vertex[] GetOrderedByXZ(Vertex[] vertices)
+        {
+            var minX = vertices.Min(v => v.X);
+            var maxX = vertices.Max(v => v.X);
+            var minZ = vertices.Min(v => v.Z);
+            var maxZ = vertices.Max(v => v.Z);
+            
+            var v00 = vertices.First(v => Math.Abs(v.X - minX) < 0.001f && Math.Abs(v.Z - minZ) < 0.001f); // (minX, minZ)
+            var v01 = vertices.First(v => Math.Abs(v.X - minX) < 0.001f && Math.Abs(v.Z - maxZ) < 0.001f); // (minX, maxZ)
+            var v10 = vertices.First(v => Math.Abs(v.X - maxX) < 0.001f && Math.Abs(v.Z - minZ) < 0.001f); // (maxX, minZ)
+            var v11 = vertices.First(v => Math.Abs(v.X - maxX) < 0.001f && Math.Abs(v.Z - maxZ) < 0.001f); // (maxX, maxZ)
+            
+            return [v00, v01, v10, v11];
+        }
+        
+        private Vertex[] GetOrderedByYZ(Vertex[] vertices)
+        {
+            var minY = vertices.Min(v => v.Y);
+            var maxY = vertices.Max(v => v.Y);
+            var minZ = vertices.Min(v => v.Z);
+            var maxZ = vertices.Max(v => v.Z);
+            
+            var v00 = vertices.First(v => Math.Abs(v.Y - minY) < 0.001f && Math.Abs(v.Z - minZ) < 0.001f); // (minY, minZ)
+            var v01 = vertices.First(v => Math.Abs(v.Y - minY) < 0.001f && Math.Abs(v.Z - maxZ) < 0.001f); // (minY, maxZ)
+            var v10 = vertices.First(v => Math.Abs(v.Y - maxY) < 0.001f && Math.Abs(v.Z - minZ) < 0.001f); // (maxY, minZ)
+            var v11 = vertices.First(v => Math.Abs(v.Y - maxY) < 0.001f && Math.Abs(v.Z - maxZ) < 0.001f); // (maxY, maxZ)
+            
+            return [v00, v01, v10, v11];
+        }
+
+        /// <summary>
+        /// Returns vertices in correct winding order for outward-facing normal (counter-clockwise when viewed from outside)
+        /// Uses canonical vertex ordering and applies face-specific transformations
+        /// </summary>
+        public Vertex[] GetOrderedVertices()
+        {
+            var canonical = GetCanonicallyOrderedVertices();
+            // canonical[0] = (0,0), canonical[1] = (0,1), canonical[2] = (1,0), canonical[3] = (1,1)
+            
+            return FaceDirection switch
+            {
+                // Top face: counter-clockwise when viewed from above (outside)
+                // (0,0) -> (1,0) -> (1,1) -> (0,1)
+                FaceDirection.Top => [canonical[0], canonical[2], canonical[3], canonical[1]],
+                
+                // Bottom face: counter-clockwise when viewed from below (outside) 
+                // (0,0) -> (0,1) -> (1,1) -> (1,0)
+                FaceDirection.Bottom => [canonical[0], canonical[1], canonical[3], canonical[2]],
+                
+                // Front face (-Y): counter-clockwise when viewed from front
+                // For front face, Y is constant, so we use X and Z coordinates
+                // This needs to be adjusted based on how front faces are actually created
+                FaceDirection.Front => [canonical[0], canonical[2], canonical[3], canonical[1]],
+                
+                // Back face (+Y): counter-clockwise when viewed from back  
+                FaceDirection.Back => [canonical[0], canonical[1], canonical[3], canonical[2]],
+                
+                // Left face (-X): counter-clockwise when viewed from left
+                FaceDirection.Left => [canonical[0], canonical[1], canonical[3], canonical[2]],
+                
+                // Right face (+X): counter-clockwise when viewed from right
+                FaceDirection.Right => [canonical[0], canonical[2], canonical[3], canonical[1]],
+                
+                // Default: use canonical order
+                _ => canonical
+            };
+        }
 
         public bool HasOverlappingVerticesWith(Quad other)
         {
@@ -140,13 +252,14 @@ namespace DeveMazeGeneratorCore.Coaster3MF.Models
         public bool IsMergableWith(Quad other, double tolerance = 0.0001)
         {
             return QuadDirection == other.QuadDirection &&
+                   FaceDirection == other.FaceDirection &&
                    IsTouchingWith(other, tolerance) &&
                    PaintColor == other.PaintColor;
         }
 
         public override string ToString()
         {
-            return $"{QuadDirection} Quad: {V1}, {V2}, {V3}, {V4}, Color: {PaintColor}";
+            return $"{QuadDirection} {FaceDirection} Quad: {V1}, {V2}, {V3}, {V4}, Color: {PaintColor}";
         }
     }
 

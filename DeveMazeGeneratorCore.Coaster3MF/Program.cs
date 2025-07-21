@@ -22,7 +22,23 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             
             // Generate with different seeds for variety
             Console.WriteLine("Generating 3 different coaster designs...");
-            
+
+
+            // Delete all 3mf files in the current directory
+            var files = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.3mf");
+            foreach (var file in files)
+            {
+                try
+                {
+                    File.Delete(file);
+                    Console.WriteLine($"Deleted file: {file}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error deleting file {file}: {ex.Message}");
+                }
+            }
+
             for (int i = 3; i <= 3; i++)
             {
                 Console.WriteLine($"Creating coaster {i}...");

@@ -25,7 +25,13 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         /// <summary>
         /// First generates quads representing the maze geometry, then converts them to vertices and triangles.
-        /// This is the refactored version that uses the two-step approach.
+        /// This is the refactored version that uses the two-step approach with proper face directions 
+        /// and vertex reuse to prevent non-manifold edges.
+        /// 
+        /// Key improvements:
+        /// - Each quad now has a FaceDirection (Front, Back, Left, Right, Top, Bottom)
+        /// - Vertices are reused across quads to ensure manifold geometry
+        /// - Proper counter-clockwise winding order for outward-facing normals
         /// </summary>
         public MeshData GenerateMazeGeometry(InnerMap maze, List<MazePointPos> path)
         {
@@ -49,178 +55,179 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Ground plane quads
             AddGroundPlaneQuads(quads, maze);
 
-            // Add wall quads - inlined AddWall method logic
-            var mazeWalls = maze.GenerateListOfMazeWalls();
-            foreach (var wall in mazeWalls)
-            {
-                var isHorizontal = wall.Ystart == wall.Yend; // Check if the wall is horizontal or vertical
+            //// Add wall quads - inlined AddWall method logic
+            //var mazeWalls = maze.GenerateListOfMazeWalls();
+            //foreach (var wall in mazeWalls)
+            //{
+            //    var isHorizontal = wall.Ystart == wall.Yend; // Check if the wall is horizontal or vertical
 
-                if (isHorizontal)
-                {
-                    var xstart = wall.Xstart;
-                    var xend = wall.Xend;
+            //    if (isHorizontal)
+            //    {
+            //        var xstart = wall.Xstart;
+            //        var xend = wall.Xend;
 
-                    if (wall.Ystart > 0 && wall.Ystart < maze.Height - 2)
-                    {
-                        if (maze[wall.Xstart, wall.Ystart - 1] == false || maze[wall.Xstart, wall.Ystart + 1] == false)
-                        {
-                            xstart++;
-                        }
-                    }
-                    else if (wall.Xstart == 0)
-                    {
-                        xstart++;
-                    }
+            //        if (wall.Ystart > 0 && wall.Ystart < maze.Height - 2)
+            //        {
+            //            if (maze[wall.Xstart, wall.Ystart - 1] == false || maze[wall.Xstart, wall.Ystart + 1] == false)
+            //            {
+            //                xstart++;
+            //            }
+            //        }
+            //        else if (wall.Xstart == 0)
+            //        {
+            //            xstart++;
+            //        }
 
-                    if (wall.Yend < maze.Height - 2 && wall.Yend > 0)
-                    {
-                        if (maze[wall.Xend, wall.Yend - 1] == false || maze[wall.Xend, wall.Yend + 1] == false)
-                        {
-                            xend--;
-                        }
-                    }
-                    else if (wall.Xend == maze.Width - 2)
-                    {
-                        xend--;
-                    }
-                    AddCubeQuadsWithDimensions(quads, xstart, wall.Ystart, xend + 1, wall.Yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Horizontal wall
-                }
-                else
-                {
-                    var ystart = wall.Ystart;
-                    var yend = wall.Yend;
+            //        if (wall.Yend < maze.Height - 2 && wall.Yend > 0)
+            //        {
+            //            if (maze[wall.Xend, wall.Yend - 1] == false || maze[wall.Xend, wall.Yend + 1] == false)
+            //            {
+            //                xend--;
+            //            }
+            //        }
+            //        else if (wall.Xend == maze.Width - 2)
+            //        {
+            //            xend--;
+            //        }
+            //        AddCubeQuadsWithDimensions(quads, xstart, wall.Ystart, xend + 1, wall.Yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Horizontal wall
+            //    }
+            //    else
+            //    {
+            //        var ystart = wall.Ystart;
+            //        var yend = wall.Yend;
 
-                    if (wall.Xstart > 0 && wall.Xstart < maze.Width - 2)
-                    {
-                        if (maze[wall.Xstart - 1, wall.Ystart] == false && maze[wall.Xstart + 1, wall.Ystart] == false)
-                        {
-                            ystart++;
-                        }
-                    }
+            //        if (wall.Xstart > 0 && wall.Xstart < maze.Width - 2)
+            //        {
+            //            if (maze[wall.Xstart - 1, wall.Ystart] == false && maze[wall.Xstart + 1, wall.Ystart] == false)
+            //            {
+            //                ystart++;
+            //            }
+            //        }
 
-                    if (wall.Xend < maze.Width - 2 && wall.Xend > 0)
-                    {
-                        if (maze[wall.Xend - 1, wall.Yend] == false && maze[wall.Xend + 1, wall.Yend] == false)
-                        {
-                            yend--;
-                        }
-                    }
+            //        if (wall.Xend < maze.Width - 2 && wall.Xend > 0)
+            //        {
+            //            if (maze[wall.Xend - 1, wall.Yend] == false && maze[wall.Xend + 1, wall.Yend] == false)
+            //            {
+            //                yend--;
+            //            }
+            //        }
 
-                    AddCubeQuadsWithDimensions(quads, wall.Xstart, ystart, wall.Xend + 1, yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Vertical wall
-                }
-            }
+            //        AddCubeQuadsWithDimensions(quads, wall.Xstart, ystart, wall.Xend + 1, yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Vertical wall
+            //    }
+            //}
 
 
             Console.WriteLine($"Found {quads.Count} wall quads before optimization.");
 
-            bool quit = false;
+            //bool quit = false;
 
-            int cur = 0;
-            while (cur < quads.Count)
-            {
-                var currentQuad = quads[cur];
-                var quadsThatTouchThisQuad = quads.Where(t => t != currentQuad && t.IsMergableWith(currentQuad)).ToList();
+            //int cur = 0;
+            //while (cur < quads.Count)
+            //{
+            //    var currentQuad = quads[cur];
+            //    var quadsThatTouchThisQuad = quads.Where(t => t != currentQuad && t.IsMergableWith(currentQuad)).ToList();
 
-                if (currentQuad.QuadDirection == QuadDirection.Flat)
-                {
-                    cur++;
-                    continue;
-                }
+            //    if (currentQuad.QuadDirection == QuadDirection.Flat)
+            //    {
+            //        cur++;
+            //        continue;
+            //    }
 
-                if (quadsThatTouchThisQuad.Any())
-                {
-                    var allQuads = new List<Quad> { currentQuad }.Concat(quadsThatTouchThisQuad).ToList();
+            //    if (quadsThatTouchThisQuad.Any())
+            //    {
+            //        var allQuads = new List<Quad> { currentQuad }.Concat(quadsThatTouchThisQuad).ToList();
 
-                    Vertex mergedV1, mergedV2, mergedV3, mergedV4;
+            //        Vertex mergedV1, mergedV2, mergedV3, mergedV4;
 
-                    var allVertices = allQuads.SelectMany(t => t.Vertices).ToList();
+            //        var allVertices = allQuads.SelectMany(t => t.Vertices).ToList();
 
-                    if (currentQuad.QuadDirection == QuadDirection.Vertical)
-                    {
-                        // Merge vertically aligned quads
-                        mergedV1 = new Vertex(
-                            currentQuad.V1.X,
-                            allVertices.Min(t => t.Y),
-                            allVertices.Min(t => t.Z));
-                        mergedV2 = new Vertex(
-                            currentQuad.V2.X,
-                            allVertices.Max(t => t.Y),
-                            allVertices.Min(t => t.Z));
-                        mergedV3 = new Vertex(
-                            currentQuad.V3.X,
-                            allVertices.Max(t => t.Y),
-                            allVertices.Max(t => t.Z));
-                        mergedV4 = new Vertex(
-                            currentQuad.V4.X,
-                            allVertices.Min(t => t.Y),
-                            allVertices.Max(t => t.Z));
-                    }
-                    else if (currentQuad.QuadDirection == QuadDirection.Horizontal)
-                    {
-                        // Merge horizontally aligned quads
-                        mergedV1 = new Vertex(
-                            allVertices.Min(t => t.X),
-                            currentQuad.V1.Y,
-                            allVertices.Min(t => t.Z));
-                        mergedV2 = new Vertex(
-                            allVertices.Max(t => t.X),
-                            currentQuad.V2.Y,
-                            allVertices.Min(t => t.Z));
-                        mergedV3 = new Vertex(
-                            allVertices.Max(t => t.X),
-                            currentQuad.V3.Y,
-                            allVertices.Max(t => t.Z));
-                        mergedV4 = new Vertex(
-                            allVertices.Min(t => t.X),
-                            currentQuad.V4.Y,
-                            allVertices.Max(t => t.Z));
-                    }
-                    else //flat
-                    {
-                        // Merge flat quads
-                        mergedV1 = new Vertex(
-                            allVertices.Min(t => t.X),
-                            allVertices.Min(t => t.Y),
-                            allVertices.Min(t => t.Z));
-                        mergedV2 = new Vertex(
-                            allVertices.Max(t => t.X),
-                            allVertices.Min(t => t.Y),
-                            allVertices.Min(t => t.Z));
-                        mergedV3 = new Vertex(
-                            allVertices.Max(t => t.X),
-                            allVertices.Max(t => t.Y),
-                            allVertices.Max(t => t.Z));
-                        mergedV4 = new Vertex(
-                            allVertices.Min(t => t.X),
-                            allVertices.Max(t => t.Y),
-                            allVertices.Max(t => t.Z));
-                    }
+            //        if (currentQuad.QuadDirection == QuadDirection.Vertical)
+            //        {
+            //            // Merge vertically aligned quads
+            //            mergedV1 = new Vertex(
+            //                currentQuad.V1.X,
+            //                allVertices.Min(t => t.Y),
+            //                allVertices.Min(t => t.Z));
+            //            mergedV2 = new Vertex(
+            //                currentQuad.V2.X,
+            //                allVertices.Max(t => t.Y),
+            //                allVertices.Min(t => t.Z));
+            //            mergedV3 = new Vertex(
+            //                currentQuad.V3.X,
+            //                allVertices.Max(t => t.Y),
+            //                allVertices.Max(t => t.Z));
+            //            mergedV4 = new Vertex(
+            //                currentQuad.V4.X,
+            //                allVertices.Min(t => t.Y),
+            //                allVertices.Max(t => t.Z));
+            //        }
+            //        else if (currentQuad.QuadDirection == QuadDirection.Horizontal)
+            //        {
+            //            // Merge horizontally aligned quads
+            //            mergedV1 = new Vertex(
+            //                allVertices.Min(t => t.X),
+            //                currentQuad.V1.Y,
+            //                allVertices.Min(t => t.Z));
+            //            mergedV2 = new Vertex(
+            //                allVertices.Max(t => t.X),
+            //                currentQuad.V2.Y,
+            //                allVertices.Min(t => t.Z));
+            //            mergedV3 = new Vertex(
+            //                allVertices.Max(t => t.X),
+            //                currentQuad.V3.Y,
+            //                allVertices.Max(t => t.Z));
+            //            mergedV4 = new Vertex(
+            //                allVertices.Min(t => t.X),
+            //                currentQuad.V4.Y,
+            //                allVertices.Max(t => t.Z));
+            //        }
+            //        else //flat
+            //        {
+            //            // Merge flat quads
+            //            mergedV1 = new Vertex(
+            //                allVertices.Min(t => t.X),
+            //                allVertices.Min(t => t.Y),
+            //                allVertices.Min(t => t.Z));
+            //            mergedV2 = new Vertex(
+            //                allVertices.Max(t => t.X),
+            //                allVertices.Min(t => t.Y),
+            //                allVertices.Min(t => t.Z));
+            //            mergedV3 = new Vertex(
+            //                allVertices.Max(t => t.X),
+            //                allVertices.Max(t => t.Y),
+            //                allVertices.Max(t => t.Z));
+            //            mergedV4 = new Vertex(
+            //                allVertices.Min(t => t.X),
+            //                allVertices.Max(t => t.Y),
+            //                allVertices.Max(t => t.Z));
+            //        }
 
-                    //Merge overlapping quads
-                    var mergedQuad = new Quad(
-                        mergedV1,
-                        mergedV2,
-                        mergedV3,
-                        mergedV4,
-                        currentQuad.PaintColor
-                        );
+            //        //Merge overlapping quads
+            //        var mergedQuad = new Quad(
+            //            mergedV1,
+            //            mergedV2,
+            //            mergedV3,
+            //            mergedV4,
+            //            currentQuad.PaintColor,
+            //            currentQuad.FaceDirection
+            //            );
 
-                    //Remove all quads that were merged
-                    quads.RemoveAll(t => t == currentQuad || quadsThatTouchThisQuad.Contains(t));
-                    //Add the merged quad
-                    quads.Add(mergedQuad);
+            //        //Remove all quads that were merged
+            //        quads.RemoveAll(t => t == currentQuad || quadsThatTouchThisQuad.Contains(t));
+            //        //Add the merged quad
+            //        quads.Add(mergedQuad);
 
-                }
-                else
-                {
-                    cur++;
-                }
+            //    }
+            //    else
+            //    {
+            //        cur++;
+            //    }
 
-                if (quit)
-                {
-                    break;
-                }
-            }
+            //    if (quit)
+            //    {
+            //        break;
+            //    }
+            //}
 
             //var blah = quads.OrderBy(t => t.QuadDirection).ThenBy(t => t.V1.X).ThenBy(t => t.V1.Y).ThenBy(t => t.V1.Z).ToList();
 
@@ -229,42 +236,58 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             Console.WriteLine($"Found {quads.Count} wall quads after optimization.");
 
 
-            // Path cube quads - only within the valid maze area (excluding rightmost and bottommost edge)
-            foreach (var point in pathData.PathSet)
-            {
-                if (point.X < maze.Width - 1 && point.Y < maze.Height - 1 && maze[point.X, point.Y]) // Open space that's part of the path and within valid area
-                {
-                    // Determine color based on position in path (0-255)
-                    var relativePos = pathData.PathPositions[point];
-                    var paintColor = relativePos < 128 ? Colors[2] : Colors[3];
+            //// Path cube quads - only within the valid maze area (excluding rightmost and bottommost edge)
+            //foreach (var point in pathData.PathSet)
+            //{
+            //    if (point.X < maze.Width - 1 && point.Y < maze.Height - 1 && maze[point.X, point.Y]) // Open space that's part of the path and within valid area
+            //    {
+            //        // Determine color based on position in path (0-255)
+            //        var relativePos = pathData.PathPositions[point];
+            //        var paintColor = relativePos < 128 ? Colors[2] : Colors[3];
 
-                    AddCubeQuads(quads, point.X, point.Y, GroundHeight, GroundHeight + PathHeight, paintColor);
-                }
-            }
+            //        AddCubeQuads(quads, point.X, point.Y, GroundHeight, GroundHeight + PathHeight, paintColor);
+            //    }
+            //}
 
             return quads;
         }
 
         /// <summary>
-        /// Converts a list of quads to mesh data (vertices and triangles).
+        /// Converts a list of quads to mesh data (vertices and triangles) with proper vertex reuse and winding order.
+        /// Uses FaceDirection to determine correct triangle winding for outward-facing normals.
         /// </summary>
         public MeshData ConvertQuadsToMesh(List<Quad> quads)
         {
             var meshData = new MeshData();
+            var vertexToIndex = new Dictionary<Vertex, int>();
 
             foreach (var quad in quads)
             {
-                // Add the 4 vertices of the quad
-                int baseIndex = meshData.Vertices.Count;
-                meshData.Vertices.Add(quad.V1);
-                meshData.Vertices.Add(quad.V2);
-                meshData.Vertices.Add(quad.V3);
-                meshData.Vertices.Add(quad.V4);
+                // Get vertices in correct winding order for outward-facing normals
+                var orderedVertices = quad.GetOrderedVertices();
 
-                // Create 2 triangles from the quad (assuming vertices are in correct order)
-                meshData.Triangles.Add(new Triangle(baseIndex + 0, baseIndex + 2, baseIndex + 1, quad.PaintColor));
-                meshData.Triangles.Add(new Triangle(baseIndex + 0, baseIndex + 3, baseIndex + 2, quad.PaintColor));
+                // Get or create vertex indices with reuse
+                var indices = new int[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    var vertex = orderedVertices[i];
+                    if (!vertexToIndex.TryGetValue(vertex, out int index))
+                    {
+                        index = meshData.Vertices.Count;
+                        meshData.Vertices.Add(vertex);
+                        vertexToIndex[vertex] = index;
+                    }
+                    indices[i] = index;
+                }
+
+                // Create 2 triangles from the quad with correct winding order (counter-clockwise)
+                // Triangle 1: indices[0], indices[1], indices[2]
+                // Triangle 2: indices[0], indices[2], indices[3]
+                meshData.Triangles.Add(new Triangle(indices[0], indices[1], indices[2], quad.PaintColor));
+                meshData.Triangles.Add(new Triangle(indices[0], indices[2], indices[3], quad.PaintColor));
             }
+
+            Console.WriteLine($"Converted {quads.Count} quads to {meshData.Vertices.Count} unique vertices and {meshData.Triangles.Count} triangles.");
 
             return meshData;
         }
@@ -277,7 +300,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(maze.Width - 1, 0, 0),
                 new Vertex(maze.Width - 1, maze.Height - 1, 0),
                 new Vertex(0, maze.Height - 1, 0),
-                Colors[0]
+                Colors[0],
+                FaceDirection.Bottom
             ));
 
             // Top face (z = GroundHeight) - white
@@ -286,7 +310,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(maze.Width - 1, 0, GroundHeight),
                 new Vertex(maze.Width - 1, maze.Height - 1, GroundHeight),
                 new Vertex(0, maze.Height - 1, GroundHeight),
-                Colors[1]
+                Colors[1],
+                FaceDirection.Top
             ));
 
             // Side faces - black
@@ -296,7 +321,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(maze.Width - 1, 0, 0),
                 new Vertex(maze.Width - 1, 0, GroundHeight),
                 new Vertex(0, 0, GroundHeight),
-                Colors[0]
+                Colors[0],
+                FaceDirection.Front
             ));
 
             // Right face
@@ -305,7 +331,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(maze.Width - 1, maze.Height - 1, 0),
                 new Vertex(maze.Width - 1, maze.Height - 1, GroundHeight),
                 new Vertex(maze.Width - 1, 0, GroundHeight),
-                Colors[0]
+                Colors[0],
+                FaceDirection.Right
             ));
 
             // Back face
@@ -314,7 +341,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(0, maze.Height - 1, 0),
                 new Vertex(0, maze.Height - 1, GroundHeight),
                 new Vertex(maze.Width - 1, maze.Height - 1, GroundHeight),
-                Colors[0]
+                Colors[0],
+                FaceDirection.Back
             ));
 
             // Left face
@@ -323,7 +351,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(0, 0, 0),
                 new Vertex(0, 0, GroundHeight),
                 new Vertex(0, maze.Height - 1, GroundHeight),
-                Colors[0]
+                Colors[0],
+                FaceDirection.Left
             ));
         }
 
@@ -340,7 +369,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(endX, y, zBottom),
                 new Vertex(endX, endY, zBottom),
                 new Vertex(x, endY, zBottom),
-                paintColor
+                paintColor,
+                FaceDirection.Bottom
             ));
 
             // Top face
@@ -349,7 +379,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(endX, y, zTop),
                 new Vertex(endX, endY, zTop),
                 new Vertex(x, endY, zTop),
-                paintColor
+                paintColor,
+                FaceDirection.Top
             ));
 
             // Front face
@@ -358,7 +389,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(endX, y, zBottom),
                 new Vertex(endX, y, zTop),
                 new Vertex(x, y, zTop),
-                paintColor
+                paintColor,
+                FaceDirection.Front
             ));
 
             // Right face
@@ -367,7 +399,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(endX, endY, zBottom),
                 new Vertex(endX, endY, zTop),
                 new Vertex(endX, y, zTop),
-                paintColor
+                paintColor,
+                FaceDirection.Right
             ));
 
             // Back face
@@ -376,7 +409,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(x, endY, zBottom),
                 new Vertex(x, endY, zTop),
                 new Vertex(endX, endY, zTop),
-                paintColor
+                paintColor,
+                FaceDirection.Back
             ));
 
             // Left face
@@ -385,7 +419,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(x, y, zBottom),
                 new Vertex(x, y, zTop),
                 new Vertex(x, endY, zTop),
-                paintColor
+                paintColor,
+                FaceDirection.Left
             ));
         }
 
@@ -496,38 +531,38 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         {
             int baseIndex = vertices.Count;
 
-            // Bottom vertices - exclude the rightmost and bottommost edge (following image generation convention)
-            vertices.Add(new Vertex(0, 0, 0));
-            vertices.Add(new Vertex(maze.Width - 1, 0, 0));
-            vertices.Add(new Vertex(maze.Width - 1, maze.Height - 1, 0));
-            vertices.Add(new Vertex(0, maze.Height - 1, 0));
+            // Add vertices in the same order as the working Blender cube
+            // Top face vertices first (z = GroundHeight) - vertices 0,1,2,3
+            vertices.Add(new Vertex(maze.Width - 1, 0, GroundHeight));          // 0 - bottom-right of top face
+            vertices.Add(new Vertex(0, 0, GroundHeight));                       // 1 - bottom-left of top face  
+            vertices.Add(new Vertex(0, maze.Height - 1, GroundHeight));         // 2 - top-left of top face
+            vertices.Add(new Vertex(maze.Width - 1, maze.Height - 1, GroundHeight)); // 3 - top-right of top face
 
-            // Top vertices
-            vertices.Add(new Vertex(0, 0, GroundHeight));
-            vertices.Add(new Vertex(maze.Width - 1, 0, GroundHeight));
-            vertices.Add(new Vertex(maze.Width - 1, maze.Height - 1, GroundHeight));
-            vertices.Add(new Vertex(0, maze.Height - 1, GroundHeight));
+            // Bottom face vertices (z = 0) - vertices 4,5,6,7
+            vertices.Add(new Vertex(maze.Width - 1, maze.Height - 1, 0));       // 4 - top-right of bottom face
+            vertices.Add(new Vertex(0, maze.Height - 1, 0));                    // 5 - top-left of bottom face
+            vertices.Add(new Vertex(0, 0, 0));                                  // 6 - bottom-left of bottom face
+            vertices.Add(new Vertex(maze.Width - 1, 0, 0));                     // 7 - bottom-right of bottom face
 
-            // Bottom face (z = 0) - black
-            triangles.Add(new Triangle(baseIndex + 0, baseIndex + 2, baseIndex + 1, Colors[0]));
-            triangles.Add(new Triangle(baseIndex + 0, baseIndex + 3, baseIndex + 2, Colors[0]));
+            // Top face (z = GroundHeight) - white - same pattern as Blender
+            triangles.Add(new Triangle(baseIndex + 0, baseIndex + 1, baseIndex + 2, Colors[1]));
+            triangles.Add(new Triangle(baseIndex + 0, baseIndex + 2, baseIndex + 3, Colors[1]));
 
-            // Top face (z = GroundHeight) - white
-            triangles.Add(new Triangle(baseIndex + 4, baseIndex + 5, baseIndex + 6, Colors[1]));
-            triangles.Add(new Triangle(baseIndex + 4, baseIndex + 6, baseIndex + 7, Colors[1]));
+            // All other faces - black - following exact Blender triangle patterns
+            triangles.Add(new Triangle(baseIndex + 4, baseIndex + 3, baseIndex + 2, Colors[0])); // Bottom face
+            triangles.Add(new Triangle(baseIndex + 4, baseIndex + 2, baseIndex + 5, Colors[0]));
 
-            // Side faces - black
-            triangles.Add(new Triangle(baseIndex + 0, baseIndex + 1, baseIndex + 5, Colors[0])); // Front
-            triangles.Add(new Triangle(baseIndex + 0, baseIndex + 5, baseIndex + 4, Colors[0]));
+            triangles.Add(new Triangle(baseIndex + 5, baseIndex + 2, baseIndex + 1, Colors[0])); // Left face
+            triangles.Add(new Triangle(baseIndex + 5, baseIndex + 1, baseIndex + 6, Colors[0]));
 
-            triangles.Add(new Triangle(baseIndex + 1, baseIndex + 2, baseIndex + 6, Colors[0])); // Right
-            triangles.Add(new Triangle(baseIndex + 1, baseIndex + 6, baseIndex + 5, Colors[0]));
+            triangles.Add(new Triangle(baseIndex + 6, baseIndex + 7, baseIndex + 4, Colors[0])); // Front face
+            triangles.Add(new Triangle(baseIndex + 6, baseIndex + 4, baseIndex + 5, Colors[0]));
 
-            triangles.Add(new Triangle(baseIndex + 2, baseIndex + 3, baseIndex + 7, Colors[0])); // Back
-            triangles.Add(new Triangle(baseIndex + 2, baseIndex + 7, baseIndex + 6, Colors[0]));
+            triangles.Add(new Triangle(baseIndex + 7, baseIndex + 0, baseIndex + 3, Colors[0])); // Right face
+            triangles.Add(new Triangle(baseIndex + 7, baseIndex + 3, baseIndex + 4, Colors[0]));
 
-            triangles.Add(new Triangle(baseIndex + 3, baseIndex + 0, baseIndex + 4, Colors[0])); // Left
-            triangles.Add(new Triangle(baseIndex + 3, baseIndex + 4, baseIndex + 7, Colors[0]));
+            triangles.Add(new Triangle(baseIndex + 6, baseIndex + 1, baseIndex + 0, Colors[0])); // Back face
+            triangles.Add(new Triangle(baseIndex + 6, baseIndex + 0, baseIndex + 7, Colors[0]));
         }
 
         private void AddCube(List<Vertex> vertices, List<Triangle> triangles, int x, int y, float zBottom, float zTop, string paintColor)
@@ -652,5 +687,6 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
             return groundFaces + cubeFaces;
         }
+
     }
 }
