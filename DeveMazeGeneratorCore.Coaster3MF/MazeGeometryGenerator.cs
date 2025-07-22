@@ -55,185 +55,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Ground plane quads
             AddGroundPlaneQuads(quads, maze);
 
-            //// Add wall quads - inlined AddWall method logic
-            //var mazeWalls = maze.GenerateListOfMazeWalls();
-            //foreach (var wall in mazeWalls)
-            //{
-            //    var isHorizontal = wall.Ystart == wall.Yend; // Check if the wall is horizontal or vertical
-
-            //    if (isHorizontal)
-            //    {
-            //        var xstart = wall.Xstart;
-            //        var xend = wall.Xend;
-
-            //        if (wall.Ystart > 0 && wall.Ystart < maze.Height - 2)
-            //        {
-            //            if (maze[wall.Xstart, wall.Ystart - 1] == false || maze[wall.Xstart, wall.Ystart + 1] == false)
-            //            {
-            //                xstart++;
-            //            }
-            //        }
-            //        else if (wall.Xstart == 0)
-            //        {
-            //            xstart++;
-            //        }
-
-            //        if (wall.Yend < maze.Height - 2 && wall.Yend > 0)
-            //        {
-            //            if (maze[wall.Xend, wall.Yend - 1] == false || maze[wall.Xend, wall.Yend + 1] == false)
-            //            {
-            //                xend--;
-            //            }
-            //        }
-            //        else if (wall.Xend == maze.Width - 2)
-            //        {
-            //            xend--;
-            //        }
-            //        AddCubeQuadsWithDimensions(quads, xstart, wall.Ystart, xend + 1, wall.Yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Horizontal wall
-            //    }
-            //    else
-            //    {
-            //        var ystart = wall.Ystart;
-            //        var yend = wall.Yend;
-
-            //        if (wall.Xstart > 0 && wall.Xstart < maze.Width - 2)
-            //        {
-            //            if (maze[wall.Xstart - 1, wall.Ystart] == false && maze[wall.Xstart + 1, wall.Ystart] == false)
-            //            {
-            //                ystart++;
-            //            }
-            //        }
-
-            //        if (wall.Xend < maze.Width - 2 && wall.Xend > 0)
-            //        {
-            //            if (maze[wall.Xend - 1, wall.Yend] == false && maze[wall.Xend + 1, wall.Yend] == false)
-            //            {
-            //                yend--;
-            //            }
-            //        }
-
-            //        AddCubeQuadsWithDimensions(quads, wall.Xstart, ystart, wall.Xend + 1, yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Vertical wall
-            //    }
-            //}
+            // Add wall quads - inlined AddWall method logic
+            AddMazeWalls(maze, quads);
 
 
-            Console.WriteLine($"Found {quads.Count} wall quads before optimization.");
-
-            //bool quit = false;
-
-            //int cur = 0;
-            //while (cur < quads.Count)
-            //{
-            //    var currentQuad = quads[cur];
-            //    var quadsThatTouchThisQuad = quads.Where(t => t != currentQuad && t.IsMergableWith(currentQuad)).ToList();
-
-            //    if (currentQuad.QuadDirection == QuadDirection.Flat)
-            //    {
-            //        cur++;
-            //        continue;
-            //    }
-
-            //    if (quadsThatTouchThisQuad.Any())
-            //    {
-            //        var allQuads = new List<Quad> { currentQuad }.Concat(quadsThatTouchThisQuad).ToList();
-
-            //        Vertex mergedV1, mergedV2, mergedV3, mergedV4;
-
-            //        var allVertices = allQuads.SelectMany(t => t.Vertices).ToList();
-
-            //        if (currentQuad.QuadDirection == QuadDirection.Vertical)
-            //        {
-            //            // Merge vertically aligned quads
-            //            mergedV1 = new Vertex(
-            //                currentQuad.V1.X,
-            //                allVertices.Min(t => t.Y),
-            //                allVertices.Min(t => t.Z));
-            //            mergedV2 = new Vertex(
-            //                currentQuad.V2.X,
-            //                allVertices.Max(t => t.Y),
-            //                allVertices.Min(t => t.Z));
-            //            mergedV3 = new Vertex(
-            //                currentQuad.V3.X,
-            //                allVertices.Max(t => t.Y),
-            //                allVertices.Max(t => t.Z));
-            //            mergedV4 = new Vertex(
-            //                currentQuad.V4.X,
-            //                allVertices.Min(t => t.Y),
-            //                allVertices.Max(t => t.Z));
-            //        }
-            //        else if (currentQuad.QuadDirection == QuadDirection.Horizontal)
-            //        {
-            //            // Merge horizontally aligned quads
-            //            mergedV1 = new Vertex(
-            //                allVertices.Min(t => t.X),
-            //                currentQuad.V1.Y,
-            //                allVertices.Min(t => t.Z));
-            //            mergedV2 = new Vertex(
-            //                allVertices.Max(t => t.X),
-            //                currentQuad.V2.Y,
-            //                allVertices.Min(t => t.Z));
-            //            mergedV3 = new Vertex(
-            //                allVertices.Max(t => t.X),
-            //                currentQuad.V3.Y,
-            //                allVertices.Max(t => t.Z));
-            //            mergedV4 = new Vertex(
-            //                allVertices.Min(t => t.X),
-            //                currentQuad.V4.Y,
-            //                allVertices.Max(t => t.Z));
-            //        }
-            //        else //flat
-            //        {
-            //            // Merge flat quads
-            //            mergedV1 = new Vertex(
-            //                allVertices.Min(t => t.X),
-            //                allVertices.Min(t => t.Y),
-            //                allVertices.Min(t => t.Z));
-            //            mergedV2 = new Vertex(
-            //                allVertices.Max(t => t.X),
-            //                allVertices.Min(t => t.Y),
-            //                allVertices.Min(t => t.Z));
-            //            mergedV3 = new Vertex(
-            //                allVertices.Max(t => t.X),
-            //                allVertices.Max(t => t.Y),
-            //                allVertices.Max(t => t.Z));
-            //            mergedV4 = new Vertex(
-            //                allVertices.Min(t => t.X),
-            //                allVertices.Max(t => t.Y),
-            //                allVertices.Max(t => t.Z));
-            //        }
-
-            //        //Merge overlapping quads
-            //        var mergedQuad = new Quad(
-            //            mergedV1,
-            //            mergedV2,
-            //            mergedV3,
-            //            mergedV4,
-            //            currentQuad.PaintColor,
-            //            currentQuad.FaceDirection
-            //            );
-
-            //        //Remove all quads that were merged
-            //        quads.RemoveAll(t => t == currentQuad || quadsThatTouchThisQuad.Contains(t));
-            //        //Add the merged quad
-            //        quads.Add(mergedQuad);
-
-            //    }
-            //    else
-            //    {
-            //        cur++;
-            //    }
-
-            //    if (quit)
-            //    {
-            //        break;
-            //    }
-            //}
-
-            //var blah = quads.OrderBy(t => t.QuadDirection).ThenBy(t => t.V1.X).ThenBy(t => t.V1.Y).ThenBy(t => t.V1.Z).ToList();
-
-            //quads = blah.Where(t => t.QuadDirection != QuadDirection.Flat).ToList();
-
-            Console.WriteLine($"Found {quads.Count} wall quads after optimization.");
+            OptimizeQuads(quads);
 
 
             //// Path cube quads - only within the valid maze area (excluding rightmost and bottommost edge)
@@ -250,6 +76,190 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             //}
 
             return quads;
+        }
+
+        private static void OptimizeQuads(List<Quad> quads)
+        {
+            Console.WriteLine($"Found {quads.Count} wall quads before optimization.");
+
+            bool quit = false;
+
+            int cur = 0;
+            while (cur < quads.Count)
+            {
+                var currentQuad = quads[cur];
+                var quadsThatTouchThisQuad = quads.Where(t => t != currentQuad && t.IsMergableWith(currentQuad)).ToList();
+
+                if (currentQuad.QuadDirection == QuadDirection.Flat)
+                {
+                    cur++;
+                    continue;
+                }
+
+                if (quadsThatTouchThisQuad.Any())
+                {
+                    var allQuads = new List<Quad> { currentQuad }.Concat(quadsThatTouchThisQuad).ToList();
+
+                    Vertex mergedV1, mergedV2, mergedV3, mergedV4;
+
+                    var allVertices = allQuads.SelectMany(t => t.Vertices).ToList();
+
+                    if (currentQuad.QuadDirection == QuadDirection.Vertical)
+                    {
+                        // Merge vertically aligned quads
+                        mergedV1 = new Vertex(
+                            currentQuad.V1.X,
+                            allVertices.Min(t => t.Y),
+                            allVertices.Min(t => t.Z));
+                        mergedV2 = new Vertex(
+                            currentQuad.V2.X,
+                            allVertices.Max(t => t.Y),
+                            allVertices.Min(t => t.Z));
+                        mergedV3 = new Vertex(
+                            currentQuad.V3.X,
+                            allVertices.Max(t => t.Y),
+                            allVertices.Max(t => t.Z));
+                        mergedV4 = new Vertex(
+                            currentQuad.V4.X,
+                            allVertices.Min(t => t.Y),
+                            allVertices.Max(t => t.Z));
+                    }
+                    else if (currentQuad.QuadDirection == QuadDirection.Horizontal)
+                    {
+                        // Merge horizontally aligned quads
+                        mergedV1 = new Vertex(
+                            allVertices.Min(t => t.X),
+                            currentQuad.V1.Y,
+                            allVertices.Min(t => t.Z));
+                        mergedV2 = new Vertex(
+                            allVertices.Max(t => t.X),
+                            currentQuad.V2.Y,
+                            allVertices.Min(t => t.Z));
+                        mergedV3 = new Vertex(
+                            allVertices.Max(t => t.X),
+                            currentQuad.V3.Y,
+                            allVertices.Max(t => t.Z));
+                        mergedV4 = new Vertex(
+                            allVertices.Min(t => t.X),
+                            currentQuad.V4.Y,
+                            allVertices.Max(t => t.Z));
+                    }
+                    else //flat
+                    {
+                        // Merge flat quads
+                        mergedV1 = new Vertex(
+                            allVertices.Min(t => t.X),
+                            allVertices.Min(t => t.Y),
+                            allVertices.Min(t => t.Z));
+                        mergedV2 = new Vertex(
+                            allVertices.Max(t => t.X),
+                            allVertices.Min(t => t.Y),
+                            allVertices.Min(t => t.Z));
+                        mergedV3 = new Vertex(
+                            allVertices.Max(t => t.X),
+                            allVertices.Max(t => t.Y),
+                            allVertices.Max(t => t.Z));
+                        mergedV4 = new Vertex(
+                            allVertices.Min(t => t.X),
+                            allVertices.Max(t => t.Y),
+                            allVertices.Max(t => t.Z));
+                    }
+
+                    //Merge overlapping quads
+                    var mergedQuad = new Quad(
+                        mergedV1,
+                        mergedV2,
+                        mergedV3,
+                        mergedV4,
+                        currentQuad.PaintColor,
+                        currentQuad.FaceDirection
+                        );
+
+                    //Remove all quads that were merged
+                    quads.RemoveAll(t => t == currentQuad || quadsThatTouchThisQuad.Contains(t));
+                    //Add the merged quad
+                    quads.Add(mergedQuad);
+
+                }
+                else
+                {
+                    cur++;
+                }
+
+                if (quit)
+                {
+                    break;
+                }
+            }
+
+            //var blah = quads.OrderBy(t => t.QuadDirection).ThenBy(t => t.V1.X).ThenBy(t => t.V1.Y).ThenBy(t => t.V1.Z).ToList();
+
+            //quads = blah.Where(t => t.QuadDirection != QuadDirection.Flat).ToList();
+
+            Console.WriteLine($"Found {quads.Count} wall quads after optimization.");
+        }
+
+        private void AddMazeWalls(InnerMap maze, List<Quad> quads)
+        {
+            var mazeWalls = maze.GenerateListOfMazeWalls();
+            foreach (var wall in mazeWalls)
+            {
+                var isHorizontal = wall.Ystart == wall.Yend; // Check if the wall is horizontal or vertical
+
+                if (isHorizontal)
+                {
+                    var xstart = wall.Xstart;
+                    var xend = wall.Xend;
+
+                    if (wall.Ystart > 0 && wall.Ystart < maze.Height - 2)
+                    {
+                        if (maze[wall.Xstart, wall.Ystart - 1] == false || maze[wall.Xstart, wall.Ystart + 1] == false)
+                        {
+                            xstart++;
+                        }
+                    }
+                    else if (wall.Xstart == 0)
+                    {
+                        xstart++;
+                    }
+
+                    if (wall.Yend < maze.Height - 2 && wall.Yend > 0)
+                    {
+                        if (maze[wall.Xend, wall.Yend - 1] == false || maze[wall.Xend, wall.Yend + 1] == false)
+                        {
+                            xend--;
+                        }
+                    }
+                    else if (wall.Xend == maze.Width - 2)
+                    {
+                        xend--;
+                    }
+                    AddCubeQuadsWithDimensions(quads, xstart, wall.Ystart, xend + 1, wall.Yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Horizontal wall
+                }
+                else
+                {
+                    var ystart = wall.Ystart;
+                    var yend = wall.Yend;
+
+                    if (wall.Xstart > 0 && wall.Xstart < maze.Width - 2)
+                    {
+                        if (maze[wall.Xstart - 1, wall.Ystart] == false && maze[wall.Xstart + 1, wall.Ystart] == false)
+                        {
+                            ystart++;
+                        }
+                    }
+
+                    if (wall.Xend < maze.Width - 2 && wall.Xend > 0)
+                    {
+                        if (maze[wall.Xend - 1, wall.Yend] == false && maze[wall.Xend + 1, wall.Yend] == false)
+                        {
+                            yend--;
+                        }
+                    }
+
+                    AddCubeQuadsWithDimensions(quads, wall.Xstart, ystart, wall.Xend + 1, yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Vertical wall
+                }
+            }
         }
 
         /// <summary>
