@@ -66,8 +66,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             MeshOptimizer.CullHiddenFaces(quads);
 
             // Additional quad optimizations (merging adjacent quads) applied after adding paths
-            // Even though this algorithm is quite cool, it doesn't work as it causes non-manifold edges
-            //MeshOptimizer.OptimizeQuads(quads);
+            // Mesh optimization is disabled because current algorithms create non-manifold edges
+            // See research in MeshOptimizer.OptimizeQuadsManifoldAware for details on the challenges
+            // MeshOptimizer.OptimizeQuadsManifoldAware(quads);
 
             return quads;
         }
