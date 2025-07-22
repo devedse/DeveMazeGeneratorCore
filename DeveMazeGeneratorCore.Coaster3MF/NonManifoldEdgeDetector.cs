@@ -33,17 +33,29 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         public class DetectionResult
         {
             public bool IsManifold => !HasNonManifoldEdges && !HasInconsistentWinding && !HasDuplicateVertices;
-            
+
             public bool HasNonManifoldEdges { get; set; }
             public bool HasInconsistentWinding { get; set; }
             public bool HasDuplicateVertices { get; set; }
-            
+
             public List<Edge> NonManifoldEdges { get; } = new();
             public List<Edge> BorderEdges { get; } = new();
             public List<DirectedEdge> InconsistentEdges { get; } = new();
             public List<(int Index1, int Index2)> DuplicateVertices { get; } = new();
-            
+
             public Dictionary<Edge, int> EdgeTriangleCounts { get; } = new();
+
+            public string ToString(string prefix)
+            {
+                return $"{prefix}Manifold: {IsManifold}{Environment.NewLine}" +
+                       $"{prefix}Non-manifold edges: {NonManifoldEdges.Count}{Environment.NewLine}" +
+                       $"{prefix}Border edges: {BorderEdges.Count}{Environment.NewLine}" +
+                       $"{prefix}Inconsistent winding edges: {InconsistentEdges.Count}{Environment.NewLine}" +
+                       $"{prefix}Duplicate vertices: {DuplicateVertices.Count}{Environment.NewLine}" +
+                       $"{prefix}Edge triangle counts: {EdgeTriangleCounts.Count}";
+            }
+
+            public override string ToString() => ToString(string.Empty);
         }
 
         /// <summary>
@@ -54,16 +66,16 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         public DetectionResult AnalyzeMesh(MeshData meshData)
         {
             var result = new DetectionResult();
-            
+
             // Detect duplicate vertices
             DetectDuplicateVertices(meshData, result);
-            
+
             // Analyze edge topology
             AnalyzeEdgeTopology(meshData, result);
-            
+
             // Check winding consistency
             CheckWindingConsistency(meshData, result);
-            
+
             return result;
         }
 
@@ -73,19 +85,19 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         private void DetectDuplicateVertices(MeshData meshData, DetectionResult result)
         {
             const float tolerance = 1e-6f;
-            
+
             for (int i = 0; i < meshData.Vertices.Count; i++)
             {
                 for (int j = i + 1; j < meshData.Vertices.Count; j++)
                 {
                     var v1 = meshData.Vertices[i];
                     var v2 = meshData.Vertices[j];
-                    
+
                     var dx = v1.X - v2.X;
                     var dy = v1.Y - v2.Y;
                     var dz = v1.Z - v2.Z;
                     var distanceSquared = dx * dx + dy * dy + dz * dz;
-                    
+
                     if (distanceSquared < tolerance * tolerance)
                     {
                         result.DuplicateVertices.Add((i, j));
@@ -101,7 +113,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         private void AnalyzeEdgeTopology(MeshData meshData, DetectionResult result)
         {
             var edgeCounts = new Dictionary<Edge, int>();
-            
+
             // Count how many triangles share each edge
             foreach (var triangle in meshData.Triangles)
             {
@@ -111,18 +123,18 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     Edge.CreateNormalized(triangle.V2, triangle.V3),
                     Edge.CreateNormalized(triangle.V3, triangle.V1)
                 };
-                
+
                 foreach (var edge in edges)
                 {
                     edgeCounts[edge] = edgeCounts.GetValueOrDefault(edge, 0) + 1;
                 }
             }
-            
+
             // Classify edges based on triangle count
             foreach (var (edge, count) in edgeCounts)
             {
                 result.EdgeTriangleCounts[edge] = count;
-                
+
                 if (count == 1)
                 {
                     // Border edge (shared by only 1 triangle)
@@ -143,7 +155,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         private void CheckWindingConsistency(MeshData meshData, DetectionResult result)
         {
             var edgeToTriangles = new Dictionary<Edge, List<(Triangle Triangle, bool IsForward)>>();
-            
+
             // Map each edge to the triangles that use it and track winding direction
             foreach (var triangle in meshData.Triangles)
             {
@@ -153,16 +165,16 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     (Edge.CreateNormalized(triangle.V2, triangle.V3), triangle.V2 < triangle.V3),
                     (Edge.CreateNormalized(triangle.V3, triangle.V1), triangle.V3 < triangle.V1)
                 };
-                
+
                 foreach (var (edge, isForward) in edges)
                 {
                     if (!edgeToTriangles.ContainsKey(edge))
                         edgeToTriangles[edge] = new List<(Triangle, bool)>();
-                    
+
                     edgeToTriangles[edge].Add((triangle, isForward));
                 }
             }
-            
+
             // Check for inconsistent winding on edges shared by exactly 2 triangles
             foreach (var (edge, triangleInfos) in edgeToTriangles)
             {
@@ -170,7 +182,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 {
                     var first = triangleInfos[0];
                     var second = triangleInfos[1];
-                    
+
                     // Adjacent triangles should have opposite winding on shared edge
                     if (first.IsForward == second.IsForward)
                     {
@@ -187,33 +199,33 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         public static MeshData CreateTestMesh(string meshType)
         {
             var meshData = new MeshData();
-            
+
             switch (meshType.ToLowerInvariant())
             {
                 case "validcube":
                     CreateValidCube(meshData);
                     break;
-                    
+
                 case "nonmanifoldy":
                     CreateNonManifoldYMesh(meshData);
                     break;
-                    
+
                 case "borderhole":
                     CreateMeshWithHole(meshData);
                     break;
-                    
+
                 case "inconsistentwinding":
                     CreateInconsistentWindingMesh(meshData);
                     break;
-                    
+
                 case "duplicatevertices":
                     CreateDuplicateVerticesMesh(meshData);
                     break;
-                    
+
                 default:
                     throw new ArgumentException($"Unknown test mesh type: {meshType}");
             }
-            
+
             return meshData;
         }
 
@@ -231,9 +243,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(1, 1, 1), // 6
                 new Vertex(0, 1, 1)  // 7
             };
-            
+
             meshData.Vertices.AddRange(vertices);
-            
+
             // Define triangles with consistent winding (counter-clockwise when viewed from outside)
             var triangles = new[]
             {
@@ -261,7 +273,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Triangle(3, 0, 4, ""),
                 new Triangle(3, 4, 7, "")
             };
-            
+
             meshData.Triangles.AddRange(triangles);
         }
 
@@ -277,9 +289,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(1.5f, 1, 0), // 4
                 new Vertex(1, -1, 0), // 5
             };
-            
+
             meshData.Vertices.AddRange(vertices);
-            
+
             // Three triangles sharing the edge (0,1) - this creates a non-manifold edge
             var triangles = new[]
             {
@@ -287,7 +299,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Triangle(0, 1, 5, ""), // Second triangle (shares edge 0-1)
                 new Triangle(1, 0, 2, ""), // Third triangle (shares edge 0-1, but with opposite direction)
             };
-            
+
             meshData.Triangles.AddRange(triangles);
         }
 
@@ -307,13 +319,13 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(1.5f, 0.5f, 0), // 5
                 new Vertex(1, 1.5f, 0), // 6
             };
-            
+
             meshData.Vertices.AddRange(vertices);
-            
+
             var triangles = new[]
             {
                 // Outer triangles (with hole)
-                new Triangle(0, 1, 4, ""), 
+                new Triangle(0, 1, 4, ""),
                 new Triangle(1, 5, 4, ""),
                 new Triangle(1, 2, 5, ""),
                 new Triangle(2, 6, 5, ""),
@@ -323,7 +335,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 
                 // The hole creates border edges around triangle 4-5-6
             };
-            
+
             meshData.Triangles.AddRange(triangles);
         }
 
@@ -337,15 +349,15 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(0.5f, 1, 0), // 2
                 new Vertex(1.5f, 1, 0), // 3
             };
-            
+
             meshData.Vertices.AddRange(vertices);
-            
+
             var triangles = new[]
             {
                 new Triangle(0, 1, 2, ""), // Counter-clockwise: edges (0,1), (1,2), (2,0)
                 new Triangle(1, 2, 3, ""), // Counter-clockwise but same direction on shared edge (1,2) - this is inconsistent
             };
-            
+
             meshData.Triangles.AddRange(triangles);
         }
 
@@ -359,15 +371,15 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(0.5f, 1, 0), // 2
                 new Vertex(0, 0, 0), // 3 - duplicate of vertex 0
             };
-            
+
             meshData.Vertices.AddRange(vertices);
-            
+
             var triangles = new[]
             {
                 new Triangle(0, 1, 2, ""),
                 new Triangle(3, 1, 2, ""), // Uses duplicate vertex
             };
-            
+
             meshData.Triangles.AddRange(triangles);
         }
     }

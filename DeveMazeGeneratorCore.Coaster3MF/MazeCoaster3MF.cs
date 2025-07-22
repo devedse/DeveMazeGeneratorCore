@@ -67,6 +67,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Generate the geometry data
             var meshData = _geometryGenerator.GenerateMazeGeometry(maze.InnerMap, path);
 
+            var nonManifoldEdgeDetector = new NonManifoldEdgeDetector();
+            var meshAnalyzeResult = nonManifoldEdgeDetector.AnalyzeMesh(meshData);
+
+            Console.WriteLine($"Non-manifold edges detected:{Environment.NewLine}{meshAnalyzeResult.ToString("\t")}");
+
             // Generate filename with triangle and vertex counts
             var usedSeed = seed ?? 1337;
             var filename = $"maze_coaster_{mazeSize}x{mazeSize}_seed{usedSeed}_{meshData.Triangles.Count}tri_{meshData.Vertices.Count}vert.3mf";
