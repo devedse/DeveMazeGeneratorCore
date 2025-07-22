@@ -1,5 +1,7 @@
 namespace DeveMazeGeneratorCore.Coaster3MF.Models
 {
+    public record FastQuadIdentifier(Vertex V1, Vertex V2, Vertex V3, Vertex V4);
+
     public record Quad(Vertex V1, Vertex V2, Vertex V3, Vertex V4, string PaintColor, FaceDirection FaceDirection)
     {
         public Vertex[] Vertices => [V1, V2, V3, V4];
@@ -7,6 +9,12 @@ namespace DeveMazeGeneratorCore.Coaster3MF.Models
         public QuadDirection QuadDirection => Vertices.Select(t => t.X).Distinct().Count() == 1 ? QuadDirection.Vertical :
                                               Vertices.Select(t => t.Y).Distinct().Count() == 1 ? QuadDirection.Horizontal :
                                               QuadDirection.Flat;
+
+        public FastQuadIdentifier FastQuadIdentifier()
+        {
+            var vertices = GetCanonicallyOrderedVertices();
+            return new FastQuadIdentifier(vertices[0], vertices[1], vertices[2], vertices[3]);
+        }
 
         /// <summary>
         /// Orders the 4 vertices in a canonical order for cuboids based on face direction:
@@ -17,7 +25,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF.Models
         /// [3] = max axis1, max axis2  (1,1)
         /// This creates a consistent 2x2 grid pattern regardless of input order
         /// </summary>
-        private Vertex[] GetCanonicallyOrderedVertices()
+        public Vertex[] GetCanonicallyOrderedVertices()
         {
             var vertices = Vertices;
             

@@ -46,7 +46,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         /// <summary>
         /// Generates quads representing the maze geometry (ground, walls, path).
         /// </summary>
-        public List<Quad> GenerateMazeQuads(InnerMap maze, List<MazePointPos> path, bool singleCuboidPerPixel = true)
+        public List<Quad> GenerateMazeQuads(InnerMap maze, List<MazePointPos> path, bool singleCuboidPerPixel = true, bool enableFaceCulling = true)
         {
             var quads = new List<Quad>();
 
@@ -63,7 +63,10 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             AddMazePath(maze, quads, pathData);
 
             // Cull hidden faces (interior faces between adjacent cubes)
-            MeshOptimizer.CullHiddenFaces(quads);
+            if (enableFaceCulling)
+            {
+                MeshOptimizer.CullHiddenFaces(quads);
+            }
 
             // Additional quad optimizations (merging adjacent quads) applied after adding paths
             // Even though this algorithm is quite cool, it doesn't work as it causes non-manifold edges

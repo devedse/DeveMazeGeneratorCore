@@ -79,6 +79,15 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             return result;
         }
 
+        public List<Edge> AnalyzeMeshOnlyBorderEdges(MeshData meshData)
+        {
+            var result = new DetectionResult();
+            // Analyze edge topology
+            AnalyzeEdgeTopology(meshData, result);
+            // No winding consistency check for border edges only
+            return result.BorderEdges;
+        }
+
         /// <summary>
         /// Detects vertices that are at the same position (within tolerance).
         /// </summary>
