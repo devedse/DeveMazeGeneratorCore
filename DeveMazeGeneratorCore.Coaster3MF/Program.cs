@@ -50,6 +50,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             {
                 Console.WriteLine($"Creating coaster {i}...");
                 mazeCoaster.Generate3MFCoaster(20, 1337 + i);
+                Console.WriteLine();
+                Console.WriteLine();
             }
             
             Console.WriteLine("All 3MF coasters generated successfully!");
