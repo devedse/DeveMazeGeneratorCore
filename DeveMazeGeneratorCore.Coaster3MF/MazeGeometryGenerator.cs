@@ -15,9 +15,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         private static readonly string[] Colors =
         [
             "4", // [0] Slot 1 in AMS: Black for walls
-            "8", // [1] Slot 2 in AMS: Green for first half of path
-            "0C", // [2] Slot 3 in AMS: Red for second half of path
-            "1C", // [3] Slot 4 in AMS: White for ground
+            "8", // [1] Slot 2 in AMS: White for ground
+            "0C", // [2] Slot 3 in AMS: Green for first half of path
+            "1C", // [3] Slot 4 in AMS: Red for second half of path
             "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "AC", "BC", "CC", "DC", "EC",
             "0FC", "1FC", "2FC", "3FC", "4FC", "5FC", "6FC", "7FC", "8FC", "9FC", "AFC", "BFC", "CFC", "DFC", "EFC"
         ];
@@ -42,8 +42,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Step 2: Convert quads to mesh data
             return ConvertQuadsToMesh(quads);
         }        /// <summary>
-        /// Generates quads representing the maze geometry (ground, walls, path).
-        /// </summary>
+                 /// Generates quads representing the maze geometry (ground, walls, path).
+                 /// </summary>
         public List<Quad> GenerateMazeQuads(InnerMap maze, List<MazePointPos> path, bool singleCuboidPerPixel = true)
         {
             var quads = new List<Quad>();
@@ -77,7 +77,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 {
                     // Determine color based on position in path (0-255)
                     var relativePos = pathData.PathPositions[point];
-                    var paintColor = relativePos < 128 ? Colors[1] : Colors[2];
+                    var paintColor = relativePos < 128 ? Colors[2] : Colors[3]; // Green for first half, Red for second half
 
                     AddCubeQuads(quads, point.X, point.Y, GroundHeight, GroundHeight + PathHeight, paintColor);
                 }
@@ -215,23 +215,23 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     for (int x = 0; x < maze.Width - 1; x++)
                     {
                         // Each ground cube has a white top and black sides/bottom
-                        AddCubeQuads(quads, x, y, 0, GroundHeight, Colors[3]); // White ground cubes
+                        AddCubeQuads(quads, x, y, 0, GroundHeight, Colors[0], Colors[1]); // White ground cubes
                     }
                 }
             }
             else
             {
                 // Single large ground plane using AddCubeQuadsWithDimensions
-                AddCubeQuadsWithDimensions(quads, 0, 0, maze.Width - 1, maze.Height - 1, 0, GroundHeight, Colors[3]);
+                AddCubeQuadsWithDimensions(quads, 0, 0, maze.Width - 1, maze.Height - 1, 0, GroundHeight, Colors[0], Colors[1]); // White ground
             }
         }
 
-        private void AddCubeQuads(List<Quad> quads, int x, int y, float zBottom, float zTop, string paintColor)
+        private void AddCubeQuads(List<Quad> quads, int x, int y, float zBottom, float zTop, string paintColor, string? topFacePaintColor = null)
         {
-            AddCubeQuadsWithDimensions(quads, x, y, x + 1, y + 1, zBottom, zTop, paintColor);
+            AddCubeQuadsWithDimensions(quads, x, y, x + 1, y + 1, zBottom, zTop, paintColor, topFacePaintColor);
         }
 
-        private void AddCubeQuadsWithDimensions(List<Quad> quads, float x, float y, float endX, float endY, float zBottom, float zTop, string paintColor)
+        private void AddCubeQuadsWithDimensions(List<Quad> quads, float x, float y, float endX, float endY, float zBottom, float zTop, string paintColor, string? topFacePaintColor = null)
         {
             // Apply XY scaling to coordinates
             var scaledX = x * XYScale;
@@ -255,7 +255,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(scaledEndX, scaledY, zTop),
                 new Vertex(scaledEndX, scaledEndY, zTop),
                 new Vertex(scaledX, scaledEndY, zTop),
-                paintColor,
+                topFacePaintColor ?? paintColor,
                 FaceDirection.Top
             ));
 
