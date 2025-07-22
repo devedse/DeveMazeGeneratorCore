@@ -410,6 +410,3 @@ DeveMazeGeneratorCore.Coaster3MF/_rels/
 # Generated output files from testing
 DeveMazeGeneratorCore.Coaster3MF/maze_coaster_*.3mf
 DeveMazeGeneratorCore.Coaster3MF/maze_coaster_*.png
-
-# Generated maze images and test output files
-*.png
