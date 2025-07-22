@@ -1,7 +1,4 @@
 using DeveMazeGeneratorCore.Coaster3MF.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace DeveMazeGeneratorCore.Coaster3MF
 {
@@ -22,23 +19,24 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
             var quadsToRemove = new HashSet<Quad>();
-            
+
             // Use a dictionary to directly map vertex signatures to quads with opposite directions
             // Using long (64-bit) as key instead of string for much faster hashing and comparison
-            var signatureToQuadMap = new Dictionary<long, Dictionary<FaceDirection, Quad>>();
+            var signatureToQuadMap = new Dictionary<FastQuadIdentifier, Dictionary<FaceDirection, Quad>>();
 
             foreach (var quad in quads)
             {
                 if (quadsToRemove.Contains(quad)) continue;
-                
-                var signature = GetFastVertexSignature(quad);
-                
+
+                //var signature = GetFastVertexSignature(quad);
+                var signature = quad.FastQuadIdentifier(); // Use the optimized identifier method from Quad class
+
                 if (!signatureToQuadMap.TryGetValue(signature, out var directionMap))
                 {
                     directionMap = new Dictionary<FaceDirection, Quad>();
                     signatureToQuadMap[signature] = directionMap;
                 }
-                
+
                 // Check for opposite directions that already exist
                 FaceDirection oppositeDirection = GetOppositeDirection(quad.FaceDirection);
                 if (directionMap.TryGetValue(oppositeDirection, out var facingQuad) && !quadsToRemove.Contains(facingQuad))
@@ -63,7 +61,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     remainingQuads.Add(quad);
                 }
             }
-            
+
             // Replace the original list contents
             quads.Clear();
             quads.AddRange(remainingQuads);
@@ -71,7 +69,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             stopwatch.Stop();
             Console.WriteLine($"Found {quads.Count} quads after face culling. Removed {quadsToRemove.Count} hidden faces in {stopwatch.ElapsedMilliseconds}ms");
         }
-        
+
         /// <summary>
         /// Gets the opposite face direction for a given direction.
         /// </summary>
@@ -88,7 +86,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 _ => direction
             };
         }
-        
+
         /// <summary>
         /// Creates a fast integer-based signature for the vertex positions of a quad.
         /// Facing quads have identical signatures regardless of vertex order.
@@ -104,15 +102,15 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 var x = (int)Math.Round(vertex.X * 1000);
                 var y = (int)Math.Round(vertex.Y * 1000);
                 var z = (int)Math.Round(vertex.Z * 1000);
-                
+
                 // Create a unique hash for this vertex position
                 var vertexHash = HashCode.Combine(x, y, z);
-                
+
                 // XOR with accumulated hash - this makes the signature independent of vertex order
                 // Facing quads with identical vertices will have identical signatures
                 hash ^= vertexHash;
             }
-            
+
             return hash;
         }
 
@@ -196,7 +194,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                                          .ThenBy(v => v.Y)
                                          .ThenBy(v => v.Z)
                                          .ToArray();
-            
+
             return string.Join("|", sortedVertices.Select(v => $"{v.X:F3},{v.Y:F3},{v.Z:F3}"));
         }
 
@@ -215,7 +213,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 foreach (var dir2Group in directionGroups)
                 {
                     if (dir1Group.Key == dir2Group.Key) continue; // Skip same direction
-                    
+
                     // Check if these are opposite face directions
                     if (AreOppositeFaceDirections(dir1Group.Key, dir2Group.Key))
                     {
@@ -361,16 +359,16 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             do
             {
                 merged = false;
-                
+
                 for (int i = 0; i < quads.Count && !merged; i++)
                 {
                     var currentQuad = quads[i];
-                    
+
                     // Find quads that are actually adjacent (share an edge) and can be merged
                     for (int j = i + 1; j < quads.Count; j++)
                     {
                         var otherQuad = quads[j];
-                        
+
                         if (CanMergeQuads(currentQuad, otherQuad))
                         {
                             var mergedQuad = MergeAdjacentQuads(currentQuad, otherQuad);
@@ -415,11 +413,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
             // Get all vertices from both quads
             var allVertices = new[] { quad1.V1, quad1.V2, quad1.V3, quad1.V4, quad2.V1, quad2.V2, quad2.V3, quad2.V4 };
-            
+
             // Remove duplicate vertices (the shared edge)
             var uniqueVertices = new List<Vertex>();
             const float tolerance = 0.001f;
-            
+
             foreach (var vertex in allVertices)
             {
                 bool isDuplicate = false;
@@ -433,17 +431,17 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                         break;
                     }
                 }
-                
+
                 if (!isDuplicate)
                 {
                     uniqueVertices.Add(vertex);
                 }
             }
-            
+
             // Should have exactly 6 unique vertices (8 original - 2 shared)
             if (uniqueVertices.Count != 6)
                 return null;
-                
+
             // Find the bounding rectangle of the merged quad
             var minX = uniqueVertices.Min(v => v.X);
             var maxX = uniqueVertices.Max(v => v.X);
@@ -451,10 +449,10 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             var maxY = uniqueVertices.Max(v => v.Y);
             var minZ = uniqueVertices.Min(v => v.Z);
             var maxZ = uniqueVertices.Max(v => v.Z);
-            
+
             // Create merged quad based on face direction
             Vertex mergedV1, mergedV2, mergedV3, mergedV4;
-            
+
             switch (quad1.FaceDirection)
             {
                 case FaceDirection.Top:
@@ -466,7 +464,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     mergedV3 = new Vertex(maxX, maxY, z);
                     mergedV4 = new Vertex(minX, maxY, z);
                     break;
-                    
+
                 case FaceDirection.Front:
                 case FaceDirection.Back:
                     // Vertical plane (Y is constant)
@@ -476,7 +474,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     mergedV3 = new Vertex(maxX, y, maxZ);
                     mergedV4 = new Vertex(minX, y, maxZ);
                     break;
-                    
+
                 case FaceDirection.Left:
                 case FaceDirection.Right:
                     // Vertical plane (X is constant)
@@ -486,11 +484,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     mergedV3 = new Vertex(x, maxY, maxZ);
                     mergedV4 = new Vertex(x, minY, maxZ);
                     break;
-                    
+
                 default:
                     return null;
             }
-            
+
             return new Quad(mergedV1, mergedV2, mergedV3, mergedV4, quad1.PaintColor, quad1.FaceDirection);
         }
     }
