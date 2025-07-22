@@ -14,7 +14,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         /// <summary>
         /// Removes quads that are facing each other (interior faces that can't be seen).
         /// This culls faces between adjacent cubes to reduce triangle count.
-        /// Optimized version using direct vertex signature matching for O(N) performance.
+        /// Optimized version using fast integer-based vertex signatures for O(N) performance.
         /// </summary>
         public static void CullHiddenFaces(List<Quad> quads)
         {
@@ -24,13 +24,14 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             var quadsToRemove = new HashSet<Quad>();
             
             // Use a dictionary to directly map vertex signatures to quads with opposite directions
-            var signatureToQuadMap = new Dictionary<string, Dictionary<FaceDirection, Quad>>();
+            // Using long (64-bit) as key instead of string for much faster hashing and comparison
+            var signatureToQuadMap = new Dictionary<long, Dictionary<FaceDirection, Quad>>();
 
             foreach (var quad in quads)
             {
                 if (quadsToRemove.Contains(quad)) continue;
                 
-                var signature = GetVertexSignature(quad);
+                var signature = GetFastVertexSignature(quad);
                 
                 if (!signatureToQuadMap.TryGetValue(signature, out var directionMap))
                 {
@@ -53,11 +54,19 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 }
             }
 
-            // Remove all marked quads
-            foreach (var quad in quadsToRemove)
+            // Efficient removal: create new list with only non-removed quads instead of calling Remove() repeatedly
+            var remainingQuads = new List<Quad>();
+            foreach (var quad in quads)
             {
-                quads.Remove(quad);
+                if (!quadsToRemove.Contains(quad))
+                {
+                    remainingQuads.Add(quad);
+                }
             }
+            
+            // Replace the original list contents
+            quads.Clear();
+            quads.AddRange(remainingQuads);
 
             stopwatch.Stop();
             Console.WriteLine($"Found {quads.Count} quads after face culling. Removed {quadsToRemove.Count} hidden faces in {stopwatch.ElapsedMilliseconds}ms");
@@ -81,20 +90,30 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         }
         
         /// <summary>
-        /// Creates a unique signature for the vertex positions of a quad.
-        /// Facing quads should have identical signatures regardless of vertex order.
+        /// Creates a fast integer-based signature for the vertex positions of a quad.
+        /// Facing quads have identical signatures regardless of vertex order.
+        /// Uses XOR of vertex hashes for order-independence and fast computation.
         /// </summary>
-        private static string GetVertexSignature(Quad quad)
+        private static long GetFastVertexSignature(Quad quad)
         {
-            // Get the four vertex positions and sort them to create a canonical representation
-            var positions = quad.Vertices
-                .Select(v => (X: Math.Round(v.X, 3), Y: Math.Round(v.Y, 3), Z: Math.Round(v.Z, 3)))
-                .OrderBy(p => p.X)
-                .ThenBy(p => p.Y)
-                .ThenBy(p => p.Z)
-                .ToArray();
+            // Create hash codes for each vertex position (rounded to avoid floating point precision issues)
+            long hash = 0;
+            foreach (var vertex in quad.Vertices)
+            {
+                // Round to 3 decimal places to handle floating point precision
+                var x = (int)Math.Round(vertex.X * 1000);
+                var y = (int)Math.Round(vertex.Y * 1000);
+                var z = (int)Math.Round(vertex.Z * 1000);
+                
+                // Create a unique hash for this vertex position
+                var vertexHash = HashCode.Combine(x, y, z);
+                
+                // XOR with accumulated hash - this makes the signature independent of vertex order
+                // Facing quads with identical vertices will have identical signatures
+                hash ^= vertexHash;
+            }
             
-            return string.Join("|", positions.Select(p => $"{p.X},{p.Y},{p.Z}"));
+            return hash;
         }
 
         /// <summary>
