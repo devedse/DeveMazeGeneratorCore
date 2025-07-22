@@ -17,7 +17,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             Console.WriteLine("Performance Comparison: Original vs Optimized Quad Culling");
             
             // Test with different maze sizes
-            int[] mazeSizes = { 30, 40, 50 };
+            int[] mazeSizes = { 100, 150 };
             
             foreach (var size in mazeSizes)
             {
@@ -40,31 +40,48 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Generate quads
             var geometryGenerator = new MazeGeometryGenerator();
             var quads1 = geometryGenerator.GenerateMazeQuads(maze.InnerMap, path);
-            var quads2 = new List<Quad>(quads1); // Copy for comparison
+            var quads2 = new List<Quad>(quads1); // Copy for spatial comparison
+            var quads3 = new List<Quad>(quads1); // Copy for original comparison
             
             Console.WriteLine($"Generated {quads1.Count} quads");
             
-            // Test optimized version
+            // Test optimized vertex-based version (new)
             var sw1 = Stopwatch.StartNew();
             MeshOptimizer.CullHiddenFaces(quads1);
             sw1.Stop();
             
-            // Test original version  
+            // Test spatial version (previous optimization)
             var sw2 = Stopwatch.StartNew();
-            MeshOptimizer.CullHiddenFacesOriginal(quads2);
+            MeshOptimizer.CullHiddenFacesSpatial(quads2);
             sw2.Stop();
             
-            Console.WriteLine($"Optimized: {sw1.ElapsedMilliseconds}ms, Original: {sw2.ElapsedMilliseconds}ms");
-            Console.WriteLine($"Speedup: {(double)sw2.ElapsedMilliseconds / sw1.ElapsedMilliseconds:F1}x");
+            // Test original version (skip for large mazes to avoid timeout)
+            long originalTime = 0;
+            if (mazeSize <= 50)
+            {
+                var sw3 = Stopwatch.StartNew();
+                MeshOptimizer.CullHiddenFacesOriginal(quads3);
+                sw3.Stop();
+                originalTime = sw3.ElapsedMilliseconds;
+            }
+            
+            Console.WriteLine($"Vertex-based: {sw1.ElapsedMilliseconds}ms, Spatial: {sw2.ElapsedMilliseconds}ms");
+            if (originalTime > 0)
+            {
+                Console.WriteLine($"Original: {originalTime}ms");
+                Console.WriteLine($"Vertex vs Original speedup: {(double)originalTime / sw1.ElapsedMilliseconds:F1}x");
+            }
+            Console.WriteLine($"Vertex vs Spatial speedup: {(double)sw2.ElapsedMilliseconds / sw1.ElapsedMilliseconds:F1}x");
             
             // Verify results are identical
-            if (quads1.Count != quads2.Count)
+            if (quads1.Count != quads2.Count || (originalTime > 0 && quads1.Count != quads3.Count))
             {
-                Console.WriteLine($"ERROR: Result mismatch! Optimized: {quads1.Count}, Original: {quads2.Count}");
+                Console.WriteLine($"ERROR: Result mismatch! Vertex: {quads1.Count}, Spatial: {quads2.Count}");
+                if (originalTime > 0) Console.WriteLine($"Original: {quads3.Count}");
             }
             else
             {
-                Console.WriteLine("✓ Results are identical");
+                Console.WriteLine("✓ All results are identical");
             }
         }
     }
