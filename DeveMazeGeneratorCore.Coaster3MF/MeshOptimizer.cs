@@ -176,9 +176,6 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         /// </summary>
         private static bool AreQuadsFacingEachOther(Quad quad1, Quad quad2)
         {
-            // Must have same paint color to be from the same material
-            if (quad1.PaintColor != quad2.PaintColor) return false;
-
             // Must be opposite face directions
             if (!AreOppositeFaceDirections(quad1.FaceDirection, quad2.FaceDirection)) return false;
 
