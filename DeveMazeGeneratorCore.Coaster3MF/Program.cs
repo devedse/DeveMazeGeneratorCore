@@ -17,6 +17,13 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         {
             Console.WriteLine("DeveMazeGeneratorCore 3MF Coaster Maker");
             
+            // Check if we should run performance comparison
+            if (args.Length > 0 && args[0] == "--perf")
+            {
+                PerformanceTest.RunComparison();
+                return;
+            }
+            
             // Generate a 20x20 maze using AlgorithmBacktrack2Deluxe2_AsByte
             var mazeCoaster = new MazeCoaster3MF();
             
