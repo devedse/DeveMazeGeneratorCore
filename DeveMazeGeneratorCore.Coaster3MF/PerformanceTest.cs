@@ -37,13 +37,14 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             var maze = alg.GoGenerate(mazeSize, mazeSize, 1337, innerMapFactory, randomFactory, actionThing);
             var path = PathFinderDepthFirstSmartWithPos.GoFind(maze.InnerMap, null);
             
-            // Generate quads
+            // Generate quads WITHOUT face culling for proper performance testing
             var geometryGenerator = new MazeGeometryGenerator();
-            var quads1 = geometryGenerator.GenerateMazeQuads(maze.InnerMap, path);
-            var quads2 = new List<Quad>(quads1); // Copy for spatial comparison
-            var quads3 = new List<Quad>(quads1); // Copy for original comparison
+            var unculledQuads = geometryGenerator.GenerateMazeQuads(maze.InnerMap, path, true, false);
+            var quads1 = new List<Quad>(unculledQuads); // Copy for vertex-based test  
+            var quads2 = new List<Quad>(unculledQuads); // Copy for spatial comparison
+            var quads3 = new List<Quad>(unculledQuads); // Copy for original comparison
             
-            Console.WriteLine($"Generated {quads1.Count} quads");
+            Console.WriteLine($"Generated {unculledQuads.Count} quads");
             
             // Test optimized vertex-based version (new)
             var sw1 = Stopwatch.StartNew();
