@@ -14,7 +14,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         /// <summary>
         /// Removes quads that are facing each other (interior faces that can't be seen).
         /// This culls faces between adjacent cubes to reduce triangle count.
-        /// Optimized version using spatial partitioning to reduce from O(N²) to O(N).
+        /// Optimized version using direct vertex signature matching for O(N) performance.
         /// </summary>
         public static void CullHiddenFaces(List<Quad> quads)
         {
@@ -22,15 +22,35 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
             var quadsToRemove = new HashSet<Quad>();
+            
+            // Use a dictionary to directly map vertex signatures to quads with opposite directions
+            var signatureToQuadMap = new Dictionary<string, Dictionary<FaceDirection, Quad>>();
 
-            // Group quads by face direction and spatial position for efficient lookup
-            var spatialGroups = GroupQuadsByPositionAndDirection(quads);
-            Console.WriteLine($"Grouped {quads.Count} quads into {spatialGroups.Count} spatial groups in {stopwatch.ElapsedMilliseconds}ms");
-
-            foreach (var group in spatialGroups.Values)
+            foreach (var quad in quads)
             {
-                // Within each spatial group, check for facing pairs
-                CullFacingQuadsInGroup(group, quadsToRemove);
+                if (quadsToRemove.Contains(quad)) continue;
+                
+                var signature = GetVertexSignature(quad);
+                
+                if (!signatureToQuadMap.TryGetValue(signature, out var directionMap))
+                {
+                    directionMap = new Dictionary<FaceDirection, Quad>();
+                    signatureToQuadMap[signature] = directionMap;
+                }
+                
+                // Check for opposite directions that already exist
+                FaceDirection oppositeDirection = GetOppositeDirection(quad.FaceDirection);
+                if (directionMap.TryGetValue(oppositeDirection, out var facingQuad) && !quadsToRemove.Contains(facingQuad))
+                {
+                    // Found a facing pair - mark both for removal
+                    quadsToRemove.Add(quad);
+                    quadsToRemove.Add(facingQuad);
+                }
+                else if (!directionMap.ContainsKey(quad.FaceDirection))
+                {
+                    // Add this quad to the map
+                    directionMap[quad.FaceDirection] = quad;
+                }
             }
 
             // Remove all marked quads
@@ -41,6 +61,40 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
             stopwatch.Stop();
             Console.WriteLine($"Found {quads.Count} quads after face culling. Removed {quadsToRemove.Count} hidden faces in {stopwatch.ElapsedMilliseconds}ms");
+        }
+        
+        /// <summary>
+        /// Gets the opposite face direction for a given direction.
+        /// </summary>
+        private static FaceDirection GetOppositeDirection(FaceDirection direction)
+        {
+            return direction switch
+            {
+                FaceDirection.Front => FaceDirection.Back,
+                FaceDirection.Back => FaceDirection.Front,
+                FaceDirection.Left => FaceDirection.Right,
+                FaceDirection.Right => FaceDirection.Left,
+                FaceDirection.Top => FaceDirection.Bottom,
+                FaceDirection.Bottom => FaceDirection.Top,
+                _ => direction
+            };
+        }
+        
+        /// <summary>
+        /// Creates a unique signature for the vertex positions of a quad.
+        /// Facing quads should have identical signatures regardless of vertex order.
+        /// </summary>
+        private static string GetVertexSignature(Quad quad)
+        {
+            // Get the four vertex positions and sort them to create a canonical representation
+            var positions = quad.Vertices
+                .Select(v => (X: Math.Round(v.X, 3), Y: Math.Round(v.Y, 3), Z: Math.Round(v.Z, 3)))
+                .OrderBy(p => p.X)
+                .ThenBy(p => p.Y)
+                .ThenBy(p => p.Z)
+                .ToArray();
+            
+            return string.Join("|", positions.Select(p => $"{p.X},{p.Y},{p.Z}"));
         }
 
         /// <summary>
@@ -85,10 +139,166 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         }
 
         /// <summary>
-        /// Groups quads by their spatial position and face direction for efficient culling.
-        /// Only quads at the same position with opposite directions can be facing each other.
+        /// Groups quads by their canonically ordered vertices.
+        /// Facing quads (like top and bottom faces of the same cube) will have identical canonically ordered vertices.
+        /// This allows for much more efficient culling than spatial grouping.
         /// </summary>
-        private static Dictionary<string, List<Quad>> GroupQuadsByPositionAndDirection(List<Quad> quads)
+        private static Dictionary<string, List<Quad>> GroupQuadsByCanonicalVertices(List<Quad> quads)
+        {
+            var groups = new Dictionary<string, List<Quad>>();
+
+            foreach (var quad in quads)
+            {
+                // Get canonically ordered vertices and create a unique key
+                var key = GetCanonicalVertexKey(quad);
+
+                if (!groups.TryGetValue(key, out var group))
+                {
+                    group = new List<Quad>();
+                    groups[key] = group;
+                }
+
+                group.Add(quad);
+            }
+
+            return groups;
+        }
+
+        /// <summary>
+        /// Creates a unique string key from canonically ordered vertices.
+        /// Quads with identical vertex positions (but potentially different face directions) will have the same key.
+        /// </summary>
+        private static string GetCanonicalVertexKey(Quad quad)
+        {
+            // Instead of using reflection, let's create our own canonical ordering
+            // Sort vertices by position to create a consistent key for facing quads
+            var vertices = quad.Vertices;
+            var sortedVertices = vertices.OrderBy(v => v.X)
+                                         .ThenBy(v => v.Y)
+                                         .ThenBy(v => v.Z)
+                                         .ToArray();
+            
+            return string.Join("|", sortedVertices.Select(v => $"{v.X:F3},{v.Y:F3},{v.Z:F3}"));
+        }
+
+        /// <summary>
+        /// Within a group of quads with identical canonically ordered vertices,
+        /// find and mark pairs with opposite face directions for removal.
+        /// </summary>
+        private static void CullOppositeFaceDirectionsInGroup(List<Quad> group, HashSet<Quad> quadsToRemove)
+        {
+            // Group by face direction within this vertex group
+            var directionGroups = group.GroupBy(q => q.FaceDirection).ToList();
+
+            // Look for opposite face direction pairs
+            foreach (var dir1Group in directionGroups)
+            {
+                foreach (var dir2Group in directionGroups)
+                {
+                    if (dir1Group.Key == dir2Group.Key) continue; // Skip same direction
+                    
+                    // Check if these are opposite face directions
+                    if (AreOppositeFaceDirections(dir1Group.Key, dir2Group.Key))
+                    {
+                        // Mark all quads from both direction groups for removal
+                        foreach (var quad1 in dir1Group)
+                        {
+                            if (!quadsToRemove.Contains(quad1))
+                            {
+                                foreach (var quad2 in dir2Group)
+                                {
+                                    if (!quadsToRemove.Contains(quad2))
+                                    {
+                                        // Both quads are facing each other - remove both
+                                        quadsToRemove.Add(quad1);
+                                        quadsToRemove.Add(quad2);
+                                        break; // Move to next quad1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks if two face directions are opposite.
+        /// </summary>
+        private static bool AreOppositeFaceDirections(FaceDirection dir1, FaceDirection dir2)
+        {
+            return (dir1 == FaceDirection.Front && dir2 == FaceDirection.Back) ||
+                   (dir1 == FaceDirection.Back && dir2 == FaceDirection.Front) ||
+                   (dir1 == FaceDirection.Left && dir2 == FaceDirection.Right) ||
+                   (dir1 == FaceDirection.Right && dir2 == FaceDirection.Left) ||
+                   (dir1 == FaceDirection.Top && dir2 == FaceDirection.Bottom) ||
+                   (dir1 == FaceDirection.Bottom && dir2 == FaceDirection.Top);
+        }
+
+        /// <summary>
+        /// Spatial grouping version for comparison (kept for testing purposes).
+        /// Uses the previous spatial partitioning approach.
+        /// </summary>
+        public static void CullHiddenFacesSpatial(List<Quad> quads)
+        {
+            Console.WriteLine($"Found {quads.Count} quads before face culling (spatial algorithm).");
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            var quadsToRemove = new HashSet<Quad>();
+
+            // Group quads by face direction and spatial position for efficient lookup
+            var spatialGroups = GroupQuadsByPositionAndDirection_Spatial(quads);
+            Console.WriteLine($"Grouped {quads.Count} quads into {spatialGroups.Count} spatial groups in {stopwatch.ElapsedMilliseconds}ms");
+
+            foreach (var group in spatialGroups.Values)
+            {
+                // Within each spatial group, check for facing pairs
+                CullFacingQuadsInGroup_Spatial(group, quadsToRemove);
+            }
+
+            // Remove all marked quads
+            foreach (var quad in quadsToRemove)
+            {
+                quads.Remove(quad);
+            }
+
+            stopwatch.Stop();
+            Console.WriteLine($"Found {quads.Count} quads after face culling (spatial algorithm). Removed {quadsToRemove.Count} hidden faces in {stopwatch.ElapsedMilliseconds}ms");
+        }
+
+        /// <summary>
+        /// Within a spatial group, find and mark facing quad pairs for removal.
+        /// This is much more efficient than the original O(N²) approach.
+        /// </summary>
+        private static void CullFacingQuadsInGroup_Spatial(List<Quad> group, HashSet<Quad> quadsToRemove)
+        {
+            for (int i = 0; i < group.Count; i++)
+            {
+                var quad1 = group[i];
+                if (quadsToRemove.Contains(quad1)) continue;
+
+                for (int j = i + 1; j < group.Count; j++)
+                {
+                    var quad2 = group[j];
+                    if (quadsToRemove.Contains(quad2)) continue;
+
+                    // Use Quad method to check if these two quads are facing each other and can be culled
+                    if (quad1.IsFacing(quad2))
+                    {
+                        // Both quads are interior faces - remove both
+                        quadsToRemove.Add(quad1);
+                        quadsToRemove.Add(quad2);
+                        break; // quad1 is already marked for removal, move to next
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Spatial grouping version for comparison (kept for testing purposes).
+        /// Groups quads by their spatial position and face direction for efficient culling.
+        /// </summary>
+        private static Dictionary<string, List<Quad>> GroupQuadsByPositionAndDirection_Spatial(List<Quad> quads)
         {
             var groups = new Dictionary<string, List<Quad>>();
             const float tolerance = 0.001f;
@@ -118,34 +328,6 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             }
 
             return groups;
-        }
-
-        /// <summary>
-        /// Within a spatial group, find and mark facing quad pairs for removal.
-        /// This is much more efficient than the original O(N²) approach.
-        /// </summary>
-        private static void CullFacingQuadsInGroup(List<Quad> group, HashSet<Quad> quadsToRemove)
-        {
-            for (int i = 0; i < group.Count; i++)
-            {
-                var quad1 = group[i];
-                if (quadsToRemove.Contains(quad1)) continue;
-
-                for (int j = i + 1; j < group.Count; j++)
-                {
-                    var quad2 = group[j];
-                    if (quadsToRemove.Contains(quad2)) continue;
-
-                    // Use Quad method to check if these two quads are facing each other and can be culled
-                    if (quad1.IsFacing(quad2))
-                    {
-                        // Both quads are interior faces - remove both
-                        quadsToRemove.Add(quad1);
-                        quadsToRemove.Add(quad2);
-                        break; // quad1 is already marked for removal, move to next
-                    }
-                }
-            }
         }
 
         /// <summary>
