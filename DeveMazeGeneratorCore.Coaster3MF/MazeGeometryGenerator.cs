@@ -61,7 +61,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             MeshOptimizer.CullHiddenFaces(quads);
 
             // Additional quad optimizations (merging adjacent quads) can be applied here if needed:
-            // MeshOptimizer.OptimizeQuads(quads)
+            MeshOptimizer.OptimizeQuads(quads);
 
             //AddMazePath(maze, quads, pathData);
 

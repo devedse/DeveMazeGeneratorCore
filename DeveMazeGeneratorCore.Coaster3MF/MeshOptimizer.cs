@@ -53,122 +53,173 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         /// <summary>
         /// Optimizes quads by merging adjacent quads of the same orientation and color.
+        /// Only merges quads that share an edge (not diagonally connected ones).
         /// </summary>
         public static void OptimizeQuads(List<Quad> quads)
         {
-            Console.WriteLine($"Found {quads.Count} wall quads before optimization.");
+            Console.WriteLine($"Found {quads.Count} quads before optimization.");
 
-            bool quit = false;
-
-            int cur = 0;
-            while (cur < quads.Count)
+            bool merged;
+            do
             {
-                var currentQuad = quads[cur];
-                var quadsThatTouchThisQuad = quads.Where(t => t != currentQuad && t.IsMergableWith(currentQuad)).ToList();
-
-                if (currentQuad.QuadDirection == QuadDirection.Flat)
+                merged = false;
+                
+                for (int i = 0; i < quads.Count && !merged; i++)
                 {
-                    cur++;
-                    continue;
-                }
-
-                if (quadsThatTouchThisQuad.Any())
-                {
-                    var allQuads = new List<Quad> { currentQuad }.Concat(quadsThatTouchThisQuad).ToList();
-
-                    Vertex mergedV1, mergedV2, mergedV3, mergedV4;
-
-                    var allVertices = allQuads.SelectMany(t => t.Vertices).ToList();
-
-                    if (currentQuad.QuadDirection == QuadDirection.Vertical)
+                    var currentQuad = quads[i];
+                    
+                    // Find quads that are actually adjacent (share an edge) and can be merged
+                    for (int j = i + 1; j < quads.Count; j++)
                     {
-                        // Merge vertically aligned quads
-                        mergedV1 = new Vertex(
-                            currentQuad.V1.X,
-                            allVertices.Min(t => t.Y),
-                            allVertices.Min(t => t.Z));
-                        mergedV2 = new Vertex(
-                            currentQuad.V2.X,
-                            allVertices.Max(t => t.Y),
-                            allVertices.Min(t => t.Z));
-                        mergedV3 = new Vertex(
-                            currentQuad.V3.X,
-                            allVertices.Max(t => t.Y),
-                            allVertices.Max(t => t.Z));
-                        mergedV4 = new Vertex(
-                            currentQuad.V4.X,
-                            allVertices.Min(t => t.Y),
-                            allVertices.Max(t => t.Z));
+                        var otherQuad = quads[j];
+                        
+                        if (CanMergeQuads(currentQuad, otherQuad))
+                        {
+                            var mergedQuad = MergeAdjacentQuads(currentQuad, otherQuad);
+                            if (mergedQuad != null)
+                            {
+                                // Remove the two original quads and add the merged one
+                                quads.RemoveAt(j); // Remove higher index first
+                                quads.RemoveAt(i);
+                                quads.Add(mergedQuad);
+                                merged = true;
+                                break;
+                            }
+                        }
                     }
-                    else if (currentQuad.QuadDirection == QuadDirection.Horizontal)
-                    {
-                        // Merge horizontally aligned quads
-                        mergedV1 = new Vertex(
-                            allVertices.Min(t => t.X),
-                            currentQuad.V1.Y,
-                            allVertices.Min(t => t.Z));
-                        mergedV2 = new Vertex(
-                            allVertices.Max(t => t.X),
-                            currentQuad.V2.Y,
-                            allVertices.Min(t => t.Z));
-                        mergedV3 = new Vertex(
-                            allVertices.Max(t => t.X),
-                            currentQuad.V3.Y,
-                            allVertices.Max(t => t.Z));
-                        mergedV4 = new Vertex(
-                            allVertices.Min(t => t.X),
-                            currentQuad.V4.Y,
-                            allVertices.Max(t => t.Z));
-                    }
-                    else //flat
-                    {
-                        // Merge flat quads
-                        mergedV1 = new Vertex(
-                            allVertices.Min(t => t.X),
-                            allVertices.Min(t => t.Y),
-                            allVertices.Min(t => t.Z));
-                        mergedV2 = new Vertex(
-                            allVertices.Max(t => t.X),
-                            allVertices.Min(t => t.Y),
-                            allVertices.Min(t => t.Z));
-                        mergedV3 = new Vertex(
-                            allVertices.Max(t => t.X),
-                            allVertices.Max(t => t.Y),
-                            allVertices.Max(t => t.Z));
-                        mergedV4 = new Vertex(
-                            allVertices.Min(t => t.X),
-                            allVertices.Max(t => t.Y),
-                            allVertices.Max(t => t.Z));
-                    }
-
-                    //Merge overlapping quads
-                    var mergedQuad = new Quad(
-                        mergedV1,
-                        mergedV2,
-                        mergedV3,
-                        mergedV4,
-                        currentQuad.PaintColor,
-                        currentQuad.FaceDirection
-                        );
-
-                    //Remove all quads that were merged
-                    quads.RemoveAll(t => t == currentQuad || quadsThatTouchThisQuad.Contains(t));
-                    //Add the merged quad
-                    quads.Add(mergedQuad);
-
                 }
-                else
-                {
-                    cur++;
-                }
+            } while (merged); // Keep merging until no more merges are possible
 
-                if (quit)
+            Console.WriteLine($"Found {quads.Count} quads after optimization.");
+        }
+
+        /// <summary>
+        /// Checks if two quads can be merged (same color, face direction, and are adjacent).
+        /// </summary>
+        private static bool CanMergeQuads(Quad quad1, Quad quad2)
+        {
+            // Must have same paint color and face direction
+            if (quad1.PaintColor != quad2.PaintColor || quad1.FaceDirection != quad2.FaceDirection)
+                return false;
+
+            // Must be adjacent (sharing an edge)
+            return AreQuadsAdjacent(quad1, quad2);
+        }
+
+        /// <summary>
+        /// Checks if two quads share an edge (are adjacent).
+        /// </summary>
+        private static bool AreQuadsAdjacent(Quad quad1, Quad quad2)
+        {
+            const float tolerance = 0.001f;
+            
+            var vertices1 = new[] { quad1.V1, quad1.V2, quad1.V3, quad1.V4 };
+            var vertices2 = new[] { quad2.V1, quad2.V2, quad2.V3, quad2.V4 };
+            
+            // Count shared vertices (adjacent quads should share exactly 2 vertices - an edge)
+            int sharedVertices = 0;
+            foreach (var v1 in vertices1)
+            {
+                foreach (var v2 in vertices2)
                 {
-                    break;
+                    if (Math.Abs(v1.X - v2.X) < tolerance &&
+                        Math.Abs(v1.Y - v2.Y) < tolerance &&
+                        Math.Abs(v1.Z - v2.Z) < tolerance)
+                    {
+                        sharedVertices++;
+                        break;
+                    }
                 }
             }
+            
+            // Adjacent quads share exactly 2 vertices (an edge)
+            return sharedVertices == 2;
+        }
 
-            Console.WriteLine($"Found {quads.Count} wall quads after optimization.");
+        /// <summary>
+        /// Merges two adjacent quads into a single larger quad.
+        /// </summary>
+        private static Quad? MergeAdjacentQuads(Quad quad1, Quad quad2)
+        {
+            // Get all vertices from both quads
+            var allVertices = new[] { quad1.V1, quad1.V2, quad1.V3, quad1.V4, quad2.V1, quad2.V2, quad2.V3, quad2.V4 };
+            
+            // Remove duplicate vertices (the shared edge)
+            var uniqueVertices = new List<Vertex>();
+            const float tolerance = 0.001f;
+            
+            foreach (var vertex in allVertices)
+            {
+                bool isDuplicate = false;
+                foreach (var existing in uniqueVertices)
+                {
+                    if (Math.Abs(vertex.X - existing.X) < tolerance &&
+                        Math.Abs(vertex.Y - existing.Y) < tolerance &&
+                        Math.Abs(vertex.Z - existing.Z) < tolerance)
+                    {
+                        isDuplicate = true;
+                        break;
+                    }
+                }
+                
+                if (!isDuplicate)
+                {
+                    uniqueVertices.Add(vertex);
+                }
+            }
+            
+            // Should have exactly 6 unique vertices (8 original - 2 shared)
+            if (uniqueVertices.Count != 6)
+                return null;
+                
+            // Find the bounding rectangle of the merged quad
+            var minX = uniqueVertices.Min(v => v.X);
+            var maxX = uniqueVertices.Max(v => v.X);
+            var minY = uniqueVertices.Min(v => v.Y);
+            var maxY = uniqueVertices.Max(v => v.Y);
+            var minZ = uniqueVertices.Min(v => v.Z);
+            var maxZ = uniqueVertices.Max(v => v.Z);
+            
+            // Create merged quad based on face direction
+            Vertex mergedV1, mergedV2, mergedV3, mergedV4;
+            
+            switch (quad1.FaceDirection)
+            {
+                case FaceDirection.Top:
+                case FaceDirection.Bottom:
+                    // Horizontal plane (Z is constant)
+                    var z = quad1.FaceDirection == FaceDirection.Top ? maxZ : minZ;
+                    mergedV1 = new Vertex(minX, minY, z);
+                    mergedV2 = new Vertex(maxX, minY, z);
+                    mergedV3 = new Vertex(maxX, maxY, z);
+                    mergedV4 = new Vertex(minX, maxY, z);
+                    break;
+                    
+                case FaceDirection.Front:
+                case FaceDirection.Back:
+                    // Vertical plane (Y is constant)
+                    var y = quad1.FaceDirection == FaceDirection.Front ? minY : maxY;
+                    mergedV1 = new Vertex(minX, y, minZ);
+                    mergedV2 = new Vertex(maxX, y, minZ);
+                    mergedV3 = new Vertex(maxX, y, maxZ);
+                    mergedV4 = new Vertex(minX, y, maxZ);
+                    break;
+                    
+                case FaceDirection.Left:
+                case FaceDirection.Right:
+                    // Vertical plane (X is constant)
+                    var x = quad1.FaceDirection == FaceDirection.Left ? minX : maxX;
+                    mergedV1 = new Vertex(x, minY, minZ);
+                    mergedV2 = new Vertex(x, maxY, minZ);
+                    mergedV3 = new Vertex(x, maxY, maxZ);
+                    mergedV4 = new Vertex(x, minY, maxZ);
+                    break;
+                    
+                default:
+                    return null;
+            }
+            
+            return new Quad(mergedV1, mergedV2, mergedV3, mergedV4, quad1.PaintColor, quad1.FaceDirection);
         }
 
         /// <summary>
