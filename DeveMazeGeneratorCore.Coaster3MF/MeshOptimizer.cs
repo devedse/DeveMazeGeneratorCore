@@ -31,8 +31,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     var quad2 = quads[j];
                     if (quadsToRemove.Contains(quad2)) continue;
 
-                    // Check if these two quads are facing each other and can be culled
-                    if (AreQuadsFacingEachOther(quad1, quad2))
+                    // Use Quad method to check if these two quads are facing each other and can be culled
+                    if (quad1.IsFacing(quad2))
                     {
                         // Both quads are interior faces - remove both
                         quadsToRemove.Add(quad1);
@@ -103,44 +103,18 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 return false;
 
             // Must be adjacent (sharing an edge)
-            return AreQuadsAdjacent(quad1, quad2);
-        }
-
-        /// <summary>
-        /// Checks if two quads share an edge (are adjacent).
-        /// </summary>
-        private static bool AreQuadsAdjacent(Quad quad1, Quad quad2)
-        {
-            const float tolerance = 0.001f;
-            
-            var vertices1 = new[] { quad1.V1, quad1.V2, quad1.V3, quad1.V4 };
-            var vertices2 = new[] { quad2.V1, quad2.V2, quad2.V3, quad2.V4 };
-            
-            // Count shared vertices (adjacent quads should share exactly 2 vertices - an edge)
-            int sharedVertices = 0;
-            foreach (var v1 in vertices1)
-            {
-                foreach (var v2 in vertices2)
-                {
-                    if (Math.Abs(v1.X - v2.X) < tolerance &&
-                        Math.Abs(v1.Y - v2.Y) < tolerance &&
-                        Math.Abs(v1.Z - v2.Z) < tolerance)
-                    {
-                        sharedVertices++;
-                        break;
-                    }
-                }
-            }
-            
-            // Adjacent quads share exactly 2 vertices (an edge)
-            return sharedVertices == 2;
+            return quad1.IsAdjacentTo(quad2);
         }
 
         /// <summary>
         /// Merges two adjacent quads into a single larger quad.
+        /// Returns null if the quads cannot be merged.
         /// </summary>
         private static Quad? MergeAdjacentQuads(Quad quad1, Quad quad2)
         {
+            if (!CanMergeQuads(quad1, quad2))
+                return null;
+
             // Get all vertices from both quads
             var allVertices = new[] { quad1.V1, quad1.V2, quad1.V3, quad1.V4, quad2.V1, quad2.V2, quad2.V3, quad2.V4 };
             
@@ -220,62 +194,6 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             }
             
             return new Quad(mergedV1, mergedV2, mergedV3, mergedV4, quad1.PaintColor, quad1.FaceDirection);
-        }
-
-        /// <summary>
-        /// Checks if two quads are facing each other (same position, opposite directions).
-        /// </summary>
-        private static bool AreQuadsFacingEachOther(Quad quad1, Quad quad2)
-        {
-            // Must be opposite face directions
-            if (!AreOppositeFaceDirections(quad1.FaceDirection, quad2.FaceDirection)) return false;
-
-            // Check if quads are coplanar and overlapping
-            return AreQuadsCoplanarAndOverlapping(quad1, quad2);
-        }
-
-        /// <summary>
-        /// Checks if two face directions are opposite.
-        /// </summary>
-        private static bool AreOppositeFaceDirections(FaceDirection dir1, FaceDirection dir2)
-        {
-            return (dir1 == FaceDirection.Front && dir2 == FaceDirection.Back) ||
-                   (dir1 == FaceDirection.Back && dir2 == FaceDirection.Front) ||
-                   (dir1 == FaceDirection.Left && dir2 == FaceDirection.Right) ||
-                   (dir1 == FaceDirection.Right && dir2 == FaceDirection.Left) ||
-                   (dir1 == FaceDirection.Top && dir2 == FaceDirection.Bottom) ||
-                   (dir1 == FaceDirection.Bottom && dir2 == FaceDirection.Top);
-        }
-
-        /// <summary>
-        /// Checks if two quads are coplanar and overlapping (occupy the same space).
-        /// </summary>
-        private static bool AreQuadsCoplanarAndOverlapping(Quad quad1, Quad quad2)
-        {
-            const float tolerance = 0.001f;
-
-            // Get all vertices from both quads
-            var vertices1 = new[] { quad1.V1, quad1.V2, quad1.V3, quad1.V4 };
-            var vertices2 = new[] { quad2.V1, quad2.V2, quad2.V3, quad2.V4 };
-
-            // For each vertex in quad1, check if there's a matching vertex in quad2
-            int matchingVertices = 0;
-            foreach (var v1 in vertices1)
-            {
-                foreach (var v2 in vertices2)
-                {
-                    if (Math.Abs(v1.X - v2.X) < tolerance &&
-                        Math.Abs(v1.Y - v2.Y) < tolerance &&
-                        Math.Abs(v1.Z - v2.Z) < tolerance)
-                    {
-                        matchingVertices++;
-                        break;
-                    }
-                }
-            }
-
-            // If all 4 vertices match, the quads are coplanar and overlapping
-            return matchingVertices == 4;
         }
     }
 }

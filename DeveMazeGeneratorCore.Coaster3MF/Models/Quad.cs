@@ -120,141 +120,90 @@ namespace DeveMazeGeneratorCore.Coaster3MF.Models
             };
         }
 
-        public bool HasOverlappingVerticesWith(Quad other)
+        /// <summary>
+        /// Checks if this quad is adjacent to another quad (sharing exactly 2 vertices - an edge).
+        /// This is more precise than SharesEdgeWith which checks for overlapping edges.
+        /// </summary>
+        public bool IsAdjacentTo(Quad other, float tolerance = 0.001f)
         {
-            return Vertices.Any(v => other.Vertices.Contains(v));
+            var vertices1 = Vertices;
+            var vertices2 = other.Vertices;
+            
+            // Count shared vertices (adjacent quads should share exactly 2 vertices - an edge)
+            int sharedVertices = 0;
+            foreach (var v1 in vertices1)
+            {
+                foreach (var v2 in vertices2)
+                {
+                    if (Math.Abs(v1.X - v2.X) < tolerance &&
+                        Math.Abs(v1.Y - v2.Y) < tolerance &&
+                        Math.Abs(v1.Z - v2.Z) < tolerance)
+                    {
+                        sharedVertices++;
+                        break;
+                    }
+                }
+            }
+            
+            // Adjacent quads share exactly 2 vertices (an edge)
+            return sharedVertices == 2;
         }
 
-        public bool SharesEdgeWith(Quad other, double tolerance = 0.0001)
-        {
-            var thisEdges = GetEdges();
-            var otherEdges = other.GetEdges();
 
-            foreach (var edge1 in thisEdges)
+
+        /// <summary>
+        /// Checks if this quad is facing another quad (same position, opposite directions).
+        /// Used for face culling optimization.
+        /// </summary>
+        public bool IsFacing(Quad other)
+        {
+            // Must be opposite face directions
+            if (!AreOppositeFaceDirections(FaceDirection, other.FaceDirection)) 
+                return false;
+
+            // Check if quads are coplanar and overlapping
+            return IsCoplanarAndOverlappingWith(other);
+        }
+
+        /// <summary>
+        /// Checks if two face directions are opposite.
+        /// </summary>
+        private static bool AreOppositeFaceDirections(FaceDirection dir1, FaceDirection dir2)
+        {
+            return (dir1 == FaceDirection.Front && dir2 == FaceDirection.Back) ||
+                   (dir1 == FaceDirection.Back && dir2 == FaceDirection.Front) ||
+                   (dir1 == FaceDirection.Left && dir2 == FaceDirection.Right) ||
+                   (dir1 == FaceDirection.Right && dir2 == FaceDirection.Left) ||
+                   (dir1 == FaceDirection.Top && dir2 == FaceDirection.Bottom) ||
+                   (dir1 == FaceDirection.Bottom && dir2 == FaceDirection.Top);
+        }
+
+        /// <summary>
+        /// Checks if this quad is coplanar and overlapping with another quad (occupy the same space).
+        /// </summary>
+        private bool IsCoplanarAndOverlappingWith(Quad other, float tolerance = 0.001f)
+        {
+            var vertices1 = Vertices;
+            var vertices2 = other.Vertices;
+
+            // For each vertex in this quad, check if there's a matching vertex in the other quad
+            int matchingVertices = 0;
+            foreach (var v1 in vertices1)
             {
-                foreach (var edge2 in otherEdges)
+                foreach (var v2 in vertices2)
                 {
-                    if (EdgesOverlap(edge1, edge2, tolerance))
-                        return true;
+                    if (Math.Abs(v1.X - v2.X) < tolerance &&
+                        Math.Abs(v1.Y - v2.Y) < tolerance &&
+                        Math.Abs(v1.Z - v2.Z) < tolerance)
+                    {
+                        matchingVertices++;
+                        break;
+                    }
                 }
             }
 
-            return false;
-        }
-
-        private (Vertex, Vertex)[] GetEdges()
-        {
-            return new[]
-            {
-                (V1, V2),
-                (V2, V3),
-                (V3, V4),
-                (V4, V1)
-            };
-        }
-
-        private bool EdgesOverlap((Vertex, Vertex) edge1, (Vertex, Vertex) edge2, double tolerance)
-        {
-            // First check if edges are collinear
-            if (!AreEdgesCollinear(edge1, edge2, tolerance))
-                return false;
-
-            // If collinear, check if they overlap
-            return DoCollinearSegmentsOverlap(edge1, edge2, tolerance);
-        }
-
-        private bool AreEdgesCollinear((Vertex, Vertex) edge1, (Vertex, Vertex) edge2, double tolerance)
-        {
-            // Calculate direction vectors
-            var dir1 = new Vector3(
-                edge1.Item2.X - edge1.Item1.X,
-                edge1.Item2.Y - edge1.Item1.Y,
-                edge1.Item2.Z - edge1.Item1.Z
-            );
-
-            var dir2 = new Vector3(
-                edge2.Item2.X - edge2.Item1.X,
-                edge2.Item2.Y - edge2.Item1.Y,
-                edge2.Item2.Z - edge2.Item1.Z
-            );
-
-            // Check if one edge point lies on the line defined by the other edge
-            var crossProduct = CrossProduct(dir1,
-                new Vector3(
-                    edge2.Item1.X - edge1.Item1.X,
-                    edge2.Item1.Y - edge1.Item1.Y,
-                    edge2.Item1.Z - edge1.Item1.Z
-                ));
-
-            return crossProduct.Length() < tolerance;
-        }
-
-        private bool DoCollinearSegmentsOverlap((Vertex, Vertex) seg1, (Vertex, Vertex) seg2, double tolerance)
-        {
-            // For collinear segments, project onto the dominant axis
-            var dx1 = Math.Abs(seg1.Item2.X - seg1.Item1.X);
-            var dy1 = Math.Abs(seg1.Item2.Y - seg1.Item1.Y);
-            var dz1 = Math.Abs(seg1.Item2.Z - seg1.Item1.Z);
-
-            // Determine dominant axis
-            if (dx1 >= dy1 && dx1 >= dz1)
-            {
-                // Project onto X axis
-                return SegmentsOverlap1D(
-                    seg1.Item1.X, seg1.Item2.X,
-                    seg2.Item1.X, seg2.Item2.X,
-                    tolerance);
-            }
-            else if (dy1 >= dx1 && dy1 >= dz1)
-            {
-                // Project onto Y axis
-                return SegmentsOverlap1D(
-                    seg1.Item1.Y, seg1.Item2.Y,
-                    seg2.Item1.Y, seg2.Item2.Y,
-                    tolerance);
-            }
-            else
-            {
-                // Project onto Z axis
-                return SegmentsOverlap1D(
-                    seg1.Item1.Z, seg1.Item2.Z,
-                    seg2.Item1.Z, seg2.Item2.Z,
-                    tolerance);
-            }
-        }
-
-        private bool SegmentsOverlap1D(double a1, double a2, double b1, double b2, double tolerance)
-        {
-            // Ensure segments are ordered
-            var min1 = Math.Min(a1, a2);
-            var max1 = Math.Max(a1, a2);
-            var min2 = Math.Min(b1, b2);
-            var max2 = Math.Max(b1, b2);
-
-            // Check if segments overlap
-            return max1 + tolerance >= min2 && max2 + tolerance >= min1;
-        }
-
-        private Vector3 CrossProduct(Vector3 a, Vector3 b)
-        {
-            return new Vector3(
-                a.Y * b.Z - a.Z * b.Y,
-                a.Z * b.X - a.X * b.Z,
-                a.X * b.Y - a.Y * b.X
-            );
-        }
-
-        public bool IsTouchingWith(Quad other, double tolerance = 0.0001)
-        {
-            return HasOverlappingVerticesWith(other) || SharesEdgeWith(other, tolerance);
-        }
-
-        public bool IsMergableWith(Quad other, double tolerance = 0.0001)
-        {
-            return QuadDirection == other.QuadDirection &&
-                   FaceDirection == other.FaceDirection &&
-                   IsTouchingWith(other, tolerance) &&
-                   PaintColor == other.PaintColor;
+            // If all 4 vertices match, the quads are coplanar and overlapping
+            return matchingVertices == 4;
         }
 
         public override string ToString()

@@ -41,9 +41,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
             // Step 2: Convert quads to mesh data
             return ConvertQuadsToMesh(quads);
-        }        /// <summary>
-                 /// Generates quads representing the maze geometry (ground, walls, path).
-                 /// </summary>
+        }
+
+        /// <summary>
+        /// Generates quads representing the maze geometry (ground, walls, path).
+        /// </summary>
         public List<Quad> GenerateMazeQuads(InnerMap maze, List<MazePointPos> path, bool singleCuboidPerPixel = true)
         {
             var quads = new List<Quad>();
@@ -54,16 +56,18 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Ground plane quads
             AddGroundPlaneQuads(quads, maze, singleCuboidPerPixel);
 
-            // Add wall quads - inlined AddWall method logic
+            // Add wall quads - now split into two parts
             AddMazeWalls(maze, quads, singleCuboidPerPixel);
+
+            // Add path quads (reactivated)
+            AddMazePath(maze, quads, pathData);
 
             // Cull hidden faces (interior faces between adjacent cubes)
             MeshOptimizer.CullHiddenFaces(quads);
 
-            // Additional quad optimizations (merging adjacent quads) can be applied here if needed:
-            MeshOptimizer.OptimizeQuads(quads);
-
-            //AddMazePath(maze, quads, pathData);
+            // Additional quad optimizations (merging adjacent quads) applied after adding paths
+            // Even though this algorithm is quite cool, it doesn't work as it causes non-manifold edges
+            //MeshOptimizer.OptimizeQuads(quads);
 
             return quads;
         }
@@ -88,21 +92,27 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         {
             if (singleCuboidPerPixel)
             {
-                // Simple approach: Add one cube per maze pixel that is a wall
+                // Simple approach: Add two cubes per maze pixel that is a wall
+                // Lower cube: same height as path (GroundHeight to GroundHeight + PathHeight)
+                // Upper cube: remaining wall height (GroundHeight + PathHeight to GroundHeight + WallHeight)
                 for (int y = 0; y < maze.Height - 1; y++)
                 {
                     for (int x = 0; x < maze.Width - 1; x++)
                     {
                         if (!maze[x, y]) // Wall position (false = wall, true = open space)
                         {
-                            AddCubeQuads(quads, x, y, GroundHeight, GroundHeight + WallHeight, Colors[0]);
+                            // Lower wall part - same height as path
+                            AddCubeQuads(quads, x, y, GroundHeight, GroundHeight + PathHeight, Colors[0]);
+
+                            // Upper wall part - remaining height
+                            AddCubeQuads(quads, x, y, GroundHeight + PathHeight, GroundHeight + WallHeight, Colors[0]);
                         }
                     }
                 }
             }
             else
             {
-                // Complex approach: Generate optimized wall segments
+                // Complex approach: Generate optimized wall segments with split cuboids
                 var mazeWalls = maze.GenerateListOfMazeWalls();
                 foreach (var wall in mazeWalls)
                 {
@@ -115,7 +125,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
                         if (wall.Ystart > 0 && wall.Ystart < maze.Height - 2)
                         {
-                            if (maze[wall.Xstart, wall.Ystart - 1] == false || maze[wall.Xstart, wall.Ystart + 1] == false)
+                            if (!maze[wall.Xstart, wall.Ystart - 1] || !maze[wall.Xstart, wall.Ystart + 1])
                             {
                                 xstart++;
                             }
@@ -127,7 +137,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
                         if (wall.Yend < maze.Height - 2 && wall.Yend > 0)
                         {
-                            if (maze[wall.Xend, wall.Yend - 1] == false || maze[wall.Xend, wall.Yend + 1] == false)
+                            if (!maze[wall.Xend, wall.Yend - 1] || !maze[wall.Xend, wall.Yend + 1])
                             {
                                 xend--;
                             }
@@ -136,30 +146,35 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                         {
                             xend--;
                         }
-                        AddCubeQuadsWithDimensions(quads, xstart, wall.Ystart, xend + 1, wall.Yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Horizontal wall
+
+                        // Lower wall part - same height as path
+                        AddCubeQuadsWithDimensions(quads, xstart, wall.Ystart, xend + 1, wall.Yend + 1, GroundHeight, GroundHeight + PathHeight, Colors[0]);
+
+                        // Upper wall part - remaining height
+                        AddCubeQuadsWithDimensions(quads, xstart, wall.Ystart, xend + 1, wall.Yend + 1, GroundHeight + PathHeight, GroundHeight + WallHeight, Colors[0]);
                     }
                     else
                     {
                         var ystart = wall.Ystart;
                         var yend = wall.Yend;
 
-                        if (wall.Xstart > 0 && wall.Xstart < maze.Width - 2)
+                        if (wall.Xstart > 0 && wall.Xstart < maze.Width - 2 &&
+                            !maze[wall.Xstart - 1, wall.Ystart] && !maze[wall.Xstart + 1, wall.Ystart])
                         {
-                            if (maze[wall.Xstart - 1, wall.Ystart] == false && maze[wall.Xstart + 1, wall.Ystart] == false)
-                            {
-                                ystart++;
-                            }
+                            ystart++;
                         }
 
-                        if (wall.Xend < maze.Width - 2 && wall.Xend > 0)
+                        if (wall.Xend < maze.Width - 2 && wall.Xend > 0 &&
+                            !maze[wall.Xend - 1, wall.Yend] && !maze[wall.Xend + 1, wall.Yend])
                         {
-                            if (maze[wall.Xend - 1, wall.Yend] == false && maze[wall.Xend + 1, wall.Yend] == false)
-                            {
-                                yend--;
-                            }
+                            yend--;
                         }
 
-                        AddCubeQuadsWithDimensions(quads, wall.Xstart, ystart, wall.Xend + 1, yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Vertical wall
+                        // Lower wall part - same height as path
+                        AddCubeQuadsWithDimensions(quads, wall.Xstart, ystart, wall.Xend + 1, yend + 1, GroundHeight, GroundHeight + PathHeight, Colors[0]);
+
+                        // Upper wall part - remaining height
+                        AddCubeQuadsWithDimensions(quads, wall.Xstart, ystart, wall.Xend + 1, yend + 1, GroundHeight + PathHeight, GroundHeight + WallHeight, Colors[0]);
                     }
                 }
             }
