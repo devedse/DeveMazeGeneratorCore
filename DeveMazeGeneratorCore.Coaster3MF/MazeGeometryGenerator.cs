@@ -10,6 +10,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         private const float GroundHeight = 2.5f; // White ground base height in mm
         private const float WallHeight = 2.5f; // Additional height for walls (black) in mm
         private const float PathHeight = 1.25f; // Additional height for path in mm
+        private const float XYScale = 5.0f; // Scale multiplier for X and Y coordinates
 
         private static readonly string[] Colors =
         [
@@ -33,19 +34,17 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         /// - Vertices are reused across quads to ensure manifold geometry
         /// - Proper counter-clockwise winding order for outward-facing normals
         /// </summary>
-        public MeshData GenerateMazeGeometry(InnerMap maze, List<MazePointPos> path)
+        public MeshData GenerateMazeGeometry(InnerMap maze, List<MazePointPos> path, bool singleCuboidPerPixel = true)
         {
             // Step 1: Generate quads
-            var quads = GenerateMazeQuads(maze, path);
+            var quads = GenerateMazeQuads(maze, path, singleCuboidPerPixel);
 
             // Step 2: Convert quads to mesh data
             return ConvertQuadsToMesh(quads);
-        }
-
-        /// <summary>
+        }        /// <summary>
         /// Generates quads representing the maze geometry (ground, walls, path).
         /// </summary>
-        public List<Quad> GenerateMazeQuads(InnerMap maze, List<MazePointPos> path)
+        public List<Quad> GenerateMazeQuads(InnerMap maze, List<MazePointPos> path, bool singleCuboidPerPixel = true)
         {
             var quads = new List<Quad>();
 
@@ -53,13 +52,12 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             var pathData = new PathData(path);
 
             // Ground plane quads
-            AddGroundPlaneQuads(quads, maze);
+            AddGroundPlaneQuads(quads, maze, singleCuboidPerPixel);
 
             // Add wall quads - inlined AddWall method logic
-            AddMazeWalls(maze, quads);
+            AddMazeWalls(maze, quads, singleCuboidPerPixel);
 
-
-            OptimizeQuads(quads);
+            //OptimizeQuads(quads);
 
 
             //// Path cube quads - only within the valid maze area (excluding rightmost and bottommost edge)
@@ -199,65 +197,83 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             Console.WriteLine($"Found {quads.Count} wall quads after optimization.");
         }
 
-        private void AddMazeWalls(InnerMap maze, List<Quad> quads)
+        private void AddMazeWalls(InnerMap maze, List<Quad> quads, bool singleCuboidPerPixel)
         {
-            var mazeWalls = maze.GenerateListOfMazeWalls();
-            foreach (var wall in mazeWalls)
+            if (singleCuboidPerPixel)
             {
-                var isHorizontal = wall.Ystart == wall.Yend; // Check if the wall is horizontal or vertical
-
-                if (isHorizontal)
+                // Simple approach: Add one cube per maze pixel that is a wall
+                for (int y = 0; y < maze.Height - 1; y++)
                 {
-                    var xstart = wall.Xstart;
-                    var xend = wall.Xend;
-
-                    if (wall.Ystart > 0 && wall.Ystart < maze.Height - 2)
+                    for (int x = 0; x < maze.Width - 1; x++)
                     {
-                        if (maze[wall.Xstart, wall.Ystart - 1] == false || maze[wall.Xstart, wall.Ystart + 1] == false)
+                        if (!maze[x, y]) // Wall position (false = wall, true = open space)
+                        {
+                            AddCubeQuads(quads, x, y, GroundHeight, GroundHeight + WallHeight, Colors[0]);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Complex approach: Generate optimized wall segments
+                var mazeWalls = maze.GenerateListOfMazeWalls();
+                foreach (var wall in mazeWalls)
+                {
+                    var isHorizontal = wall.Ystart == wall.Yend; // Check if the wall is horizontal or vertical
+
+                    if (isHorizontal)
+                    {
+                        var xstart = wall.Xstart;
+                        var xend = wall.Xend;
+
+                        if (wall.Ystart > 0 && wall.Ystart < maze.Height - 2)
+                        {
+                            if (maze[wall.Xstart, wall.Ystart - 1] == false || maze[wall.Xstart, wall.Ystart + 1] == false)
+                            {
+                                xstart++;
+                            }
+                        }
+                        else if (wall.Xstart == 0)
                         {
                             xstart++;
                         }
-                    }
-                    else if (wall.Xstart == 0)
-                    {
-                        xstart++;
-                    }
 
-                    if (wall.Yend < maze.Height - 2 && wall.Yend > 0)
-                    {
-                        if (maze[wall.Xend, wall.Yend - 1] == false || maze[wall.Xend, wall.Yend + 1] == false)
+                        if (wall.Yend < maze.Height - 2 && wall.Yend > 0)
+                        {
+                            if (maze[wall.Xend, wall.Yend - 1] == false || maze[wall.Xend, wall.Yend + 1] == false)
+                            {
+                                xend--;
+                            }
+                        }
+                        else if (wall.Xend == maze.Width - 2)
                         {
                             xend--;
                         }
+                        AddCubeQuadsWithDimensions(quads, xstart, wall.Ystart, xend + 1, wall.Yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Horizontal wall
                     }
-                    else if (wall.Xend == maze.Width - 2)
+                    else
                     {
-                        xend--;
-                    }
-                    AddCubeQuadsWithDimensions(quads, xstart, wall.Ystart, xend + 1, wall.Yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Horizontal wall
-                }
-                else
-                {
-                    var ystart = wall.Ystart;
-                    var yend = wall.Yend;
+                        var ystart = wall.Ystart;
+                        var yend = wall.Yend;
 
-                    if (wall.Xstart > 0 && wall.Xstart < maze.Width - 2)
-                    {
-                        if (maze[wall.Xstart - 1, wall.Ystart] == false && maze[wall.Xstart + 1, wall.Ystart] == false)
+                        if (wall.Xstart > 0 && wall.Xstart < maze.Width - 2)
                         {
-                            ystart++;
+                            if (maze[wall.Xstart - 1, wall.Ystart] == false && maze[wall.Xstart + 1, wall.Ystart] == false)
+                            {
+                                ystart++;
+                            }
                         }
-                    }
 
-                    if (wall.Xend < maze.Width - 2 && wall.Xend > 0)
-                    {
-                        if (maze[wall.Xend - 1, wall.Yend] == false && maze[wall.Xend + 1, wall.Yend] == false)
+                        if (wall.Xend < maze.Width - 2 && wall.Xend > 0)
                         {
-                            yend--;
+                            if (maze[wall.Xend - 1, wall.Yend] == false && maze[wall.Xend + 1, wall.Yend] == false)
+                            {
+                                yend--;
+                            }
                         }
-                    }
 
-                    AddCubeQuadsWithDimensions(quads, wall.Xstart, ystart, wall.Xend + 1, yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Vertical wall
+                        AddCubeQuadsWithDimensions(quads, wall.Xstart, ystart, wall.Xend + 1, yend + 1, GroundHeight, GroundHeight + WallHeight, Colors[0]); // Vertical wall
+                    }
                 }
             }
         }
@@ -302,68 +318,25 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             return meshData;
         }
 
-        private void AddGroundPlaneQuads(List<Quad> quads, InnerMap maze)
+        private void AddGroundPlaneQuads(List<Quad> quads, InnerMap maze, bool singleCuboidPerPixel)
         {
-            // Bottom face (z = 0) - black
-            quads.Add(new Quad(
-                new Vertex(0, 0, 0),
-                new Vertex(maze.Width - 1, 0, 0),
-                new Vertex(maze.Width - 1, maze.Height - 1, 0),
-                new Vertex(0, maze.Height - 1, 0),
-                Colors[0],
-                FaceDirection.Bottom
-            ));
-
-            // Top face (z = GroundHeight) - white
-            quads.Add(new Quad(
-                new Vertex(0, 0, GroundHeight),
-                new Vertex(maze.Width - 1, 0, GroundHeight),
-                new Vertex(maze.Width - 1, maze.Height - 1, GroundHeight),
-                new Vertex(0, maze.Height - 1, GroundHeight),
-                Colors[1],
-                FaceDirection.Top
-            ));
-
-            // Side faces - black
-            // Front face
-            quads.Add(new Quad(
-                new Vertex(0, 0, 0),
-                new Vertex(maze.Width - 1, 0, 0),
-                new Vertex(maze.Width - 1, 0, GroundHeight),
-                new Vertex(0, 0, GroundHeight),
-                Colors[0],
-                FaceDirection.Front
-            ));
-
-            // Right face
-            quads.Add(new Quad(
-                new Vertex(maze.Width - 1, 0, 0),
-                new Vertex(maze.Width - 1, maze.Height - 1, 0),
-                new Vertex(maze.Width - 1, maze.Height - 1, GroundHeight),
-                new Vertex(maze.Width - 1, 0, GroundHeight),
-                Colors[0],
-                FaceDirection.Right
-            ));
-
-            // Back face
-            quads.Add(new Quad(
-                new Vertex(maze.Width - 1, maze.Height - 1, 0),
-                new Vertex(0, maze.Height - 1, 0),
-                new Vertex(0, maze.Height - 1, GroundHeight),
-                new Vertex(maze.Width - 1, maze.Height - 1, GroundHeight),
-                Colors[0],
-                FaceDirection.Back
-            ));
-
-            // Left face
-            quads.Add(new Quad(
-                new Vertex(0, maze.Height - 1, 0),
-                new Vertex(0, 0, 0),
-                new Vertex(0, 0, GroundHeight),
-                new Vertex(0, maze.Height - 1, GroundHeight),
-                Colors[0],
-                FaceDirection.Left
-            ));
+            if (singleCuboidPerPixel)
+            {
+                // Generate one cube for each ground cell (maze.Width-1 x maze.Height-1)
+                for (int y = 0; y < maze.Height - 1; y++)
+                {
+                    for (int x = 0; x < maze.Width - 1; x++)
+                    {
+                        // Each ground cube has a white top and black sides/bottom
+                        AddCubeQuads(quads, x, y, 0, GroundHeight, Colors[3]); // White ground cubes
+                    }
+                }
+            }
+            else
+            {
+                // Single large ground plane using AddCubeQuadsWithDimensions
+                AddCubeQuadsWithDimensions(quads, 0, 0, maze.Width - 1, maze.Height - 1, 0, GroundHeight, Colors[3]);
+            }
         }
 
         private void AddCubeQuads(List<Quad> quads, int x, int y, float zBottom, float zTop, string paintColor)
@@ -373,62 +346,68 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         private void AddCubeQuadsWithDimensions(List<Quad> quads, float x, float y, float endX, float endY, float zBottom, float zTop, string paintColor)
         {
+            // Apply XY scaling to coordinates
+            var scaledX = x * XYScale;
+            var scaledY = y * XYScale;
+            var scaledEndX = endX * XYScale;
+            var scaledEndY = endY * XYScale;
+
             // Bottom face
             quads.Add(new Quad(
-                new Vertex(x, y, zBottom),
-                new Vertex(endX, y, zBottom),
-                new Vertex(endX, endY, zBottom),
-                new Vertex(x, endY, zBottom),
+                new Vertex(scaledX, scaledY, zBottom),
+                new Vertex(scaledEndX, scaledY, zBottom),
+                new Vertex(scaledEndX, scaledEndY, zBottom),
+                new Vertex(scaledX, scaledEndY, zBottom),
                 paintColor,
                 FaceDirection.Bottom
             ));
 
             // Top face
             quads.Add(new Quad(
-                new Vertex(x, y, zTop),
-                new Vertex(endX, y, zTop),
-                new Vertex(endX, endY, zTop),
-                new Vertex(x, endY, zTop),
+                new Vertex(scaledX, scaledY, zTop),
+                new Vertex(scaledEndX, scaledY, zTop),
+                new Vertex(scaledEndX, scaledEndY, zTop),
+                new Vertex(scaledX, scaledEndY, zTop),
                 paintColor,
                 FaceDirection.Top
             ));
 
             // Front face
             quads.Add(new Quad(
-                new Vertex(x, y, zBottom),
-                new Vertex(endX, y, zBottom),
-                new Vertex(endX, y, zTop),
-                new Vertex(x, y, zTop),
+                new Vertex(scaledX, scaledY, zBottom),
+                new Vertex(scaledEndX, scaledY, zBottom),
+                new Vertex(scaledEndX, scaledY, zTop),
+                new Vertex(scaledX, scaledY, zTop),
                 paintColor,
                 FaceDirection.Front
             ));
 
             // Right face
             quads.Add(new Quad(
-                new Vertex(endX, y, zBottom),
-                new Vertex(endX, endY, zBottom),
-                new Vertex(endX, endY, zTop),
-                new Vertex(endX, y, zTop),
+                new Vertex(scaledEndX, scaledY, zBottom),
+                new Vertex(scaledEndX, scaledEndY, zBottom),
+                new Vertex(scaledEndX, scaledEndY, zTop),
+                new Vertex(scaledEndX, scaledY, zTop),
                 paintColor,
                 FaceDirection.Right
             ));
 
             // Back face
             quads.Add(new Quad(
-                new Vertex(endX, endY, zBottom),
-                new Vertex(x, endY, zBottom),
-                new Vertex(x, endY, zTop),
-                new Vertex(endX, endY, zTop),
+                new Vertex(scaledEndX, scaledEndY, zBottom),
+                new Vertex(scaledX, scaledEndY, zBottom),
+                new Vertex(scaledX, scaledEndY, zTop),
+                new Vertex(scaledEndX, scaledEndY, zTop),
                 paintColor,
                 FaceDirection.Back
             ));
 
             // Left face
             quads.Add(new Quad(
-                new Vertex(x, endY, zBottom),
-                new Vertex(x, y, zBottom),
-                new Vertex(x, y, zTop),
-                new Vertex(x, endY, zTop),
+                new Vertex(scaledX, scaledEndY, zBottom),
+                new Vertex(scaledX, scaledY, zBottom),
+                new Vertex(scaledX, scaledY, zTop),
+                new Vertex(scaledX, scaledEndY, zTop),
                 paintColor,
                 FaceDirection.Left
             ));
@@ -697,6 +676,5 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
             return groundFaces + cubeFaces;
         }
-
     }
 }
