@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveMazeGeneratorCore.Bench
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveMazeGeneratorCore.Coaster3MF", "DeveMazeGeneratorCore.Coaster3MF\DeveMazeGeneratorCore.Coaster3MF.csproj", "{BB2816D4-D641-4564-B302-4AA2B69188E4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeveMazeGeneratorCore.Coaster3MF.Tests", "DeveMazeGeneratorCore.Coaster3MF.Tests\DeveMazeGeneratorCore.Coaster3MF.Tests.csproj", "{4601D5A8-8DD8-81D4-828C-B1E3C3589B4B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{BB2816D4-D641-4564-B302-4AA2B69188E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB2816D4-D641-4564-B302-4AA2B69188E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB2816D4-D641-4564-B302-4AA2B69188E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4601D5A8-8DD8-81D4-828C-B1E3C3589B4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4601D5A8-8DD8-81D4-828C-B1E3C3589B4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4601D5A8-8DD8-81D4-828C-B1E3C3589B4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4601D5A8-8DD8-81D4-828C-B1E3C3589B4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
