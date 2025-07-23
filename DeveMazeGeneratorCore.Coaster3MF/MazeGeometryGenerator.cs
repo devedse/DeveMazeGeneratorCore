@@ -25,28 +25,27 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
 
         /// <summary>
-        /// First generates quads representing the maze geometry, then converts them to vertices and triangles.
-        /// This is the refactored version that uses the two-step approach with proper face directions 
-        /// and vertex reuse to prevent non-manifold edges.
+        /// First generates quads representing the maze geometry, then applies quad-based optimization
+        /// with edge-aware triangulation to maintain manifold topology.
         /// 
         /// Key improvements:
         /// - Each quad now has a FaceDirection (Front, Back, Left, Right, Top, Bottom)
         /// - Vertices are reused across quads to ensure manifold geometry
         /// - Proper counter-clockwise winding order for outward-facing normals
-        /// - NEW: Mesh-level optimization after quad-to-mesh conversion
+        /// - NEW: Quad-based optimization with edge-aware triangulation before mesh conversion
         /// </summary>
         public MeshData GenerateMazeGeometry(InnerMap maze, List<MazePointPos> path, bool singleCuboidPerPixel = true)
         {
             // Step 1: Generate quads
             var quads = GenerateMazeQuads(maze, path, singleCuboidPerPixel);
 
-            // Step 2: Convert quads to mesh data
-            var meshData = ConvertQuadsToMesh(quads);
+            // Step 2: Apply quad-based optimization with edge-aware triangulation (NEW APPROACH)
+            var optimizedQuads = MeshOptimizer.OptimizeQuadsWithEdgeAwareTriangulation(quads);
             
-            // Step 3: Apply mesh-level optimization (NEW APPROACH)
-            var optimizedMesh = MeshOptimizer.OptimizeMesh(meshData);
+            // Step 3: Convert optimized quads to mesh data
+            var meshData = ConvertQuadsToMesh(optimizedQuads);
             
-            return optimizedMesh;
+            return meshData;
         }
 
         /// <summary>
@@ -74,9 +73,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 MeshOptimizer.CullHiddenFaces(quads);
             }
 
-            // Quad-level optimizations are no longer used
-            // New approach: optimize at mesh level after quad-to-triangle conversion
-            // This maintains manifold topology while still reducing triangle count
+            // Quad-based optimizations with edge-aware triangulation (NEW APPROACH)
+            // This maintains manifold topology while reducing triangle count through
+            // intelligent quad merging and triangulation based on edge adjacency
 
             return quads;
         }
