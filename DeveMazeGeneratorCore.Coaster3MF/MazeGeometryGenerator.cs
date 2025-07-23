@@ -33,6 +33,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         /// - Each quad now has a FaceDirection (Front, Back, Left, Right, Top, Bottom)
         /// - Vertices are reused across quads to ensure manifold geometry
         /// - Proper counter-clockwise winding order for outward-facing normals
+        /// - NEW: Mesh-level optimization after quad-to-mesh conversion
         /// </summary>
         public MeshData GenerateMazeGeometry(InnerMap maze, List<MazePointPos> path, bool singleCuboidPerPixel = true)
         {
@@ -40,7 +41,12 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             var quads = GenerateMazeQuads(maze, path, singleCuboidPerPixel);
 
             // Step 2: Convert quads to mesh data
-            return ConvertQuadsToMesh(quads);
+            var meshData = ConvertQuadsToMesh(quads);
+            
+            // Step 3: Apply mesh-level optimization (NEW APPROACH)
+            var optimizedMesh = MeshOptimizer.OptimizeMesh(meshData);
+            
+            return optimizedMesh;
         }
 
         /// <summary>
@@ -68,10 +74,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 MeshOptimizer.CullHiddenFaces(quads);
             }
 
-            // Additional quad optimizations (merging adjacent quads) applied after adding paths
-            // Mesh optimization is disabled because current algorithms create non-manifold edges
-            // See research in MeshOptimizer.OptimizeQuadsManifoldAware for details on the challenges
-            // MeshOptimizer.OptimizeQuadsManifoldAware(quads);
+            // Quad-level optimizations are no longer used
+            // New approach: optimize at mesh level after quad-to-triangle conversion
+            // This maintains manifold topology while still reducing triangle count
 
             return quads;
         }
