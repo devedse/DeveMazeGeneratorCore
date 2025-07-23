@@ -1392,7 +1392,8 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         }
         
         /// <summary>
-        /// Step 4: Map each edge to all quads that touch it.
+        /// STEP 4: Map each edge to all quads that touch it.
+        /// Fixed to properly identify shared edges between adjacent quads.
         /// </summary>
         private static Dictionary<QuadEdge, List<Quad>> MapEdgesToTouchingQuads(Dictionary<Quad, List<QuadEdge>> quadEdges)
         {
@@ -1402,11 +1403,30 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             {
                 foreach (var edge in edges)
                 {
-                    if (!edgeToQuads.ContainsKey(edge))
+                    var normalizedEdge = edge.Normalized();
+                    
+                    // Find if this edge (ignoring direction) already exists
+                    QuadEdge? matchingKey = null;
+                    foreach (var existingEdge in edgeToQuads.Keys)
                     {
-                        edgeToQuads[edge] = new List<Quad>();
+                        var normalizedExisting = existingEdge.Normalized();
+                        if (AreEdgesGeometricallyEqual(normalizedEdge, normalizedExisting))
+                        {
+                            matchingKey = existingEdge;
+                            break;
+                        }
                     }
-                    edgeToQuads[edge].Add(quad);
+                    
+                    if (matchingKey != null)
+                    {
+                        // Add to existing edge
+                        edgeToQuads[matchingKey].Add(quad);
+                    }
+                    else
+                    {
+                        // Create new edge entry
+                        edgeToQuads[normalizedEdge] = new List<Quad> { quad };
+                    }
                 }
             }
             
@@ -1414,26 +1434,52 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         }
         
         /// <summary>
+        /// Checks if two edges are geometrically equal (same vertices, regardless of direction).
+        /// </summary>
+        private static bool AreEdgesGeometricallyEqual(QuadEdge edge1, QuadEdge edge2)
+        {
+            const float tolerance = 0.001f;
+            
+            // Check if vertices match (either direction)
+            bool forward = AreVerticesNear(edge1.V1, edge2.V1, tolerance) && 
+                          AreVerticesNear(edge1.V2, edge2.V2, tolerance);
+            bool reverse = AreVerticesNear(edge1.V1, edge2.V2, tolerance) && 
+                          AreVerticesNear(edge1.V2, edge2.V1, tolerance);
+            
+            return forward || reverse;
+        }
+        
+        /// <summary>
+        /// Checks if two vertices are within tolerance distance.
+        /// </summary>
+        private static bool AreVerticesNear(Vertex v1, Vertex v2, float tolerance)
+        {
+            return Math.Abs(v1.X - v2.X) < tolerance &&
+                   Math.Abs(v1.Y - v2.Y) < tolerance &&
+                   Math.Abs(v1.Z - v2.Z) < tolerance;
+        }
+        
+        /// <summary>
         /// STEP 5: Perform smart triangulation within each quad based on edge requirements.
         /// 
         /// This implements the user's exact algorithm:
-        /// "Then per quad we're going to need to determine the edges
-        /// Then per edge we're going to find all quads that touch that edge
-        /// Then per touching quad we're going know that that's at least where a triangle side needs to be
+        /// "If the top of the primary quad touches 2 other quads, left/right/bottom touch 1 each,
+        /// then we need 3 triangles in this quad so that all edges are touched by exactly one triangle."
         /// 
-        /// So let's say the top of the primary quad touches 2 other quads
-        /// the left right and bottom only touch one quad
-        /// Then we need 3 triangles in this quad so that all edges are touched by exactly one triangle."
-        /// 
-        /// DEMONSTRATION: The algorithm correctly analyzes edge patterns and logs the results.
+        /// COMPLETE IMPLEMENTATION: Actually applies the triangulation based on connectivity analysis.
         /// </summary>
         private static List<Quad> PerformSmartTriangulation(List<Quad> mergedQuads, 
             Dictionary<Quad, List<QuadEdge>> quadEdges, 
             Dictionary<QuadEdge, List<Quad>> edgeToQuads)
         {
             var finalQuads = new List<Quad>();
-            int analysisCount = 0;
             int highConnectivityQuads = 0;
+            int singleHighConnectivityQuads = 0;
+            int multipleHighConnectivityQuads = 0;
+            
+            // Track examples for demonstration
+            int examplesShown = 0;
+            const int maxExamples = 3;
             
             foreach (var quad in mergedQuads)
             {
@@ -1445,44 +1491,101 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 for (int i = 0; i < edges.Count; i++)
                 {
                     var edge = edges[i];
-                    var touchingQuads = edgeToQuads.ContainsKey(edge) ? edgeToQuads[edge].Count : 1;
-                    edgeConnectivity[(EdgeDirection)i] = touchingQuads;
+                    var touchingQuadCount = CountQuadsTouchingEdge(edge, edgeToQuads);
+                    edgeConnectivity[(EdgeDirection)i] = touchingQuadCount;
                 }
                 
                 // STEP 3: Apply the user's algorithm to determine triangulation
-                var hasHighConnectivity = edgeConnectivity.Any(kv => kv.Value > 1);
+                var highConnectivityEdges = edgeConnectivity.Where(kv => kv.Value > 1).ToList();
+                var hasHighConnectivity = highConnectivityEdges.Any();
+                
                 if (hasHighConnectivity)
                 {
                     highConnectivityQuads++;
                     
-                    // Log the first few examples to demonstrate the algorithm is working
-                    if (analysisCount < 3)
+                    if (highConnectivityEdges.Count == 1)
                     {
-                        Console.WriteLine($"Quad {analysisCount + 1}: Edge connectivity analysis:");
-                        foreach (var (direction, count) in edgeConnectivity)
-                        {
-                            Console.WriteLine($"  {direction} edge touches {count} quad(s)");
-                        }
+                        singleHighConnectivityQuads++;
                         
-                        // Apply user's example logic
-                        var highConnectivityEdge = edgeConnectivity.FirstOrDefault(kv => kv.Value > 1);
-                        if (highConnectivityEdge.Key != default)
+                        // Show examples of the user's algorithm in action
+                        if (examplesShown < maxExamples)
                         {
-                            Console.WriteLine($"  → {highConnectivityEdge.Key} edge has high connectivity → needs special triangulation");
+                            var highEdge = highConnectivityEdges.First();
+                            Console.WriteLine($"USER'S ALGORITHM EXAMPLE {examplesShown + 1}:");
+                            Console.WriteLine($"  {highEdge.Key} edge touches {highEdge.Value} other quads");
+                            
+                            foreach (var (direction, count) in edgeConnectivity)
+                            {
+                                if (direction != highEdge.Key)
+                                {
+                                    Console.WriteLine($"  {direction} edge touches {count} other quad(s)");
+                                }
+                            }
+                            
+                            Console.WriteLine($"  → Creating {GetTriangleCountForPattern(highConnectivityEdges)} triangular sub-quads for this connectivity pattern");
+                            examplesShown++;
                         }
-                        
-                        analysisCount++;
                     }
+                    else
+                    {
+                        multipleHighConnectivityQuads++;
+                    }
+                    
+                    // Apply user's triangulation algorithm
+                    var triangulatedQuads = ApplyUserTriangulationAlgorithm(quad, edgeConnectivity);
+                    finalQuads.AddRange(triangulatedQuads);
                 }
-                
-                // For manifold safety, return original quad (algorithm analysis is complete)
-                finalQuads.Add(quad);
+                else
+                {
+                    // Standard case: all edges have normal connectivity
+                    finalQuads.Add(quad);
+                }
             }
             
-            Console.WriteLine($"Smart triangulation analysis: {highConnectivityQuads} quads have high-connectivity edges");
-            Console.WriteLine($"Algorithm successfully identified edge patterns as requested");
+            Console.WriteLine($"Smart triangulation results:");
+            Console.WriteLine($"  {singleHighConnectivityQuads} quads used user's example pattern (1 high-connectivity edge → 3 sub-quads)");
+            Console.WriteLine($"  {multipleHighConnectivityQuads} quads used complex pattern (multiple high-connectivity edges → 4 sub-quads)");
+            Console.WriteLine($"  Total: {highConnectivityQuads} quads required special triangulation");
             
             return finalQuads;
+        }
+        
+        /// <summary>
+        /// Gets the number of triangular sub-quads created for a given connectivity pattern.
+        /// </summary>
+        private static int GetTriangleCountForPattern(List<KeyValuePair<EdgeDirection, int>> highConnectivityEdges)
+        {
+            if (highConnectivityEdges.Count == 1)
+            {
+                return 3; // User's example: "then we need 3 triangles"
+            }
+            else if (highConnectivityEdges.Count >= 2)
+            {
+                return 4; // Complex pattern requires 4 sub-quads
+            }
+            else
+            {
+                return 2; // Standard case
+            }
+        }
+        
+        /// <summary>
+        /// Counts how many quads touch a given edge by finding matching edges in the map.
+        /// </summary>
+        private static int CountQuadsTouchingEdge(QuadEdge edge, Dictionary<QuadEdge, List<Quad>> edgeToQuads)
+        {
+            var normalizedEdge = edge.Normalized();
+            
+            // Find matching edge key
+            foreach (var (mapEdge, quads) in edgeToQuads)
+            {
+                if (AreEdgesGeometricallyEqual(normalizedEdge, mapEdge.Normalized()))
+                {
+                    return quads.Count;
+                }
+            }
+            
+            return 1; // If not found, assume it's a boundary edge touching only 1 quad
         }
         
         /// <summary>
@@ -1491,40 +1594,214 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         /// USER'S EXAMPLE: "If top edge touches 2 other quads, left/right/bottom touch 1 each,
         /// then we need 3 triangles in this quad so all edges are touched by exactly one triangle."
         /// 
-        /// KEY INSIGHT: Instead of subdividing quads, we can create multiple copies of the same
-        /// quad with different triangulation patterns. Each quad still represents the same geometry
-        /// but with optimized triangle arrangements based on edge connectivity.
-        /// 
-        /// IMPORTANT: All triangulation stays strictly within the original quad boundaries.
+        /// IMPLEMENTATION: Creates sub-quads with triangulation patterns based on edge connectivity.
+        /// All triangulation stays strictly within the original quad boundaries.
         /// </summary>
         private static List<Quad> ApplyUserTriangulationAlgorithm(Quad quad, Dictionary<EdgeDirection, int> edgeConnectivity)
         {
-            // Analyze the edge connectivity pattern
+            // Analyze the connectivity pattern
             var highConnectivityEdges = edgeConnectivity.Where(kv => kv.Value > 1).ToList();
-            var totalConnectivity = edgeConnectivity.Values.Sum();
+            var totalHighEdges = highConnectivityEdges.Count;
             
-            // Apply user's algorithm: determine required triangles based on edge connectivity
-            if (highConnectivityEdges.Count == 0)
+            if (totalHighEdges == 0)
             {
-                // Standard case: all edges have normal connectivity (touching 1 quad each)
-                // Standard quad triangulation: 2 triangles
+                // Standard case: all edges have normal connectivity (1 touching quad each)
+                // Use standard 2-triangle subdivision
                 return new List<Quad> { quad };
             }
-            else if (highConnectivityEdges.Count == 1)
+            else if (totalHighEdges == 1)
             {
-                // User's example case: one edge has high connectivity
-                // "If top edge touches 2 other quads, left/right/bottom touch 1 each,
-                // then we need 3 triangles"
-                
-                // For demonstration: create a custom triangulation pattern
-                // In practice, this would create 3 triangles arranged optimally
-                // For now, return the original quad to maintain 0 border edges
-                return new List<Quad> { quad };
+                // USER'S EXAMPLE CASE: One edge has high connectivity
+                // "If top edge touches 2 other quads, left/right/bottom touch 1 each, then we need 3 triangles"
+                var highEdge = highConnectivityEdges.First();
+                return CreateTriangulationForSingleHighConnectivity(quad, highEdge.Key, highEdge.Value);
             }
             else
             {
                 // Complex case: multiple high-connectivity edges
-                // Could require 4+ triangles with sophisticated patterns
+                // Use more sophisticated triangulation
+                return CreateTriangulationForMultipleHighConnectivity(quad, highConnectivityEdges);
+            }
+        }
+        
+        /// <summary>
+        /// Creates triangulation for user's example case: one edge has high connectivity.
+        /// "If top edge touches 2 other quads, left/right/bottom touch 1 each, then we need 3 triangles"
+        /// </summary>
+        private static List<Quad> CreateTriangulationForSingleHighConnectivity(Quad quad, EdgeDirection highEdge, int connectivity)
+        {
+            // For high connectivity (2+ touching quads), create triangulation that focuses on that edge
+            // This creates sub-quads that ensure proper edge handling
+            
+            var vertices = quad.GetOrderedVertices();
+            if (vertices.Length != 4) return new List<Quad> { quad };
+            
+            try
+            {
+                // Calculate center point for triangulation
+                var centerX = (vertices[0].X + vertices[1].X + vertices[2].X + vertices[3].X) / 4f;
+                var centerY = (vertices[0].Y + vertices[1].Y + vertices[2].Y + vertices[3].Y) / 4f;
+                var centerZ = (vertices[0].Z + vertices[1].Z + vertices[2].Z + vertices[3].Z) / 4f;
+                var center = new Vertex(centerX, centerY, centerZ);
+                
+                // Create triangulation pattern based on which edge has high connectivity
+                switch (highEdge)
+                {
+                    case EdgeDirection.Top:
+                        // High connectivity on top edge - create 3 triangular sub-quads
+                        // focusing triangulation toward the top edge
+                        return CreateTopFocusedTriangulation(quad, vertices, center);
+                        
+                    case EdgeDirection.Right:
+                        // High connectivity on right edge
+                        return CreateRightFocusedTriangulation(quad, vertices, center);
+                        
+                    case EdgeDirection.Bottom:
+                        // High connectivity on bottom edge
+                        return CreateBottomFocusedTriangulation(quad, vertices, center);
+                        
+                    case EdgeDirection.Left:
+                        // High connectivity on left edge
+                        return CreateLeftFocusedTriangulation(quad, vertices, center);
+                        
+                    default:
+                        return new List<Quad> { quad };
+                }
+            }
+            catch
+            {
+                // If triangulation fails, return original quad to maintain manifold topology
+                return new List<Quad> { quad };
+            }
+        }
+        
+        /// <summary>
+        /// Creates triangulation focused on the top edge (user's example case).
+        /// Creates 3 sub-quads that handle the high connectivity on the top edge.
+        /// </summary>
+        private static List<Quad> CreateTopFocusedTriangulation(Quad quad, Vertex[] vertices, Vertex center)
+        {
+            // For top edge high connectivity, create 3 triangular regions
+            // This ensures the top edge is properly handled by the triangulation
+            
+            // Calculate midpoints of left and right edges
+            var leftMid = new Vertex(
+                (vertices[0].X + vertices[3].X) / 2f,
+                (vertices[0].Y + vertices[3].Y) / 2f,
+                (vertices[0].Z + vertices[3].Z) / 2f
+            );
+            var rightMid = new Vertex(
+                (vertices[1].X + vertices[2].X) / 2f,
+                (vertices[1].Y + vertices[2].Y) / 2f,
+                (vertices[1].Z + vertices[2].Z) / 2f
+            );
+            
+            // Create 3 sub-quads that focus triangulation on the top edge
+            var subQuads = new List<Quad>
+            {
+                // Top-left triangular region
+                new Quad(vertices[0], vertices[1], center, leftMid, quad.PaintColor, quad.FaceDirection),
+                
+                // Top-right triangular region  
+                new Quad(center, vertices[1], vertices[2], rightMid, quad.PaintColor, quad.FaceDirection),
+                
+                // Bottom region
+                new Quad(leftMid, center, rightMid, vertices[3], quad.PaintColor, quad.FaceDirection)
+            };
+            
+            return subQuads;
+        }
+        
+        /// <summary>
+        /// Creates triangulation focused on the right edge.
+        /// </summary>
+        private static List<Quad> CreateRightFocusedTriangulation(Quad quad, Vertex[] vertices, Vertex center)
+        {
+            var topMid = new Vertex(
+                (vertices[0].X + vertices[1].X) / 2f,
+                (vertices[0].Y + vertices[1].Y) / 2f,
+                (vertices[0].Z + vertices[1].Z) / 2f
+            );
+            var bottomMid = new Vertex(
+                (vertices[2].X + vertices[3].X) / 2f,
+                (vertices[2].Y + vertices[3].Y) / 2f,
+                (vertices[2].Z + vertices[3].Z) / 2f
+            );
+            
+            return new List<Quad>
+            {
+                new Quad(vertices[0], topMid, center, vertices[3], quad.PaintColor, quad.FaceDirection),
+                new Quad(topMid, vertices[1], vertices[2], center, quad.PaintColor, quad.FaceDirection),
+                new Quad(center, vertices[2], bottomMid, vertices[3], quad.PaintColor, quad.FaceDirection)
+            };
+        }
+        
+        /// <summary>
+        /// Creates triangulation focused on the bottom edge.
+        /// </summary>
+        private static List<Quad> CreateBottomFocusedTriangulation(Quad quad, Vertex[] vertices, Vertex center)
+        {
+            var leftMid = new Vertex(
+                (vertices[0].X + vertices[3].X) / 2f,
+                (vertices[0].Y + vertices[3].Y) / 2f,
+                (vertices[0].Z + vertices[3].Z) / 2f
+            );
+            var rightMid = new Vertex(
+                (vertices[1].X + vertices[2].X) / 2f,
+                (vertices[1].Y + vertices[2].Y) / 2f,
+                (vertices[1].Z + vertices[2].Z) / 2f
+            );
+            
+            return new List<Quad>
+            {
+                new Quad(vertices[0], vertices[1], rightMid, leftMid, quad.PaintColor, quad.FaceDirection),
+                new Quad(leftMid, rightMid, center, vertices[3], quad.PaintColor, quad.FaceDirection),
+                new Quad(rightMid, vertices[2], vertices[3], center, quad.PaintColor, quad.FaceDirection)
+            };
+        }
+        
+        /// <summary>
+        /// Creates triangulation focused on the left edge.
+        /// </summary>
+        private static List<Quad> CreateLeftFocusedTriangulation(Quad quad, Vertex[] vertices, Vertex center)
+        {
+            var topMid = new Vertex(
+                (vertices[0].X + vertices[1].X) / 2f,
+                (vertices[0].Y + vertices[1].Y) / 2f,
+                (vertices[0].Z + vertices[1].Z) / 2f
+            );
+            var bottomMid = new Vertex(
+                (vertices[2].X + vertices[3].X) / 2f,
+                (vertices[2].Y + vertices[3].Y) / 2f,
+                (vertices[2].Z + vertices[3].Z) / 2f
+            );
+            
+            return new List<Quad>
+            {
+                new Quad(vertices[0], topMid, center, vertices[3], quad.PaintColor, quad.FaceDirection),
+                new Quad(topMid, vertices[1], vertices[2], center, quad.PaintColor, quad.FaceDirection),
+                new Quad(vertices[3], center, bottomMid, vertices[2], quad.PaintColor, quad.FaceDirection)
+            };
+        }
+        
+        /// <summary>
+        /// Creates triangulation for complex cases with multiple high-connectivity edges.
+        /// </summary>
+        private static List<Quad> CreateTriangulationForMultipleHighConnectivity(Quad quad, List<KeyValuePair<EdgeDirection, int>> highConnectivityEdges)
+        {
+            // For multiple high-connectivity edges, use a more complex subdivision
+            // This creates a 4-quad subdivision that can handle complex connectivity patterns
+            
+            var vertices = quad.GetOrderedVertices();
+            if (vertices.Length != 4) return new List<Quad> { quad };
+            
+            try
+            {
+                return SubdivideQuadIntoFour(quad) ?? new List<Quad> { quad };
+            }
+            catch
+            {
+                // If subdivision fails, return original quad
                 return new List<Quad> { quad };
             }
         }
@@ -1632,14 +1909,16 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         
         private record QuadEdge(Vertex V1, Vertex V2, EdgeDirection Direction)
         {
-            // Normalize edge so smaller vertex comes first for consistent comparison
+            private const float TOLERANCE = 0.001f;
+            
+            // Normalize edge so vertices are ordered consistently for proper matching
             public QuadEdge Normalized()
             {
-                // Use a simple comparison based on vertex coordinates to avoid hash code recursion
-                var v1Hash = V1.X.GetHashCode() ^ V1.Y.GetHashCode() ^ V1.Z.GetHashCode();
-                var v2Hash = V2.X.GetHashCode() ^ V2.Y.GetHashCode() ^ V2.Z.GetHashCode();
+                // Compare vertices by position, not hash codes
+                var v1Key = $"{V1.X:F3}_{V1.Y:F3}_{V1.Z:F3}";
+                var v2Key = $"{V2.X:F3}_{V2.Y:F3}_{V2.Z:F3}";
                 
-                if (v1Hash < v2Hash)
+                if (string.Compare(v1Key, v2Key, StringComparison.Ordinal) <= 0)
                     return this;
                 else
                     return new QuadEdge(V2, V1, Direction);
@@ -1648,9 +1927,14 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             public override int GetHashCode()
             {
                 var normalized = Normalized();
-                return HashCode.Combine(normalized.V1.X, normalized.V1.Y, normalized.V1.Z,
-                                      normalized.V2.X, normalized.V2.Y, normalized.V2.Z,
-                                      normalized.Direction);
+                return HashCode.Combine(
+                    Math.Round(normalized.V1.X / TOLERANCE),
+                    Math.Round(normalized.V1.Y / TOLERANCE), 
+                    Math.Round(normalized.V1.Z / TOLERANCE),
+                    Math.Round(normalized.V2.X / TOLERANCE),
+                    Math.Round(normalized.V2.Y / TOLERANCE),
+                    Math.Round(normalized.V2.Z / TOLERANCE)
+                );
             }
             
             public virtual bool Equals(QuadEdge? other) 
@@ -1658,9 +1942,16 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 if (other == null) return false;
                 var thisNorm = this.Normalized();
                 var otherNorm = other.Normalized();
-                return thisNorm.V1.Equals(otherNorm.V1) && 
-                       thisNorm.V2.Equals(otherNorm.V2) && 
-                       thisNorm.Direction == otherNorm.Direction;
+                
+                return AreVerticesEqual(thisNorm.V1, otherNorm.V1) && 
+                       AreVerticesEqual(thisNorm.V2, otherNorm.V2);
+            }
+            
+            private static bool AreVerticesEqual(Vertex v1, Vertex v2)
+            {
+                return Math.Abs(v1.X - v2.X) < TOLERANCE &&
+                       Math.Abs(v1.Y - v2.Y) < TOLERANCE &&
+                       Math.Abs(v1.Z - v2.Z) < TOLERANCE;
             }
         }
         
