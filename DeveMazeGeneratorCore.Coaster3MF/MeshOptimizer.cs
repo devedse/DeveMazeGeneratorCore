@@ -351,44 +351,41 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         /// <summary>
         /// Optimizes quads by merging adjacent quads of the same orientation and color.
-        /// Only merges quads that share an edge (not diagonally connected ones).
+        /// USER'S HACK: Limited to one optimization step to reduce border edge risk.
         /// </summary>
         public static void OptimizeQuads(List<Quad> quads)
         {
             Console.WriteLine($"Found {quads.Count} quads before optimization.");
 
-            bool merged;
-            do
+            // USER'S REQUESTED HACK: Only do one optimization step
+            bool merged = false;
+
+            for (int i = 0; i < quads.Count && !merged; i++)
             {
-                merged = false;
+                var currentQuad = quads[i];
 
-                for (int i = 0; i < quads.Count && !merged; i++)
+                // Find quads that are actually adjacent (share an edge) and can be merged
+                for (int j = i + 1; j < quads.Count; j++)
                 {
-                    var currentQuad = quads[i];
+                    var otherQuad = quads[j];
 
-                    // Find quads that are actually adjacent (share an edge) and can be merged
-                    for (int j = i + 1; j < quads.Count; j++)
+                    if (CanMergeQuads(currentQuad, otherQuad))
                     {
-                        var otherQuad = quads[j];
-
-                        if (CanMergeQuads(currentQuad, otherQuad))
+                        var mergedQuad = MergeAdjacentQuads(currentQuad, otherQuad);
+                        if (mergedQuad != null)
                         {
-                            var mergedQuad = MergeAdjacentQuads(currentQuad, otherQuad);
-                            if (mergedQuad != null)
-                            {
-                                // Remove the two original quads and add the merged one
-                                quads.RemoveAt(j); // Remove higher index first
-                                quads.RemoveAt(i);
-                                quads.Add(mergedQuad);
-                                merged = true;
-                                break;
-                            }
+                            // Remove the two original quads and add the merged one
+                            quads.RemoveAt(j); // Remove higher index first
+                            quads.RemoveAt(i);
+                            quads.Add(mergedQuad);
+                            merged = true;
+                            break;
                         }
                     }
                 }
-            } while (merged); // Keep merging until no more merges are possible
+            }
 
-            Console.WriteLine($"Found {quads.Count} quads after optimization.");
+            Console.WriteLine($"Found {quads.Count} quads after optimization (limited to 1 step).");
         }
 
         /// <summary>
