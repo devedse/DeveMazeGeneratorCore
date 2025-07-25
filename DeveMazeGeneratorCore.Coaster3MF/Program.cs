@@ -16,17 +16,17 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         public static void Main(string[] args)
         {
             Console.WriteLine("DeveMazeGeneratorCore 3MF Coaster Maker");
-            
+
             // Check if we should run performance comparison
             if (args.Length > 0 && args[0] == "--perf")
             {
                 PerformanceTest.RunComparison();
                 return;
             }
-            
+
             // Generate a 20x20 maze using AlgorithmBacktrack2Deluxe2_AsByte
             var mazeCoaster = new MazeCoaster3MF();
-            
+
             // Generate with different seeds for variety
             Console.WriteLine("Generating 3 different coaster designs...");
 
@@ -49,11 +49,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             for (int i = 1; i <= 3; i++)
             {
                 Console.WriteLine($"Creating coaster {i}...");
-                mazeCoaster.Generate3MFCoaster(19, 1337 + i, null);
+                mazeCoaster.Generate3MFCoaster(57, 1337 + i, 57 / 3);
                 Console.WriteLine();
                 Console.WriteLine();
             }
-            
+
             Console.WriteLine("All 3MF coasters generated successfully!");
         }
     }
