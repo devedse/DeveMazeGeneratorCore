@@ -88,33 +88,6 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         }
 
         /// <summary>
-        /// Creates a fast integer-based signature for the vertex positions of a quad.
-        /// Facing quads have identical signatures regardless of vertex order.
-        /// Uses XOR of vertex hashes for order-independence and fast computation.
-        /// </summary>
-        private static long GetFastVertexSignature(Quad quad)
-        {
-            // Create hash codes for each vertex position (rounded to avoid floating point precision issues)
-            long hash = 0;
-            foreach (var vertex in quad.Vertices)
-            {
-                // Round to 3 decimal places to handle floating point precision
-                var x = (int)Math.Round(vertex.X * 1000);
-                var y = (int)Math.Round(vertex.Y * 1000);
-                var z = (int)Math.Round(vertex.Z * 1000);
-
-                // Create a unique hash for this vertex position
-                var vertexHash = HashCode.Combine(x, y, z);
-
-                // XOR with accumulated hash - this makes the signature independent of vertex order
-                // Facing quads with identical vertices will have identical signatures
-                hash ^= vertexHash;
-            }
-
-            return hash;
-        }
-
-        /// <summary>
         /// Original O(N²) implementation for comparison (kept for testing purposes).
         /// </summary>
         public static void CullHiddenFacesOriginal(List<Quad> quads)
@@ -153,103 +126,6 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
             stopwatch.Stop();
             Console.WriteLine($"Found {quads.Count} quads after face culling (original algorithm). Removed {quadsToRemove.Count} hidden faces in {stopwatch.ElapsedMilliseconds}ms");
-        }
-
-        /// <summary>
-        /// Groups quads by their canonically ordered vertices.
-        /// Facing quads (like top and bottom faces of the same cube) will have identical canonically ordered vertices.
-        /// This allows for much more efficient culling than spatial grouping.
-        /// </summary>
-        private static Dictionary<string, List<Quad>> GroupQuadsByCanonicalVertices(List<Quad> quads)
-        {
-            var groups = new Dictionary<string, List<Quad>>();
-
-            foreach (var quad in quads)
-            {
-                // Get canonically ordered vertices and create a unique key
-                var key = GetCanonicalVertexKey(quad);
-
-                if (!groups.TryGetValue(key, out var group))
-                {
-                    group = new List<Quad>();
-                    groups[key] = group;
-                }
-
-                group.Add(quad);
-            }
-
-            return groups;
-        }
-
-        /// <summary>
-        /// Creates a unique string key from canonically ordered vertices.
-        /// Quads with identical vertex positions (but potentially different face directions) will have the same key.
-        /// </summary>
-        private static string GetCanonicalVertexKey(Quad quad)
-        {
-            // Instead of using reflection, let's create our own canonical ordering
-            // Sort vertices by position to create a consistent key for facing quads
-            var vertices = quad.Vertices;
-            var sortedVertices = vertices.OrderBy(v => v.X)
-                                         .ThenBy(v => v.Y)
-                                         .ThenBy(v => v.Z)
-                                         .ToArray();
-
-            return string.Join("|", sortedVertices.Select(v => $"{v.X:F3},{v.Y:F3},{v.Z:F3}"));
-        }
-
-        /// <summary>
-        /// Within a group of quads with identical canonically ordered vertices,
-        /// find and mark pairs with opposite face directions for removal.
-        /// </summary>
-        private static void CullOppositeFaceDirectionsInGroup(List<Quad> group, HashSet<Quad> quadsToRemove)
-        {
-            // Group by face direction within this vertex group
-            var directionGroups = group.GroupBy(q => q.FaceDirection).ToList();
-
-            // Look for opposite face direction pairs
-            foreach (var dir1Group in directionGroups)
-            {
-                foreach (var dir2Group in directionGroups)
-                {
-                    if (dir1Group.Key == dir2Group.Key) continue; // Skip same direction
-
-                    // Check if these are opposite face directions
-                    if (AreOppositeFaceDirections(dir1Group.Key, dir2Group.Key))
-                    {
-                        // Mark all quads from both direction groups for removal
-                        foreach (var quad1 in dir1Group)
-                        {
-                            if (!quadsToRemove.Contains(quad1))
-                            {
-                                foreach (var quad2 in dir2Group)
-                                {
-                                    if (!quadsToRemove.Contains(quad2))
-                                    {
-                                        // Both quads are facing each other - remove both
-                                        quadsToRemove.Add(quad1);
-                                        quadsToRemove.Add(quad2);
-                                        break; // Move to next quad1
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Checks if two face directions are opposite.
-        /// </summary>
-        private static bool AreOppositeFaceDirections(FaceDirection dir1, FaceDirection dir2)
-        {
-            return (dir1 == FaceDirection.Front && dir2 == FaceDirection.Back) ||
-                   (dir1 == FaceDirection.Back && dir2 == FaceDirection.Front) ||
-                   (dir1 == FaceDirection.Left && dir2 == FaceDirection.Right) ||
-                   (dir1 == FaceDirection.Right && dir2 == FaceDirection.Left) ||
-                   (dir1 == FaceDirection.Top && dir2 == FaceDirection.Bottom) ||
-                   (dir1 == FaceDirection.Bottom && dir2 == FaceDirection.Top);
         }
 
         /// <summary>
