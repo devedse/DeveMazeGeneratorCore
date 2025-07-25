@@ -317,11 +317,5 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 FaceDirection.Left
             ));
         }
-
-
-        public int CalculateFaceCount(InnerMap maze, PathData pathData)
-        {
-            return 12345; // Placeholder for face count calculation logic
-        }
     }
 }

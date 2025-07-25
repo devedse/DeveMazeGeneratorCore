@@ -1,3 +1,5 @@
+using DeveMazeGeneratorCore.Coaster3MF.Models;
+
 namespace DeveMazeGeneratorCore.Coaster3MF
 {
     public static class BambuStudioMetadata
@@ -48,16 +50,43 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             </config>
             """;
 
-        public static string GetModelSettings(int faceCount)
+
+        private static string GetThreeMFPlateModelInstance(int objectId)
         {
             return $"""
-                <?xml version="1.0" encoding="UTF-8"?>
-                <config>
-                  <object id="2">
+                    <model_instance>
+                      <metadata key="object_id" value="{objectId}"/>
+                      <metadata key="instance_id" value="0"/>
+                      <metadata key="identify_id" value="{objectId + 100}"/>
+                    </model_instance>
+                """;
+        }
+
+        public static string GetThreeMFPlate(int plateId, IEnumerable<int> objectIds)
+        {
+            return $"""
+                  <plate>
+                    <metadata key="plater_id" value="{plateId}"/>
+                    <metadata key="plater_name" value=""/>
+                    <metadata key="locked" value="false"/>
+                    <metadata key="filament_map_mode" value="Auto For Flush"/>
+                    <metadata key="thumbnail_file" value="Metadata/plate_1.png"/>
+                    <metadata key="thumbnail_no_light_file" value="Metadata/plate_no_light_1.png"/>
+                    <metadata key="top_file" value="Metadata/top_1.png"/>
+                    <metadata key="pick_file" value="Metadata/pick_1.png"/>
+                    {string.Join(Environment.NewLine, objectIds.Select(id => GetThreeMFPlateModelInstance(id)))}
+                  </plate>
+                """;
+        }
+
+        public static string GetThreeMFObject(ThreeMFModel model)
+        {
+            return $"""
+                  <object id="{model.ObjectId}">
                     <metadata key="name" value="Maze_Coaster"/>
                     <metadata key="extruder" value="1"/>
-                    <metadata key="face_count" value="{faceCount}"/>
-                    <part id="1" subtype="normal_part">
+                    <metadata key="face_count" value="{model.MeshData.Triangles.Count / 2}"/>
+                    <part id="{model.PartId}" subtype="normal_part">
                       <metadata key="name" value="Maze_Coaster"/>
                       <metadata key="matrix" value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
                       <metadata key="source_file" value="maze_coaster.3mf"/>
@@ -66,26 +95,28 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                       <metadata key="source_offset_x" value="9.5"/>
                       <metadata key="source_offset_y" value="9.5"/>
                       <metadata key="source_offset_z" value="2.5"/>
-                      <mesh_stat face_count="{faceCount}" edges_fixed="0" degenerate_facets="0" facets_removed="0" facets_reversed="0" backwards_edges="0"/>
+                      <mesh_stat face_count="{model.MeshData.Triangles.Count / 2}" edges_fixed="0" degenerate_facets="0" facets_removed="0" facets_reversed="0" backwards_edges="0"/>
                     </part>
                   </object>
-                  <plate>
-                    <metadata key="plater_id" value="1"/>
-                    <metadata key="plater_name" value=""/>
-                    <metadata key="locked" value="false"/>
-                    <metadata key="filament_map_mode" value="Auto For Flush"/>
-                    <metadata key="thumbnail_file" value="Metadata/plate_1.png"/>
-                    <metadata key="thumbnail_no_light_file" value="Metadata/plate_no_light_1.png"/>
-                    <metadata key="top_file" value="Metadata/top_1.png"/>
-                    <metadata key="pick_file" value="Metadata/pick_1.png"/>
-                    <model_instance>
-                      <metadata key="object_id" value="2"/>
-                      <metadata key="instance_id" value="0"/>
-                      <metadata key="identify_id" value="84"/>
-                    </model_instance>
-                  </plate>
+                """;
+        }
+
+        public static string GetAssembleItem(int objectId)
+        {
+            return $"""
+                    <assemble_item object_id="{objectId}"instance_id="0" transform="1 0 0 0 1 0 0 0 1 0 0 0" offset="0 0 0"/>
+                """;
+        }
+
+        public static string GetModelSettings(List<ThreeMFPlate> plates)
+        {
+            return $"""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <config>
+                  {string.Join(Environment.NewLine, plates.SelectMany(t => t.Models).Select(m => GetThreeMFObject(m)))}
+                  {string.Join(Environment.NewLine, plates.Select(p => GetThreeMFPlate(p.PlateId, p.Models.Select(t => t.ObjectId))))}
                   <assemble>
-                   <assemble_item object_id="2" instance_id="0" transform="1 0 0 0 1 0 0 0 1 0 0 0" offset="0 0 0"/>
+                    {string.Join(Environment.NewLine, plates.SelectMany(p => p.Models).Select(m => GetAssembleItem(m.ObjectId)))}
                   </assemble>
                 </config>
                 """;

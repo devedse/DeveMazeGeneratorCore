@@ -1,12 +1,11 @@
+using DeveMazeGeneratorCore.Coaster3MF.Models;
 using DeveMazeGeneratorCore.Factories;
 using DeveMazeGeneratorCore.Generators;
 using DeveMazeGeneratorCore.Generators.Helpers;
 using DeveMazeGeneratorCore.Generators.SpeedOptimization;
-using DeveMazeGeneratorCore.Imageification;
 using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.PathFinders;
-using DeveMazeGeneratorCore.Structures;
 
 namespace DeveMazeGeneratorCore.Coaster3MF
 {
@@ -39,6 +38,35 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Generate the geometry data
             var meshData = _geometryGenerator.GenerateMazeGeometry(maze.InnerMap, path);
 
+            Validate(mazeSize, meshData);
+
+            var plates = new List<ThreeMFPlate>()
+            {
+                new ThreeMFPlate(1, new List<ThreeMFModel>
+                {
+                    new ThreeMFModel(1, 2, 1, meshData)
+                })
+            };
+
+
+            // Generate filename with triangle and vertex counts
+            var usedSeed = seed ?? 1337;
+            var filename = $"maze_coaster_{mazeSize}x{mazeSize}_seed{usedSeed}_{meshData.Triangles.Count}tri_{meshData.Vertices.Count}vert.3mf";
+
+            Console.WriteLine($"Creating file: {filename}");
+
+            // Generate the 3MF file
+            _packageGenerator.Create3MFFile(filename, plates, maze.InnerMap, path);
+
+            // Generate preview image
+            // using (var fs = new FileStream($"{filename}.png", FileMode.Create))
+            // {
+            //     WithPath.SaveMazeAsImageDeluxePng(maze.InnerMap, new List<MazePointPos>(), fs);
+            // }
+        }
+
+        private static void Validate(int mazeSize, Models.MeshData meshData)
+        {
             var nonManifoldEdgeDetector = new NonManifoldEdgeDetector();
             if (mazeSize < 50)
             {
@@ -54,22 +82,6 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             {
                 Console.WriteLine("Skipping non-manifold edge detection for large maze size.");
             }
-
-
-            // Generate filename with triangle and vertex counts
-            var usedSeed = seed ?? 1337;
-            var filename = $"maze_coaster_{mazeSize}x{mazeSize}_seed{usedSeed}_{meshData.Triangles.Count}tri_{meshData.Vertices.Count}vert.3mf";
-
-            Console.WriteLine($"Creating file: {filename}");
-
-            // Generate the 3MF file
-            _packageGenerator.Create3MFFile(maze.InnerMap, path, meshData, filename);
-
-            // Generate preview image
-            // using (var fs = new FileStream($"{filename}.png", FileMode.Create))
-            // {
-            //     WithPath.SaveMazeAsImageDeluxePng(maze.InnerMap, new List<MazePointPos>(), fs);
-            // }
         }
 
         private Maze GenerateMaze(int mazeSize, int? seed)
