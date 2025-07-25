@@ -14,6 +14,24 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         private readonly MazeGeometryGenerator _geometryGenerator;
         private readonly ThreeMFPackageGenerator _packageGenerator;
 
+
+        /// PartId 1, 3, 5, 7
+        /// ObjectId 2, 4, 6, 8
+        /// ModelId1, 2, 3, 4
+        private int _partId = 1;
+        private int _modelId = 1;
+        private int _objectId = 2;
+
+        private ThreeMFModel GenerateModel(MeshData meshData)
+        {
+            var retval = new ThreeMFModel(_partId, _objectId, _modelId, meshData);
+            _partId += 2;
+            _objectId += 2;
+            _modelId++;
+            return retval;
+        }
+
+
         public MazeCoaster3MF()
         {
             _geometryGenerator = new MazeGeometryGenerator();
@@ -40,11 +58,15 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
             Validate(mazeSize, meshData);
 
+
+
             var plates = new List<ThreeMFPlate>()
             {
                 new ThreeMFPlate(1, new List<ThreeMFModel>
                 {
-                    new ThreeMFModel(1, 2, 1, meshData)
+                    GenerateModel(meshData),
+                    GenerateModel(meshData),
+                    GenerateModel(meshData),
                 })
             };
 

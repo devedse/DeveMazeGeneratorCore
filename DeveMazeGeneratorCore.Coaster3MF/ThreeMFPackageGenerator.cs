@@ -23,10 +23,10 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 CreateContentTypesFile(archive);
                 CreateRelsFile(archive);
                 Create3DModelFile(archive, plates);
-                Create3DModelRelsFile(archive);
+                Create3DModelRelsFile(archive, plates);
                 CreateObjectFiles(archive, plates);
                 CreateModelSettingsFile(archive, plates);
-                CreateMetadataFiles(archive);
+                CreateMetadataFiles(archive, plates);
 
                 // Generate and add thumbnail images
                 CreateThumbnailImages(archive, maze, path);
@@ -53,13 +53,13 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             }
         }
 
-        private void Create3DModelRelsFile(ZipArchive archive)
+        private void Create3DModelRelsFile(ZipArchive archive, List<ThreeMFPlate> plates)
         {
             var entry = archive.CreateEntry("3D/_rels/3dmodel.model.rels");
             using (var stream = entry.Open())
             using (var writer = new StreamWriter(stream, Encoding.UTF8))
             {
-                writer.Write(BambuStudioMetadata.ModelRelationships);
+                writer.Write(BambuStudioMetadata.GetModelRelationships(plates));
             }
         }
 
@@ -86,13 +86,18 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         private static string GetPlatePosition(int indexOnPlate)
         {
+            int tileSize = 95;
+            int margin = 10;
+            int extraMarginLeft = 30;
+            int extraMarginBottom = 10;
+
             return indexOnPlate switch
             {
-                0 => "80 60 0",
-                1 => "80 160 0",
-                2 => "180 60 0",
-                3 => "180 160 0",
-                _ => throw new ArgumentOutOfRangeException(nameof(indexOnPlate), "Index on plate must be between 0 and 2.")
+                0 => $"{extraMarginLeft} {tileSize + extraMarginBottom} 2.5",
+                1 => $"{extraMarginLeft} {tileSize + extraMarginBottom + tileSize + margin} 2.5",
+                2 => $"{extraMarginLeft + tileSize + margin} {tileSize + extraMarginBottom} 2.5",
+                3 => $"{extraMarginLeft + tileSize + margin} {tileSize + extraMarginBottom + tileSize + margin} 2.5",
+                _ => throw new ArgumentOutOfRangeException(nameof(indexOnPlate), "Index on plate must be between 0 and 3.")
             };
 
         }
@@ -119,12 +124,13 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                  <metadata name="Thumbnail_Small">/Metadata/plate_1_small.png</metadata>
                  <metadata name="Title"></metadata>
                  <resources>
-                  {string.Join(Environment.NewLine, plates.SelectMany(t => t.Models).Select(GetResourceObject))}
+                {string.Join(Environment.NewLine, plates.SelectMany(t => t.Models).Select(GetResourceObject))}
                  </resources>
                  <build p:UUID="2c7c17d8-22b5-4d84-8835-1976022ea369">
-                  {string.Join(Environment.NewLine, plates.SelectMany(t => t.Models).Select(m => GetBuildItem(plates, m)))}
+                {string.Join(Environment.NewLine, plates.SelectMany(t => t.Models).Select(m => GetBuildItem(plates, m)))}
                  </build>
                 </model>
+
                 """;
 
             using (var stream = entry.Open())
@@ -187,12 +193,19 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 writer.WriteStartElement("model", "http://schemas.microsoft.com/3dmanufacturing/core/2015/02");
                 writer.WriteAttributeString("unit", "millimeter");
 
+                //<metadata name="BambuStudio:3mfVersion">1</metadata>
+                writer.WriteStartElement("metadata");
+                writer.WriteAttributeString("name", "BambuStudio:3mfVersion");
+                writer.WriteString("1");
+                writer.WriteEndElement(); // metadata
+
                 // Resources section
                 writer.WriteStartElement("resources");
 
                 // Create a single combined mesh object
                 writer.WriteStartElement("object");
-                writer.WriteAttributeString("id", "1");
+                writer.WriteAttributeString("id", model.PartId.ToString());
+                //writer.WriteAttributeString("p:UUID", $"{model.ModelId.ToString().PadLeft(8, '0')}-81cb-4c03-9d28-80fed5dfa1dc");
                 writer.WriteAttributeString("type", "model");
 
                 writer.WriteStartElement("mesh");
@@ -235,14 +248,14 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             }
         }
 
-        private void CreateMetadataFiles(ZipArchive archive)
+        private void CreateMetadataFiles(ZipArchive archive, List<ThreeMFPlate> plates)
         {
             // Cut information
             var cutEntry = archive.CreateEntry("Metadata/cut_information.xml");
             using (var stream = cutEntry.Open())
             using (var writer = new StreamWriter(stream, Encoding.UTF8))
             {
-                writer.Write(BambuStudioMetadata.CutInformation);
+                writer.Write(BambuStudioMetadata.GetCutInformation(plates));
             }
 
             // Project settings
