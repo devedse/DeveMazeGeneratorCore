@@ -104,7 +104,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         public static string GetAssembleItem(int objectId)
         {
             return $"""
-                    <assemble_item object_id="{objectId}"instance_id="0" transform="1 0 0 0 1 0 0 0 1 0 0 0" offset="0 0 0"/>
+                    <assemble_item object_id="{objectId}" instance_id="0" transform="1 0 0 0 1 0 0 0 1 0 0 0" offset="0 0 0"/>
                 """;
         }
 

@@ -86,22 +86,15 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         private static string GetPlatePosition(int indexOnPlate)
         {
-            if (indexOnPlate == 0)
+            return indexOnPlate switch
             {
-                return "85 85 2.5";
-            }
-            else if (indexOnPlate == 1)
-            {
-                return "450 85 2.5";
-            }
-            else if (indexOnPlate == 2)
-            {
-                return "85 450 2.5";
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException(nameof(indexOnPlate), "Index on plate must be between 0 and 2.");
-            }
+                0 => "80 60 0",
+                1 => "80 160 0",
+                2 => "180 60 0",
+                3 => "180 160 0",
+                _ => throw new ArgumentOutOfRangeException(nameof(indexOnPlate), "Index on plate must be between 0 and 2.")
+            };
+
         }
 
         private void Create3DModelFile(ZipArchive archive, List<ThreeMFPlate> plates)
