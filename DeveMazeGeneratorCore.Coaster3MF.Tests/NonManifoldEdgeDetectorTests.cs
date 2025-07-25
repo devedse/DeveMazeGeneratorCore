@@ -183,6 +183,8 @@
             Assert.True(meshData.Vertices.Count > 0, "Generated maze should have vertices");
             Assert.True(meshData.Triangles.Count > 0, "Generated maze should have triangles");
 
+            Assert.Empty(result.InconsistentEdges);
+
             // The test is primarily to ensure the detector doesn't crash on real data
             // and provides meaningful results
             Assert.NotNull(result);

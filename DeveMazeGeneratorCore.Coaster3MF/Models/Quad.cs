@@ -102,12 +102,14 @@ namespace DeveMazeGeneratorCore.Coaster3MF.Models
             return FaceDirection switch
             {
                 // Top face: counter-clockwise when viewed from above (outside)
-                // (0,0) -> (1,0) -> (1,1) -> (0,1)
-                FaceDirection.Top => [canonical[0], canonical[2], canonical[3], canonical[1]],
+                // With Y-flip, we need to reverse the winding order
+                // (0,0) -> (0,1) -> (1,1) -> (1,0)
+                FaceDirection.Top => [canonical[0], canonical[1], canonical[3], canonical[2]],
                 
                 // Bottom face: counter-clockwise when viewed from below (outside) 
-                // (0,0) -> (0,1) -> (1,1) -> (1,0)
-                FaceDirection.Bottom => [canonical[0], canonical[1], canonical[3], canonical[2]],
+                // With Y-flip, we need to reverse the winding order
+                // (0,0) -> (1,0) -> (1,1) -> (0,1)
+                FaceDirection.Bottom => [canonical[0], canonical[2], canonical[3], canonical[1]],
                 
                 // Front face (-Y): counter-clockwise when viewed from front
                 // For front face, Y is constant, so we use X and Z coordinates
@@ -118,10 +120,12 @@ namespace DeveMazeGeneratorCore.Coaster3MF.Models
                 FaceDirection.Back => [canonical[0], canonical[1], canonical[3], canonical[2]],
                 
                 // Left face (-X): counter-clockwise when viewed from left
-                FaceDirection.Left => [canonical[0], canonical[1], canonical[3], canonical[2]],
+                // With Y-flip, we need to reverse the winding order
+                FaceDirection.Left => [canonical[0], canonical[2], canonical[3], canonical[1]],
                 
                 // Right face (+X): counter-clockwise when viewed from right
-                FaceDirection.Right => [canonical[0], canonical[2], canonical[3], canonical[1]],
+                // With Y-flip, we need to reverse the winding order
+                FaceDirection.Right => [canonical[0], canonical[1], canonical[3], canonical[2]],
                 
                 // Default: use canonical order
                 _ => canonical
