@@ -67,7 +67,29 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                     GenerateModel(meshData),
                     GenerateModel(meshData),
                     GenerateModel(meshData),
-                })
+                    GenerateModel(meshData)
+                }),
+                new ThreeMFPlate(2, new List<ThreeMFModel>
+                {
+                    GenerateModel(meshData),
+                    GenerateModel(meshData),
+                    GenerateModel(meshData),
+                    GenerateModel(meshData)
+                }),
+                new ThreeMFPlate(3, new List<ThreeMFModel>
+                {
+                    GenerateModel(meshData),
+                    GenerateModel(meshData),
+                    GenerateModel(meshData),
+                    GenerateModel(meshData)
+                }),
+                new ThreeMFPlate(4, new List<ThreeMFModel>
+                {
+                    GenerateModel(meshData),
+                    GenerateModel(meshData),
+                    GenerateModel(meshData),
+                    GenerateModel(meshData)
+                }),
             };
 
 

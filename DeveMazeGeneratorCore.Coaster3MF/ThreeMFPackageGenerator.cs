@@ -66,9 +66,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         private static string GetResourceObject(ThreeMFModel model)
         {
             return $"""
-                  <object id="{model.ObjectId}" p:UUID="{model.ModelId.ToString().PadLeft(8, '0')}-61cb-4c03-9d28-80fed5dfa1dc" type="model">
+                  <object id="{model.ObjectId}" p:UUID="{model.ModelId.ToString("x").PadLeft(8, '0')}-61cb-4c03-9d28-80fed5dfa1dc" type="model">
                    <components>
-                    <component p:path="/3D/Objects/object_{model.ModelId}.model" objectid="{model.PartId}" p:UUID="{model.ModelId.ToString().PadLeft(4, '0')}0000-b206-40ff-9872-83e8017abed1" transform="1 0 0 0 1 0 0 0 1 0 0 0"/>
+                    <component p:path="/3D/Objects/object_{model.ModelId}.model" objectid="{model.PartId}" p:UUID="{model.ModelId.ToString("x").PadLeft(4, '0')}0000-b206-40ff-9872-83e8017abed1" transform="1 0 0 0 1 0 0 0 1 0 0 0"/>
                    </components>
                   </object>
                 """;
@@ -80,16 +80,25 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             var indexOnPlate = foundPlate.Models.FindIndex(m => m.ModelId == model.ModelId);
 
             return $"""
-                  <item objectid="{model.ObjectId}" p:UUID="{model.ObjectId.ToString().PadLeft(8, '0')}-b1ec-4553-aec9-835e5b724bb4" transform="1 0 0 0 1 0 0 0 1 {GetPlatePosition(indexOnPlate)}" printable="1"/>
+                  <item objectid="{model.ObjectId}" p:UUID="{model.ObjectId.ToString("x").PadLeft(8, '0')}-b1ec-4553-aec9-835e5b724bb4" transform="1 0 0 0 1 0 0 0 1 {GetPlatePosition(foundPlate.PlateId, indexOnPlate)}" printable="1"/>
                 """;
         }
 
-        private static string GetPlatePosition(int indexOnPlate)
+        private static string GetPlatePosition(int plateIndex, int indexOnPlate)
         {
             int tileSize = 95;
             int margin = 10;
-            int extraMarginLeft = 30;
-            int extraMarginBottom = 10;
+            decimal extraMarginLeft = 30;
+
+            if (plateIndex % 2 == 0)
+            {
+                extraMarginLeft += 307.2m;
+            }
+            decimal extraMarginBottom = 10;
+            if (plateIndex > 2)
+            {
+                extraMarginBottom -= 307.2m;
+            }
 
             return indexOnPlate switch
             {
