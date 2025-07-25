@@ -1,12 +1,11 @@
+using DeveMazeGeneratorCore.Coaster3MF.Models;
+using DeveMazeGeneratorCore.Imageification;
 using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Structures;
-using DeveMazeGeneratorCore.Imageification;
-using DeveMazeGeneratorCore.Coaster3MF.Models;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using System.IO.Compression;
 using System.Text;
 using System.Xml;
@@ -15,7 +14,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 {
     public class ThreeMFPackageGenerator
     {
-        public void Create3MFFile(InnerMap maze, List<MazePointPos> path, MeshData meshData, string filename)
+        public void Create3MFFile(string filename, List<ThreeMFPlate> plates, InnerMap maze, List<MazePointPos> path)
         {
             using (var fileStream = new FileStream(filename, FileMode.Create))
             using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Create))
@@ -23,11 +22,11 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 // Create required 3MF files
                 CreateContentTypesFile(archive);
                 CreateRelsFile(archive);
-                Create3DModelFile(archive);
-                Create3DModelRelsFile(archive);
-                CreateObjectFile(archive, meshData);
-                CreateModelSettingsFile(archive, maze, path);
-                CreateMetadataFiles(archive);
+                Create3DModelFile(archive, plates);
+                Create3DModelRelsFile(archive, plates);
+                CreateObjectFiles(archive, plates);
+                CreateModelSettingsFile(archive, plates);
+                CreateMetadataFiles(archive, plates);
 
                 // Generate and add thumbnail images
                 CreateThumbnailImages(archive, maze, path);
@@ -54,72 +53,101 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             }
         }
 
-        private void Create3DModelRelsFile(ZipArchive archive)
+        private void Create3DModelRelsFile(ZipArchive archive, List<ThreeMFPlate> plates)
         {
             var entry = archive.CreateEntry("3D/_rels/3dmodel.model.rels");
             using (var stream = entry.Open())
             using (var writer = new StreamWriter(stream, Encoding.UTF8))
             {
-                writer.Write(BambuStudioMetadata.ModelRelationships);
+                writer.Write(BambuStudioMetadata.GetModelRelationships(plates));
             }
         }
 
-        private void Create3DModelFile(ZipArchive archive)
+        private static string GetResourceObject(ThreeMFModel model)
+        {
+            return $"""
+                  <object id="{model.ObjectId}" p:UUID="{model.ModelId.ToString("x").PadLeft(8, '0')}-61cb-4c03-9d28-80fed5dfa1dc" type="model">
+                   <components>
+                    <component p:path="/3D/Objects/object_{model.ModelId}.model" objectid="{model.PartId}" p:UUID="{model.ModelId.ToString("x").PadLeft(4, '0')}0000-b206-40ff-9872-83e8017abed1" transform="1 0 0 0 1 0 0 0 1 0 0 0"/>
+                   </components>
+                  </object>
+                """;
+        }
+
+        private static string GetBuildItem(List<ThreeMFPlate> plates, ThreeMFModel model)
+        {
+            var foundPlate = plates.First(p => p.Models.Any(m => m.ModelId == model.ModelId));
+            var indexOnPlate = foundPlate.Models.FindIndex(m => m.ModelId == model.ModelId);
+
+            return $"""
+                  <item objectid="{model.ObjectId}" p:UUID="{model.ObjectId.ToString("x").PadLeft(8, '0')}-b1ec-4553-aec9-835e5b724bb4" transform="1 0 0 0 1 0 0 0 1 {GetPlatePosition(foundPlate.PlateId, indexOnPlate)}" printable="1"/>
+                """;
+        }
+
+        private static string GetPlatePosition(int plateIndex, int indexOnPlate)
+        {
+            int tileSize = 95;
+            int margin = 10;
+            decimal extraMarginLeft = 30;
+
+            if (plateIndex % 2 == 0)
+            {
+                extraMarginLeft += 307.2m;
+            }
+            decimal extraMarginBottom = 10;
+            if (plateIndex > 2)
+            {
+                extraMarginBottom -= 307.2m;
+            }
+
+            return indexOnPlate switch
+            {
+                0 => $"{extraMarginLeft} {tileSize + extraMarginBottom} 2.5",
+                1 => $"{extraMarginLeft} {tileSize + extraMarginBottom + tileSize + margin} 2.5",
+                2 => $"{extraMarginLeft + tileSize + margin} {tileSize + extraMarginBottom} 2.5",
+                3 => $"{extraMarginLeft + tileSize + margin} {tileSize + extraMarginBottom + tileSize + margin} 2.5",
+                _ => throw new ArgumentOutOfRangeException(nameof(indexOnPlate), "Index on plate must be between 0 and 3.")
+            };
+
+        }
+
+        private void Create3DModelFile(ZipArchive archive, List<ThreeMFPlate> plates)
         {
             var entry = archive.CreateEntry("3D/3dmodel.model");
+
+            var threedmodeldotmodelTxt = $"""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:BambuStudio="http://schemas.bambulab.com/package/2021" xmlns:p="http://schemas.microsoft.com/3dmanufacturing/production/2015/06" requiredextensions="p">
+                 <metadata name="Application">BambuStudio-02.01.01.52</metadata>
+                 <metadata name="BambuStudio:3mfVersion">1</metadata>
+                 <metadata name="Copyright"></metadata>
+                 <metadata name="CreationDate">2025-07-25</metadata>
+                 <metadata name="Description"></metadata>
+                 <metadata name="Designer"></metadata>
+                 <metadata name="DesignerCover"></metadata>
+                 <metadata name="DesignerUserId">2360007279</metadata>
+                 <metadata name="License"></metadata>
+                 <metadata name="ModificationDate">2025-07-25</metadata>
+                 <metadata name="Origin"></metadata>
+                 <metadata name="Thumbnail_Middle">/Metadata/plate_1.png</metadata>
+                 <metadata name="Thumbnail_Small">/Metadata/plate_1_small.png</metadata>
+                 <metadata name="Title"></metadata>
+                 <resources>
+                {string.Join(Environment.NewLine, plates.SelectMany(t => t.Models).Select(GetResourceObject))}
+                 </resources>
+                 <build p:UUID="2c7c17d8-22b5-4d84-8835-1976022ea369">
+                {string.Join(Environment.NewLine, plates.SelectMany(t => t.Models).Select(m => GetBuildItem(plates, m)))}
+                 </build>
+                </model>
+
+                """;
+
             using (var stream = entry.Open())
-            using (var writer = XmlWriter.Create(stream, new XmlWriterSettings
             {
-                Indent = true,
-                Encoding = Encoding.UTF8,
-                OmitXmlDeclaration = false
-            }))
-            {
-                writer.WriteStartDocument();
-                writer.WriteStartElement("model", "http://schemas.microsoft.com/3dmanufacturing/core/2015/02");
-                writer.WriteAttributeString("unit", "millimeter");
-                writer.WriteAttributeString("xml", "lang", "http://www.w3.org/XML/1998/namespace", "en-US");
-                writer.WriteAttributeString("xmlns", "p", null, "http://schemas.microsoft.com/3dmanufacturing/production/2015/06");
-                writer.WriteAttributeString("requiredextensions", "p");
-
-                // Metadata
-                WriteModelMetadata(writer);
-
-                // Resources section
-                writer.WriteStartElement("resources");
-
-                writer.WriteStartElement("object");
-                writer.WriteAttributeString("id", "2");
-                writer.WriteAttributeString("p", "uuid", null, "00000001-61cb-4c03-9d28-80fed5dfa1dc");
-                writer.WriteAttributeString("type", "model");
-
-                writer.WriteStartElement("components");
-                writer.WriteStartElement("component");
-                writer.WriteAttributeString("p", "path", null, "/3D/Objects/object_1.model");
-                writer.WriteAttributeString("objectid", "1");
-                writer.WriteAttributeString("p", "uuid", null, "00010000-b206-40ff-9872-83e8017abed1");
-                writer.WriteAttributeString("transform", "1 0 0 0 1 0 0 0 1 0 0 0");
-                writer.WriteEndElement(); // component
-                writer.WriteEndElement(); // components
-
-                writer.WriteEndElement(); // object
-                writer.WriteEndElement(); // resources
-
-                // Build section
-                writer.WriteStartElement("build");
-                writer.WriteAttributeString("p", "uuid", null, "2c7c17d8-22b5-4d84-8835-1976022ea369");
-
-                writer.WriteStartElement("item");
-                writer.WriteAttributeString("objectid", "2");
-                writer.WriteAttributeString("p", "uuid", null, "00000002-b1ec-4553-aec9-835e5b724bb4");
-                writer.WriteAttributeString("transform", "1 0 0 0 1 0 0 0 1 128 128 2.5");
-                writer.WriteAttributeString("printable", "1");
-                writer.WriteEndElement(); // item
-
-                writer.WriteEndElement(); // build
-
-                writer.WriteEndElement(); // model
-                writer.WriteEndDocument();
+                using (var writer = new StreamWriter(stream, Encoding.UTF8))
+                {
+                    writer.Write(threedmodeldotmodelTxt);
+                }
             }
         }
 
@@ -150,9 +178,18 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             }
         }
 
-        private void CreateObjectFile(ZipArchive archive, MeshData meshData)
+        private void CreateObjectFiles(ZipArchive archive, List<ThreeMFPlate> plates)
         {
-            var entry = archive.CreateEntry("3D/Objects/object_1.model");
+            var allModels = plates.SelectMany(p => p.Models).ToList();
+            foreach (var model in allModels)
+            {
+                CreateObjectFile(archive, model);
+            }
+        }
+
+        private void CreateObjectFile(ZipArchive archive, ThreeMFModel model)
+        {
+            var entry = archive.CreateEntry($"3D/Objects/object_{model.ModelId}.model");
             using (var stream = entry.Open())
             using (var writer = XmlWriter.Create(stream, new XmlWriterSettings
             {
@@ -165,19 +202,26 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 writer.WriteStartElement("model", "http://schemas.microsoft.com/3dmanufacturing/core/2015/02");
                 writer.WriteAttributeString("unit", "millimeter");
 
+                //<metadata name="BambuStudio:3mfVersion">1</metadata>
+                writer.WriteStartElement("metadata");
+                writer.WriteAttributeString("name", "BambuStudio:3mfVersion");
+                writer.WriteString("1");
+                writer.WriteEndElement(); // metadata
+
                 // Resources section
                 writer.WriteStartElement("resources");
 
                 // Create a single combined mesh object
                 writer.WriteStartElement("object");
-                writer.WriteAttributeString("id", "1");
+                writer.WriteAttributeString("id", model.PartId.ToString());
+                //writer.WriteAttributeString("p:UUID", $"{model.ModelId.ToString().PadLeft(8, '0')}-81cb-4c03-9d28-80fed5dfa1dc");
                 writer.WriteAttributeString("type", "model");
 
                 writer.WriteStartElement("mesh");
 
                 // Write vertices
                 writer.WriteStartElement("vertices");
-                foreach (var vertex in meshData.Vertices)
+                foreach (var vertex in model.MeshData.Vertices)
                 {
                     writer.WriteStartElement("vertex");
                     writer.WriteAttributeString("x", vertex.X.ToString());
@@ -189,7 +233,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
                 // Write triangles
                 writer.WriteStartElement("triangles");
-                foreach (var triangle in meshData.Triangles)
+                foreach (var triangle in model.MeshData.Triangles)
                 {
                     writer.WriteStartElement("triangle");
                     writer.WriteAttributeString("v1", triangle.V1.ToString());
@@ -213,14 +257,14 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             }
         }
 
-        private void CreateMetadataFiles(ZipArchive archive)
+        private void CreateMetadataFiles(ZipArchive archive, List<ThreeMFPlate> plates)
         {
             // Cut information
             var cutEntry = archive.CreateEntry("Metadata/cut_information.xml");
             using (var stream = cutEntry.Open())
             using (var writer = new StreamWriter(stream, Encoding.UTF8))
             {
-                writer.Write(BambuStudioMetadata.CutInformation);
+                writer.Write(BambuStudioMetadata.GetCutInformation(plates));
             }
 
             // Project settings
@@ -240,19 +284,13 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             }
         }
 
-        private void CreateModelSettingsFile(ZipArchive archive, InnerMap maze, List<MazePointPos> path)
+        private void CreateModelSettingsFile(ZipArchive archive, List<ThreeMFPlate> plates)
         {
-            // Calculate face count based on the mesh that will be generated
-            var pathData = new PathData(path);
-
-            var geometryGenerator = new MazeGeometryGenerator();
-            var faceCount = geometryGenerator.CalculateFaceCount(maze, pathData);
-
             var entry = archive.CreateEntry("Metadata/model_settings.config");
             using (var stream = entry.Open())
             using (var writer = new StreamWriter(stream, Encoding.UTF8))
             {
-                writer.Write(BambuStudioMetadata.GetModelSettings(faceCount));
+                writer.Write(BambuStudioMetadata.GetModelSettings(plates));
             }
         }
 

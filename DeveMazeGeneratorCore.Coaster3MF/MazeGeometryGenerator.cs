@@ -80,7 +80,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Path cube quads - only within the valid maze area (excluding rightmost and bottommost edge)
             foreach (var point in pathData.PathSet)
             {
-                if (point.X < maze.Width - 1 && point.Y < maze.Height - 1 && maze[point.X, point.Y]) // Open space that's part of the path and within valid area
+                if (point.X < maze.Width && point.Y < maze.Height && maze[point.X, point.Y]) // Open space that's part of the path and within valid area
                 {
                     // Determine color based on position in path (0-255)
                     var relativePos = pathData.PathPositions[point];
@@ -98,9 +98,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 // Simple approach: Add two cubes per maze pixel that is a wall
                 // Lower cube: same height as path (GroundHeight to GroundHeight + PathHeight)
                 // Upper cube: remaining wall height (GroundHeight + PathHeight to GroundHeight + WallHeight)
-                for (int y = 0; y < maze.Height - 1; y++)
+                for (int y = 0; y < maze.Height; y++)
                 {
-                    for (int x = 0; x < maze.Width - 1; x++)
+                    for (int x = 0; x < maze.Width; x++)
                     {
                         if (!maze[x, y]) // Wall position (false = wall, true = open space)
                         {
@@ -126,7 +126,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                         var xstart = wall.Xstart;
                         var xend = wall.Xend;
 
-                        if (wall.Ystart > 0 && wall.Ystart < maze.Height - 2)
+                        if (wall.Ystart > 0 && wall.Ystart < maze.Height - 1)
                         {
                             if (!maze[wall.Xstart, wall.Ystart - 1] || !maze[wall.Xstart, wall.Ystart + 1])
                             {
@@ -138,14 +138,14 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                             xstart++;
                         }
 
-                        if (wall.Yend < maze.Height - 2 && wall.Yend > 0)
+                        if (wall.Yend < maze.Height - 1 && wall.Yend > 0)
                         {
                             if (!maze[wall.Xend, wall.Yend - 1] || !maze[wall.Xend, wall.Yend + 1])
                             {
                                 xend--;
                             }
                         }
-                        else if (wall.Xend == maze.Width - 2)
+                        else if (wall.Xend == maze.Width - 1)
                         {
                             xend--;
                         }
@@ -161,13 +161,13 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                         var ystart = wall.Ystart;
                         var yend = wall.Yend;
 
-                        if (wall.Xstart > 0 && wall.Xstart < maze.Width - 2 &&
+                        if (wall.Xstart > 0 && wall.Xstart < maze.Width - 1 &&
                             !maze[wall.Xstart - 1, wall.Ystart] && !maze[wall.Xstart + 1, wall.Ystart])
                         {
                             ystart++;
                         }
 
-                        if (wall.Xend < maze.Width - 2 && wall.Xend > 0 &&
+                        if (wall.Xend < maze.Width - 1 && wall.Xend > 0 &&
                             !maze[wall.Xend - 1, wall.Yend] && !maze[wall.Xend + 1, wall.Yend])
                         {
                             yend--;
@@ -228,9 +228,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             if (singleCuboidPerPixel)
             {
                 // Generate one cube for each ground cell (maze.Width-1 x maze.Height-1)
-                for (int y = 0; y < maze.Height - 1; y++)
+                for (int y = 0; y < maze.Height; y++)
                 {
-                    for (int x = 0; x < maze.Width - 1; x++)
+                    for (int x = 0; x < maze.Width; x++)
                     {
                         // Each ground cube has a white top and black sides/bottom
                         AddCubeQuads(quads, x, y, 0, GroundHeight, Colors[0], Colors[1]); // White ground cubes
@@ -240,7 +240,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             else
             {
                 // Single large ground plane using AddCubeQuadsWithDimensions
-                AddCubeQuadsWithDimensions(quads, 0, 0, maze.Width - 1, maze.Height - 1, 0, GroundHeight, Colors[0], Colors[1]); // White ground
+                AddCubeQuadsWithDimensions(quads, 0, 0, maze.Width, maze.Height, 0, GroundHeight, Colors[0], Colors[1]); // White ground
             }
         }
 
@@ -316,12 +316,6 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 paintColor,
                 FaceDirection.Left
             ));
-        }
-
-
-        public int CalculateFaceCount(InnerMap maze, PathData pathData)
-        {
-            return 12345; // Placeholder for face count calculation logic
         }
     }
 }

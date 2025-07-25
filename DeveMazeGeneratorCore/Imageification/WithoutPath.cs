@@ -1,4 +1,5 @@
-﻿using DeveMazeGeneratorCore.InnerMaps;
+﻿using DeveMazeGeneratorCore.Helpers;
+using DeveMazeGeneratorCore.InnerMaps;
 
 #if !BLAZOR
 using SixLabors.ImageSharp;
@@ -12,14 +13,17 @@ namespace DeveMazeGeneratorCore.Imageification
     {
         public static void MazeToImage(InnerMap map, Stream stream)
         {
-            var image = new Image<Argb32>(map.Width - 1, map.Height - 1);
+            var roundedUpWidth = MathHelper.RoundUpToNextEven(map.Width);
+            var roundedUpHeight = MathHelper.RoundUpToNextEven(map.Height);
+
+            var image = new Image<Argb32>(roundedUpWidth - 1, roundedUpHeight - 1);
 
             var blackPixel = Color.Black;
             var whitePixel = Color.White;
 
-            for (int y = 0; y < map.Height - 1; y++)
+            for (int y = 0; y < roundedUpHeight - 1; y++)
             {
-                for (int x = 0; x < map.Width - 1; x++)
+                for (int x = 0; x < roundedUpWidth - 1; x++)
                 {
                     var wall = map[x, y];
 

@@ -1,4 +1,5 @@
-﻿using DeveMazeGeneratorCore.InnerMaps;
+﻿using DeveMazeGeneratorCore.Helpers;
+using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Structures;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace DeveMazeGeneratorCore.PathFinders
         /// <returns>The shortest path in a list of points</returns>
         public static List<MazePointPos> GoFind(InnerMap map, Action<int, int, bool> callBack)
         {
-            return GoFind(new MazePoint(1, 1), new MazePoint(map.Width - 3, map.Height - 3), map, callBack);
+            return GoFind(new MazePoint(1, 1), new MazePoint(MathHelper.RoundUpToNextEven(map.Width) - 3, MathHelper.RoundUpToNextEven(map.Height) - 3), map, callBack);
         }
 
         /// <summary>

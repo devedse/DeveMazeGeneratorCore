@@ -1,4 +1,5 @@
-﻿using DeveMazeGeneratorCore.InnerMaps;
+﻿using DeveMazeGeneratorCore.Helpers;
+using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Structures;
 
 #if !BLAZOR
@@ -15,6 +16,9 @@ namespace DeveMazeGeneratorCore.Imageification
     {
         public static void SaveMazeAsImageDeluxePng(InnerMap map, List<MazePointPos> pathPosjes, Stream stream)
         {
+            var roundedUpWidth = MathHelper.RoundUpToNextEven(map.Width);
+            var roundedUpHeight = MathHelper.RoundUpToNextEven(map.Height);
+
             pathPosjes.Sort((first, second) =>
             {
                 if (first.Y == second.Y)
@@ -28,11 +32,11 @@ namespace DeveMazeGeneratorCore.Imageification
             int curpos = 0;
 
             var w = Stopwatch.StartNew();
-            var image = new Image<Argb32>(map.Width - 1, map.Height - 1);
+            var image = new Image<Argb32>(roundedUpWidth - 1, roundedUpHeight - 1);
 
-            for (int y = 0; y < map.Height - 1; y++)
+            for (int y = 0; y < roundedUpHeight - 1; y++)
             {
-                for (int x = 0; x < map.Width - 1; x++)
+                for (int x = 0; x < roundedUpWidth - 1; x++)
                 {
                     int r = 0;
                     int g = 0;
@@ -79,13 +83,15 @@ namespace DeveMazeGeneratorCore.Imageification
 
         public static void SaveMazeAsImageDeluxePng(InnerMap map, InnerMap pathMap, Stream stream)
         {
+            var roundedUpWidth = MathHelper.RoundUpToNextEven(map.Width);
+            var roundedUpHeight = MathHelper.RoundUpToNextEven(map.Height);
 
             var w = Stopwatch.StartNew();
-            var image = new Image<Argb32>(map.Width - 1, map.Height - 1);
+            var image = new Image<Argb32>(roundedUpWidth - 1, roundedUpHeight - 1);
 
-            for (int y = 0; y < map.Height - 1; y++)
+            for (int y = 0; y < roundedUpHeight - 1; y++)
             {
-                for (int x = 0; x < map.Width - 1; x++)
+                for (int x = 0; x < roundedUpWidth - 1; x++)
                 {
                     int r = 0;
                     int g = 0;
