@@ -253,9 +253,9 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         {
             // Apply XY scaling to coordinates
             var scaledX = x * XYScale;
-            var scaledY = y * XYScale;
+            var scaledY = y * XYScale * -1;
             var scaledEndX = endX * XYScale;
-            var scaledEndY = endY * XYScale;
+            var scaledEndY = endY * XYScale * -1;
 
             // Bottom face
             quads.Add(new Quad(
