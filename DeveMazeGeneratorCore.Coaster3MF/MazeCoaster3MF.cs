@@ -3,6 +3,7 @@ using DeveMazeGeneratorCore.Factories;
 using DeveMazeGeneratorCore.Generators;
 using DeveMazeGeneratorCore.Generators.Helpers;
 using DeveMazeGeneratorCore.Generators.SpeedOptimization;
+using DeveMazeGeneratorCore.Helpers;
 using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.PathFinders;
@@ -38,7 +39,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             _packageGenerator = new ThreeMFPackageGenerator();
         }
 
-        public void Generate3MFCoaster(int mazeSize, int? seed = null)
+        public void Generate3MFCoaster(int mazeSize, int? seed = null, int? chunkItUp = null)
         {
             Console.WriteLine($"Generating {mazeSize}x{mazeSize} maze...");
 
@@ -53,49 +54,46 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             Console.WriteLine($"Path found with {path.Count} points (seed: {seed ?? 1337})");
             Console.WriteLine("Generating 3MF file...");
 
-            // Generate the geometry data
-            var meshData = _geometryGenerator.GenerateMazeGeometry(maze.InnerMap, path);
+            var mazesToCoasterUp = new List<MazeWithPath>();
+            var fullMazeWithPath = new MazeWithPath(maze.InnerMap, path);
 
-            Validate(mazeSize, meshData);
-
-
-
-            var plates = new List<ThreeMFPlate>()
+            if (chunkItUp.HasValue && chunkItUp.Value > 0)
             {
-                new ThreeMFPlate(1, new List<ThreeMFModel>
+                Console.WriteLine($"Chunking up the maze into {chunkItUp.Value} parts...");
+                var splittedMaze = MazeSplitter.SplitUpMazeIntoChunks(fullMazeWithPath, chunkItUp.Value).ToList();
+                mazesToCoasterUp.AddRange(splittedMaze);
+
+                var og = fullMazeWithPath.InnerMap[1, 1];
+                var thing = splittedMaze[0].InnerMap[1, 1];
+            }
+            else
+            {
+                Console.WriteLine("No chunking up applied.");
+                mazesToCoasterUp.Add(fullMazeWithPath);
+            }
+
+
+
+
+            int plateNumber = 0;
+            // Bunch up the mesh into plates (4 coasters per plate)
+            var plates = mazesToCoasterUp.Chunk(4).Select(t =>             {
+                var plateModels = t.Select(mwp =>
                 {
-                    GenerateModel(meshData),
-                    GenerateModel(meshData),
-                    GenerateModel(meshData),
-                    GenerateModel(meshData)
-                }),
-                new ThreeMFPlate(2, new List<ThreeMFModel>
-                {
-                    GenerateModel(meshData),
-                    GenerateModel(meshData),
-                    GenerateModel(meshData),
-                    GenerateModel(meshData)
-                }),
-                new ThreeMFPlate(3, new List<ThreeMFModel>
-                {
-                    GenerateModel(meshData),
-                    GenerateModel(meshData),
-                    GenerateModel(meshData),
-                    GenerateModel(meshData)
-                }),
-                new ThreeMFPlate(4, new List<ThreeMFModel>
-                {
-                    GenerateModel(meshData),
-                    GenerateModel(meshData),
-                    GenerateModel(meshData),
-                    GenerateModel(meshData)
-                }),
-            };
+                    // Generate the geometry data for each maze chunk
+                    var meshData = _geometryGenerator.GenerateMazeGeometry(mwp.InnerMap, mwp.Path);
+                    Validate(mazeSize, meshData);
+                    return GenerateModel(meshData);
+                }).ToList();
+                return new ThreeMFPlate(Interlocked.Increment(ref plateNumber), plateModels);
+            }).ToList();
 
 
             // Generate filename with triangle and vertex counts
             var usedSeed = seed ?? 1337;
-            var filename = $"maze_coaster_{mazeSize}x{mazeSize}_seed{usedSeed}_{meshData.Triangles.Count}tri_{meshData.Vertices.Count}vert.3mf";
+            var totalTriangles = plates.Sum(p => p.Models.Sum(m => m.MeshData.Triangles.Count));
+            var totalVertices = plates.Sum(p => p.Models.Sum(m => m.MeshData.Vertices.Count));
+            var filename = $"maze_coaster_{mazeSize}x{mazeSize}_seed{usedSeed}_{totalTriangles}tri_{totalVertices}vert.3mf";
 
             Console.WriteLine($"Creating file: {filename}");
 
