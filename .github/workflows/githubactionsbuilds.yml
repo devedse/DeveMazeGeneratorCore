@@ -160,36 +160,9 @@ jobs:
         name: DeveMazeGeneratorCore.ConsoleApp.Linux
         path: BuildOutputConsole/*
 
-  build_windows_consoleapp:
+  build_linux_with_sonarqube:
     needs: generate_version_number
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-    - name: Publish Untrimmed
-      run: dotnet publish DeveMazeGeneratorCore.ConsoleApp/DeveMazeGeneratorCore.ConsoleApp.csproj -c Release -r win-x64 -o DeveMazeGeneratorCore.ConsoleApp/bin/Release/net8.0/win-x64/publishuntrimmed/ /p:PublishSingleFile=true /p:SelfContained=true /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-    - name: Publish Trimmed
-      run: dotnet publish DeveMazeGeneratorCore.ConsoleApp/DeveMazeGeneratorCore.ConsoleApp.csproj -c Release -r win-x64 -o DeveMazeGeneratorCore.ConsoleApp/bin/Release/net8.0/win-x64/publishtrimmed/ /p:PublishSingleFile=true /p:SelfContained=true /p:PublishTrimmed=true /p:TrimMode=full /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-    - name: Publish Trimmed AOT
-      run: dotnet publish DeveMazeGeneratorCore.ConsoleApp/DeveMazeGeneratorCore.ConsoleApp.csproj -c Release -r win-x64 -o DeveMazeGeneratorCore.ConsoleApp/bin/Release/net8.0/win-x64/publishtrimmedaot/ /p:PublishTrimmed=true /p:TrimMode=full /p:PublishAot=true /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-    - name: Copy output
-      shell: bash
-      run: |
-        mkdir BuildOutputConsole
-        mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net8.0/win-x64/publishuntrimmed/DeveMazeGenerator.ConsoleApp.exe ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.Untrimmed.exe
-        mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net8.0/win-x64/publishtrimmed/DeveMazeGenerator.ConsoleApp.exe ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.Trimmed.exe
-        mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net8.0/win-x64/publishtrimmedaot/DeveMazeGenerator.ConsoleApp.exe ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.TrimmedAot.exe
-    - uses: actions/upload-artifact@v4
-      with:
-        name: DeveMazeGeneratorCore.ConsoleApp.Windows
-        path: BuildOutputConsole/*.exe
-
-  build_windows:
-    needs: generate_version_number
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET Core
@@ -231,9 +204,24 @@ jobs:
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-    - name: Run GoPackage.ps1 script
-      run: .\Scripts\GoPackage.ps1
-      shell: pwsh
+    - name: Package DeveMazeGeneratorCore
+      run: |
+        # Create output directory
+        mkdir -p Scripts/Output
+        
+        # Remove existing files if they exist
+        rm -f Scripts/Output/DeveMazeGeneratorCore.7z
+        rm -f Scripts/Output/DeveMazeGeneratorCore.zip
+        
+        # Package the build output
+        cd DeveMazeGeneratorCore/bin/Release
+        
+        # Create zip file (excluding .pdb files)
+        zip -r ../../../Scripts/Output/DeveMazeGeneratorCore.zip . -x "*.pdb"
+        
+        # Create 7z file (excluding .pdb files)
+        7z a -t7z -m0=LZMA2 -mmt=on -mx9 -md=1536m -mfb=273 -ms=on -mqs=on -sccUTF-8 "../../../Scripts/Output/DeveMazeGeneratorCore.7z" . -x!"*.pdb"
+      shell: bash
 
 
     - uses: actions/upload-artifact@v4
@@ -483,9 +471,8 @@ jobs:
   release_github:
     needs: [
       generate_version_number,
-      build_windows_consoleapp,
       build_linux_consoleapp,
-      build_windows,
+      build_linux_with_sonarqube,
       build_linux,
       build_docker,
       build_linux_monogame_desktopgl,
@@ -546,7 +533,7 @@ jobs:
 
 
   release_nuget:
-    needs: [generate_version_number, build_windows, build_linux, build_docker]
+    needs: [generate_version_number, build_linux_with_sonarqube, build_linux, build_docker]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
