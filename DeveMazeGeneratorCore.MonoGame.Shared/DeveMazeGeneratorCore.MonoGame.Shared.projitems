@@ -20,6 +20,7 @@
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack.cs" Link="Generators\AlgorithmBacktrack.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2.cs" Link="Generators\AlgorithmBacktrack2.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2Deluxe_AsByte.cs" Link="Generators\AlgorithmBacktrack2Deluxe_AsByte.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2Deluxe2_AsByte_WithPep.cs" Link="Generators\AlgorithmBacktrack2Deluxe2_AsByte_WithPep.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2Deluxe2_AsByte.cs" Link="Generators\AlgorithmBacktrack2Deluxe2_AsByte.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack2Deluxe2WithBorder_AsByte.cs" Link="Generators\AlgorithmBacktrack2Deluxe2WithBorder_AsByte.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\AlgorithmBacktrack3.cs" Link="Generators\AlgorithmBacktrack3.cs" />
@@ -39,6 +40,8 @@
     <Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\NoAction.cs" Link="Generators\SpeedOptimization\NoAction.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\ProgressAction.cs" Link="Generators\SpeedOptimization\ProgressAction.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Helpers\HilbertCurve.cs" Link="Helpers\HilbertCurve.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Helpers\MathHelper.cs" Link="Helpers\MathHelper.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Helpers\MazeSplitter.cs" Link="Helpers\MazeSplitter.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Helpers\MazeVerifier.cs" Link="Helpers\MazeVerifier.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Helpers\UnevenHelper.cs" Link="Helpers\UnevenHelper.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Imageification\WithoutPath.cs" Link="Imageification\WithoutPath.cs" />
@@ -56,6 +59,7 @@
     <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\UndefinedInnerMap.cs" Link="InnerMaps\UndefinedInnerMap.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\InnerStuff\BitArreintjeFastInnerMapArray.cs" Link="InnerMaps\InnerStuff\BitArreintjeFastInnerMapArray.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Mazes\Maze.cs" Link="Mazes\Maze.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Mazes\MazeWithPath.cs" Link="Mazes\MazeWithPath.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Mazes\MazeWithPathAsInnerMap.cs" Link="Mazes\MazeWithPathAsInnerMap.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\PathFinders\PathFinderDepthFirstSmart.cs" Link="PathFinders\PathFinderDepthFirstSmart.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\PathFinders\PathFinderDepthFirstSmartWithPos.cs" Link="PathFinders\PathFinderDepthFirstSmartWithPos.cs" />
