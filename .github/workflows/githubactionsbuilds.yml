@@ -160,6 +160,34 @@ jobs:
         name: DeveMazeGeneratorCore.ConsoleApp.Linux
         path: BuildOutputConsole/*
 
+  build_linux_consoleapp_onlinux:
+    needs: generate_version_number
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Publish Untrimmed
+      run: dotnet publish DeveMazeGeneratorCore.ConsoleApp/DeveMazeGeneratorCore.ConsoleApp.csproj -c Release -r win-x64 -o DeveMazeGeneratorCore.ConsoleApp/bin/Release/net8.0/win-x64/publishuntrimmed/ /p:PublishSingleFile=true /p:SelfContained=true /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+    - name: Publish Trimmed
+      run: dotnet publish DeveMazeGeneratorCore.ConsoleApp/DeveMazeGeneratorCore.ConsoleApp.csproj -c Release -r win-x64 -o DeveMazeGeneratorCore.ConsoleApp/bin/Release/net8.0/win-x64/publishtrimmed/ /p:PublishSingleFile=true /p:SelfContained=true /p:PublishTrimmed=true /p:TrimMode=full /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+    - name: Publish Trimmed AOT
+      run: dotnet publish DeveMazeGeneratorCore.ConsoleApp/DeveMazeGeneratorCore.ConsoleApp.csproj -c Release -r win-x64 -o DeveMazeGeneratorCore.ConsoleApp/bin/Release/net8.0/win-x64/publishtrimmedaot/ /p:PublishTrimmed=true /p:TrimMode=full /p:PublishAot=true /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+    - name: Copy output
+      shell: bash
+      run: |
+        mkdir BuildOutputConsole
+        mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net8.0/win-x64/publishuntrimmed/DeveMazeGenerator.ConsoleApp.exe ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.Untrimmed.exe
+        mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net8.0/win-x64/publishtrimmed/DeveMazeGenerator.ConsoleApp.exe ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.Trimmed.exe
+        mv ./DeveMazeGeneratorCore.ConsoleApp/bin/Release/net8.0/win-x64/publishtrimmedaot/DeveMazeGenerator.ConsoleApp.exe ./BuildOutputConsole/DeveMazeGenerator.ConsoleApp.TrimmedAot.exe
+    - uses: actions/upload-artifact@v4
+      with:
+        name: DeveMazeGeneratorCore.ConsoleApp.Windows
+        path: BuildOutputConsole/*.exe
+
+
   build_linux_with_sonarqube:
     needs: generate_version_number
     runs-on: ubuntu-latest
@@ -472,6 +500,7 @@ jobs:
     needs: [
       generate_version_number,
       build_linux_consoleapp,
+      build_linux_consoleapp_onlinux,
       build_linux_with_sonarqube,
       build_linux,
       build_docker,
