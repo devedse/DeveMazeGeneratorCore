@@ -160,9 +160,9 @@ jobs:
         name: DeveMazeGeneratorCore.ConsoleApp.Linux
         path: BuildOutputConsole/*
 
-  build_windows_consoleapp_onlinux:
+  build_windows_consoleapp:
     needs: generate_version_number
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET Core
@@ -500,7 +500,7 @@ jobs:
     needs: [
       generate_version_number,
       build_linux_consoleapp,
-      build_windows_consoleapp_onlinux,
+      build_windows_consoleapp,
       build_linux_with_sonarqube,
       build_linux,
       build_docker,
