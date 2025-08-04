@@ -160,7 +160,7 @@ jobs:
         name: DeveMazeGeneratorCore.ConsoleApp.Linux
         path: BuildOutputConsole/*
 
-  build_linux_consoleapp_onlinux:
+  build_windows_consoleapp_onlinux:
     needs: generate_version_number
     runs-on: ubuntu-latest
     steps:
@@ -500,7 +500,7 @@ jobs:
     needs: [
       generate_version_number,
       build_linux_consoleapp,
-      build_linux_consoleapp_onlinux,
+      build_windows_consoleapp_onlinux,
       build_linux_with_sonarqube,
       build_linux,
       build_docker,
