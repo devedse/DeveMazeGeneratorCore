@@ -80,25 +80,30 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             var indexOnPlate = foundPlate.Models.FindIndex(m => m.ModelId == model.ModelId);
 
             return $"""
-                  <item objectid="{model.ObjectId}" p:UUID="{model.ObjectId.ToString("x").PadLeft(8, '0')}-b1ec-4553-aec9-835e5b724bb4" transform="1 0 0 0 1 0 0 0 1 {GetPlatePosition(foundPlate.PlateId, indexOnPlate)}" printable="1"/>
+                  <item objectid="{model.ObjectId}" p:UUID="{model.ObjectId.ToString("x").PadLeft(8, '0')}-b1ec-4553-aec9-835e5b724bb4" transform="1 0 0 0 1 0 0 0 1 {GetPlatePosition(plates, foundPlate.PlateId, indexOnPlate)}" printable="1"/>
                 """;
         }
 
-        private static string GetPlatePosition(int plateIndex, int indexOnPlate)
+        private static string GetPlatePosition(List<ThreeMFPlate> plates, int plateIndex, int indexOnPlate)
         {
             int tileSize = 95;
             int margin = 10;
             decimal extraMarginLeft = 30;
-
-            if (plateIndex % 2 == 0)
-            {
-                extraMarginLeft += 307.2m;
-            }
+            
+            // Calculate grid dimensions based on total plate count
+            int totalPlates = plates.Count;
+            int gridWidth = (int)Math.Ceiling(Math.Sqrt(totalPlates));
+            
+            // Calculate this plate's grid position (0-based, from bottom-left)
+            int plateGridX = (plateIndex - 1) % gridWidth;
+            int plateGridY = (plateIndex - 1) / gridWidth;
+            
+            // Apply grid offset - add 307.2m for each X position
+            extraMarginLeft += plateGridX * 307.2m;
+            
             decimal extraMarginBottom = 10;
-            if (plateIndex > 2)
-            {
-                extraMarginBottom -= 307.2m;
-            }
+            // Subtract 307.2m for each Y position (going down is negative)
+            extraMarginBottom -= plateGridY * 307.2m;
 
             return indexOnPlate switch
             {
@@ -108,7 +113,6 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 3 => $"{extraMarginLeft + tileSize + margin} {tileSize + extraMarginBottom + tileSize + margin} 2.5",
                 _ => throw new ArgumentOutOfRangeException(nameof(indexOnPlate), "Index on plate must be between 0 and 3.")
             };
-
         }
 
         private void Create3DModelFile(ZipArchive archive, List<ThreeMFPlate> plates)
