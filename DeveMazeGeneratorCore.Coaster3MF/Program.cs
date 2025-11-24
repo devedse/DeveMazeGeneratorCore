@@ -63,7 +63,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             //}
 
             // Generate 10 small mazes in one file
-            mazeCoaster.Generate3MFCoasterMultiple(19, 1000, startSeed: 1);
+            mazeCoaster.Generate3MFCoasterMultiple(19, 25, startSeed: 1);
 
             Console.WriteLine("All 3MF coasters generated successfully!");
         }
