@@ -46,10 +46,18 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 }
             }
 
+            //for (int i = 1; i <= 3; i++)
+            //{
+            //    Console.WriteLine($"Creating coaster {i}...");
+            //    mazeCoaster.Generate3MFCoaster(57, 1337 + i, 57 / 3);
+            //    Console.WriteLine();
+            //    Console.WriteLine();
+            //}
+
             for (int i = 1; i <= 3; i++)
             {
                 Console.WriteLine($"Creating coaster {i}...");
-                mazeCoaster.Generate3MFCoaster(57, 1337 + i, 57 / 3);
+                mazeCoaster.Generate3MFCoaster(19, i);
                 Console.WriteLine();
                 Console.WriteLine();
             }

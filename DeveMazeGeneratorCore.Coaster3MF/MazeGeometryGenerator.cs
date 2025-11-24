@@ -34,10 +34,10 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         /// - Vertices are reused across quads to ensure manifold geometry
         /// - Proper counter-clockwise winding order for outward-facing normals
         /// </summary>
-        public MeshData GenerateMazeGeometry(InnerMap maze, List<MazePointPos> path, bool singleCuboidPerPixel = true)
+        public MeshData GenerateMazeGeometry(InnerMap maze, List<MazePointPos> path, bool singleCuboidPerPixel = true, int? seed = null)
         {
             // Step 1: Generate quads
-            var quads = GenerateMazeQuads(maze, path, singleCuboidPerPixel);
+            var quads = GenerateMazeQuads(maze, path, singleCuboidPerPixel, seed: seed);
 
             // Step 2: Convert quads to mesh data
             return ConvertQuadsToMesh(quads);
@@ -46,7 +46,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
         /// <summary>
         /// Generates quads representing the maze geometry (ground, walls, path).
         /// </summary>
-        public List<Quad> GenerateMazeQuads(InnerMap maze, List<MazePointPos> path, bool singleCuboidPerPixel = true, bool enableFaceCulling = true)
+        public List<Quad> GenerateMazeQuads(InnerMap maze, List<MazePointPos> path, bool singleCuboidPerPixel = true, bool enableFaceCulling = true, int? seed = null)
         {
             var quads = new List<Quad>();
 
@@ -54,7 +54,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             var pathData = new PathData(path);
 
             // Ground plane quads
-            AddGroundPlaneQuads(quads, maze, singleCuboidPerPixel);
+            AddGroundPlaneQuads(quads, maze, singleCuboidPerPixel, seed);
 
             // Add wall quads - now split into two parts
             AddMazeWalls(maze, quads, singleCuboidPerPixel);
@@ -223,8 +223,15 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             return meshData;
         }
 
-        private void AddGroundPlaneQuads(List<Quad> quads, InnerMap maze, bool singleCuboidPerPixel)
+        private void AddGroundPlaneQuads(List<Quad> quads, InnerMap maze, bool singleCuboidPerPixel, int? seed = null)
         {
+            // Get the number pattern if seed is provided
+            bool[,]? numberPattern = null;
+            if (seed.HasValue)
+            {
+                numberPattern = NumberRenderer.RenderNumber(seed.Value, maze.Width, maze.Height);
+            }
+
             if (singleCuboidPerPixel)
             {
                 // Generate one cube for each ground cell (maze.Width-1 x maze.Height-1)
@@ -232,8 +239,18 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 {
                     for (int x = 0; x < maze.Width; x++)
                     {
-                        // Each ground cube has a white top and black sides/bottom
-                        AddCubeQuads(quads, x, y, 0, GroundHeight, Colors[0], Colors[1]); // White ground cubes
+                        // Check if this position should be part of the number (white on bottom)
+                        string bottomColor = Colors[0]; // Default: black bottom
+                        if (numberPattern != null && y < numberPattern.GetLength(0) && x < numberPattern.GetLength(1))
+                        {
+                            if (numberPattern[y, x])
+                            {
+                                bottomColor = Colors[1]; // White bottom for number
+                            }
+                        }
+                        
+                        // Each ground cube has a white top and black (or white for number) bottom
+                        AddCubeQuads(quads, x, y, 0, GroundHeight, Colors[0], Colors[1], bottomColor);
                     }
                 }
             }
@@ -244,12 +261,12 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             }
         }
 
-        private void AddCubeQuads(List<Quad> quads, int x, int y, float zBottom, float zTop, string paintColor, string? topFacePaintColor = null)
+        private void AddCubeQuads(List<Quad> quads, int x, int y, float zBottom, float zTop, string paintColor, string? topFacePaintColor = null, string? bottomFacePaintColor = null)
         {
-            AddCubeQuadsWithDimensions(quads, x, y, x + 1, y + 1, zBottom, zTop, paintColor, topFacePaintColor);
+            AddCubeQuadsWithDimensions(quads, x, y, x + 1, y + 1, zBottom, zTop, paintColor, topFacePaintColor, bottomFacePaintColor);
         }
 
-        private void AddCubeQuadsWithDimensions(List<Quad> quads, float x, float y, float endX, float endY, float zBottom, float zTop, string paintColor, string? topFacePaintColor = null)
+        private void AddCubeQuadsWithDimensions(List<Quad> quads, float x, float y, float endX, float endY, float zBottom, float zTop, string paintColor, string? topFacePaintColor = null, string? bottomFacePaintColor = null)
         {
             // Apply XY scaling to coordinates
             var scaledX = x * XYScale;
@@ -263,7 +280,7 @@ namespace DeveMazeGeneratorCore.Coaster3MF
                 new Vertex(scaledEndX, scaledY, zBottom),
                 new Vertex(scaledEndX, scaledEndY, zBottom),
                 new Vertex(scaledX, scaledEndY, zBottom),
-                paintColor,
+                bottomFacePaintColor ?? paintColor,
                 FaceDirection.Bottom
             ));
 

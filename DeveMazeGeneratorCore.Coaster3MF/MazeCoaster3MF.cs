@@ -77,11 +77,12 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
             int plateNumber = 0;
             // Bunch up the mesh into plates (4 coasters per plate)
+            var usedSeed = seed ?? 1337;
             var plates = mazesToCoasterUp.Chunk(4).Select(t =>             {
                 var plateModels = t.Select(mwp =>
                 {
                     // Generate the geometry data for each maze chunk
-                    var meshData = _geometryGenerator.GenerateMazeGeometry(mwp.InnerMap, mwp.Path);
+                    var meshData = _geometryGenerator.GenerateMazeGeometry(mwp.InnerMap, mwp.Path, seed: usedSeed);
                     Validate(mazeSize, meshData);
                     return GenerateModel(meshData);
                 }).ToList();
@@ -90,7 +91,6 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
 
             // Generate filename with triangle and vertex counts
-            var usedSeed = seed ?? 1337;
             var totalTriangles = plates.Sum(p => p.Models.Sum(m => m.MeshData.Triangles.Count));
             var totalVertices = plates.Sum(p => p.Models.Sum(m => m.MeshData.Vertices.Count));
             var filename = $"maze_coaster_{mazeSize}x{mazeSize}_seed{usedSeed}_{totalTriangles}tri_{totalVertices}vert.3mf";
