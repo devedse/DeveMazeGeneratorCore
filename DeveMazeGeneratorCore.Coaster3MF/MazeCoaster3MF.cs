@@ -7,6 +7,7 @@ using DeveMazeGeneratorCore.Helpers;
 using DeveMazeGeneratorCore.InnerMaps;
 using DeveMazeGeneratorCore.Mazes;
 using DeveMazeGeneratorCore.PathFinders;
+using DeveMazeGeneratorCore.Structures;
 
 namespace DeveMazeGeneratorCore.Coaster3MF
 {
@@ -41,48 +42,79 @@ namespace DeveMazeGeneratorCore.Coaster3MF
 
         public void Generate3MFCoaster(int mazeSize, int? seed = null, int? chunkItUp = null)
         {
-            Console.WriteLine($"Generating {mazeSize}x{mazeSize} maze...");
+            var mazes = new List<(Maze maze, List<MazePointPos> path, int seed)>();
+            mazes.Add(GenerateMazeWithPath(mazeSize, seed));
+
+            Generate3MFCoasterFromMazes(mazes, mazeSize, chunkItUp);
+        }
+
+        public void Generate3MFCoasterMultiple(int mazeSize, int count, int? startSeed = null)
+        {
+            Console.WriteLine($"Generating {count} mazes of size {mazeSize}x{mazeSize}...");
+
+            var mazes = new List<(Maze maze, List<MazePointPos> path, int seed)>();
+            var usedStartSeed = startSeed ?? 1337;
+
+            for (int i = 0; i < count; i++)
+            {
+                var currentSeed = usedStartSeed + i;
+                mazes.Add(GenerateMazeWithPath(mazeSize, currentSeed));
+            }
+
+            Generate3MFCoasterFromMazes(mazes, mazeSize, chunkItUp: null);
+        }
+
+        private (Maze maze, List<MazePointPos> path, int seed) GenerateMazeWithPath(int mazeSize, int? seed)
+        {
+            var usedSeed = seed ?? 1337;
+            Console.WriteLine($"Generating {mazeSize}x{mazeSize} maze with seed {usedSeed}...");
 
             // Generate maze using AlgorithmBacktrack2Deluxe2_AsByte
-            var maze = GenerateMaze(mazeSize, seed);
+            var maze = GenerateMaze(mazeSize, usedSeed);
 
             Console.WriteLine("Finding path through maze...");
 
             // Find the path with position information
             var path = PathFinderDepthFirstSmartWithPos.GoFind(maze.InnerMap, null);
 
-            Console.WriteLine($"Path found with {path.Count} points (seed: {seed ?? 1337})");
+            Console.WriteLine($"Path found with {path.Count} points (seed: {usedSeed})");
+
+            return (maze, path, usedSeed);
+        }
+
+        private void Generate3MFCoasterFromMazes(List<(Maze maze, List<MazePointPos> path, int seed)> mazes, int mazeSize, int? chunkItUp)
+        {
             Console.WriteLine("Generating 3MF file...");
 
-            var mazesToCoasterUp = new List<MazeWithPath>();
-            var fullMazeWithPath = new MazeWithPath(maze.InnerMap, path);
+            var mazesToCoasterUp = new List<(MazeWithPath mazeWithPath, int seed)>();
 
-            if (chunkItUp.HasValue && chunkItUp.Value > 0)
+            foreach (var (maze, path, seed) in mazes)
             {
-                Console.WriteLine($"Chunking up the maze into {chunkItUp.Value} parts...");
-                var splittedMaze = MazeSplitter.SplitUpMazeIntoChunks(fullMazeWithPath, chunkItUp.Value).ToList();
-                mazesToCoasterUp.AddRange(splittedMaze);
+                var fullMazeWithPath = new MazeWithPath(maze.InnerMap, path);
 
-                var og = fullMazeWithPath.InnerMap[1, 1];
-                var thing = splittedMaze[0].InnerMap[1, 1];
+                if (chunkItUp.HasValue && chunkItUp.Value > 0)
+                {
+                    Console.WriteLine($"Chunking up maze (seed {seed}) into {chunkItUp.Value} parts...");
+                    var splittedMaze = MazeSplitter.SplitUpMazeIntoChunks(fullMazeWithPath, chunkItUp.Value).ToList();
+                    foreach (var chunk in splittedMaze)
+                    {
+                        mazesToCoasterUp.Add((chunk, seed));
+                    }
+                }
+                else
+                {
+                    mazesToCoasterUp.Add((fullMazeWithPath, seed));
+                }
             }
-            else
-            {
-                Console.WriteLine("No chunking up applied.");
-                mazesToCoasterUp.Add(fullMazeWithPath);
-            }
-
-
-
 
             int plateNumber = 0;
             // Bunch up the mesh into plates (4 coasters per plate)
-            var usedSeed = seed ?? 1337;
-            var plates = mazesToCoasterUp.Chunk(4).Select(t =>             {
-                var plateModels = t.Select(mwp =>
+            var plates = mazesToCoasterUp.Chunk(4).Select(t =>
+            {
+                var plateModels = t.Select(item =>
                 {
                     // Generate the geometry data for each maze chunk
-                    var meshData = _geometryGenerator.GenerateMazeGeometry(mwp.InnerMap, mwp.Path, seed: usedSeed);
+                    var meshData = _geometryGenerator.GenerateMazeGeometry(item.mazeWithPath.InnerMap, item.mazeWithPath.Path, seed: item.seed);
                     Validate(mazeSize, meshData);
                     return GenerateModel(meshData);
                 }).ToList();
@@ -93,12 +125,18 @@ namespace DeveMazeGeneratorCore.Coaster3MF
             // Generate filename with triangle and vertex counts
             var totalTriangles = plates.Sum(p => p.Models.Sum(m => m.MeshData.Triangles.Count));
             var totalVertices = plates.Sum(p => p.Models.Sum(m => m.MeshData.Vertices.Count));
-            var filename = $"maze_coaster_{mazeSize}x{mazeSize}_seed{usedSeed}_{totalTriangles}tri_{totalVertices}vert.3mf";
+
+            var firstMaze = mazes.First();
+            var seedDescription = mazes.Count == 1
+                ? $"seed{firstMaze.seed}"
+                : $"seeds{mazes.First().seed}-{mazes.Last().seed}_count{mazes.Count}";
+
+            var filename = $"maze_coaster_{mazeSize}x{mazeSize}_{seedDescription}_{totalTriangles}tri_{totalVertices}vert.3mf";
 
             Console.WriteLine($"Creating file: {filename}");
 
             // Generate the 3MF file
-            _packageGenerator.Create3MFFile(filename, plates, maze.InnerMap, path);
+            _packageGenerator.Create3MFFile(filename, plates, firstMaze.maze.InnerMap, firstMaze.path);
 
             // Generate preview image
             // using (var fs = new FileStream($"{filename}.png", FileMode.Create))
