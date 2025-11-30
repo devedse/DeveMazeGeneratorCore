@@ -82,6 +82,7 @@ Global
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.projitems*{2226201d-6ecd-4593-b4cd-1950e27826b1}*SharedItemsImports = 5
+		DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.projitems*{de5aca0d-d621-4707-942f-ae67ee7b1ca1}*SharedItemsImports = 5
 		DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.projitems*{eb1b33bf-3f31-40b3-8643-83f4285cabd2}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
