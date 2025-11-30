@@ -18,18 +18,8 @@
     <DefineConstants>$(DefineConstants)TRACE;OPENGL;BLAZOR</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="nkast.Xna.Framework.Content.Pipeline.Builder" Version="4.2.9001" />
-    <PackageReference Include="nkast.Xna.Framework" Version="4.2.9001" />
-    <PackageReference Include="nkast.Xna.Framework.Content" Version="4.2.9001" />
-    <PackageReference Include="nkast.Xna.Framework.Devices" Version="4.2.9001" />
-    <PackageReference Include="nkast.Xna.Framework.Graphics" Version="4.2.9001" />
-    <PackageReference Include="nkast.Xna.Framework.Audio" Version="4.2.9001" />
-    <PackageReference Include="nkast.Xna.Framework.Media" Version="4.2.9001" />
-    <PackageReference Include="nkast.Xna.Framework.Input" Version="4.2.9001" />
-    <PackageReference Include="nkast.Xna.Framework.Game" Version="4.2.9001" />
-    <PackageReference Include="nkast.Xna.Framework.Storage" Version="4.2.9001" />
-    <PackageReference Include="nkast.Xna.Framework.XR" Version="4.2.9001" />
     <PackageReference Include="nkast.Kni.Platform.Android.GL" Version="4.2.9001.1" />
+    <PackageReference Include="nkast.Xna.Framework.Content.Pipeline.Builder" Version="4.2.9001" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\" />
@@ -37,5 +27,7 @@
   <ItemGroup>
     <KniContentReference Include="..\DeveMazeGeneratorCore.MonoGame.Content\Content\Content.mgcb" Link="Content\Content.mgcb" />
   </ItemGroup>
-  <Import Project="..\DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.projitems" Label="Shared" />
+  <ItemGroup>
+    <ProjectReference Include="..\DeveMazeGeneratorCore.MonoGame.Core\DeveMazeGeneratorCore.MonoGame.Core.csproj" />
+  </ItemGroup>
 </Project>

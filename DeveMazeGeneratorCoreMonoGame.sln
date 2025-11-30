@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.2.32505.173
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11222.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorCore.ConsoleApp", "DeveMazeGeneratorCore.ConsoleApp\DeveMazeGeneratorCore.ConsoleApp.csproj", "{0DC50FAF-2CF0-4630-B97E-150234794188}"
 EndProject
@@ -20,8 +20,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorCore.MonoGame.Blazor", "DeveMazeGeneratorCore.MonoGame.Blazor\DeveMazeGeneratorCore.MonoGame.Blazor.csproj", "{2226201D-6ECD-4593-B4CD-1950E27826B1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorCore.MonoGame.WindowsDX", "DeveMazeGeneratorCore.MonoGame.WindowsDX\DeveMazeGeneratorCore.MonoGame.WindowsDX.csproj", "{CABCA8E7-DCC3-43CC-8ABD-F9E707F188A8}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DeveMazeGeneratorCore.MonoGame.Shared", "DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.shproj", "{EB1B33BF-3F31-40B3-8643-83F4285CABD2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeveMazeGeneratorCore.MonoGame.Android", "DeveMazeGeneratorCore.MonoGame.Android\DeveMazeGeneratorCore.MonoGame.Android.csproj", "{DE5ACA0D-D621-4707-942F-AE67EE7B1CA1}"
 EndProject
@@ -68,21 +66,12 @@ Global
 		{CABCA8E7-DCC3-43CC-8ABD-F9E707F188A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CABCA8E7-DCC3-43CC-8ABD-F9E707F188A8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DE5ACA0D-D621-4707-942F-AE67EE7B1CA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DE5ACA0D-D621-4707-942F-AE67EE7B1CA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DE5ACA0D-D621-4707-942F-AE67EE7B1CA1}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{DE5ACA0D-D621-4707-942F-AE67EE7B1CA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DE5ACA0D-D621-4707-942F-AE67EE7B1CA1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DE5ACA0D-D621-4707-942F-AE67EE7B1CA1}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {93CB3796-A1AF-425F-A7FD-D10B94636CC1}
-	EndGlobalSection
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.projitems*{2226201d-6ecd-4593-b4cd-1950e27826b1}*SharedItemsImports = 5
-		DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.projitems*{de5aca0d-d621-4707-942f-ae67ee7b1ca1}*SharedItemsImports = 5
-		DeveMazeGeneratorCore.MonoGame.Shared\DeveMazeGeneratorCore.MonoGame.Shared.projitems*{eb1b33bf-3f31-40b3-8643-83f4285cabd2}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
