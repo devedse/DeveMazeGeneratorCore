@@ -1,8 +1,6 @@
 <Solution>
   <Project Path="DeveMazeGeneratorCore.ConsoleApp/DeveMazeGeneratorCore.ConsoleApp.csproj" />
-  <Project Path="DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj">
-    <Build Project="false" />
-  </Project>
+  <Project Path="DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj" />
   <Project Path="DeveMazeGeneratorCore.MonoGame.Blazor/DeveMazeGeneratorCore.MonoGame.Blazor.csproj" />
   <Project Path="DeveMazeGeneratorCore.MonoGame.Content/DeveMazeGeneratorCore.MonoGame.Content.csproj" />
   <Project Path="DeveMazeGeneratorCore.MonoGame.Core/DeveMazeGeneratorCore.MonoGame.Core.csproj" />
