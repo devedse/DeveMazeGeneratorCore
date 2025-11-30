@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="DeveCoolLib" Version="1.0.582" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
   </ItemGroup>
 
   <ItemGroup>
