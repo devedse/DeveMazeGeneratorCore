@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="DeveMazeGeneratorCore.Benchmark/DeveMazeGeneratorCore.Benchmark.csproj" />
+  <Project Path="DeveMazeGeneratorCore.Coaster3MF.Tests/DeveMazeGeneratorCore.Coaster3MF.Tests.csproj" />
+  <Project Path="DeveMazeGeneratorCore.Coaster3MF/DeveMazeGeneratorCore.Coaster3MF.csproj" />
+  <Project Path="DeveMazeGeneratorCore.ConsoleApp/DeveMazeGeneratorCore.ConsoleApp.csproj" />
+  <Project Path="DeveMazeGeneratorCore.Tests/DeveMazeGeneratorCore.Tests.csproj" />
+  <Project Path="DeveMazeGeneratorCore.Web/DeveMazeGeneratorCore.Web.csproj" />
+  <Project Path="DeveMazeGeneratorCore/DeveMazeGeneratorCore.csproj" />
+</Solution>
