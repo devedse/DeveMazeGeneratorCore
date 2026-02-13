@@ -1,0 +1,12 @@
+<Solution>
+  <Project Path="DeveMazeGeneratorCore.ConsoleApp/DeveMazeGeneratorCore.ConsoleApp.csproj" />
+  <Project Path="DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj" />
+  <Project Path="DeveMazeGeneratorCore.MonoGame.Blazor/DeveMazeGeneratorCore.MonoGame.Blazor.csproj" />
+  <Project Path="DeveMazeGeneratorCore.MonoGame.Content/DeveMazeGeneratorCore.MonoGame.Content.csproj" />
+  <Project Path="DeveMazeGeneratorCore.MonoGame.Core/DeveMazeGeneratorCore.MonoGame.Core.csproj" />
+  <Project Path="DeveMazeGeneratorCore.MonoGame.DesktopGL/DeveMazeGeneratorCore.MonoGame.DesktopGL.csproj" />
+  <Project Path="DeveMazeGeneratorCore.MonoGame.WindowsDX/DeveMazeGeneratorCore.MonoGame.WindowsDX.csproj" />
+  <Project Path="DeveMazeGeneratorCore.Tests/DeveMazeGeneratorCore.Tests.csproj" />
+  <Project Path="DeveMazeGeneratorCore.Web/DeveMazeGeneratorCore.Web.csproj" />
+  <Project Path="DeveMazeGeneratorCore/DeveMazeGeneratorCore.csproj" />
+</Solution>

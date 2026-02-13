@@ -10,7 +10,7 @@ namespace DeveMazeGeneratorCore.MonoGame.WindowsDX
         [STAThread]
         public static void Main()
         {
-            using (var game = new TheGame(new(2460, 1340), Platform.Desktop))
+            using (var game = new TheGame())
             {
                 game.Run();
             }

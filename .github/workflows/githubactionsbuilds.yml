@@ -127,11 +127,11 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Install dependencies
-      run: dotnet restore DeveMazeGeneratorCore.sln
+      run: dotnet restore DeveMazeGeneratorCore.slnx
     - name: Build
-      run: dotnet build DeveMazeGeneratorCore.sln -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+      run: dotnet build DeveMazeGeneratorCore.slnx -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Test
-      run: dotnet test DeveMazeGeneratorCore.sln -c Release --no-restore --verbosity normal
+      run: dotnet test DeveMazeGeneratorCore.slnx -c Release --no-restore --verbosity normal
   
   build_linux_consoleapp:
     needs: generate_version_number
@@ -208,14 +208,14 @@ jobs:
         dotnet tool install --global dotnet-sonarscanner
         dotnet tool install --global dotnet-reportgenerator-globaltool
     - name: Install dependencies
-      run: dotnet restore DeveMazeGeneratorCore.sln
+      run: dotnet restore DeveMazeGeneratorCore.slnx
     - name: SonarQube begin
       if: github.actor != 'dependabot[bot]'
       run: dotnet-sonarscanner begin /k:"DeveMazeGeneratorCore" /o:"devedse-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=${{secrets.SONARQUBETOKEN}} /d:sonar.cs.opencover.reportsPaths=".\DeveMazeGeneratorCore.Tests\TestResults\Coverage\coverage.opencover.xml" /d:sonar.coverage.exclusions="DeveMazeGeneratorCore.ConsoleApp/**/*.cs,DeveMazeGeneratorCore.Tests/**/*.cs,DeveMazeGeneratorCore.Web/wwwroot/divisionmaze/**/*.js"
     - name: Build
-      run: dotnet build DeveMazeGeneratorCore.sln -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+      run: dotnet build DeveMazeGeneratorCore.slnx -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Test
-      run: dotnet test DeveMazeGeneratorCore.sln --verbosity normal --no-build -c Release --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura,opencover
+      run: dotnet test DeveMazeGeneratorCore.slnx --verbosity normal --no-build -c Release --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura,opencover
     - name: SonarQube end
       if: github.actor != 'dependabot[bot]'
       env:
@@ -277,11 +277,11 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Install dependencies
-      run: dotnet restore DeveMazeGeneratorCore.sln
+      run: dotnet restore DeveMazeGeneratorCore.slnx
     - name: Build
-      run: dotnet build DeveMazeGeneratorCore.sln -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+      run: dotnet build DeveMazeGeneratorCore.slnx -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Test
-      run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
+      run: dotnet test DeveMazeGeneratorCore.slnx --no-restore --verbosity normal
     - name: Publish
       run: dotnet publish ./DeveMazeGeneratorCore.MonoGame.DesktopGL/DeveMazeGeneratorCore.MonoGame.DesktopGL.csproj -r linux-x64 -c Release /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=false /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Copy files that are missing for some reason
@@ -315,11 +315,11 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Install dependencies
-      run: dotnet restore DeveMazeGeneratorCore.sln
+      run: dotnet restore DeveMazeGeneratorCore.slnx
     - name: Build
-      run: dotnet build DeveMazeGeneratorCore.sln -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+      run: dotnet build DeveMazeGeneratorCore.slnx -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Test
-      run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
+      run: dotnet test DeveMazeGeneratorCore.slnx --no-restore --verbosity normal
     - name: Publish
       run: dotnet publish ./DeveMazeGeneratorCore.MonoGame.DesktopGL/DeveMazeGeneratorCore.MonoGame.DesktopGL.csproj -r win-x64 -c Release /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=false /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Copy files that are missing for some reason
@@ -356,11 +356,11 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Install dependencies
-      run: dotnet restore DeveMazeGeneratorCore.sln
+      run: dotnet restore DeveMazeGeneratorCore.slnx
     - name: Build
-      run: dotnet build DeveMazeGeneratorCore.sln -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+      run: dotnet build DeveMazeGeneratorCore.slnx -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Test
-      run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
+      run: dotnet test DeveMazeGeneratorCore.slnx --no-restore --verbosity normal
     - name: Publish
       run: dotnet publish ./DeveMazeGeneratorCore.MonoGame.DesktopGL/DeveMazeGeneratorCore.MonoGame.DesktopGL.csproj -r win-x64 -c Release /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=false /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Copy files that are missing for some reason
@@ -388,11 +388,11 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Install dependencies
-      run: dotnet restore DeveMazeGeneratorCore.sln
+      run: dotnet restore DeveMazeGeneratorCore.slnx
     - name: Build
-      run: dotnet build DeveMazeGeneratorCore.sln -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
+      run: dotnet build DeveMazeGeneratorCore.slnx -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Test
-      run: dotnet test DeveMazeGeneratorCore.sln --no-restore --verbosity normal
+      run: dotnet test DeveMazeGeneratorCore.slnx --no-restore --verbosity normal
     - name: Publish
       run: dotnet publish ./DeveMazeGeneratorCore.MonoGame.WindowsDX\DeveMazeGeneratorCore.MonoGame.WindowsDX.csproj -r win-x64 -c Release /p:PublishSingleFile=true /p:SelfContained=true /p:IncludeNativeLibrariesForSelfExtract=true /p:PublishTrimmed=false /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
     - name: Copy files that are missing for some reason

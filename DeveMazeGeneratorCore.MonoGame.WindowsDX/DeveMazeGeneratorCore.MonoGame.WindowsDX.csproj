@@ -10,16 +10,16 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <MonoGameContentReference Include="..\DeveMazeGeneratorCore.MonoGame.Content\Content\Content.mgcb">
+    <KniContentReference Include="..\DeveMazeGeneratorCore.MonoGame.Content\Content\Content.mgcb">
       <Link>Content\Content.mgcb</Link>
-    </MonoGameContentReference>
+    </KniContentReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="nkast.Xna.Framework.Content.Pipeline.Builder" Version="4.2.9001" />
+    <PackageReference Include="nkast.Kni.Platform.WinForms.DX11" Version="4.2.9001" />
   </ItemGroup>
   <ItemGroup>
     <TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.4.1" />
-    <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.4.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DeveMazeGeneratorCore.MonoGame.Core\DeveMazeGeneratorCore.MonoGame.Core.csproj" />
