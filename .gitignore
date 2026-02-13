@@ -412,3 +412,4 @@ DeveMazeGeneratorCore.Coaster3MF/maze_coaster_*.3mf
 DeveMazeGeneratorCore.Coaster3MF/maze_coaster_*.png
 # Test output images
 /*.png
+*.exe
