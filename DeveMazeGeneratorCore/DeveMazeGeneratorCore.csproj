@@ -9,6 +9,7 @@
     <Description>This is Devedse's maze generator implemented in .NET Core.</Description>
     <PackageProjectUrl>https://github.com/devedse/DeveMazeGeneratorCore</PackageProjectUrl>
     <PackageTags>csharp;maze</PackageTags>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

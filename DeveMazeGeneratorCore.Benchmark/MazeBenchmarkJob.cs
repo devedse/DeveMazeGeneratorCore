@@ -38,7 +38,7 @@ namespace DeveMazeGeneratorCore.Benchmark
         private const int SIZE = 4096 * 2 * 2;
         private const int SEED = 1337;
 
-        private InnerMapFactory<BitArreintjeFastInnerMap> _innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
+        private InnerMapFactory<BitArreintjeFastInnerMapUnsafeV2> _innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMapUnsafeV2>();
         private RandomFactory<XorShiftRandom> _randomFactory = new RandomFactory<XorShiftRandom>();
         private NoAction _action = new NoAction();
 

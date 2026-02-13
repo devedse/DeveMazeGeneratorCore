@@ -33,8 +33,10 @@
     <Compile Include="..\DeveMazeGeneratorCore\Generators\Helpers\IRandom.cs" Link="Generators\Helpers\IRandom.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\Helpers\NetRandom.cs" Link="Generators\Helpers\NetRandom.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\Helpers\XorShiftRandom.cs" Link="Generators\Helpers\XorShiftRandom.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\Accessors.cs" Link="Generators\SpeedOptimization\Accessors.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\IMazeDirGeneric.cs" Link="Generators\SpeedOptimization\IMazeDirGeneric.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\IProgressAction.cs" Link="Generators\SpeedOptimization\IProgressAction.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\MapAccessorAttribute.cs" Link="Generators\SpeedOptimization\MapAccessorAttribute.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\MazeDir.cs" Link="Generators\SpeedOptimization\MazeDir.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\MazeDirGeneric.cs" Link="Generators\SpeedOptimization\MazeDirGeneric.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Generators\SpeedOptimization\NoAction.cs" Link="Generators\SpeedOptimization\NoAction.cs" />
@@ -49,6 +51,7 @@
     <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\BitArreintjeFastChunkedInnerMap.cs" Link="InnerMaps\BitArreintjeFastChunkedInnerMap.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\BitArreintjeFastHilbertInnerMap.cs" Link="InnerMaps\BitArreintjeFastHilbertInnerMap.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\BitArreintjeFastInnerMap.cs" Link="InnerMaps\BitArreintjeFastInnerMap.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\BitArreintjeFastInnerMapUnsafeV2.cs" Link="InnerMaps\BitArreintjeFastInnerMapUnsafeV2.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\BoolInnerMap.cs" Link="InnerMaps\BoolInnerMap.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\CachedInnerMap.cs" Link="InnerMaps\CachedInnerMap.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\CachedInnerMap2.cs" Link="InnerMaps\CachedInnerMap2.cs" />
@@ -58,6 +61,7 @@
     <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\InnerMapWithPath.cs" Link="InnerMaps\InnerMapWithPath.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\UndefinedInnerMap.cs" Link="InnerMaps\UndefinedInnerMap.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\InnerStuff\BitArreintjeFastInnerMapArray.cs" Link="InnerMaps\InnerStuff\BitArreintjeFastInnerMapArray.cs" />
+    <Compile Include="..\DeveMazeGeneratorCore\InnerMaps\InnerStuff\BitArreintjeFastInnerMapArrayUnsafe.cs" Link="InnerMaps\InnerStuff\BitArreintjeFastInnerMapArrayUnsafe.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Mazes\Maze.cs" Link="Mazes\Maze.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Mazes\MazeWithPath.cs" Link="Mazes\MazeWithPath.cs" />
     <Compile Include="..\DeveMazeGeneratorCore\Mazes\MazeWithPathAsInnerMap.cs" Link="Mazes\MazeWithPathAsInnerMap.cs" />

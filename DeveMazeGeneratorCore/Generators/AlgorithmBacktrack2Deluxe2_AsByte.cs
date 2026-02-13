@@ -15,23 +15,27 @@ namespace DeveMazeGeneratorCore.Generators
             where M : InnerMap
             where TAction : struct, IProgressAction
         {
-            var innerMap = mapFactory.Create(width, height);
-            var random = randomFactory.Create(seed);
-
-            return GoGenerateInternal(innerMap, random, pixelChangedCallback);
+            return AlgorithmBacktrack2Deluxe2_Entry.GoGenerate(width, height, seed, mapFactory, randomFactory, pixelChangedCallback);
         }
 
-        private Maze GoGenerateInternal<M, TAction>(M map, IRandom random, TAction pixelChangedCallback) where M : InnerMap where TAction : struct, IProgressAction
+        internal static Maze GoGenerateInternal<M, TAccessor, TAction>(M map, IRandom random, TAction pixelChangedCallback) 
+            where M : InnerMap 
+            where TAction : struct, IProgressAction
+            where TAccessor : struct, IMapAccessor<M>
         {
+            // The JIT will optimize this 'default' struct usage into direct calls
+            var accessor = default(TAccessor);
+
             long totSteps = (map.Width - 1L) / 2L * ((map.Height - 1L) / 2L);
             long currentStep = 1;
+
 
             int width = map.Width - 1;
             int height = map.Height - 1;
 
             var stackje = new Stack<MazePoint>();
             stackje.Push(new MazePoint(1, 1));
-            map[1, 1] = true;
+            accessor.Set(map, 1, 1, true);
 
             pixelChangedCallback.Invoke(1, 1, currentStep, totSteps);
 
@@ -39,10 +43,10 @@ namespace DeveMazeGeneratorCore.Generators
             {
                 MazePoint cur = stackje.Peek();
 
-                bool validLeft = cur.X - 2 > 0 && !map[cur.X - 2, cur.Y];
-                bool validRight = cur.X + 2 < width && !map[cur.X + 2, cur.Y];
-                bool validUp = cur.Y - 2 > 0 && !map[cur.X, cur.Y - 2];
-                bool validDown = cur.Y + 2 < height && !map[cur.X, cur.Y + 2];
+                bool validLeft = cur.X - 2 > 0 && !accessor.Get(map, cur.X - 2, cur.Y);
+                bool validRight = cur.X + 2 < width && !accessor.Get(map, cur.X + 2, cur.Y);
+                bool validUp = cur.Y - 2 > 0 && !accessor.Get(map, cur.X, cur.Y - 2);
+                bool validDown = cur.Y + 2 < height && !accessor.Get(map, cur.X, cur.Y + 2);
 
                 int validLeftByte = Unsafe.As<bool, byte>(ref validLeft);
                 int validRightByte = Unsafe.As<bool, byte>(ref validRight);
@@ -83,8 +87,8 @@ namespace DeveMazeGeneratorCore.Generators
                     var nextYInBetween = cur.Y - actuallyGoingUpByte + actuallyGoingDownByte;
 
                     stackje.Push(new MazePoint(nextX, nextY));
-                    map[nextXInBetween, nextYInBetween] = true;
-                    map[nextX, nextY] = true;
+                    accessor.Set(map, nextXInBetween, nextYInBetween, true);
+                    accessor.Set(map, nextX, nextY, true);
 
                     pixelChangedCallback.Invoke(nextXInBetween, nextYInBetween, currentStep, totSteps);
                     pixelChangedCallback.Invoke(nextX, nextY, currentStep, totSteps);
@@ -94,5 +98,7 @@ namespace DeveMazeGeneratorCore.Generators
 
             return new Maze(map);
         }
+
+
     }
 }

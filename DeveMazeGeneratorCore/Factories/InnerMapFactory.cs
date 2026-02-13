@@ -12,6 +12,8 @@ namespace DeveMazeGeneratorCore.Factories
         {
             var typeSwitcher = new TypeSwitch<InnerMap>()
               .Case(() => new BitArreintjeFastInnerMap(desiredWidth, desiredHeight))
+              .Case(() => new BitArreintjeFastInnerMapUnsafe(desiredWidth, desiredHeight))
+              .Case(() => new BitArreintjeFastInnerMapUnsafeV2(desiredWidth, desiredHeight))
               .Case(() => new BitArreintjeFastChunkedInnerMap(desiredWidth, desiredHeight))
               .Case(() => new BitArreintjeFastHilbertInnerMap(desiredWidth, desiredHeight))
               .Case(() => new BoolInnerMap(desiredWidth, desiredHeight));

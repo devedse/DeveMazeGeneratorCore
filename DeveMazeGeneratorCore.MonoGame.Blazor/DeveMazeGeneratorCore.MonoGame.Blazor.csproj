@@ -4,7 +4,7 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>disable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<PropertyGroup>

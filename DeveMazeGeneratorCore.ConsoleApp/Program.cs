@@ -39,6 +39,9 @@ namespace DeveMazeGeneratorCore.ConsoleApp
             var menu = new ConsoleMenu(ConsoleMenuType.KeyPress, 1, 1, 3);
             menu.MenuOptions.Add(new ConsoleMenuOption("Single Threaded Benchmark", ActualBenchmark2));
             menu.MenuOptions.Add(new ConsoleMenuOption("Multi Threaded Benchmark", ActualBenchmark2_Parallel));
+            menu.MenuOptions.Add(new ConsoleMenuOption("Unsafe Benchmark", ActualBenchmark3_Unsafe));
+            menu.MenuOptions.Add(new ConsoleMenuOption("Unsafe Indexer Benchmark", ActualBenchmark4_UnsafeIndexer));
+            menu.MenuOptions.Add(new ConsoleMenuOption("Unsafe Indexer V2 Benchmark", ActualBenchmark5_UnsafeIndexerV2));
             menu.MenuOptions.Add(new ConsoleMenuOption("Create Icons", CreateIcons));
 
             menu.RenderMenu();
@@ -159,12 +162,12 @@ namespace DeveMazeGeneratorCore.ConsoleApp
             {
                 var w = Stopwatch.StartNew();
 
-                var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
+                var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMapUnsafeV2>();
                 var randomFactory = new RandomFactory<XorShiftRandom>();
 
                 var actionThing = new NoAction();
 
-                var maze = alg.GoGenerate(size, size, seed, innerMapFactory, randomFactory, actionThing);
+                var maze = alg.GoGenerate<BitArreintjeFastInnerMapUnsafeV2, NoAction>(size, size, seed, innerMapFactory, randomFactory, actionThing);
                 w.Stop();
 
                 bool foundFastest = false;
@@ -256,6 +259,117 @@ namespace DeveMazeGeneratorCore.ConsoleApp
                 //Console.WriteLine($"Perfect maze verification time: {w.Elapsed}");
                 //Console.WriteLine($"Is our maze perfect?: {result}");
             });
+        }
+
+        public static void ActualBenchmark3_Unsafe()
+        {
+            int size = 16384;
+            var fastestElapsed = TimeSpan.MaxValue;
+
+            var alg = new AlgorithmBacktrack3_Unsafe();
+
+            Console.WriteLine($"Generating mazes using {alg.GetType().Name}...");
+
+            int seed = 1337;
+            while (true)
+            {
+                var w = Stopwatch.StartNew();
+
+                var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMapUnsafe>();
+                var randomFactory = new RandomFactory<XorShiftRandom>();
+
+                var actionThing = new NoAction();
+
+                var maze = alg.GoGenerate(size, size, seed, innerMapFactory, randomFactory, actionThing);
+                w.Stop();
+
+                bool foundFastest = false;
+                if (w.Elapsed < fastestElapsed)
+                {
+                    foundFastest = true;
+                    fastestElapsed = w.Elapsed;
+                }
+
+                var strToPrint = $"Generation time: {w.Elapsed}" + (foundFastest ? " <<<<<<<< new fastest time" : "");
+                var strToPrint2 = $"{strToPrint.PadRight(68, ' ')} Fastest: {fastestElapsed}";
+
+                Console.WriteLine(strToPrint2);
+                seed++;
+            }
+        }
+
+        public static void ActualBenchmark4_UnsafeIndexer()
+        {
+            int size = 16384;
+            var fastestElapsed = TimeSpan.MaxValue;
+
+            var alg = new AlgorithmBacktrack2Deluxe2_AsByte();
+
+            Console.WriteLine($"Generating mazes using {alg.GetType().Name}...");
+
+            int seed = 1337;
+            while (true)
+            {
+                var w = Stopwatch.StartNew();
+
+                var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMapUnsafe>();
+                var randomFactory = new RandomFactory<XorShiftRandom>();
+
+                var actionThing = new NoAction();
+
+                var maze = alg.GoGenerate(size, size, seed, innerMapFactory, randomFactory, actionThing);
+                w.Stop();
+
+                bool foundFastest = false;
+                if (w.Elapsed < fastestElapsed)
+                {
+                    foundFastest = true;
+                    fastestElapsed = w.Elapsed;
+                }
+
+                var strToPrint = $"Generation time: {w.Elapsed}" + (foundFastest ? " <<<<<<<< new fastest time" : "");
+                var strToPrint2 = $"{strToPrint.PadRight(68, ' ')} Fastest: {fastestElapsed}";
+
+                Console.WriteLine(strToPrint2);
+                seed++;
+            }
+        }
+
+        public static void ActualBenchmark5_UnsafeIndexerV2()
+        {
+            int size = 16384;
+            var fastestElapsed = TimeSpan.MaxValue;
+
+            var alg = new AlgorithmBacktrack5_UnsafeV2();
+
+            Console.WriteLine($"Generating mazes using {alg.GetType().Name}...");
+
+            int seed = 1337;
+            while (true)
+            {
+                var w = Stopwatch.StartNew();
+
+                var innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMapUnsafeV2>();
+                var randomFactory = new RandomFactory<XorShiftRandom>();
+
+                var actionThing = new NoAction();
+
+                var maze = alg.GoGenerate(size, size, seed, innerMapFactory, randomFactory, actionThing);
+                w.Stop();
+
+                bool foundFastest = false;
+                if (w.Elapsed < fastestElapsed)
+                {
+                    foundFastest = true;
+                    fastestElapsed = w.Elapsed;
+                }
+
+                var strToPrint = $"Generation time: {w.Elapsed}" + (foundFastest ? " <<<<<<<< new fastest time" : "");
+                var strToPrint2 = $"{strToPrint.PadRight(68, ' ')} Fastest: {fastestElapsed}";
+
+                Console.WriteLine(strToPrint2);
+                seed++;
+            }
         }
 
         public static void TestWithSave()
