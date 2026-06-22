@@ -39,8 +39,14 @@ namespace DeveMazeGeneratorCore.Benchmark
         private const int SEED = 1337;
 
         private InnerMapFactory<BitArreintjeFastInnerMap> _innerMapFactory = new InnerMapFactory<BitArreintjeFastInnerMap>();
+        private InnerMapAccessorFactory<BitArreintjeFastInnerMap> _innerMapAccessorFactory;
         private RandomFactory<XorShiftRandom> _randomFactory = new RandomFactory<XorShiftRandom>();
         private NoAction _action = new NoAction();
+
+        public MazeBenchmarkJob()
+        {
+            _innerMapAccessorFactory = new InnerMapAccessorFactory<BitArreintjeFastInnerMap>(_innerMapFactory);
+        }
 
         public IEnumerable<object> Algorithms()
         {
@@ -54,11 +60,18 @@ namespace DeveMazeGeneratorCore.Benchmark
             //yield return new AlgorithmKruskal();
         }
 
-        [Benchmark]
+        [Benchmark(Baseline = true)]
         [ArgumentsSource(nameof(Algorithms))]
         public void Simple(IAlgorithm<Maze> algorithm)
         {
             algorithm.GoGenerate(SIZE, SIZE, SEED, _innerMapFactory, _randomFactory, _action);
+        }
+
+        [Benchmark]
+        public void OptimizedStructAccessor()
+        {
+            var algorithm = new AlgorithmBacktrack2Deluxe2_AsByte();
+            algorithm.GoGenerateOptimized(SIZE, SIZE, SEED, _innerMapAccessorFactory, _randomFactory, _action);
         }
 
         private class Config : ManualConfig
