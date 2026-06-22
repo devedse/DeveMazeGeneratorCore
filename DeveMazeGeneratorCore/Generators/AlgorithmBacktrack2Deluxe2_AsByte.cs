@@ -75,13 +75,13 @@ namespace DeveMazeGeneratorCore.Generators
 
                     bool actuallyGoingDown = validDown & chosenDirection == countertje;
                     byte actuallyGoingDownByte = Unsafe.As<bool, byte>(ref actuallyGoingDown);
-
-                    var nextX = cur.X + actuallyGoingLeftByte * -2 + actuallyGoingRightByte * 2;
-                    var nextY = cur.Y + actuallyGoingUpByte * -2 + actuallyGoingDownByte * 2;
-
+                    
                     var nextXInBetween = cur.X - actuallyGoingLeftByte + actuallyGoingRightByte;
                     var nextYInBetween = cur.Y - actuallyGoingUpByte + actuallyGoingDownByte;
 
+                    var nextX = nextXInBetween - actuallyGoingLeftByte + actuallyGoingRightByte;
+                    var nextY = nextYInBetween - actuallyGoingUpByte + actuallyGoingDownByte;
+                    
                     stackje.Push(new MazePoint(nextX, nextY));
                     map[nextXInBetween, nextYInBetween] = true;
                     map[nextX, nextY] = true;
