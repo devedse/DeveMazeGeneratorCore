@@ -7,7 +7,7 @@
 		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.4.1">
 			<PrivateAssets>All</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="System.Text.Json" Version="10.0.0" />
+		<PackageReference Include="System.Text.Json" Version="10.0.9" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\DeveMazeGeneratorCore\DeveMazeGeneratorCore.csproj" />
