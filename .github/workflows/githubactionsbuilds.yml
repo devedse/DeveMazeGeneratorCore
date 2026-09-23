@@ -425,7 +425,7 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.3
     - name: Set Android version
-      uses: damienaicheh/update-android-version-manifest-action@v1.0.0
+      uses: damienaicheh/update-android-version-manifest-action@v1.1.0
       with:
         android-manifest-path: ./DeveMazeGeneratorCore.MonoGame.Android/AndroidManifest.xml
         version-name: 1.0.${{needs.generate_version_number.outputs.build_number}}
@@ -468,7 +468,7 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.3
     - name: Set Android version
-      uses: damienaicheh/update-android-version-manifest-action@v1.0.0
+      uses: damienaicheh/update-android-version-manifest-action@v1.1.0
       with:
         android-manifest-path: ./DeveMazeGeneratorCore.MonoGame.Android/AndroidManifest.xml
         version-name: 1.0.${{needs.generate_version_number.outputs.build_number}}
