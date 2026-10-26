@@ -464,8 +464,9 @@ jobs:
         print-file: true
     - name: Build Android
       # dotnet build instead of VS msbuild.exe: the .NET Framework MSBuild hits PathTooLongException in the Javac task
+      # -m:1: per-RID inner builds otherwise run mgcb concurrently and collide on Content/obj/.mgstats
       run: |
-        dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:AndroidPackageFormat=aab ${{ github.actor != 'dependabot[bot]' && format('/p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass={0} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass={0}', secrets.ANDROIDKEYSTOREPASSWORD) || '' }}
+        dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release -m:1 /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:AndroidPackageFormat=aab ${{ github.actor != 'dependabot[bot]' && format('/p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass={0} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass={0}', secrets.ANDROIDKEYSTOREPASSWORD) || '' }}
     - name: dotnet test
       run: dotnet test DeveMazeGeneratorCore.Tests/DeveMazeGeneratorCore.Tests.csproj -c Release --verbosity normal
     # - name: Package sources
@@ -501,8 +502,9 @@ jobs:
         print-file: true
     - name: Build Android
       # dotnet build instead of VS msbuild.exe: the .NET Framework MSBuild hits PathTooLongException in the Javac task
+      # -m:1: per-RID inner builds otherwise run mgcb concurrently and collide on Content/obj/.mgstats
       run: |
-        dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:AndroidPackageFormat=apk ${{ github.actor != 'dependabot[bot]' && format('/p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass={0} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass={0}', secrets.ANDROIDKEYSTOREPASSWORD) || '' }}
+        dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release -m:1 /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:AndroidPackageFormat=apk ${{ github.actor != 'dependabot[bot]' && format('/p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass={0} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass={0}', secrets.ANDROIDKEYSTOREPASSWORD) || '' }}
     - name: dotnet test
       run: dotnet test DeveMazeGeneratorCore.Tests/DeveMazeGeneratorCore.Tests.csproj -c Release --verbosity normal
     # - name: Package sources
