@@ -455,8 +455,6 @@ jobs:
     - name: Install workload android
       run: |
         dotnet workload install android
-    - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v3
     - name: Set Android version
       uses: damienaicheh/update-android-version-manifest-action@v1.1.0
       with:
@@ -464,16 +462,10 @@ jobs:
         version-name: 1.0.${{needs.generate_version_number.outputs.build_number}}
         version-code: ${{needs.generate_version_number.outputs.build_number}}
         print-file: true
-    - name: Restore NuGet packages
-      run: |
-        nuget restore DeveMazeGeneratorCore/DeveMazeGeneratorCore.csproj
-        nuget restore DeveMazeGeneratorCore.MonoGame.Core/DeveMazeGeneratorCore.MonoGame.Core.csproj
-        nuget restore DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj
     - name: Build Android
+      # dotnet build instead of VS msbuild.exe: the .NET Framework MSBuild hits PathTooLongException in the Javac task
       run: |
-        #dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-        #msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:Configuration=Release /p:AndroidPackageFormat=aab /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{secrets.ANDROIDKEYSTOREPASSWORD}} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{secrets.ANDROIDKEYSTOREPASSWORD}} DeveMazeGeneratorCore.MonoGame.Android\DeveMazeGeneratorCore.MonoGame.Android.csproj
-        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:Configuration=Release /p:AndroidPackageFormat=aab ${{ github.actor != 'dependabot[bot]' && format('/p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass={0} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass={0}', secrets.ANDROIDKEYSTOREPASSWORD) || '' }} DeveMazeGeneratorCore.MonoGame.Android\DeveMazeGeneratorCore.MonoGame.Android.csproj
+        dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:AndroidPackageFormat=aab ${{ github.actor != 'dependabot[bot]' && format('/p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass={0} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass={0}', secrets.ANDROIDKEYSTOREPASSWORD) || '' }}
     - name: dotnet test
       run: dotnet test DeveMazeGeneratorCore.Tests/DeveMazeGeneratorCore.Tests.csproj -c Release --verbosity normal
     # - name: Package sources
@@ -500,8 +492,6 @@ jobs:
     - name: Install workload android
       run: |
         dotnet workload install android
-    - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v3
     - name: Set Android version
       uses: damienaicheh/update-android-version-manifest-action@v1.1.0
       with:
@@ -509,16 +499,10 @@ jobs:
         version-name: 1.0.${{needs.generate_version_number.outputs.build_number}}
         version-code: ${{needs.generate_version_number.outputs.build_number}}
         print-file: true
-    - name: Restore NuGet packages
-      run: |
-        nuget restore DeveMazeGeneratorCore/DeveMazeGeneratorCore.csproj
-        nuget restore DeveMazeGeneratorCore.MonoGame.Core/DeveMazeGeneratorCore.MonoGame.Core.csproj
-        nuget restore DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj
     - name: Build Android
+      # dotnet build instead of VS msbuild.exe: the .NET Framework MSBuild hits PathTooLongException in the Javac task
       run: |
-        #dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release --no-restore /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}}
-        #msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:Configuration=Release /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass=${{secrets.ANDROIDKEYSTOREPASSWORD}} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass=${{secrets.ANDROIDKEYSTOREPASSWORD}} DeveMazeGeneratorCore.MonoGame.Android\DeveMazeGeneratorCore.MonoGame.Android.csproj
-        msbuild /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:Configuration=Release /p:AndroidPackageFormat=apk ${{ github.actor != 'dependabot[bot]' && format('/p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass={0} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass={0}', secrets.ANDROIDKEYSTOREPASSWORD) || '' }} DeveMazeGeneratorCore.MonoGame.Android\DeveMazeGeneratorCore.MonoGame.Android.csproj
+        dotnet build DeveMazeGeneratorCore.MonoGame.Android/DeveMazeGeneratorCore.MonoGame.Android.csproj -c Release /p:Version=1.0.${{needs.generate_version_number.outputs.build_number}} /p:AndroidBuildApplicationPackage=true /p:AndroidPackageFormat=apk ${{ github.actor != 'dependabot[bot]' && format('/p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=DevedseCert /p:AndroidSigningKeyPass={0} /p:AndroidSigningKeyStore=DevedseCert.keystore /p:AndroidSigningStorePass={0}', secrets.ANDROIDKEYSTOREPASSWORD) || '' }}
     - name: dotnet test
       run: dotnet test DeveMazeGeneratorCore.Tests/DeveMazeGeneratorCore.Tests.csproj -c Release --verbosity normal
     # - name: Package sources
