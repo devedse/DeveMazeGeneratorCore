@@ -54,7 +54,7 @@ jobs:
           type=raw,value=1.0.${{needs.generate_version_number.outputs.build_number}}-beta,enable=${{ github.ref != 'refs/heads/master' }}
           type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
           type=ref,event=branch,prefix=beta_,enable=${{ github.ref != 'refs/heads/master' }}
-          type=raw,value=beta_nightly,enable=${{ github.ref != 'refs/heads/master' && github.actor != 'dependabot[bot]' }}
+          type=raw,value=beta_nightly,enable=${{ github.actor != 'dependabot[bot]' }}
         labels: |
           maintainer=${{ github.actor }}
           org.opencontainers.image.description=DeveMazeGeneratorCore Web - Multi-architecture Docker image
@@ -114,7 +114,7 @@ jobs:
           type=raw,value=1.0.${{needs.generate_version_number.outputs.build_number}}-beta,enable=${{ github.ref != 'refs/heads/master' }}
           type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
           type=ref,event=branch,prefix=beta_,enable=${{ github.ref != 'refs/heads/master' }}
-          type=raw,value=beta_nightly,enable=${{ github.ref != 'refs/heads/master' && github.actor != 'dependabot[bot]' }}
+          type=raw,value=beta_nightly,enable=${{ github.actor != 'dependabot[bot]' }}
         labels: |
           maintainer=${{ github.actor }}
           org.opencontainers.image.description=DeveMazeGeneratorCore MonoGame Blazor - Multi-architecture Docker image
