@@ -48,6 +48,7 @@ namespace DeveMazeGeneratorCore.Benchmark
             //yield return new AlgorithmBacktrack2();
             //yield return new AlgorithmBacktrack2Deluxe_AsByte();
             yield return new AlgorithmBacktrack2Deluxe2_AsByte();
+            yield return new AlgorithmBacktrack2Deluxe2_AsByte_LookupTable();
             //yield return new AlgorithmBacktrack2Deluxe2WithBorder_AsByte();
             //yield return new AlgorithmBacktrack3();
             //yield return new AlgorithmBacktrack4();
